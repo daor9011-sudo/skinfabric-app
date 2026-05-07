@@ -1,0 +1,6 @@
+{
+  "rewrites": [
+    { "source": "/", "destination": "/SkinFabric_Productividad.html" },
+    { "source": "/(.*)", "destination": "/SkinFabric_Productividad.html" }
+  ]
+}
