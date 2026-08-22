@@ -178,6 +178,17 @@ main.appmain{padding:22px 26px 40px;max-width:1080px;margin:0 auto}
 .tx-table tr:last-child td{border-bottom:none}
 .tx-table tr:hover td{background:var(--g1)}
 .tx-table input{padding:5px 8px;font-size:12px;width:100px;border:1px solid var(--g2);border-radius:5px;font-family:inherit;color:var(--navy)}
+/* ── Tabla en "tarjetas" (cada fila es su propia tarjeta flotante) — estilo Cuivan ── */
+.tx-table.tx-cards{border-collapse:separate;border-spacing:0 8px}
+.tx-table.tx-cards thead tr{background:none}
+.tx-table.tx-cards th{color:var(--g4);background:none;text-shadow:none;border-bottom:none;padding:0 12px 6px;font-size:9px}
+.tx-table.tx-cards th:first-child,.tx-table.tx-cards th:last-child{border-radius:0}
+.tx-table.tx-cards tbody tr{background:#fff;box-shadow:0 1px 3px rgba(11,22,40,.08);transition:.15s}
+.tx-table.tx-cards tbody tr:hover td{background:none}
+.tx-table.tx-cards tbody tr:hover{box-shadow:0 5px 16px -2px rgba(11,22,40,.16)}
+.tx-table.tx-cards td{border-bottom:none;padding:12px}
+.tx-table.tx-cards td:first-child{border-radius:10px 0 0 10px;border-left:3px solid var(--teal)}
+.tx-table.tx-cards td:last-child{border-radius:0 10px 10px 0}
 .pend{color:#B8720A;font-style:italic;font-size:11.5px}
 .badge{display:inline-block;padding:2px 10px;border-radius:99px;font-size:10.5px;font-weight:700;background:var(--g1);color:var(--navy);border:1px solid var(--g2);white-space:nowrap}
 .badge-novino{background:#F5EEF8;color:var(--purple);border:1px solid #E4CFEF;margin-left:6px}
@@ -491,7 +502,7 @@ main.appmain{padding:22px 26px 40px;max-width:1080px;margin:0 auto}
       </div>
 
       <div class="tx-table-wrap">
-        <table class="tx-table">
+        <table class="tx-table tx-cards">
           <thead><tr><th>Fecha</th><th>Paciente</th><th>Doctor</th><th>Servicio</th><th>Monto</th><th>Pago</th><th>N° Factura</th><th>N° Recibo</th><th></th></tr></thead>
           <tbody id="hist-tbody"></tbody>
         </table>
