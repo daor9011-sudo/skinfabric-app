@@ -239,6 +239,29 @@ main.appmain{padding:22px 26px 40px;max-width:1080px;margin:0 auto}
 .pago-desglose div{display:flex;justify-content:space-between;padding:3px 0;border-top:1px solid rgba(0,0,0,.06)}
 @media (max-width:820px){.kpi-grid{grid-template-columns:1fr 1fr}}
 @media (max-width:560px){.kpi-grid{grid-template-columns:1fr}.periodo-bar select{margin-left:0!important}}
+
+.kpi-grid.cols4{grid-template-columns:repeat(4,1fr)}
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.chart-grid.wide{grid-template-columns:1.3fr 1fr}
+.fac2{padding:9px 12px;background:linear-gradient(135deg,var(--g1),#eef3fb);border-radius:9px;border:1px solid var(--g2);height:100%}
+.chart-title{font-size:10px;color:var(--g6);letter-spacing:.7px;text-transform:uppercase;font-weight:700;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px}
+.chart-toggle{display:flex;background:var(--g1);border-radius:8px;padding:3px;gap:3px}
+.chart-toggle button{font-size:10px;padding:5px 10px;border-radius:6px;border:none;cursor:pointer;font-family:var(--font-b);font-weight:700}
+.chart-toggle button.on{background:linear-gradient(135deg,var(--teal),#22a8a8);color:var(--navy)}
+.chart-toggle button.off{background:var(--navy2);color:#fff}
+@media (max-width:820px){.chart-grid,.chart-grid.wide{grid-template-columns:1fr}.kpi-grid.cols4{grid-template-columns:1fr 1fr}}
+@media (max-width:560px){.kpi-grid.cols4{grid-template-columns:1fr}}
+
+.crm-list{display:flex;flex-direction:column;gap:8px}
+.crm-row{display:flex;align-items:center;justify-content:space-between;gap:12px;background:#fff;border:1px solid var(--g2);border-radius:10px;padding:12px 14px;flex-wrap:wrap}
+.crm-name{font-size:13px;font-weight:700;color:var(--navy)}
+.crm-meta{font-size:11px;color:var(--g6);margin-top:2px}
+.gestion-item{background:var(--g1);border-radius:8px;padding:10px 12px;margin-bottom:8px}
+.gestion-head{display:flex;justify-content:space-between;gap:10px;font-size:11px;font-weight:700;color:var(--navy)}
+.gestion-fecha{color:var(--g4);font-weight:600}
+.gestion-nota{font-size:12.5px;color:var(--navy);margin-top:4px}
+.gestion-autor{font-size:10.5px;color:var(--g4);margin-top:4px}
+.btn-sm.btn-teal{background:linear-gradient(135deg,var(--teal),#22a8a8);color:var(--navy);border:1px solid rgba(42,191,191,.5)}
 </style>
 </head>
 <body>
@@ -473,12 +496,58 @@ main.appmain{padding:22px 26px 40px;max-width:1080px;margin:0 auto}
       <div class="subpanel" id="cierre-por-pago-panel"><div id="cierre-por-pago"></div></div>
     </div>
     <div class="card screen2" id="app-screen-dash">
-      <div class="tab-title">📊 Dashboard de Indicadores</div>
-      <div class="placeholder-note">Este módulo se construye en una próxima entrega.</div>
+      <div class="tab-title"><span>📊 Dashboard de Indicadores</span></div>
+      <div class="note" style="margin-bottom:14px">👁️ Visible solo para quien tenga el permiso <b>puede_ver_dashboard</b> activo.</div>
+      <div class="filter-bar">
+        <select id="dash-rango">
+          <option value="30" selected>Últimos 30 días</option>
+          <option value="90">Últimos 90 días</option>
+          <option value="anio">Este año</option>
+          <option value="todo">Todo</option>
+        </select>
+        <select id="dash-doctor"><option value="">Todos los doctores</option></select>
+        <select id="dash-tipo"><option value="">Todos los tipos</option></select>
+      </div>
+      <div class="kpi-grid cols4">
+        <div class="kpi-card"><div class="ico">💰</div><div class="kpi-label">Ingreso total</div><div class="kpi-val" id="dash-kpi-total">$0.00</div></div>
+        <div class="kpi-card"><div class="ico">👥</div><div class="kpi-label">Pacientes</div><div class="kpi-val" id="dash-kpi-pacientes">0</div></div>
+        <div class="kpi-card"><div class="ico">🎟️</div><div class="kpi-label">Ticket prom.</div><div class="kpi-val" id="dash-kpi-ticket">$0.00</div></div>
+        <div class="kpi-card"><div class="ico">🏆</div><div class="kpi-label">Doctor top</div><div class="kpi-val" id="dash-kpi-doctor-top" style="font-size:13px">—</div></div>
+      </div>
+      <div class="chart-grid wide">
+        <div class="fac2">
+          <div class="chart-title"><span>📈 Tendencia de ingresos</span>
+            <span class="chart-toggle"><button id="dash-tend-dia" class="on" type="button">Día</button><button id="dash-tend-mes" class="off" type="button">Mes</button></span>
+          </div>
+          <div style="height:190px"><canvas id="chartTend"></canvas></div>
+        </div>
+        <div class="fac2"><div class="chart-title"><span>🩺 Ingreso por doctor/cosmetólogo</span></div><div style="height:190px"><canvas id="chartDoc"></canvas></div></div>
+      </div>
+      <div class="chart-grid">
+        <div class="fac2"><div class="chart-title"><span>💳 Medios de pago</span></div><div style="height:210px"><canvas id="chartPago"></canvas></div></div>
+        <div class="fac2"><div class="chart-title"><span>📋 Ingreso por tipo de servicio</span></div><div style="height:210px"><canvas id="chartTipo"></canvas></div></div>
+      </div>
     </div>
     <div class="card screen2" id="app-screen-prm">
-      <div class="tab-title">💬 PRM — Pacientes</div>
-      <div class="placeholder-note">Este módulo se construye en una próxima entrega.</div>
+      <div class="tab-title"><span>💬 PRM — Pacientes</span></div>
+      <div class="prm-tabs">
+        <button type="button" class="prm-tab-btn act" data-target="crm-inactivos-panel">🎯 Inactivos</button>
+        <button type="button" class="prm-tab-btn" data-target="crm-novinieron-panel">👻 No vinieron</button>
+      </div>
+      <div class="subpanel active" id="crm-inactivos-panel">
+        <div class="filter-bar">
+          <select id="crm-inactivos-umbral">
+            <option value="30">Inactivos hace más de 30 días</option>
+            <option value="60" selected>Inactivos hace más de 60 días</option>
+            <option value="90">Inactivos hace más de 90 días</option>
+            <option value="120">Inactivos hace más de 120 días</option>
+          </select>
+        </div>
+        <div class="crm-list" id="crm-inactivos-list"></div>
+      </div>
+      <div class="subpanel" id="crm-novinieron-panel">
+        <div class="crm-list" id="crm-novinieron-list"></div>
+      </div>
     </div>
     <div class="card screen2" id="app-screen-personal">
       <div class="tab-title">⚙️ Configuración</div>
@@ -583,6 +652,35 @@ main.appmain{padding:22px 26px 40px;max-width:1080px;margin:0 auto}
     <div class="modal-foot">
       <button class="appbtn appbtn-s" id="export-btn-cancelar" type="button" style="background:var(--g1);color:var(--g6);box-shadow:none">Cancelar</button>
       <button class="appbtn appbtn-p" id="export-btn-confirmar" type="button">↓ Exportar a Excel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ Modal: Gestión de paciente (PRM/CRM) ══════════ -->
+<div class="modal-overlay" id="modal-gestion">
+  <div class="modal-box">
+    <div class="modal-head"><h3 id="modal-gestion-titulo">Paciente — Historial y seguimiento</h3><button class="modal-close" id="modal-gestion-cerrar" type="button">✕</button></div>
+    <div class="modal-body">
+      <div class="tab-title" style="border:none;font-size:12px;padding-bottom:0;margin-bottom:8px">Visitas</div>
+      <div class="tx-table-wrap" style="margin-bottom:16px">
+        <table class="tx-table">
+          <thead><tr><th>Fecha</th><th>Servicio</th><th>Doctor</th><th>Monto</th></tr></thead>
+          <tbody id="modal-gestion-visitas"></tbody>
+        </table>
+      </div>
+      <div class="tab-title" style="border:none;font-size:12px;padding-bottom:0;margin-bottom:8px">Bitácora de seguimiento</div>
+      <div id="modal-gestion-bitacora" style="margin-bottom:14px"></div>
+      <div class="form-grid" style="grid-template-columns:1fr 2fr">
+        <div class="form-group"><label>Tipo</label>
+          <select id="gestion-tipo">
+            <option value="llamada">📞 Llamada</option>
+            <option value="whatsapp">💬 WhatsApp</option>
+            <option value="correo">✉️ Correo</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Nota</label><input type="text" id="gestion-nota" placeholder="¿Qué se acordó?"/></div>
+      </div>
+      <button class="btn-sm btn-teal" id="gestion-btn-guardar" type="button" style="margin-top:10px">+ Registrar gestión</button>
     </div>
   </div>
 </div>
@@ -907,6 +1005,33 @@ async function cargarCatalogos(){
 
   poblarSelectCierreDoctor();
   actualizarCierreUI();
+
+  poblarSelectDashFiltros();
+
+  cargarInactivos();
+  cargarNoVinieron();
+}
+
+function poblarSelectDashFiltros(){
+  const selDoc = document.getElementById('dash-doctor');
+  const actualDoc = selDoc.value;
+  selDoc.innerHTML = '<option value="">Todos los doctores</option>';
+  const grupos = [ { label:'— Médicos', rol:'doctor' }, { label:'— Cosmetólogos/as', rol:'cosmetologo' } ];
+  grupos.forEach(g=>{
+    const items = CATALOGOS.personal.filter(p=>p.rol === g.rol);
+    if(!items.length) return;
+    const og = document.createElement('optgroup');
+    og.label = g.label;
+    items.forEach(p=>{
+      const opt = document.createElement('option');
+      opt.value = p.id; opt.textContent = p.nombre;
+      og.appendChild(opt);
+    });
+    selDoc.appendChild(og);
+  });
+  if(actualDoc) selDoc.value = actualDoc;
+
+  poblarSelect('dash-tipo', CATALOGOS.tiposServicio.map(t=>({value:t.id, label:t.nombre})), 'Todos los tipos');
 }
 
 function poblarSelectAtendidoPor(){
@@ -1255,7 +1380,9 @@ function rangoFechaDesde(rango){
   }
 }
 
+let histReqId = 0;
 async function cargarHistorial(){
+  const miReqId = ++histReqId;
   const tbody = document.getElementById('hist-tbody');
   const empty = document.getElementById('hist-empty');
   empty.style.display = 'none';
@@ -1283,6 +1410,7 @@ async function cargarHistorial(){
   else if(HIST_EXCL_FILTRO === 'novino') q = q.eq('no_vino', true);
 
   const { data, error } = await q;
+  if(miReqId !== histReqId) return; // una carga más reciente ya está en curso o resolvió antes: descartar esta
   if(error){
     console.error('[SkinFabric] Error cargando historial:', error);
     tbody.innerHTML = '';
@@ -1702,9 +1830,13 @@ document.querySelectorAll('#app-screen-cierre .prm-tab-btn').forEach(btn=>{
   });
 });
 
+let cierreReqId = 0;
 async function cargarCierre(){
-  const desde = CIERRE_MODO === 'dia' ? isoLocal(CIERRE_FECHA) : isoLocal(primerDiaMes(CIERRE_FECHA));
-  const hasta = CIERRE_MODO === 'dia' ? isoLocal(CIERRE_FECHA) : isoLocal(ultimoDiaMes(CIERRE_FECHA));
+  const miReqId = ++cierreReqId;
+  const modoAlPedir = CIERRE_MODO;
+  const fechaAlPedir = new Date(CIERRE_FECHA); // snapshot: si el usuario sigue navegando, no queremos que esta petición quede referenciando el objeto mutable
+  const desde = modoAlPedir === 'dia' ? isoLocal(fechaAlPedir) : isoLocal(primerDiaMes(fechaAlPedir));
+  const hasta = modoAlPedir === 'dia' ? isoLocal(fechaAlPedir) : isoLocal(ultimoDiaMes(fechaAlPedir));
   let q = sb.from('consultas')
     .select('id,monto,medio_pago,monto_2,medio_pago_2,doctor_id,pacientes(nombre),doctor:personal!doctor_id(nombre),catalogo_tipos_servicio(nombre),catalogo_equipos(nombre)')
     .eq('deleted', false)
@@ -1715,6 +1847,7 @@ async function cargarCierre(){
   const doctorId = document.getElementById('cierre-doctor').value;
   if(doctorId) q = q.eq('doctor_id', doctorId);
   const { data, error } = await q;
+  if(miReqId !== cierreReqId) return; // el usuario ya cambió de día/mes/doctor mientras esto cargaba: descartar resultado obsoleto
   if(error){
     console.error('[SkinFabric] Error cargando cierre:', error);
     toast('No se pudo cargar el cierre.');
@@ -1814,6 +1947,384 @@ function renderCierrePorMedio(porMedio, ingresoTotal){
     </div>`;
   }).join('') + `</div>`;
 }
+
+// ============================================================
+// Módulo: Dashboard de Indicadores
+// ============================================================
+try{ if(window.Chart && window.ChartDataLabels) Chart.register(ChartDataLabels); }catch(e){ console.error('[SkinFabric] Error registrando chartjs-plugin-datalabels:', e); }
+
+let DASH_ROWS = [];
+let DASH_TEND_MODO = 'dia';
+let chartTend = null, chartDoc = null, chartPago = null, chartTipo = null;
+
+function rangoFechaDashboard(rango){
+  const d = new Date();
+  switch(rango){
+    case '30': d.setDate(d.getDate()-30); return isoLocal(d);
+    case '90': d.setDate(d.getDate()-90); return isoLocal(d);
+    case 'anio': d.setFullYear(d.getFullYear()-1); return isoLocal(d);
+    default: return null; // 'todo'
+  }
+}
+
+let dashReqId = 0;
+async function cargarDashboard(){
+  const miReqId = ++dashReqId;
+  const rango = document.getElementById('dash-rango').value;
+  const doctorId = document.getElementById('dash-doctor').value;
+  const tipoId = document.getElementById('dash-tipo').value;
+  const desde = rangoFechaDashboard(rango);
+
+  let q = sb.from('consultas')
+    .select('fecha,monto,monto_2,medio_pago,medio_pago_2,paciente_id,doctor_id,doctor:personal!doctor_id(nombre),catalogo_tipos_servicio(nombre)')
+    .eq('deleted', false)
+    .eq('no_vino', false)
+    .order('fecha', { ascending:true })
+    .limit(5000);
+  if(desde) q = q.gte('fecha', desde);
+  if(doctorId) q = q.eq('doctor_id', doctorId);
+  if(tipoId) q = q.eq('tipo_servicio_id', tipoId);
+
+  const { data, error } = await q;
+  if(miReqId !== dashReqId) return; // el usuario ya cambió los filtros mientras esto cargaba: descartar resultado obsoleto
+  if(error){
+    console.error('[SkinFabric] Error cargando dashboard:', error);
+    toast('No se pudo cargar el dashboard.');
+    return;
+  }
+  DASH_ROWS = data || [];
+  renderDashboard();
+}
+
+function renderDashboard(){
+  let ingresoTotal = 0;
+  const pacientesSet = new Set();
+  const porDoctorMap = {};
+  DASH_ROWS.forEach(r=>{
+    const total = Number(r.monto || 0) + Number(r.monto_2 || 0);
+    ingresoTotal += total;
+    if(r.paciente_id) pacientesSet.add(r.paciente_id);
+    const docNombre = r.doctor?.nombre || '—';
+    porDoctorMap[docNombre] = (porDoctorMap[docNombre] || 0) + total;
+  });
+  const consultasCount = DASH_ROWS.length;
+  const ticketProm = consultasCount ? ingresoTotal / consultasCount : 0;
+  let doctorTop = '—', maxVal = -1;
+  Object.entries(porDoctorMap).forEach(([nombre, val])=>{ if(val > maxVal){ maxVal = val; doctorTop = nombre; } });
+
+  document.getElementById('dash-kpi-total').textContent = fmtMoney(ingresoTotal);
+  document.getElementById('dash-kpi-pacientes').textContent = String(pacientesSet.size);
+  document.getElementById('dash-kpi-ticket').textContent = fmtMoney(ticketProm);
+  document.getElementById('dash-kpi-doctor-top').textContent = doctorTop;
+
+  renderChartTend();
+  renderChartDoc(porDoctorMap);
+  renderChartPago();
+  renderChartTipo();
+}
+
+function agruparPorFecha(rows, modo){
+  const map = {};
+  rows.forEach(r=>{
+    const key = modo === 'dia' ? r.fecha : r.fecha.slice(0, 7);
+    const total = Number(r.monto || 0) + Number(r.monto_2 || 0);
+    map[key] = (map[key] || 0) + total;
+  });
+  const keys = Object.keys(map).sort();
+  return { labels: keys.map(k => modo === 'dia' ? fmtFechaCorta(k) : k), values: keys.map(k => map[k]) };
+}
+
+function renderChartTend(){
+  const canvas = document.getElementById('chartTend');
+  if(!canvas || typeof Chart === 'undefined') return;
+  const { labels, values } = agruparPorFecha(DASH_ROWS, DASH_TEND_MODO);
+  if(chartTend) chartTend.destroy();
+  chartTend = new Chart(canvas.getContext('2d'), {
+    type: 'line',
+    data: { labels, datasets: [{ label:'Ingresos', data: values, borderColor:'#2ABFBF', backgroundColor:'rgba(42,191,191,.15)', fill:true, tension:.3, pointRadius:2 }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend:{ display:false }, datalabels:{ display:false } },
+      scales: { y: { ticks: { callback: v => '$' + Number(v).toLocaleString('es-MX') } } }
+    }
+  });
+}
+document.getElementById('dash-tend-dia').addEventListener('click', ()=>{ DASH_TEND_MODO = 'dia'; actualizarTendToggle(); renderChartTend(); });
+document.getElementById('dash-tend-mes').addEventListener('click', ()=>{ DASH_TEND_MODO = 'mes'; actualizarTendToggle(); renderChartTend(); });
+function actualizarTendToggle(){
+  const btnDia = document.getElementById('dash-tend-dia');
+  const btnMes = document.getElementById('dash-tend-mes');
+  btnDia.classList.toggle('on', DASH_TEND_MODO === 'dia');
+  btnDia.classList.toggle('off', DASH_TEND_MODO !== 'dia');
+  btnMes.classList.toggle('on', DASH_TEND_MODO === 'mes');
+  btnMes.classList.toggle('off', DASH_TEND_MODO !== 'mes');
+}
+
+function renderChartDoc(porDoctorMap){
+  const canvas = document.getElementById('chartDoc');
+  if(!canvas || typeof Chart === 'undefined') return;
+  const entries = Object.entries(porDoctorMap).sort((a,b)=> b[1]-a[1]);
+  if(chartDoc) chartDoc.destroy();
+  chartDoc = new Chart(canvas.getContext('2d'), {
+    type: 'bar',
+    data: { labels: entries.map(e=>e[0]), datasets: [{ label:'Ingreso', data: entries.map(e=>e[1]), backgroundColor:'#22a8a8', borderRadius:6 }] },
+    options: {
+      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display:false },
+        datalabels: { anchor:'end', align:'right', color:'#0B2A4D', font:{ size:10, weight:'700' }, formatter: v => fmtMoney(v) }
+      },
+      scales: { x: { ticks: { callback: v => '$' + Number(v).toLocaleString('es-MX') } } }
+    }
+  });
+}
+
+function calcularPorMedio(rows){
+  const map = {};
+  rows.forEach(r=>{
+    if(r.medio_pago) map[r.medio_pago] = (map[r.medio_pago] || 0) + Number(r.monto || 0);
+    if(r.medio_pago_2 && r.monto_2) map[r.medio_pago_2] = (map[r.medio_pago_2] || 0) + Number(r.monto_2 || 0);
+  });
+  return map;
+}
+
+function renderChartPago(){
+  const canvas = document.getElementById('chartPago');
+  if(!canvas || typeof Chart === 'undefined') return;
+  const map = calcularPorMedio(DASH_ROWS);
+  const entries = Object.entries(map).sort((a,b)=> b[1]-a[1]);
+  const colores = entries.map(([nombre]) => getMedioColor(nombre).bar);
+  if(chartPago) chartPago.destroy();
+  chartPago = new Chart(canvas.getContext('2d'), {
+    type: 'doughnut',
+    data: { labels: entries.map(e=>e[0]), datasets: [{ data: entries.map(e=>e[1]), backgroundColor: colores }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { position:'bottom', labels:{ boxWidth:10, font:{ size:10 } } },
+        datalabels: {
+          color:'#fff', font:{ size:10, weight:'700' },
+          formatter: (v, ctx)=>{
+            const total = ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b, 0);
+            return total ? Math.round(v/total*100) + '%' : '';
+          }
+        }
+      }
+    }
+  });
+}
+
+function renderChartTipo(){
+  const canvas = document.getElementById('chartTipo');
+  if(!canvas || typeof Chart === 'undefined') return;
+  const map = {};
+  DASH_ROWS.forEach(r=>{
+    const nombre = r.catalogo_tipos_servicio?.nombre || '—';
+    map[nombre] = (map[nombre] || 0) + Number(r.monto || 0) + Number(r.monto_2 || 0);
+  });
+  const entries = Object.entries(map).sort((a,b)=> b[1]-a[1]);
+  if(chartTipo) chartTipo.destroy();
+  chartTipo = new Chart(canvas.getContext('2d'), {
+    type: 'bar',
+    data: { labels: entries.map(e=>e[0]), datasets: [{ data: entries.map(e=>e[1]), backgroundColor:'#1B3A6B', borderRadius:6 }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display:false },
+        datalabels: { anchor:'end', align:'top', color:'#0B2A4D', font:{ size:9, weight:'700' }, formatter: v => fmtMoney(v) }
+      },
+      scales: { y: { ticks: { callback: v => '$' + Number(v).toLocaleString('es-MX') } } }
+    }
+  });
+}
+
+['dash-rango','dash-doctor','dash-tipo'].forEach(id=>{
+  document.getElementById(id).addEventListener('change', cargarDashboard);
+});
+document.querySelector('.s3-segment button[data-screen2="dash"]').addEventListener('click', function(){
+  if(this.classList.contains('locked')) return;
+  cargarDashboard();
+});
+
+// ============================================================
+// Módulo: PRM/CRM
+// ============================================================
+function diasEntre(fechaIso, hoyDate){
+  const [y, m, d] = fechaIso.split('-').map(Number);
+  const fecha = new Date(y, m-1, d);
+  const hoy0 = new Date(hoyDate.getFullYear(), hoyDate.getMonth(), hoyDate.getDate());
+  const msPorDia = 24*60*60*1000;
+  return Math.round((hoy0.getTime() - fecha.getTime()) / msPorDia);
+}
+
+document.querySelectorAll('#app-screen-prm .prm-tab-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('#app-screen-prm .prm-tab-btn').forEach(b=> b.classList.remove('act'));
+    btn.classList.add('act');
+    document.querySelectorAll('#app-screen-prm .subpanel').forEach(p=> p.classList.remove('active'));
+    document.getElementById(btn.dataset.target).classList.add('active');
+  });
+});
+document.getElementById('crm-inactivos-umbral').addEventListener('change', cargarInactivos);
+document.querySelector('.s3-segment button[data-screen2="prm"]').addEventListener('click', ()=>{
+  cargarInactivos();
+  cargarNoVinieron();
+});
+
+let inactivosReqId = 0;
+async function cargarInactivos(){
+  const miReqId = ++inactivosReqId;
+  const cont = document.getElementById('crm-inactivos-list');
+  cont.innerHTML = '<div class="empty-note">Cargando...</div>';
+  const umbralDias = Number(document.getElementById('crm-inactivos-umbral').value);
+
+  const { data, error } = await sb.from('consultas')
+    .select('fecha,paciente_id,pacientes(id,nombre,telefono)')
+    .eq('deleted', false)
+    .eq('no_vino', false)
+    .order('fecha', { ascending:false })
+    .limit(5000);
+  if(miReqId !== inactivosReqId) return;
+  if(error){
+    console.error('[SkinFabric] Error cargando inactivos:', error);
+    cont.innerHTML = '<div class="empty-note">No se pudo cargar la lista de inactivos.</div>';
+    return;
+  }
+
+  // Como viene ordenado desc por fecha, la primera fila que veamos por paciente_id ES su última visita real
+  const ultimaPorPaciente = {};
+  (data || []).forEach(r=>{
+    if(!r.paciente_id || ultimaPorPaciente[r.paciente_id]) return;
+    ultimaPorPaciente[r.paciente_id] = { id: r.paciente_id, nombre: r.pacientes?.nombre, telefono: r.pacientes?.telefono, ultimaFecha: r.fecha };
+  });
+
+  const hoy = new Date();
+  const umbralFecha = new Date(hoy);
+  umbralFecha.setDate(umbralFecha.getDate() - umbralDias);
+  const umbralIso = isoLocal(umbralFecha);
+
+  const inactivos = Object.values(ultimaPorPaciente)
+    .filter(p => p.ultimaFecha < umbralIso)
+    .map(p => ({ ...p, diasSinVenir: diasEntre(p.ultimaFecha, hoy) }))
+    .sort((a, b) => a.ultimaFecha.localeCompare(b.ultimaFecha));
+
+  renderInactivos(inactivos);
+}
+
+function renderInactivos(lista){
+  const cont = document.getElementById('crm-inactivos-list');
+  if(!lista.length){ cont.innerHTML = '<div class="empty-note">No hay pacientes inactivos con ese umbral.</div>'; return; }
+  cont.innerHTML = lista.map(p => `
+    <div class="crm-row">
+      <div><div class="crm-name">${esc2(p.nombre || '—')}</div><div class="crm-meta">Última visita real: ${fmtFechaCorta(p.ultimaFecha)} · ${p.diasSinVenir} días sin venir</div></div>
+      <button class="btn-sm btn-outline" data-id="${p.id}" data-nombre="${esc2(p.nombre || '')}" type="button">📖 Ver/gestionar</button>
+    </div>`).join('');
+  cont.querySelectorAll('button').forEach(btn=> btn.addEventListener('click', ()=> abrirModalGestion(btn.dataset.id, btn.dataset.nombre)));
+}
+
+let novinieronReqId = 0;
+async function cargarNoVinieron(){
+  const miReqId = ++novinieronReqId;
+  const cont = document.getElementById('crm-novinieron-list');
+  cont.innerHTML = '<div class="empty-note">Cargando...</div>';
+
+  const { data, error } = await sb.from('consultas')
+    .select('id,fecha,paciente_id,pacientes(id,nombre,telefono),doctor:personal!doctor_id(nombre)')
+    .eq('deleted', false)
+    .eq('no_vino', true)
+    .order('fecha', { ascending:false })
+    .limit(200);
+  if(miReqId !== novinieronReqId) return;
+  if(error){
+    console.error('[SkinFabric] Error cargando no-vinieron:', error);
+    cont.innerHTML = '<div class="empty-note">No se pudo cargar la lista.</div>';
+    return;
+  }
+  renderNoVinieron(data || []);
+}
+
+function renderNoVinieron(lista){
+  const cont = document.getElementById('crm-novinieron-list');
+  if(!lista.length){ cont.innerHTML = '<div class="empty-note">No hay pacientes marcados como "No vino".</div>'; return; }
+  cont.innerHTML = lista.map(r => `
+    <div class="crm-row">
+      <div><div class="crm-name">${esc2(r.pacientes?.nombre || '—')} <span class="badge badge-novino">👻</span></div>
+      <div class="crm-meta">No se presentó el ${fmtFechaCorta(r.fecha)} · ${esc2(r.doctor?.nombre || '—')}</div></div>
+      <button class="btn-sm btn-outline" data-id="${r.paciente_id}" data-nombre="${esc2(r.pacientes?.nombre || '')}" type="button">📖 Ver/gestionar</button>
+    </div>`).join('');
+  cont.querySelectorAll('button').forEach(btn=> btn.addEventListener('click', ()=> abrirModalGestion(btn.dataset.id, btn.dataset.nombre)));
+}
+
+let CRM_PACIENTE_ACTUAL = null;
+let gestionModalReqId = 0;
+const ICONO_GESTION = { llamada:'📞', whatsapp:'💬', correo:'✉️' };
+
+async function abrirModalGestion(pacienteId, nombre){
+  if(!pacienteId) return;
+  const miReqId = ++gestionModalReqId;
+  CRM_PACIENTE_ACTUAL = pacienteId;
+  document.getElementById('modal-gestion-titulo').textContent = (nombre || 'Paciente') + ' — Historial y seguimiento';
+  document.getElementById('modal-gestion-visitas').innerHTML = '<tr><td colspan="4" class="empty-note">Cargando...</td></tr>';
+  document.getElementById('modal-gestion-bitacora').innerHTML = '<div class="empty-note">Cargando...</div>';
+  document.getElementById('modal-gestion').classList.add('show');
+
+  const [visitasRes, gestionesRes] = await Promise.all([
+    sb.from('consultas').select('fecha,monto,monto_2,catalogo_tipos_servicio(nombre),doctor:personal!doctor_id(nombre)').eq('paciente_id', pacienteId).eq('deleted', false).eq('no_vino', false).order('fecha', { ascending:false }).limit(50),
+    sb.from('gestiones').select('id,tipo,nota,fecha,creado_por,personal(nombre)').eq('paciente_id', pacienteId).order('fecha', { ascending:false }).limit(50),
+  ]);
+  if(miReqId !== gestionModalReqId) return; // el usuario cerró el modal o abrió otro paciente mientras esto cargaba
+
+  if(visitasRes.error) console.error('[SkinFabric] Error cargando visitas:', visitasRes.error);
+  if(gestionesRes.error) console.error('[SkinFabric] Error cargando gestiones:', gestionesRes.error);
+
+  const visitas = visitasRes.data || [];
+  document.getElementById('modal-gestion-visitas').innerHTML = visitas.length ? visitas.map(v => `
+    <tr><td>${fmtFechaCorta(v.fecha)}</td><td>${esc2(v.catalogo_tipos_servicio?.nombre || '—')}</td><td>${esc2(v.doctor?.nombre || '—')}</td><td>${fmtMoney(Number(v.monto||0) + Number(v.monto_2||0))}</td></tr>
+  `).join('') : '<tr><td colspan="4" class="empty-note">Sin visitas registradas.</td></tr>';
+
+  const gestiones = gestionesRes.data || [];
+  document.getElementById('modal-gestion-bitacora').innerHTML = gestiones.length ? gestiones.map(g => `
+    <div class="gestion-item">
+      <div class="gestion-head"><span>${ICONO_GESTION[g.tipo] || '📝'} ${esc2(g.tipo)}</span><span class="gestion-fecha">${fmtFechaCorta(g.fecha)}</span></div>
+      <div class="gestion-nota">${esc2(g.nota || '')}</div>
+      <div class="gestion-autor">${esc2(g.personal?.nombre || '—')}</div>
+    </div>
+  `).join('') : '<div class="empty-note">Sin gestiones registradas todavía.</div>';
+}
+
+function cerrarModalGestion(){
+  document.getElementById('modal-gestion').classList.remove('show');
+  CRM_PACIENTE_ACTUAL = null;
+}
+document.getElementById('modal-gestion-cerrar').addEventListener('click', cerrarModalGestion);
+
+document.getElementById('gestion-btn-guardar').addEventListener('click', async ()=>{
+  if(!CRM_PACIENTE_ACTUAL) return;
+  const pacienteId = CRM_PACIENTE_ACTUAL;
+  const tipo = document.getElementById('gestion-tipo').value;
+  const nota = document.getElementById('gestion-nota').value.trim();
+  if(!nota){ toast('Escribe una nota sobre la gestión.'); return; }
+
+  const btn = document.getElementById('gestion-btn-guardar');
+  btn.disabled = true; btn.textContent = 'Guardando...';
+  const { error } = await sb.from('gestiones').insert({
+    paciente_id: pacienteId,
+    tipo,
+    nota,
+    fecha: isoLocal(new Date()),
+    creado_por: MI_PERFIL?.id || null,
+  });
+  btn.disabled = false; btn.textContent = '+ Registrar gestión';
+  if(error){
+    console.error('[SkinFabric] Error guardando gestión:', error);
+    toast('No se pudo guardar la gestión. Verifica tu horario de acceso.');
+    return;
+  }
+  document.getElementById('gestion-nota').value = '';
+  toast('✓ Gestión registrada.');
+  const nombreActual = document.getElementById('modal-gestion-titulo').textContent.split(' — ')[0];
+  abrirModalGestion(pacienteId, nombreActual);
+});
 </script>
 </body>
 </html>
