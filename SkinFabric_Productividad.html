@@ -106,6 +106,9 @@ main.appmain{padding:22px 26px 40px;max-width:1080px;margin:0 auto}
 .hist-chip.c-total .ico{background:#FDECD2}
 .hist-chip.c-pac .ico{background:#EBE1F7}
 .hist-chip.c-ticket .ico{background:#FBDDEA}
+.hist-chip.c-primera .ico{background:#DFF3E5}
+.hist-chip.c-subsecuente .ico{background:#DCEAFB}
+.hist-chip.c-procedimiento .ico{background:#FDF0D2}
 .hist-chip .v{font-family:var(--font-d);font-weight:800;font-size:15px;color:var(--navy);line-height:1.15}
 .hist-chip .l{font-size:9px;color:var(--g4);font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-top:1px}
 .screen2{display:none}
@@ -1597,11 +1600,18 @@ function renderHistKpis(){
   const totalIngreso = filasReales.reduce((a,r)=> a + Number(r.monto||0) + Number(r.monto_2||0), 0);
   const pacientesUnicos = new Set(filasReales.map(r=> r.paciente_id)).size;
   const ticketProm = totalIngreso / filasReales.length;
+  const contarTipo = nombre => filasReales.filter(r => r.catalogo_tipos_servicio?.nombre === nombre).length;
+  const nPrimeraVez = contarTipo('Consulta de Primera Vez');
+  const nSubsecuente = contarTipo('Consulta Subsecuente');
+  const nProcedimiento = contarTipo('Procedimiento');
   const fmt0 = n => '$' + Math.round(n).toLocaleString('es-MX');
   cont.innerHTML = `
     <div class="hist-chip c-total"><span class="ico">💰</span><div><div class="v">${fmt0(totalIngreso)}</div><div class="l">Total</div></div></div>
     <div class="hist-chip c-pac"><span class="ico">👥</span><div><div class="v">${pacientesUnicos}</div><div class="l">Pacientes</div></div></div>
     <div class="hist-chip c-ticket"><span class="ico">🎟️</span><div><div class="v">${fmt0(ticketProm)}</div><div class="l">Ticket prom.</div></div></div>
+    <div class="hist-chip c-primera"><span class="ico">🆕</span><div><div class="v">${nPrimeraVez}</div><div class="l">Primera vez</div></div></div>
+    <div class="hist-chip c-subsecuente"><span class="ico">🔁</span><div><div class="v">${nSubsecuente}</div><div class="l">Subsecuentes</div></div></div>
+    <div class="hist-chip c-procedimiento"><span class="ico">💉</span><div><div class="v">${nProcedimiento}</div><div class="l">Procedimientos</div></div></div>
   `;
 }
 
