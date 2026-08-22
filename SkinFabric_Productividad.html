@@ -262,6 +262,9 @@ main.appmain{padding:22px 26px 40px;max-width:1080px;margin:0 auto}
 .gestion-nota{font-size:12.5px;color:var(--navy);margin-top:4px}
 .gestion-autor{font-size:10.5px;color:var(--g4);margin-top:4px}
 .btn-sm.btn-teal{background:linear-gradient(135deg,var(--teal),#22a8a8);color:var(--navy);border:1px solid rgba(42,191,191,.5)}
+
+.config-section{background:#fff;border:1px solid var(--g2);border-radius:12px;padding:16px 18px;margin-bottom:16px}
+.config-title{font-size:13px;font-weight:800;margin-bottom:12px;display:flex;align-items:center;gap:8px;color:var(--navy)}
 </style>
 </head>
 <body>
@@ -550,8 +553,105 @@ main.appmain{padding:22px 26px 40px;max-width:1080px;margin:0 auto}
       </div>
     </div>
     <div class="card screen2" id="app-screen-personal">
-      <div class="tab-title">⚙️ Configuración</div>
-      <div class="placeholder-note">Este módulo se construye en una próxima entrega.</div>
+      <div class="tab-title"><span>⚙️ Configuración</span></div>
+
+      <div class="config-section">
+        <div class="config-title"><span>👥 Personal</span></div>
+        <div class="tx-table-wrap">
+          <table class="tx-table">
+            <thead><tr><th>Nombre</th><th>Rol</th><th>Correo</th><th>Activo</th><th>Exportar</th><th>Dashboard</th><th>Papelera</th><th></th></tr></thead>
+            <tbody id="cfg-personal-tbody"></tbody>
+          </table>
+        </div>
+        <div class="form-grid" style="grid-template-columns:1.5fr 1fr;margin-top:14px">
+          <div class="form-group"><label>Nombre completo</label><input type="text" id="cfg-personal-nombre" placeholder="Nombre del doctor/a o cosmetólogo/a"/></div>
+          <div class="form-group"><label>Rol</label>
+            <select id="cfg-personal-rol">
+              <option value="doctor">Doctor</option>
+              <option value="cosmetologo">Cosmetólogo/a</option>
+              <option value="recepcion">Recepción</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+        </div>
+        <div class="note">Esto crea el registro de personal (aparece en "Atendido por" si es doctor o cosmetólogo/a). Para darle acceso de inicio de sesión con correo y contraseña se necesita completar la función de administración — pendiente.</div>
+        <button class="btn-sm btn-teal" id="cfg-personal-btn-agregar" type="button" style="margin-top:10px">+ Agregar personal</button>
+      </div>
+
+      <div class="config-section">
+        <div class="config-title"><span>🧾 Tipos de servicio</span></div>
+        <div class="tx-table-wrap">
+          <table class="tx-table">
+            <thead><tr><th>Nombre</th><th>Requiere descripción</th><th>Requiere equipo</th><th>Activo</th><th></th></tr></thead>
+            <tbody id="cfg-tipos-tbody"></tbody>
+          </table>
+        </div>
+        <div class="form-grid" style="grid-template-columns:2fr 1fr 1fr;margin-top:10px">
+          <div class="form-group"><label>Nombre</label><input type="text" id="cfg-tipo-nombre" placeholder="Ej. Retoque"/></div>
+          <div class="form-group"><label style="display:flex;align-items:center;gap:8px;text-transform:none;font-weight:400;font-size:12.5px;padding-top:8px;color:var(--navy)"><input type="checkbox" id="cfg-tipo-requiere-desc" style="width:15px;height:15px;flex:none"/> Requiere descripción</label></div>
+          <div class="form-group"><label style="display:flex;align-items:center;gap:8px;text-transform:none;font-weight:400;font-size:12.5px;padding-top:8px;color:var(--navy)"><input type="checkbox" id="cfg-tipo-requiere-equipo" style="width:15px;height:15px;flex:none"/> Requiere equipo</label></div>
+        </div>
+        <button class="btn-sm btn-outline" id="cfg-btn-agregar-tipo" type="button" style="margin-top:10px">+ Agregar tipo de servicio</button>
+      </div>
+
+      <div class="config-section">
+        <div class="config-title"><span>🔧 Equipo / Cabina (procedimientos)</span></div>
+        <div class="tx-table-wrap">
+          <table class="tx-table">
+            <thead><tr><th>Nombre</th><th>Asociado a</th><th>Activo</th><th></th></tr></thead>
+            <tbody id="cfg-equipos-tbody"></tbody>
+          </table>
+        </div>
+        <div class="note">⏳ Pendiente: lista real y definitiva de procedimientos por confirmar con el cliente.</div>
+        <div class="form-grid" style="grid-template-columns:2fr 1.3fr;margin-top:10px">
+          <div class="form-group"><label>Nombre</label><input type="text" id="cfg-equipo-nombre" placeholder="Ej. Ultraformer"/></div>
+          <div class="form-group"><label>Asociado a</label><select id="cfg-equipo-doctor"><option value="">— Compartido —</option></select></div>
+        </div>
+        <button class="btn-sm btn-outline" id="cfg-btn-agregar-equipo" type="button" style="margin-top:10px">+ Agregar equipo/procedimiento</button>
+      </div>
+
+      <div class="config-section">
+        <div class="config-title"><span>💳 Medios de pago</span></div>
+        <div class="tx-table-wrap"><table class="tx-table"><thead><tr><th>Nombre</th><th>Activo</th><th></th></tr></thead><tbody id="cfg-medios-tbody"></tbody></table></div>
+        <div class="form-grid" style="grid-template-columns:2fr 1fr;margin-top:10px">
+          <div class="form-group"><label>Nombre</label><input type="text" id="cfg-medio-nombre" placeholder="Ej. PayPal"/></div>
+        </div>
+        <button class="btn-sm btn-outline" id="cfg-btn-agregar-medio" type="button" style="margin-top:10px">+ Agregar medio de pago</button>
+      </div>
+
+      <div class="config-section">
+        <div class="config-title"><span>🎯 Procedencia</span></div>
+        <div class="tx-table-wrap"><table class="tx-table"><thead><tr><th>Nombre</th><th>Activo</th><th></th></tr></thead><tbody id="cfg-procedencia-tbody"></tbody></table></div>
+        <div class="form-grid" style="grid-template-columns:2fr 1fr;margin-top:10px">
+          <div class="form-group"><label>Nombre</label><input type="text" id="cfg-procedencia-nombre" placeholder="Ej. Evento"/></div>
+        </div>
+        <button class="btn-sm btn-outline" id="cfg-btn-agregar-procedencia" type="button" style="margin-top:10px">+ Agregar procedencia</button>
+      </div>
+
+      <div class="config-section">
+        <div class="config-title"><span>💻 Terminales</span></div>
+        <div class="tx-table-wrap"><table class="tx-table"><thead><tr><th>Nombre</th><th>Activo</th><th></th></tr></thead><tbody id="cfg-terminal-tbody"></tbody></table></div>
+        <div class="form-grid" style="grid-template-columns:2fr 1fr;margin-top:10px">
+          <div class="form-group"><label>Nombre</label><input type="text" id="cfg-terminal-nombre" placeholder="Ej. Terminal 2"/></div>
+        </div>
+        <button class="btn-sm btn-outline" id="cfg-btn-agregar-terminal" type="button" style="margin-top:10px">+ Agregar terminal</button>
+      </div>
+
+      <div class="config-section">
+        <div class="config-title"><span>🕐 Horario de acceso (solo Recepción)</span></div>
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px;margin-bottom:12px;font-weight:600;color:var(--navy)"><input type="checkbox" id="cfg-horario-activo" style="width:16px;height:16px"/> Activar candado de horario</label>
+        <div style="display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap">
+          <div class="form-group" style="flex:none;width:130px"><label>Hora inicio</label><input type="time" id="cfg-horario-inicio"/></div>
+          <div class="form-group" style="flex:none;width:130px"><label>Hora fin</label><input type="time" id="cfg-horario-fin"/></div>
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;padding-bottom:9px;font-weight:600;color:var(--navy)"><input type="checkbox" id="cfg-horario-domingo" style="width:16px;height:16px"/> Bloquear domingos</label>
+        </div>
+        <button class="appbtn appbtn-p" id="cfg-btn-guardar-horario" type="button" style="margin-top:14px">Guardar horario</button>
+      </div>
+
+      <div class="config-section">
+        <div class="config-title"><span>📜 Actividad reciente</span></div>
+        <div id="cfg-actividad-list" style="font-size:12px;color:var(--g6);line-height:2"></div>
+      </div>
     </div>
   </main>
 
@@ -2325,6 +2425,346 @@ document.getElementById('gestion-btn-guardar').addEventListener('click', async (
   const nombreActual = document.getElementById('modal-gestion-titulo').textContent.split(' — ')[0];
   abrirModalGestion(pacienteId, nombreActual);
 });
+
+// ============================================================
+// Módulo: Configuración
+// ============================================================
+function cargarConfiguracion(){
+  renderConfigPersonal();
+  cargarCatalogoTipos();
+  poblarSelectEquipoDoctor();
+  cargarCatalogoEquipos();
+  cargarCatalogoSimple('catalogo_medios_pago', 'cfg-medios-tbody', 'orden');
+  cargarCatalogoSimple('catalogo_procedencia', 'cfg-procedencia-tbody', 'orden');
+  cargarCatalogoSimple('catalogo_terminales', 'cfg-terminal-tbody', 'nombre');
+  cargarHorario();
+  cargarActividad();
+}
+document.getElementById('btn-config-header').addEventListener('click', cargarConfiguracion);
+
+function mostrarPendienteEdgeFunction(){
+  toast('Esta función requiere completar la función de administración (service_role) — pendiente.');
+}
+
+// ── Helpers genéricos de catálogo ──
+async function catalogoActualizar(tabla, id, payload){
+  const { error } = await sb.from(tabla).update(payload).eq('id', id);
+  if(error){
+    console.error(`[SkinFabric] Error actualizando ${tabla}:`, error);
+    toast('No se pudo guardar.');
+    return false;
+  }
+  return true;
+}
+async function catalogoEliminar(tabla, id){
+  const { error } = await sb.from(tabla).delete().eq('id', id);
+  if(error){
+    console.error(`[SkinFabric] Error eliminando de ${tabla}:`, error);
+    toast('No se pudo eliminar — probablemente ya está en uso en registros existentes. Puedes desactivarlo en su lugar.');
+    return false;
+  }
+  return true;
+}
+async function catalogoCrear(tabla, payload){
+  const { error } = await sb.from(tabla).insert(payload);
+  if(error){
+    console.error(`[SkinFabric] Error creando en ${tabla}:`, error);
+    toast('No se pudo agregar.');
+    return false;
+  }
+  return true;
+}
+
+// ── Personal ──
+async function renderConfigPersonal(){
+  const tbody = document.getElementById('cfg-personal-tbody');
+  tbody.innerHTML = '<tr><td colspan="8" class="empty-note">Cargando...</td></tr>';
+  const { data, error } = await sb.from('personal').select('*').order('nombre');
+  if(error){
+    console.error('[SkinFabric] Error listando personal:', error);
+    tbody.innerHTML = '<tr><td colspan="8" class="empty-note">No se pudo cargar.</td></tr>';
+    return;
+  }
+  const lista = data || [];
+  if(!lista.length){ tbody.innerHTML = '<tr><td colspan="8" class="empty-note">Sin personal registrado.</td></tr>'; return; }
+  tbody.innerHTML = lista.map(p => `
+    <tr data-id="${p.id}">
+      <td>${esc2(p.nombre)}</td>
+      <td>${esc2(ROLE_LABELS[p.rol] || p.rol)}</td>
+      <td>${p.email ? esc2(p.email) : '<span class="pend">sin cuenta</span>'}</td>
+      <td><input type="checkbox" class="cfg-p-activo" ${p.activo ? 'checked':''}/></td>
+      <td><input type="checkbox" class="cfg-p-exportar" ${p.permisos?.puede_exportar !== false ? 'checked':''}/></td>
+      <td><input type="checkbox" class="cfg-p-dashboard" ${p.permisos?.puede_ver_dashboard ? 'checked':''}/></td>
+      <td><input type="checkbox" class="cfg-p-papelera" ${p.permisos?.puede_eliminar_papelera !== false ? 'checked':''}/></td>
+      <td><button class="btn-sm btn-outline cfg-btn-cuenta" type="button">${p.auth_user_id ? 'Reset pass' : 'Dar acceso'}</button></td>
+    </tr>`).join('');
+
+  tbody.querySelectorAll('tr').forEach(tr=>{
+    const id = tr.dataset.id;
+    tr.querySelector('.cfg-p-activo').addEventListener('change', async (e)=>{
+      const ok = await catalogoActualizar('personal', id, { activo: e.target.checked });
+      if(ok){ toast('✓ Guardado'); cargarCatalogos(); } else e.target.checked = !e.target.checked;
+    });
+    const guardarPermisos = async ()=>{
+      const permisos = {
+        puede_exportar: tr.querySelector('.cfg-p-exportar').checked,
+        puede_ver_dashboard: tr.querySelector('.cfg-p-dashboard').checked,
+        puede_eliminar_papelera: tr.querySelector('.cfg-p-papelera').checked,
+      };
+      const ok = await catalogoActualizar('personal', id, { permisos });
+      if(ok) toast('✓ Guardado');
+    };
+    tr.querySelector('.cfg-p-exportar').addEventListener('change', guardarPermisos);
+    tr.querySelector('.cfg-p-dashboard').addEventListener('change', guardarPermisos);
+    tr.querySelector('.cfg-p-papelera').addEventListener('change', guardarPermisos);
+    tr.querySelector('.cfg-btn-cuenta').addEventListener('click', mostrarPendienteEdgeFunction);
+  });
+}
+
+document.getElementById('cfg-personal-btn-agregar').addEventListener('click', async ()=>{
+  const nombre = document.getElementById('cfg-personal-nombre').value.trim();
+  const rol = document.getElementById('cfg-personal-rol').value;
+  if(!nombre){ toast('Escribe el nombre.'); return; }
+  const btn = document.getElementById('cfg-personal-btn-agregar');
+  btn.disabled = true; btn.textContent = 'Guardando...';
+  const ok = await catalogoCrear('personal', {
+    nombre, rol, activo:true,
+    permisos: { puede_exportar:true, puede_ver_dashboard: (rol==='admin'||rol==='doctor'), puede_eliminar_papelera: rol==='admin' },
+  });
+  btn.disabled = false; btn.textContent = '+ Agregar personal';
+  if(ok){
+    document.getElementById('cfg-personal-nombre').value = '';
+    toast('✓ Personal agregado.');
+    renderConfigPersonal();
+    cargarCatalogos();
+  }
+});
+
+// ── Tipos de servicio ──
+async function cargarCatalogoTipos(){
+  const tbody = document.getElementById('cfg-tipos-tbody');
+  tbody.innerHTML = '<tr><td colspan="5" class="empty-note">Cargando...</td></tr>';
+  const { data, error } = await sb.from('catalogo_tipos_servicio').select('*').order('orden');
+  if(error){
+    console.error('[SkinFabric] Error listando tipos_servicio:', error);
+    tbody.innerHTML = '<tr><td colspan="5" class="empty-note">No se pudo cargar.</td></tr>';
+    return;
+  }
+  const lista = data || [];
+  if(!lista.length){ tbody.innerHTML = '<tr><td colspan="5" class="empty-note">Sin registros.</td></tr>'; return; }
+  tbody.innerHTML = lista.map(t => `
+    <tr data-id="${t.id}">
+      <td>${esc2(t.nombre)}</td>
+      <td><input type="checkbox" class="cfg-tipo-desc" ${t.requiere_descripcion ? 'checked':''}/></td>
+      <td><input type="checkbox" class="cfg-tipo-equipo" ${t.requiere_equipo ? 'checked':''}/></td>
+      <td><input type="checkbox" class="cfg-tipo-activo" ${t.activo ? 'checked':''}/></td>
+      <td><button class="btn-sm btn-del" type="button">Eliminar</button></td>
+    </tr>`).join('');
+  tbody.querySelectorAll('tr').forEach(tr=>{
+    const id = tr.dataset.id;
+    tr.querySelector('.cfg-tipo-desc').addEventListener('change', async (e)=>{ const ok = await catalogoActualizar('catalogo_tipos_servicio', id, { requiere_descripcion: e.target.checked }); if(ok){ toast('✓ Guardado'); cargarCatalogos(); } });
+    tr.querySelector('.cfg-tipo-equipo').addEventListener('change', async (e)=>{ const ok = await catalogoActualizar('catalogo_tipos_servicio', id, { requiere_equipo: e.target.checked }); if(ok){ toast('✓ Guardado'); cargarCatalogos(); } });
+    tr.querySelector('.cfg-tipo-activo').addEventListener('change', async (e)=>{ const ok = await catalogoActualizar('catalogo_tipos_servicio', id, { activo: e.target.checked }); if(ok){ toast('✓ Guardado'); cargarCatalogos(); } });
+    tr.querySelector('.btn-del').addEventListener('click', async ()=>{
+      const nombre = tr.children[0].textContent;
+      const ok = await confirmarAsync({ titulo:'¿Eliminar?', mensaje:`Se eliminará "${esc2(nombre)}". Si ya está en uso en registros existentes, no se podrá eliminar — puedes desactivarlo en su lugar.`, textoConfirmar:'Eliminar', icono:'🗑', danger:true });
+      if(!ok) return;
+      const okDel = await catalogoEliminar('catalogo_tipos_servicio', id);
+      if(okDel){ toast('✓ Eliminado.'); cargarCatalogoTipos(); cargarCatalogos(); }
+    });
+  });
+}
+document.getElementById('cfg-btn-agregar-tipo').addEventListener('click', async ()=>{
+  const nombre = document.getElementById('cfg-tipo-nombre').value.trim();
+  if(!nombre){ toast('Escribe un nombre.'); return; }
+  const requiere_descripcion = document.getElementById('cfg-tipo-requiere-desc').checked;
+  const requiere_equipo = document.getElementById('cfg-tipo-requiere-equipo').checked;
+  const btn = document.getElementById('cfg-btn-agregar-tipo');
+  btn.disabled = true;
+  const ok = await catalogoCrear('catalogo_tipos_servicio', { nombre, requiere_descripcion, requiere_equipo, activo:true });
+  btn.disabled = false;
+  if(ok){
+    document.getElementById('cfg-tipo-nombre').value = '';
+    document.getElementById('cfg-tipo-requiere-desc').checked = false;
+    document.getElementById('cfg-tipo-requiere-equipo').checked = false;
+    toast('✓ Agregado.');
+    cargarCatalogoTipos();
+    cargarCatalogos();
+  }
+});
+
+// ── Equipo / Cabina ──
+function poblarSelectEquipoDoctor(){
+  const sel = document.getElementById('cfg-equipo-doctor');
+  const actual = sel.value;
+  sel.innerHTML = '<option value="">— Compartido —</option>';
+  const grupos = [ { label:'— Médicos', rol:'doctor' }, { label:'— Cosmetólogos/as', rol:'cosmetologo' } ];
+  grupos.forEach(g=>{
+    const items = CATALOGOS.personal.filter(p=>p.rol === g.rol);
+    if(!items.length) return;
+    const og = document.createElement('optgroup');
+    og.label = g.label;
+    items.forEach(p=>{
+      const opt = document.createElement('option');
+      opt.value = p.id; opt.textContent = p.nombre;
+      og.appendChild(opt);
+    });
+    sel.appendChild(og);
+  });
+  if(actual) sel.value = actual;
+}
+async function cargarCatalogoEquipos(){
+  const tbody = document.getElementById('cfg-equipos-tbody');
+  tbody.innerHTML = '<tr><td colspan="4" class="empty-note">Cargando...</td></tr>';
+  const { data, error } = await sb.from('catalogo_equipos').select('*, doctor:personal!doctor_id(nombre)').order('nombre');
+  if(error){
+    console.error('[SkinFabric] Error listando equipos:', error);
+    tbody.innerHTML = '<tr><td colspan="4" class="empty-note">No se pudo cargar.</td></tr>';
+    return;
+  }
+  const lista = data || [];
+  if(!lista.length){ tbody.innerHTML = '<tr><td colspan="4" class="empty-note">Sin registros.</td></tr>'; return; }
+  tbody.innerHTML = lista.map(e => `
+    <tr data-id="${e.id}">
+      <td>${esc2(e.nombre)}</td>
+      <td>${e.doctor_id ? `<span class="badge">${esc2(e.doctor?.nombre || '—')}</span>` : '<span class="badge">Compartido</span>'}</td>
+      <td><input type="checkbox" class="cfg-equipo-activo" ${e.activo ? 'checked':''}/></td>
+      <td><button class="btn-sm btn-del" type="button">Eliminar</button></td>
+    </tr>`).join('');
+  tbody.querySelectorAll('tr').forEach(tr=>{
+    const id = tr.dataset.id;
+    tr.querySelector('.cfg-equipo-activo').addEventListener('change', async (e)=>{ const ok = await catalogoActualizar('catalogo_equipos', id, { activo: e.target.checked }); if(ok){ toast('✓ Guardado'); cargarCatalogos(); } });
+    tr.querySelector('.btn-del').addEventListener('click', async ()=>{
+      const nombre = tr.children[0].textContent;
+      const ok = await confirmarAsync({ titulo:'¿Eliminar?', mensaje:`Se eliminará "${esc2(nombre)}". Si ya está en uso en registros existentes, no se podrá eliminar — puedes desactivarlo en su lugar.`, textoConfirmar:'Eliminar', icono:'🗑', danger:true });
+      if(!ok) return;
+      const okDel = await catalogoEliminar('catalogo_equipos', id);
+      if(okDel){ toast('✓ Eliminado.'); cargarCatalogoEquipos(); cargarCatalogos(); }
+    });
+  });
+}
+document.getElementById('cfg-btn-agregar-equipo').addEventListener('click', async ()=>{
+  const nombre = document.getElementById('cfg-equipo-nombre').value.trim();
+  if(!nombre){ toast('Escribe un nombre.'); return; }
+  const doctorId = document.getElementById('cfg-equipo-doctor').value;
+  const btn = document.getElementById('cfg-btn-agregar-equipo');
+  btn.disabled = true;
+  const ok = await catalogoCrear('catalogo_equipos', { nombre, doctor_id: doctorId || null, activo:true });
+  btn.disabled = false;
+  if(ok){
+    document.getElementById('cfg-equipo-nombre').value = '';
+    document.getElementById('cfg-equipo-doctor').value = '';
+    toast('✓ Agregado.');
+    cargarCatalogoEquipos();
+    cargarCatalogos();
+  }
+});
+
+// ── Catálogos simples: medios de pago, procedencia, terminales ──
+async function cargarCatalogoSimple(tabla, tbodyId, orderBy){
+  const tbody = document.getElementById(tbodyId);
+  tbody.innerHTML = '<tr><td colspan="3" class="empty-note">Cargando...</td></tr>';
+  const { data, error } = await sb.from(tabla).select('*').order(orderBy || 'nombre');
+  if(error){
+    console.error(`[SkinFabric] Error listando ${tabla}:`, error);
+    tbody.innerHTML = '<tr><td colspan="3" class="empty-note">No se pudo cargar.</td></tr>';
+    return;
+  }
+  const lista = data || [];
+  if(!lista.length){ tbody.innerHTML = '<tr><td colspan="3" class="empty-note">Sin registros.</td></tr>'; return; }
+  tbody.innerHTML = lista.map(item => `
+    <tr data-id="${item.id}">
+      <td>${esc2(item.nombre)}</td>
+      <td><input type="checkbox" class="cfg-simple-activo" ${item.activo ? 'checked':''}/></td>
+      <td><button class="btn-sm btn-del" type="button">Eliminar</button></td>
+    </tr>`).join('');
+  tbody.querySelectorAll('tr').forEach(tr=>{
+    const id = tr.dataset.id;
+    tr.querySelector('.cfg-simple-activo').addEventListener('change', async (e)=>{
+      const ok = await catalogoActualizar(tabla, id, { activo: e.target.checked });
+      if(ok){ toast('✓ Guardado'); cargarCatalogos(); } else e.target.checked = !e.target.checked;
+    });
+    tr.querySelector('.btn-del').addEventListener('click', async ()=>{
+      const nombre = tr.children[0].textContent;
+      const ok = await confirmarAsync({ titulo:'¿Eliminar?', mensaje:`Se eliminará "${esc2(nombre)}" del catálogo. Si ya está en uso en registros existentes, no se podrá eliminar — puedes desactivarlo en su lugar.`, textoConfirmar:'Eliminar', icono:'🗑', danger:true });
+      if(!ok) return;
+      const okDel = await catalogoEliminar(tabla, id);
+      if(okDel){ toast('✓ Eliminado.'); cargarCatalogoSimple(tabla, tbodyId, orderBy); cargarCatalogos(); }
+    });
+  });
+}
+function wireAgregarSimple(tabla, inputId, btnId, tbodyId, orderBy){
+  document.getElementById(btnId).addEventListener('click', async ()=>{
+    const input = document.getElementById(inputId);
+    const nombre = input.value.trim();
+    if(!nombre){ toast('Escribe un nombre.'); return; }
+    const btn = document.getElementById(btnId);
+    btn.disabled = true;
+    const ok = await catalogoCrear(tabla, { nombre, activo:true });
+    btn.disabled = false;
+    if(ok){
+      input.value = '';
+      toast('✓ Agregado.');
+      cargarCatalogoSimple(tabla, tbodyId, orderBy);
+      cargarCatalogos();
+    }
+  });
+}
+wireAgregarSimple('catalogo_medios_pago', 'cfg-medio-nombre', 'cfg-btn-agregar-medio', 'cfg-medios-tbody', 'orden');
+wireAgregarSimple('catalogo_procedencia', 'cfg-procedencia-nombre', 'cfg-btn-agregar-procedencia', 'cfg-procedencia-tbody', 'orden');
+wireAgregarSimple('catalogo_terminales', 'cfg-terminal-nombre', 'cfg-btn-agregar-terminal', 'cfg-terminal-tbody', 'nombre');
+
+// ── Horario de acceso ──
+let HORARIO_ID = null;
+async function cargarHorario(){
+  const { data, error } = await sb.from('horario_acceso').select('*').order('updated_at', { ascending:false }).limit(1).maybeSingle();
+  if(error){ console.error('[SkinFabric] Error cargando horario:', error); return; }
+  if(!data){ HORARIO_ID = null; return; }
+  HORARIO_ID = data.id;
+  document.getElementById('cfg-horario-activo').checked = !!data.activo;
+  document.getElementById('cfg-horario-inicio').value = (data.hora_inicio || '').slice(0, 5);
+  document.getElementById('cfg-horario-fin').value = (data.hora_fin || '').slice(0, 5);
+  document.getElementById('cfg-horario-domingo').checked = !!data.bloquear_domingo;
+}
+document.getElementById('cfg-btn-guardar-horario').addEventListener('click', async ()=>{
+  const payload = {
+    activo: document.getElementById('cfg-horario-activo').checked,
+    hora_inicio: document.getElementById('cfg-horario-inicio').value || '00:00',
+    hora_fin: document.getElementById('cfg-horario-fin').value || '23:59',
+    bloquear_domingo: document.getElementById('cfg-horario-domingo').checked,
+    updated_by: MI_PERFIL?.id || null,
+  };
+  const btn = document.getElementById('cfg-btn-guardar-horario');
+  btn.disabled = true; btn.textContent = 'Guardando...';
+  let error;
+  if(HORARIO_ID){
+    ({ error } = await sb.from('horario_acceso').update(payload).eq('id', HORARIO_ID));
+  } else {
+    ({ error } = await sb.from('horario_acceso').insert(payload));
+  }
+  btn.disabled = false; btn.textContent = 'Guardar horario';
+  if(error){ console.error('[SkinFabric] Error guardando horario:', error); toast('No se pudo guardar el horario.'); return; }
+  toast('✓ Horario guardado.');
+  cargarHorario();
+});
+
+// ── Actividad reciente ──
+async function cargarActividad(){
+  const cont = document.getElementById('cfg-actividad-list');
+  cont.textContent = 'Cargando...';
+  const { data, error } = await sb.from('audit_log').select('*, personal(nombre)').order('created_at', { ascending:false }).limit(20);
+  if(error){
+    console.error('[SkinFabric] Error cargando audit_log:', error);
+    cont.innerHTML = '<div class="empty-note">No se pudo cargar la actividad reciente.</div>';
+    return;
+  }
+  const lista = data || [];
+  if(!lista.length){
+    cont.innerHTML = '<div class="empty-note">Sin actividad registrada todavía. Esta bitácora se empezará a llenar cuando se complete la función de administración (service_role).</div>';
+    return;
+  }
+  cont.innerHTML = lista.map(a => `<div>${esc2(a.personal?.nombre || 'Sistema')} — ${esc2(a.accion)}${a.tabla ? ' · '+esc2(a.tabla) : ''} · ${fmtFechaHora(a.created_at)}</div>`).join('');
+}
 </script>
 </body>
 </html>
