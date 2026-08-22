@@ -2479,7 +2479,10 @@ async function catalogoCrear(tabla, payload){
 async function renderConfigPersonal(){
   const tbody = document.getElementById('cfg-personal-tbody');
   tbody.innerHTML = '<tr><td colspan="8" class="empty-note">Cargando...</td></tr>';
-  const { data, error } = await sb.from('personal').select('*').order('nombre');
+  // Este panel es de accesos/permisos del sistema: solo recepción, doctores y admins.
+  // Los cosmetólogos/as no manejan accesos ni permisos aquí (siguen existiendo en "personal"
+  // para aparecer en "Atendido por", solo que no se listan/gestionan en este panel).
+  const { data, error } = await sb.from('personal').select('*').in('rol', ['admin','doctor','recepcion']).order('nombre');
   if(error){
     console.error('[SkinFabric] Error listando personal:', error);
     tbody.innerHTML = '<tr><td colspan="8" class="empty-note">No se pudo cargar.</td></tr>';
