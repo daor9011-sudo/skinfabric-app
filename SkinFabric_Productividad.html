@@ -183,18 +183,32 @@ main.appmain{padding:22px 26px 40px;max-width:1080px;margin:0 auto}
 .badge-novino{background:#F5EEF8;color:var(--purple);border:1px solid #E4CFEF;margin-left:6px}
 .btn-sm{padding:6px 12px;font-size:11px;border-radius:6px;cursor:pointer;border:1px solid var(--g2);background:#fff;color:var(--navy);font-weight:700;display:inline-flex;align-items:center;gap:4px;font-family:inherit;white-space:nowrap}
 .btn-sm.btn-outline{background:#fff;color:var(--navy);border:1px solid var(--g2)}
-.p-header{display:grid;grid-template-columns:1.7fr 90px 100px 150px;gap:14px;padding:0 4px 9px;font-size:9.5px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--g4);border-bottom:2px solid var(--g2)}
-.p-row{display:grid;grid-template-columns:1.7fr 90px 100px 150px;gap:14px;align-items:center;padding:13px 4px;border-bottom:1px solid var(--g1)}
-.p-nombre-txt{font-weight:700;color:var(--navy);font-size:13px}
-.p-email{font-size:11px;color:var(--g4);margin-top:3px}
-.p-row .cbwrap{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:10.5px;color:var(--g6)}
-.p-row .cbwrap input{width:16px;height:16px;accent-color:var(--teal);cursor:pointer}
-.p-activo-txt{font-size:9px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;color:var(--g4)}
-.p-activo-label input:checked ~ .p-activo-txt{color:#2E7D4F}
-.p-permiso-row{padding:2px 4px 16px;border-bottom:1px solid var(--g1);display:flex;gap:20px;flex-wrap:wrap}
-.p-permiso-row:last-of-type{border-bottom:none}
-.cbrow2{display:flex;align-items:center;gap:7px;cursor:pointer;font-size:11.5px;color:var(--g6);font-weight:600}
-.cbrow2 input[type=checkbox]{width:14px;height:14px;accent-color:var(--teal);cursor:pointer;flex-shrink:0}
+/* ── Personal: tarjeta partida (perfil | permisos | acceso) ── */
+.p-list{display:flex;flex-direction:column;gap:12px}
+.cardC{display:grid;grid-template-columns:1.4fr 1.6fr auto;gap:18px;align-items:center;border:1px solid var(--g2);border-radius:12px;padding:14px 18px;background:#fbfcfe;transition:.15s}
+.cardC:hover{border-color:rgba(42,191,191,.5);box-shadow:0 4px 14px -8px rgba(42,191,191,.35)}
+.cardC-profile{display:flex;gap:12px;align-items:center;min-width:0}
+.p-avatar{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:13px;flex-shrink:0;font-family:var(--font-d)}
+.p-avatar.av-admin{background:linear-gradient(135deg,var(--purple),#5b2d73)}
+.p-avatar.av-doctor{background:linear-gradient(135deg,var(--navy2),var(--navy3))}
+.p-avatar.av-recepcion{background:linear-gradient(135deg,var(--teal),#22a8a8)}
+.cardC-name{font-weight:700;font-size:13px;color:var(--navy);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cardC-email{font-size:10.5px;color:var(--g4);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cardC-permgrid{display:flex;flex-wrap:wrap;gap:7px}
+.cardC-right{display:flex;flex-direction:column;align-items:flex-end;gap:10px}
+.perm-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 11px;border-radius:8px;border:1.5px solid var(--g2);background:#fff;font-size:11px;font-weight:600;color:var(--g4);cursor:pointer;transition:.15s;user-select:none}
+.perm-chip.on{background:var(--teal-soft);border-color:rgba(42,191,191,.45);color:#0B6E6E}
+.perm-chip input{position:absolute;opacity:0;width:0;height:0;pointer-events:none}
+.perm-chip .ico{font-size:13px;opacity:.85}
+.act-txt{font-size:11px;font-weight:700;color:var(--g4);display:flex;align-items:center;gap:8px}
+.act-txt.on{color:#2E7D4F}
+.switch{position:relative;display:inline-block;width:36px;height:21px;flex-shrink:0}
+.switch input{opacity:0;width:0;height:0;position:absolute}
+.switch .slider{position:absolute;cursor:pointer;inset:0;background:#cbd5e1;transition:.2s;border-radius:22px}
+.switch .slider:before{position:absolute;content:"";height:15px;width:15px;left:3px;top:3px;background:#fff;transition:.2s;border-radius:50%;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+.switch input:checked + .slider{background:var(--teal)}
+.switch input:checked + .slider:before{transform:translateX(15px)}
+@media (max-width:720px){.cardC{grid-template-columns:1fr;gap:12px}.cardC-right{align-items:flex-start;flex-direction:row;justify-content:space-between}}
 .btn-sm.btn-edit{background:#EEF5FC;color:#1B5C9E;border:1px solid #BDD5F0}
 .btn-sm.btn-del{background:#FEF0EF;color:var(--red);border:1px solid #FBBFBB}
 .btn-sm.btn-restore{background:#EEF8F1;color:var(--green);border:1px solid #A8D8B4}
@@ -569,8 +583,7 @@ main.appmain{padding:22px 26px 40px;max-width:1080px;margin:0 auto}
 
       <div class="config-section">
         <div class="config-title"><span>👥 Personal</span></div>
-        <div class="p-header"><span>Nombre</span><span style="text-align:center">Rol</span><span style="text-align:center">Activo</span><span></span></div>
-        <div id="cfg-personal-lista"></div>
+        <div class="p-list" id="cfg-personal-lista"></div>
         <div class="form-grid" style="grid-template-columns:1.5fr 1fr;gap:16px 28px;margin-top:26px">
           <div class="form-group" style="gap:8px"><label>Nombre completo</label><input type="text" id="cfg-personal-nombre" placeholder="Nombre del doctor/a o cosmetólogo/a"/></div>
           <div class="form-group" style="gap:8px"><label>Rol</label>
@@ -2528,6 +2541,12 @@ async function catalogoCrear(tabla, payload){
 }
 
 // ── Personal ──
+function inicialesPersonal(nombre){
+  const limpio = (nombre || '').replace(/^(Dr\.|Dra\.)\s*/i, '');
+  const partes = limpio.split(' ').filter(Boolean).slice(0, 2);
+  return partes.map(w => w[0]).join('').toUpperCase();
+}
+
 async function renderConfigPersonal(){
   const cont = document.getElementById('cfg-personal-lista');
   cont.innerHTML = '<div class="empty-note">Cargando...</div>';
@@ -2543,46 +2562,61 @@ async function renderConfigPersonal(){
   const lista = data || [];
   if(!lista.length){ cont.innerHTML = '<div class="empty-note">Sin personal registrado.</div>'; return; }
   cont.innerHTML = lista.map(p => `
-    <div class="p-row" data-id="${p.id}">
-      <div>
-        <div class="p-nombre-txt">${esc2(p.nombre)}</div>
-        <div class="p-email">${p.email ? '✉️ ' + esc2(p.email) : '<span class="pend">Sin cuenta</span>'}</div>
+    <div class="cardC" data-id="${p.id}">
+      <div class="cardC-profile">
+        <div class="p-avatar av-${esc2(p.rol)}">${esc2(inicialesPersonal(p.nombre))}</div>
+        <div style="min-width:0">
+          <div class="cardC-name" title="${esc2(p.nombre)}">${esc2(p.nombre)}</div>
+          <div class="cardC-email" title="${p.email ? esc2(p.email) : ''}">${p.email ? esc2(p.email) : '<span class="pend">Sin cuenta</span>'}</div>
+          <div style="margin-top:6px"><span class="badge">${esc2(ROLE_LABELS[p.rol] || p.rol)}</span></div>
+        </div>
       </div>
-      <div style="text-align:center"><span class="badge">${esc2(ROLE_LABELS[p.rol] || p.rol)}</span></div>
-      <label class="cbwrap p-activo-label">
-        <input type="checkbox" class="cfg-p-activo" ${p.activo ? 'checked':''}/>
-        <span class="p-activo-txt">${p.activo ? 'Activo':'Inactivo'}</span>
-      </label>
-      <div style="text-align:right">
-        <button class="btn-sm btn-outline cfg-btn-cuenta" type="button">${p.auth_user_id ? 'Reset pass' : 'Dar acceso'}</button>
+      <div class="cardC-permgrid">
+        <label class="perm-chip cfg-p-exportar-wrap ${p.permisos?.puede_exportar !== false ? 'on' : ''}"><input type="checkbox" class="cfg-p-exportar" ${p.permisos?.puede_exportar !== false ? 'checked':''}/><span class="ico">⬇️</span>Exportar</label>
+        <label class="perm-chip cfg-p-dashboard-wrap ${p.permisos?.puede_ver_dashboard ? 'on' : ''}"><input type="checkbox" class="cfg-p-dashboard" ${p.permisos?.puede_ver_dashboard ? 'checked':''}/><span class="ico">📊</span>Dashboard</label>
+        <label class="perm-chip cfg-p-papelera-wrap ${p.permisos?.puede_eliminar_papelera !== false ? 'on' : ''}"><input type="checkbox" class="cfg-p-papelera" ${p.permisos?.puede_eliminar_papelera !== false ? 'checked':''}/><span class="ico">🗑️</span>Papelera</label>
       </div>
-    </div>
-    <div class="p-permiso-row" data-permiso-id="${p.id}">
-      <label class="cbrow2"><input type="checkbox" class="cfg-p-exportar" ${p.permisos?.puede_exportar !== false ? 'checked':''}/><span>⬇️ Puede exportar el Historial</span></label>
-      <label class="cbrow2"><input type="checkbox" class="cfg-p-dashboard" ${p.permisos?.puede_ver_dashboard ? 'checked':''}/><span>📊 Puede ver el Dashboard</span></label>
-      <label class="cbrow2"><input type="checkbox" class="cfg-p-papelera" ${p.permisos?.puede_eliminar_papelera !== false ? 'checked':''}/><span>🗑️ Puede vaciar/eliminar la Papelera</span></label>
+      <div class="cardC-right">
+        <label class="act-txt ${p.activo ? 'on' : ''}"><span class="switch"><input type="checkbox" class="cfg-p-activo" ${p.activo ? 'checked':''}/><span class="slider"></span></span>${p.activo ? 'Activo':'Inactivo'}</label>
+        <button class="btn-sm solid cfg-btn-cuenta" type="button">${p.auth_user_id ? 'Reset pass' : 'Dar acceso'}</button>
+      </div>
     </div>`).join('');
 
-  cont.querySelectorAll('.p-row').forEach(row=>{
-    const id = row.dataset.id;
-    const permisoRow = cont.querySelector(`.p-permiso-row[data-permiso-id="${id}"]`);
-    row.querySelector('.cfg-p-activo').addEventListener('change', async (e)=>{
+  cont.querySelectorAll('.cardC').forEach(card=>{
+    const id = card.dataset.id;
+
+    const activoInput = card.querySelector('.cfg-p-activo');
+    const activoLabel = activoInput.closest('.act-txt');
+    activoInput.addEventListener('change', async (e)=>{
       const ok = await catalogoActualizar('personal', id, { activo: e.target.checked });
-      if(ok){ toast('✓ Guardado'); cargarCatalogos(); } else e.target.checked = !e.target.checked;
+      if(ok){
+        toast('✓ Guardado');
+        activoLabel.classList.toggle('on', e.target.checked);
+        activoLabel.lastChild.textContent = e.target.checked ? 'Activo' : 'Inactivo';
+        cargarCatalogos();
+      } else {
+        e.target.checked = !e.target.checked;
+      }
     });
+
     const guardarPermisos = async ()=>{
       const permisos = {
-        puede_exportar: permisoRow.querySelector('.cfg-p-exportar').checked,
-        puede_ver_dashboard: permisoRow.querySelector('.cfg-p-dashboard').checked,
-        puede_eliminar_papelera: permisoRow.querySelector('.cfg-p-papelera').checked,
+        puede_exportar: card.querySelector('.cfg-p-exportar').checked,
+        puede_ver_dashboard: card.querySelector('.cfg-p-dashboard').checked,
+        puede_eliminar_papelera: card.querySelector('.cfg-p-papelera').checked,
       };
       const ok = await catalogoActualizar('personal', id, { permisos });
       if(ok) toast('✓ Guardado');
     };
-    permisoRow.querySelector('.cfg-p-exportar').addEventListener('change', guardarPermisos);
-    permisoRow.querySelector('.cfg-p-dashboard').addEventListener('change', guardarPermisos);
-    permisoRow.querySelector('.cfg-p-papelera').addEventListener('change', guardarPermisos);
-    row.querySelector('.cfg-btn-cuenta').addEventListener('click', ()=>{
+    card.querySelectorAll('.perm-chip').forEach(chip=>{
+      const input = chip.querySelector('input');
+      input.addEventListener('change', ()=>{
+        chip.classList.toggle('on', input.checked);
+        guardarPermisos();
+      });
+    });
+
+    card.querySelector('.cfg-btn-cuenta').addEventListener('click', ()=>{
       const p = lista.find(x => x.id === id);
       if(!p) return;
       abrirModalAcceso(p.id, p.nombre, p.auth_user_id ? 'reset' : 'crear', p.email);
