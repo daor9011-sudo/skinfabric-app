@@ -589,7 +589,7 @@ main.appmain{padding:22px 26px 40px;max-width:1080px;margin:0 auto}
             </select>
           </div>
         </div>
-        <div class="note" style="margin-top:16px">Esto crea el registro de personal (aparece en "Atendido por" si es doctor o cosmetólogo/a). Para darle acceso de inicio de sesión con correo y contraseña se necesita completar la función de administración — pendiente.</div>
+        <div class="note" style="margin-top:16px">Esto crea el registro de personal (aparece en "Atendido por" si es doctor o cosmetólogo/a). Para darle acceso de inicio de sesión, agrégalo aquí y luego usa el botón "Dar acceso" de la tabla de arriba para ponerle correo y contraseña.</div>
         <button class="btn-sm btn-teal" id="cfg-personal-btn-agregar" type="button" style="margin-top:16px">+ Agregar personal</button>
       </div>
 
@@ -767,6 +767,33 @@ main.appmain{padding:22px 26px 40px;max-width:1080px;margin:0 auto}
     <div class="modal-foot">
       <button class="appbtn appbtn-s" id="export-btn-cancelar" type="button" style="background:var(--g1);color:var(--g6);box-shadow:none">Cancelar</button>
       <button class="appbtn appbtn-p" id="export-btn-confirmar" type="button">↓ Exportar a Excel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ Modal: Dar acceso / Restablecer contraseña (Personal) ══════════ -->
+<div class="modal-overlay" id="modal-acceso">
+  <div class="modal-box" style="max-width:460px">
+    <div class="modal-head"><h3 id="acceso-titulo">Dar acceso</h3><button class="modal-close" id="acceso-btn-cerrar" type="button">✕</button></div>
+    <div class="modal-body">
+      <div class="note" id="acceso-para" style="margin-bottom:16px"></div>
+      <div class="form-group" id="acceso-grupo-correo" style="margin-bottom:14px;gap:8px">
+        <label>Correo</label>
+        <input type="email" id="acceso-correo" placeholder="correo@ejemplo.com"/>
+      </div>
+      <div class="form-group" style="margin-bottom:14px;gap:8px">
+        <label id="acceso-label-pass">Contraseña</label>
+        <input type="text" id="acceso-pass" placeholder="Cualquier contraseña (mínimo 6 caracteres)" autocomplete="off"/>
+      </div>
+      <div class="form-group" style="gap:8px">
+        <label>Confirmar contraseña</label>
+        <input type="text" id="acceso-pass2" placeholder="Repite la contraseña" autocomplete="off"/>
+      </div>
+      <div class="note" id="acceso-error" style="display:none;background:#FEF2F2;border-left:3px solid #e53e3e;color:#B91C1C;margin-top:14px"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="appbtn appbtn-s" id="acceso-btn-cancelar" type="button" style="background:var(--g1);color:var(--g6);box-shadow:none">Cancelar</button>
+      <button class="appbtn appbtn-p" id="acceso-btn-confirmar" type="button">Guardar</button>
     </div>
   </div>
 </div>
@@ -1643,7 +1670,7 @@ async function cargarPapelera(){
       </td>
     </tr>`).join('');
   tbody.querySelectorAll('.btn-restore').forEach(btn=> btn.addEventListener('click', ()=> restaurarConsulta(btn.dataset.id)));
-  tbody.querySelectorAll('.btn-del').forEach(btn=> btn.addEventListener('click', eliminarDefinitivoPendiente));
+  tbody.querySelectorAll('.btn-del').forEach(btn=> btn.addEventListener('click', ()=> eliminarDefinitivo(btn.dataset.id)));
 }
 
 async function restaurarConsulta(id){
@@ -1659,10 +1686,31 @@ async function restaurarConsulta(id){
   cargarPapelera();
   cargarHistorial();
 }
-function eliminarDefinitivoPendiente(){
-  toast('La eliminación definitiva estará disponible cuando se active el módulo de Configuración.');
+async function eliminarDefinitivo(id){
+  const ok = await confirmarAsync({ titulo:'¿Eliminar en definitiva?', mensaje:'Esta acción no se puede deshacer. El registro se borrará por completo, no solo de la papelera.', textoConfirmar:'Eliminar en definitiva', icono:'✕', danger:true });
+  if(!ok) return;
+  const resultado = await llamarAdminAction({ action:'hard_delete_consulta', consulta_id:id });
+  if(!resultado.ok){
+    toast(resultado.error || 'No se pudo eliminar el registro.');
+    return;
+  }
+  toast('✓ Registro eliminado en definitiva.');
+  cargarPapelera();
+  cargarActividad();
 }
-document.getElementById('hist-btn-vaciar-papelera').addEventListener('click', eliminarDefinitivoPendiente);
+async function vaciarPapelera(){
+  const ok = await confirmarAsync({ titulo:'¿Vaciar toda la papelera?', mensaje:'Se eliminarán en definitiva TODOS los registros que están en la papelera. Esta acción no se puede deshacer.', textoConfirmar:'Vaciar papelera', icono:'🗑', danger:true });
+  if(!ok) return;
+  const resultado = await llamarAdminAction({ action:'vaciar_papelera' });
+  if(!resultado.ok){
+    toast(resultado.error || 'No se pudo vaciar la papelera.');
+    return;
+  }
+  toast('✓ Papelera vaciada.');
+  cargarPapelera();
+  cargarActividad();
+}
+document.getElementById('hist-btn-vaciar-papelera').addEventListener('click', vaciarPapelera);
 
 // ── Modal: Editar consulta ──
 function poblarSelectEditDoctor(selectedId){
@@ -2457,10 +2505,6 @@ function cargarConfiguracion(){
 }
 document.getElementById('btn-config-header').addEventListener('click', cargarConfiguracion);
 
-function mostrarPendienteEdgeFunction(){
-  toast('Esta función requiere completar la función de administración (service_role) — pendiente.');
-}
-
 // ── Helpers genéricos de catálogo ──
 async function catalogoActualizar(tabla, id, payload){
   const { error } = await sb.from(tabla).update(payload).eq('id', id);
@@ -2535,9 +2579,98 @@ async function renderConfigPersonal(){
     tr.querySelector('.cfg-p-exportar').addEventListener('change', guardarPermisos);
     tr.querySelector('.cfg-p-dashboard').addEventListener('change', guardarPermisos);
     tr.querySelector('.cfg-p-papelera').addEventListener('change', guardarPermisos);
-    tr.querySelector('.cfg-btn-cuenta').addEventListener('click', mostrarPendienteEdgeFunction);
+    tr.querySelector('.cfg-btn-cuenta').addEventListener('click', ()=>{
+      const p = lista.find(x => x.id === id);
+      if(!p) return;
+      abrirModalAcceso(p.id, p.nombre, p.auth_user_id ? 'reset' : 'crear', p.email);
+    });
   });
 }
+
+// ── Llama a la función de administración (service_role) que crea/actualiza cuentas y borra en definitiva ──
+async function llamarAdminAction(payload){
+  try{
+    const { data, error } = await sb.functions.invoke('admin-actions', { body: payload });
+    if(error){
+      let msg = error.message || 'No se pudo completar la operación.';
+      if(error.context && typeof error.context.json === 'function'){
+        try{
+          const cuerpo = await error.context.json();
+          if(cuerpo && cuerpo.error) msg = cuerpo.error;
+        }catch(_e){ /* la respuesta no traía JSON, se usa el mensaje genérico */ }
+      }
+      return { ok:false, error: msg };
+    }
+    if(data && data.error) return { ok:false, error: data.error };
+    return { ok:true, data };
+  }catch(e){
+    console.error('[SkinFabric] Error llamando admin-actions:', e);
+    return { ok:false, error:'No se pudo conectar con el servidor. Intenta de nuevo.' };
+  }
+}
+
+// ── Modal: Dar acceso / Restablecer contraseña ──
+let ACCESO_PERSONAL_ID = null;
+let ACCESO_MODO = null; // 'crear' | 'reset'
+
+function abrirModalAcceso(personalId, nombre, modo, emailActual){
+  ACCESO_PERSONAL_ID = personalId;
+  ACCESO_MODO = modo;
+  document.getElementById('acceso-titulo').textContent = modo === 'crear' ? 'Dar acceso' : 'Restablecer contraseña';
+  document.getElementById('acceso-para').textContent = modo === 'crear'
+    ? `Vas a crear una cuenta de acceso para ${nombre}. Puedes usar cualquier correo y contraseña — no tienen que coincidir con su correo real.`
+    : `Vas a establecer una nueva contraseña para ${nombre}${emailActual ? ' (correo: ' + emailActual + ')' : ''}.`;
+  document.getElementById('acceso-grupo-correo').style.display = modo === 'crear' ? '' : 'none';
+  document.getElementById('acceso-correo').value = '';
+  document.getElementById('acceso-label-pass').textContent = modo === 'crear' ? 'Contraseña' : 'Nueva contraseña';
+  document.getElementById('acceso-pass').value = '';
+  document.getElementById('acceso-pass2').value = '';
+  document.getElementById('acceso-error').style.display = 'none';
+  const btn = document.getElementById('acceso-btn-confirmar');
+  btn.disabled = false; btn.textContent = 'Guardar';
+  document.getElementById('modal-acceso').classList.add('show');
+}
+document.getElementById('acceso-btn-cerrar').addEventListener('click', ()=> document.getElementById('modal-acceso').classList.remove('show'));
+document.getElementById('acceso-btn-cancelar').addEventListener('click', ()=> document.getElementById('modal-acceso').classList.remove('show'));
+
+function mostrarErrorAcceso(msg){
+  const el = document.getElementById('acceso-error');
+  el.textContent = '⚠️ ' + msg;
+  el.style.display = '';
+}
+
+document.getElementById('acceso-btn-confirmar').addEventListener('click', async ()=>{
+  const email = document.getElementById('acceso-correo').value.trim();
+  const pass = document.getElementById('acceso-pass').value;
+  const pass2 = document.getElementById('acceso-pass2').value;
+  document.getElementById('acceso-error').style.display = 'none';
+
+  if(ACCESO_MODO === 'crear' && !email){ mostrarErrorAcceso('Escribe un correo.'); return; }
+  if(ACCESO_MODO === 'crear' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ mostrarErrorAcceso('Ese correo no parece válido.'); return; }
+  if(!pass || pass.length < 6){ mostrarErrorAcceso('La contraseña debe tener al menos 6 caracteres.'); return; }
+  if(pass !== pass2){ mostrarErrorAcceso('Las contraseñas no coinciden.'); return; }
+
+  const btn = document.getElementById('acceso-btn-confirmar');
+  btn.disabled = true; btn.textContent = 'Guardando...';
+
+  const payload = ACCESO_MODO === 'crear'
+    ? { action:'crear_usuario', personal_id: ACCESO_PERSONAL_ID, email, password: pass }
+    : { action:'reset_password', personal_id: ACCESO_PERSONAL_ID, password: pass };
+
+  const resultado = await llamarAdminAction(payload);
+
+  btn.disabled = false; btn.textContent = 'Guardar';
+
+  if(!resultado.ok){
+    mostrarErrorAcceso(resultado.error);
+    return;
+  }
+
+  document.getElementById('modal-acceso').classList.remove('show');
+  toast(ACCESO_MODO === 'crear' ? '✓ Cuenta creada.' : '✓ Contraseña actualizada.');
+  renderConfigPersonal();
+  cargarActividad();
+});
 
 document.getElementById('cfg-personal-btn-agregar').addEventListener('click', async ()=>{
   const nombre = document.getElementById('cfg-personal-nombre').value.trim();
@@ -2778,7 +2911,7 @@ async function cargarActividad(){
   }
   const lista = data || [];
   if(!lista.length){
-    cont.innerHTML = '<div class="empty-note">Sin actividad registrada todavía. Esta bitácora se empezará a llenar cuando se complete la función de administración (service_role).</div>';
+    cont.innerHTML = '<div class="empty-note">Sin actividad registrada todavía. Aquí aparecerán las cuentas creadas, contraseñas restablecidas y eliminaciones definitivas.</div>';
     return;
   }
   cont.innerHTML = lista.map(a => `<div>${esc2(a.personal?.nombre || 'Sistema')} — ${esc2(a.accion)}${a.tabla ? ' · '+esc2(a.tabla) : ''} · ${fmtFechaHora(a.created_at)}</div>`).join('');
