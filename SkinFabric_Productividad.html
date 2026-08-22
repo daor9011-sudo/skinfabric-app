@@ -183,6 +183,18 @@ main.appmain{padding:22px 26px 40px;max-width:1080px;margin:0 auto}
 .badge-novino{background:#F5EEF8;color:var(--purple);border:1px solid #E4CFEF;margin-left:6px}
 .btn-sm{padding:6px 12px;font-size:11px;border-radius:6px;cursor:pointer;border:1px solid var(--g2);background:#fff;color:var(--navy);font-weight:700;display:inline-flex;align-items:center;gap:4px;font-family:inherit;white-space:nowrap}
 .btn-sm.btn-outline{background:#fff;color:var(--navy);border:1px solid var(--g2)}
+.tbl-personal{table-layout:fixed}
+.tbl-personal .c-nombre{width:16%}
+.tbl-personal .c-rol{width:9%}
+.tbl-personal .c-correo{width:17%}
+.tbl-personal .c-bool{width:10.5%}
+.tbl-personal .c-accion{width:16%}
+.tbl-personal th,.tbl-personal td{padding:7px 6px;font-size:12px}
+.tbl-personal th{white-space:normal;line-height:1.25;overflow-wrap:anywhere;word-break:break-word;font-size:9.5px;letter-spacing:.3px}
+.tbl-personal th:nth-child(4),.tbl-personal th:nth-child(5),.tbl-personal th:nth-child(6),.tbl-personal th:nth-child(7),
+.tbl-personal td:nth-child(4),.tbl-personal td:nth-child(5),.tbl-personal td:nth-child(6),.tbl-personal td:nth-child(7){text-align:center}
+.tbl-personal td.cell-trunc{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tbl-personal .btn-sm{padding:4px 8px;font-size:10.5px}
 .btn-sm.btn-edit{background:#EEF5FC;color:#1B5C9E;border:1px solid #BDD5F0}
 .btn-sm.btn-del{background:#FEF0EF;color:var(--red);border:1px solid #FBBFBB}
 .btn-sm.btn-restore{background:#EEF8F1;color:var(--green);border:1px solid #A8D8B4}
@@ -558,7 +570,10 @@ main.appmain{padding:22px 26px 40px;max-width:1080px;margin:0 auto}
       <div class="config-section">
         <div class="config-title"><span>👥 Personal</span></div>
         <div class="tx-table-wrap">
-          <table class="tx-table">
+          <table class="tx-table tbl-personal">
+            <colgroup>
+              <col class="c-nombre"><col class="c-rol"><col class="c-correo"><col class="c-bool"><col class="c-bool"><col class="c-bool"><col class="c-bool"><col class="c-accion">
+            </colgroup>
             <thead><tr><th>Nombre</th><th>Rol</th><th>Correo</th><th>Activo</th><th>Exportar</th><th>Dashboard</th><th>Papelera</th><th></th></tr></thead>
             <tbody id="cfg-personal-tbody"></tbody>
           </table>
@@ -923,12 +938,12 @@ async function intentarEntrar(perfil){
 
 // ── Shell post-login ──
 let MI_PERFIL = null;
-const ROLE_LABELS = { admin:'ADMIN', doctor:'DOCTOR', cosmetologo:'COSMETÓLOGO/A', recepcion:'RECEPCIÓN' };
+const ROLE_LABELS = { admin:'Admin', doctor:'Doctor', cosmetologo:'Cosmetólogo/a', recepcion:'Recepción' };
 function entrarAlShell(perfil){
   MI_PERFIL = perfil;
   document.getElementById('auth-view').classList.add('hide');
   document.getElementById('app-view').classList.add('act');
-  document.getElementById('app-role-chip').textContent = '★ ' + (ROLE_LABELS[perfil.rol] || perfil.rol.toUpperCase());
+  document.getElementById('app-role-chip').textContent = '★ ' + (ROLE_LABELS[perfil.rol] || (perfil.rol.charAt(0).toUpperCase() + perfil.rol.slice(1)));
   document.getElementById('app-user-name').innerHTML = '👤 ' + esc2(perfil.nombre);
 
   const showDash = perfil.permisos?.puede_ver_dashboard === true;
@@ -2492,9 +2507,9 @@ async function renderConfigPersonal(){
   if(!lista.length){ tbody.innerHTML = '<tr><td colspan="8" class="empty-note">Sin personal registrado.</td></tr>'; return; }
   tbody.innerHTML = lista.map(p => `
     <tr data-id="${p.id}">
-      <td>${esc2(p.nombre)}</td>
+      <td class="cell-trunc" title="${esc2(p.nombre)}">${esc2(p.nombre)}</td>
       <td>${esc2(ROLE_LABELS[p.rol] || p.rol)}</td>
-      <td>${p.email ? esc2(p.email) : '<span class="pend">sin cuenta</span>'}</td>
+      <td class="cell-trunc" title="${p.email ? esc2(p.email) : ''}">${p.email ? esc2(p.email) : '<span class="pend">Sin cuenta</span>'}</td>
       <td><input type="checkbox" class="cfg-p-activo" ${p.activo ? 'checked':''}/></td>
       <td><input type="checkbox" class="cfg-p-exportar" ${p.permisos?.puede_exportar !== false ? 'checked':''}/></td>
       <td><input type="checkbox" class="cfg-p-dashboard" ${p.permisos?.puede_ver_dashboard ? 'checked':''}/></td>
