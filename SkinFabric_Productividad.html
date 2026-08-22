@@ -100,6 +100,14 @@ main.appmain{padding:22px 26px 40px;max-width:1080px;margin:0 auto}
 .card{background:#fff;border-radius:14px;box-shadow:0 1px 2px rgba(11,22,40,.04),0 12px 28px -8px rgba(11,22,40,.14);padding:20px 22px 18px;position:relative;overflow:hidden}
 .card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--teal),var(--navy2))}
 .tab-title{font-family:var(--font-d);font-size:15.5px;font-weight:800;color:var(--navy);padding-bottom:9px;margin-bottom:14px;border-bottom:1px solid var(--g2);display:flex;align-items:center;gap:7px;justify-content:space-between}
+.hist-kpi-chips{display:flex;gap:10px;flex-wrap:wrap;margin:-2px 0 16px}
+.hist-chip{background:#fff;border:1px solid var(--g2);border-radius:11px;padding:8px 16px 8px 8px;display:flex;align-items:center;gap:10px;box-shadow:0 1px 2px rgba(11,22,40,.04)}
+.hist-chip .ico{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.hist-chip.c-total .ico{background:#FDECD2}
+.hist-chip.c-pac .ico{background:#EBE1F7}
+.hist-chip.c-ticket .ico{background:#FBDDEA}
+.hist-chip .v{font-family:var(--font-d);font-weight:800;font-size:15px;color:var(--navy);line-height:1.15}
+.hist-chip .l{font-size:9px;color:var(--g4);font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-top:1px}
 .screen2{display:none}
 .screen2.act{display:block}
 .placeholder-note{font-size:12.5px;color:var(--g6);background:var(--g1);border:1px dashed var(--g2);border-radius:10px;padding:18px;text-align:center;line-height:1.6}
@@ -469,6 +477,7 @@ main.appmain{padding:22px 26px 40px;max-width:1080px;margin:0 auto}
           <button class="btn-sm btn-outline" id="hist-btn-papelera" type="button">🗑 Papelera</button>
         </div>
       </div>
+      <div class="hist-kpi-chips" id="hist-kpi-chips"></div>
       <div class="filter-bar">
         <input type="text" id="hist-buscar" placeholder="Buscar paciente..." style="flex:2;min-width:160px"/>
         <select id="hist-rango">
@@ -1581,9 +1590,25 @@ async function cargarHistorial(){
   renderHistorial();
 }
 
+function renderHistKpis(){
+  const cont = document.getElementById('hist-kpi-chips');
+  const filasReales = HIST_ROWS.filter(r => !r.no_vino);
+  if(!filasReales.length){ cont.innerHTML = ''; return; }
+  const totalIngreso = filasReales.reduce((a,r)=> a + Number(r.monto||0) + Number(r.monto_2||0), 0);
+  const pacientesUnicos = new Set(filasReales.map(r=> r.paciente_id)).size;
+  const ticketProm = totalIngreso / filasReales.length;
+  const fmt0 = n => '$' + Math.round(n).toLocaleString('es-MX');
+  cont.innerHTML = `
+    <div class="hist-chip c-total"><span class="ico">💰</span><div><div class="v">${fmt0(totalIngreso)}</div><div class="l">Total</div></div></div>
+    <div class="hist-chip c-pac"><span class="ico">👥</span><div><div class="v">${pacientesUnicos}</div><div class="l">Pacientes</div></div></div>
+    <div class="hist-chip c-ticket"><span class="ico">🎟️</span><div><div class="v">${fmt0(ticketProm)}</div><div class="l">Ticket prom.</div></div></div>
+  `;
+}
+
 function renderHistorial(){
   const tbody = document.getElementById('hist-tbody');
   const empty = document.getElementById('hist-empty');
+  renderHistKpis();
   if(!HIST_ROWS.length){
     tbody.innerHTML = '';
     empty.style.display = '';
