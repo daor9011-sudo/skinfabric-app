@@ -183,18 +183,18 @@ main.appmain{padding:22px 26px 40px;max-width:1080px;margin:0 auto}
 .badge-novino{background:#F5EEF8;color:var(--purple);border:1px solid #E4CFEF;margin-left:6px}
 .btn-sm{padding:6px 12px;font-size:11px;border-radius:6px;cursor:pointer;border:1px solid var(--g2);background:#fff;color:var(--navy);font-weight:700;display:inline-flex;align-items:center;gap:4px;font-family:inherit;white-space:nowrap}
 .btn-sm.btn-outline{background:#fff;color:var(--navy);border:1px solid var(--g2)}
-.tbl-personal{table-layout:fixed}
-.tbl-personal .c-nombre{width:16%}
-.tbl-personal .c-rol{width:9%}
-.tbl-personal .c-correo{width:17%}
-.tbl-personal .c-bool{width:10.5%}
-.tbl-personal .c-accion{width:16%}
-.tbl-personal th,.tbl-personal td{padding:7px 6px;font-size:12px}
-.tbl-personal th{white-space:normal;line-height:1.25;overflow-wrap:anywhere;word-break:break-word;font-size:9.5px;letter-spacing:.3px}
-.tbl-personal th:nth-child(4),.tbl-personal th:nth-child(5),.tbl-personal th:nth-child(6),.tbl-personal th:nth-child(7),
-.tbl-personal td:nth-child(4),.tbl-personal td:nth-child(5),.tbl-personal td:nth-child(6),.tbl-personal td:nth-child(7){text-align:center}
-.tbl-personal td.cell-trunc{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.tbl-personal .btn-sm{padding:4px 8px;font-size:10.5px}
+.p-header{display:grid;grid-template-columns:1.7fr 90px 100px 150px;gap:14px;padding:0 4px 9px;font-size:9.5px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--g4);border-bottom:2px solid var(--g2)}
+.p-row{display:grid;grid-template-columns:1.7fr 90px 100px 150px;gap:14px;align-items:center;padding:13px 4px;border-bottom:1px solid var(--g1)}
+.p-nombre-txt{font-weight:700;color:var(--navy);font-size:13px}
+.p-email{font-size:11px;color:var(--g4);margin-top:3px}
+.p-row .cbwrap{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:10.5px;color:var(--g6)}
+.p-row .cbwrap input{width:16px;height:16px;accent-color:var(--teal);cursor:pointer}
+.p-activo-txt{font-size:9px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;color:var(--g4)}
+.p-activo-label input:checked ~ .p-activo-txt{color:#2E7D4F}
+.p-permiso-row{padding:2px 4px 16px;border-bottom:1px solid var(--g1);display:flex;gap:20px;flex-wrap:wrap}
+.p-permiso-row:last-of-type{border-bottom:none}
+.cbrow2{display:flex;align-items:center;gap:7px;cursor:pointer;font-size:11.5px;color:var(--g6);font-weight:600}
+.cbrow2 input[type=checkbox]{width:14px;height:14px;accent-color:var(--teal);cursor:pointer;flex-shrink:0}
 .btn-sm.btn-edit{background:#EEF5FC;color:#1B5C9E;border:1px solid #BDD5F0}
 .btn-sm.btn-del{background:#FEF0EF;color:var(--red);border:1px solid #FBBFBB}
 .btn-sm.btn-restore{background:#EEF8F1;color:var(--green);border:1px solid #A8D8B4}
@@ -569,15 +569,8 @@ main.appmain{padding:22px 26px 40px;max-width:1080px;margin:0 auto}
 
       <div class="config-section">
         <div class="config-title"><span>👥 Personal</span></div>
-        <div class="tx-table-wrap">
-          <table class="tx-table tbl-personal">
-            <colgroup>
-              <col class="c-nombre"><col class="c-rol"><col class="c-correo"><col class="c-bool"><col class="c-bool"><col class="c-bool"><col class="c-bool"><col class="c-accion">
-            </colgroup>
-            <thead><tr><th>Nombre</th><th>Rol</th><th>Correo</th><th>Activo</th><th>Exportar</th><th>Dashboard</th><th>Papelera</th><th></th></tr></thead>
-            <tbody id="cfg-personal-tbody"></tbody>
-          </table>
-        </div>
+        <div class="p-header"><span>Nombre</span><span style="text-align:center">Rol</span><span style="text-align:center">Activo</span><span></span></div>
+        <div id="cfg-personal-lista"></div>
         <div class="form-grid" style="grid-template-columns:1.5fr 1fr;gap:16px 28px;margin-top:26px">
           <div class="form-group" style="gap:8px"><label>Nombre completo</label><input type="text" id="cfg-personal-nombre" placeholder="Nombre del doctor/a o cosmetólogo/a"/></div>
           <div class="form-group" style="gap:8px"><label>Rol</label>
@@ -2536,50 +2529,60 @@ async function catalogoCrear(tabla, payload){
 
 // ── Personal ──
 async function renderConfigPersonal(){
-  const tbody = document.getElementById('cfg-personal-tbody');
-  tbody.innerHTML = '<tr><td colspan="8" class="empty-note">Cargando...</td></tr>';
+  const cont = document.getElementById('cfg-personal-lista');
+  cont.innerHTML = '<div class="empty-note">Cargando...</div>';
   // Este panel es de accesos/permisos del sistema: solo recepción, doctores y admins.
   // Los cosmetólogos/as no manejan accesos ni permisos aquí (siguen existiendo en "personal"
   // para aparecer en "Atendido por", solo que no se listan/gestionan en este panel).
   const { data, error } = await sb.from('personal').select('*').in('rol', ['admin','doctor','recepcion']).order('nombre');
   if(error){
     console.error('[SkinFabric] Error listando personal:', error);
-    tbody.innerHTML = '<tr><td colspan="8" class="empty-note">No se pudo cargar.</td></tr>';
+    cont.innerHTML = '<div class="empty-note">No se pudo cargar.</div>';
     return;
   }
   const lista = data || [];
-  if(!lista.length){ tbody.innerHTML = '<tr><td colspan="8" class="empty-note">Sin personal registrado.</td></tr>'; return; }
-  tbody.innerHTML = lista.map(p => `
-    <tr data-id="${p.id}">
-      <td class="cell-trunc" title="${esc2(p.nombre)}">${esc2(p.nombre)}</td>
-      <td>${esc2(ROLE_LABELS[p.rol] || p.rol)}</td>
-      <td class="cell-trunc" title="${p.email ? esc2(p.email) : ''}">${p.email ? esc2(p.email) : '<span class="pend">Sin cuenta</span>'}</td>
-      <td><input type="checkbox" class="cfg-p-activo" ${p.activo ? 'checked':''}/></td>
-      <td><input type="checkbox" class="cfg-p-exportar" ${p.permisos?.puede_exportar !== false ? 'checked':''}/></td>
-      <td><input type="checkbox" class="cfg-p-dashboard" ${p.permisos?.puede_ver_dashboard ? 'checked':''}/></td>
-      <td><input type="checkbox" class="cfg-p-papelera" ${p.permisos?.puede_eliminar_papelera !== false ? 'checked':''}/></td>
-      <td><button class="btn-sm btn-outline cfg-btn-cuenta" type="button">${p.auth_user_id ? 'Reset pass' : 'Dar acceso'}</button></td>
-    </tr>`).join('');
+  if(!lista.length){ cont.innerHTML = '<div class="empty-note">Sin personal registrado.</div>'; return; }
+  cont.innerHTML = lista.map(p => `
+    <div class="p-row" data-id="${p.id}">
+      <div>
+        <div class="p-nombre-txt">${esc2(p.nombre)}</div>
+        <div class="p-email">${p.email ? '✉️ ' + esc2(p.email) : '<span class="pend">Sin cuenta</span>'}</div>
+      </div>
+      <div style="text-align:center"><span class="badge">${esc2(ROLE_LABELS[p.rol] || p.rol)}</span></div>
+      <label class="cbwrap p-activo-label">
+        <input type="checkbox" class="cfg-p-activo" ${p.activo ? 'checked':''}/>
+        <span class="p-activo-txt">${p.activo ? 'Activo':'Inactivo'}</span>
+      </label>
+      <div style="text-align:right">
+        <button class="btn-sm btn-outline cfg-btn-cuenta" type="button">${p.auth_user_id ? 'Reset pass' : 'Dar acceso'}</button>
+      </div>
+    </div>
+    <div class="p-permiso-row" data-permiso-id="${p.id}">
+      <label class="cbrow2"><input type="checkbox" class="cfg-p-exportar" ${p.permisos?.puede_exportar !== false ? 'checked':''}/><span>⬇️ Puede exportar el Historial</span></label>
+      <label class="cbrow2"><input type="checkbox" class="cfg-p-dashboard" ${p.permisos?.puede_ver_dashboard ? 'checked':''}/><span>📊 Puede ver el Dashboard</span></label>
+      <label class="cbrow2"><input type="checkbox" class="cfg-p-papelera" ${p.permisos?.puede_eliminar_papelera !== false ? 'checked':''}/><span>🗑️ Puede vaciar/eliminar la Papelera</span></label>
+    </div>`).join('');
 
-  tbody.querySelectorAll('tr').forEach(tr=>{
-    const id = tr.dataset.id;
-    tr.querySelector('.cfg-p-activo').addEventListener('change', async (e)=>{
+  cont.querySelectorAll('.p-row').forEach(row=>{
+    const id = row.dataset.id;
+    const permisoRow = cont.querySelector(`.p-permiso-row[data-permiso-id="${id}"]`);
+    row.querySelector('.cfg-p-activo').addEventListener('change', async (e)=>{
       const ok = await catalogoActualizar('personal', id, { activo: e.target.checked });
       if(ok){ toast('✓ Guardado'); cargarCatalogos(); } else e.target.checked = !e.target.checked;
     });
     const guardarPermisos = async ()=>{
       const permisos = {
-        puede_exportar: tr.querySelector('.cfg-p-exportar').checked,
-        puede_ver_dashboard: tr.querySelector('.cfg-p-dashboard').checked,
-        puede_eliminar_papelera: tr.querySelector('.cfg-p-papelera').checked,
+        puede_exportar: permisoRow.querySelector('.cfg-p-exportar').checked,
+        puede_ver_dashboard: permisoRow.querySelector('.cfg-p-dashboard').checked,
+        puede_eliminar_papelera: permisoRow.querySelector('.cfg-p-papelera').checked,
       };
       const ok = await catalogoActualizar('personal', id, { permisos });
       if(ok) toast('✓ Guardado');
     };
-    tr.querySelector('.cfg-p-exportar').addEventListener('change', guardarPermisos);
-    tr.querySelector('.cfg-p-dashboard').addEventListener('change', guardarPermisos);
-    tr.querySelector('.cfg-p-papelera').addEventListener('change', guardarPermisos);
-    tr.querySelector('.cfg-btn-cuenta').addEventListener('click', ()=>{
+    permisoRow.querySelector('.cfg-p-exportar').addEventListener('change', guardarPermisos);
+    permisoRow.querySelector('.cfg-p-dashboard').addEventListener('change', guardarPermisos);
+    permisoRow.querySelector('.cfg-p-papelera').addEventListener('change', guardarPermisos);
+    row.querySelector('.cfg-btn-cuenta').addEventListener('click', ()=>{
       const p = lista.find(x => x.id === id);
       if(!p) return;
       abrirModalAcceso(p.id, p.nombre, p.auth_user_id ? 'reset' : 'crear', p.email);
