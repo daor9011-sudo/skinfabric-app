@@ -9,6 +9,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -160,6 +161,38 @@ main.appmain{padding:22px 26px 40px;max-width:1080px;margin:0 auto}
 .selected-pac-chip button{background:none;border:none;cursor:pointer;color:#0B6E6E;font-size:13px;font-weight:800}
 @media (max-width:820px){.form-grid{grid-template-columns:1fr 1fr}}
 @media (max-width:560px){.form-grid{grid-template-columns:1fr}}
+
+.filter-bar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
+.filter-bar input,.filter-bar select{padding:7px 10px;font-size:12px;border:1px solid var(--g2);border-radius:7px;background:#fff;color:var(--navy);font-family:inherit;outline:none}
+.filter-bar input:focus,.filter-bar select:focus{border-color:var(--teal)}
+.excl-filters{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.excl-link{font-size:12px;color:var(--g6);cursor:pointer;display:flex;align-items:center;gap:5px;padding:5px 10px;border-radius:20px;border:1px solid var(--g2);user-select:none}
+.excl-link.active{background:var(--teal-soft);border-color:rgba(42,191,191,.5);color:#0B6E6E;font-weight:700}
+.tx-table-wrap{overflow-x:auto}
+.tx-table{width:100%;border-collapse:collapse;font-size:12.5px}
+.tx-table th{text-align:left;padding:10px 12px;color:var(--g6);font-size:10px;letter-spacing:1px;text-transform:uppercase;border-bottom:1px solid var(--g2);font-weight:700;white-space:nowrap}
+.tx-table td{padding:9px 12px;border-bottom:1px solid var(--g1);vertical-align:middle}
+.tx-table tr:last-child td{border-bottom:none}
+.tx-table tr:hover td{background:var(--g1)}
+.tx-table input{padding:5px 8px;font-size:12px;width:100px;border:1px solid var(--g2);border-radius:5px;font-family:inherit;color:var(--navy)}
+.pend{color:#B8720A;font-style:italic;font-size:11.5px}
+.badge{display:inline-block;padding:2px 10px;border-radius:99px;font-size:10.5px;font-weight:700;background:var(--g1);color:var(--navy);border:1px solid var(--g2);white-space:nowrap}
+.badge-novino{background:#F5EEF8;color:var(--purple);border:1px solid #E4CFEF;margin-left:6px}
+.btn-sm{padding:6px 12px;font-size:11px;border-radius:6px;cursor:pointer;border:none;font-weight:700;display:inline-flex;align-items:center;gap:4px;font-family:inherit;white-space:nowrap}
+.btn-sm.btn-outline{background:#fff;color:var(--navy);border:1px solid var(--g2)}
+.btn-sm.btn-edit{background:#EEF5FC;color:#1B5C9E;border:1px solid #BDD5F0}
+.btn-sm.btn-del{background:#FEF0EF;color:var(--red);border:1px solid #FBBFBB}
+.btn-sm.btn-restore{background:#EEF8F1;color:var(--green);border:1px solid #A8D8B4}
+.papelera-box{background:#FEF6F5;border:1px solid #F3CFCC;border-radius:10px;padding:14px;margin-bottom:14px}
+.empty-note{padding:30px;text-align:center;color:var(--g6);font-size:13px}
+.modal-overlay{position:fixed;inset:0;background:rgba(11,22,40,.55);display:none;align-items:center;justify-content:center;z-index:9980;padding:20px}
+.modal-overlay.show{display:flex}
+.modal-box{background:#fff;border-radius:14px;max-width:640px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 24px 60px rgba(11,22,40,.35)}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--g2)}
+.modal-head h3{font-family:var(--font-d);font-size:15px;color:var(--navy);margin:0}
+.modal-close{background:none;border:none;font-size:16px;cursor:pointer;color:var(--g6)}
+.modal-body{padding:18px 20px}
+.modal-foot{display:flex;gap:10px;justify-content:flex-end;align-items:center;padding:14px 20px;border-top:1px solid var(--g2);flex-wrap:wrap}
 </style>
 </head>
 <body>
@@ -320,8 +353,52 @@ main.appmain{padding:22px 26px 40px;max-width:1080px;margin:0 auto}
       </div>
     </div>
     <div class="card screen2" id="app-screen-historial">
-      <div class="tab-title"><span>🗂️ Historial de consultas</span></div>
-      <div class="placeholder-note">Este módulo se construye en una próxima entrega.</div>
+      <div class="tab-title">
+        <span>🗂️ Historial de consultas</span>
+        <div class="actions" style="display:flex;gap:8px">
+          <button class="btn-sm btn-outline" id="hist-btn-exportar" type="button" style="display:none">↓ Exportar</button>
+          <button class="btn-sm btn-outline" id="hist-btn-papelera" type="button">🗑 Papelera</button>
+        </div>
+      </div>
+      <div class="filter-bar">
+        <input type="text" id="hist-buscar" placeholder="Buscar paciente..." style="flex:2;min-width:160px"/>
+        <select id="hist-rango">
+          <option value="hoy">Hoy</option>
+          <option value="7">7 días</option>
+          <option value="30" selected>30 días</option>
+          <option value="90">90 días</option>
+          <option value="anio">Año</option>
+          <option value="todo">Todo</option>
+        </select>
+        <select id="hist-tipo"><option value="">Todos los servicios</option></select>
+        <select id="hist-medio"><option value="">Todos los medios</option></select>
+      </div>
+      <div class="excl-filters">
+        <div class="excl-link" data-val="facturado">🧾 Solo facturado</div>
+        <div class="excl-link" data-val="nofacturado">❌ Solo no facturado</div>
+        <div class="excl-link" data-val="novino">👻 Solo "No vino"</div>
+      </div>
+
+      <div id="hist-papelera-box" class="papelera-box" style="display:none">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+          <strong style="font-size:12.5px" id="hist-papelera-count">🗑 Papelera (0 registros)</strong>
+          <button class="btn-sm btn-del" id="hist-btn-vaciar-papelera" type="button" style="display:none">Vaciar papelera</button>
+        </div>
+        <div class="tx-table-wrap">
+          <table class="tx-table">
+            <thead><tr><th>Fecha</th><th>Paciente</th><th>Doctor</th><th>Monto</th><th>Eliminado</th><th></th></tr></thead>
+            <tbody id="hist-papelera-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="tx-table-wrap">
+        <table class="tx-table">
+          <thead><tr><th>Fecha</th><th>Paciente</th><th>Doctor</th><th>Servicio</th><th>Monto</th><th>Pago</th><th>N° Factura</th><th>N° Recibo</th><th></th></tr></thead>
+          <tbody id="hist-tbody"></tbody>
+        </table>
+        <div class="empty-note" id="hist-empty" style="display:none">No hay consultas para los filtros seleccionados.</div>
+      </div>
     </div>
     <div class="card screen2" id="app-screen-cierre">
       <div class="tab-title"><span>🧾 Resultados Operativos</span></div>
@@ -378,6 +455,66 @@ main.appmain{padding:22px 26px 40px;max-width:1080px;margin:0 auto}
     <div class="confirm-actions2">
       <button class="appbtn appbtn-s" id="prompt-modal-btn-cancelar" type="button" style="background:var(--g1);color:var(--g6);box-shadow:none">Cancelar</button>
       <button class="appbtn appbtn-p" id="prompt-modal-btn-ok" type="button">Aceptar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ Modal: Editar consulta ══════════ -->
+<div class="modal-overlay" id="modal-editar">
+  <div class="modal-box">
+    <div class="modal-head"><h3>Editar consulta</h3><button class="modal-close" id="edit-btn-cerrar" type="button">✕</button></div>
+    <div class="modal-body">
+      <div class="form-grid" style="grid-template-columns:1fr 1fr">
+        <div class="form-group full"><label>Paciente</label><div id="edit-paciente-nombre" style="font-weight:700;color:var(--navy);font-size:13.5px;padding:6px 0"></div></div>
+        <div class="form-group"><label>Fecha</label><input type="date" id="edit-fecha"/></div>
+        <div class="form-group"><label>Atendido por</label><select id="edit-doctor"></select></div>
+        <div class="form-group"><label>Tipo de servicio</label><select id="edit-tipo"></select></div>
+        <div class="form-group" id="edit-grp-descripcion" style="display:none"><label>Descripción</label><input type="text" id="edit-descripcion"/></div>
+        <div class="form-group" id="edit-grp-equipo" style="display:none"><label>Equipo / Cabina</label><select id="edit-equipo"></select></div>
+        <div class="form-group"><label>Monto ($)</label><input type="number" id="edit-monto" min="0" step="0.01"/></div>
+        <div class="form-group"><label>Medio de pago</label><select id="edit-medio"></select></div>
+        <div class="form-group"><label>Terminal</label><select id="edit-terminal"></select></div>
+        <div class="form-group"><label>N° Factura</label><input type="text" id="edit-num-factura"/></div>
+        <div class="form-group"><label>N° Recibo</label><input type="text" id="edit-numero-recibo"/></div>
+        <div class="form-group"><label style="display:flex;align-items:center;gap:8px;text-transform:none;font-size:12.5px;font-weight:400;color:var(--navy)"><input type="checkbox" id="edit-factura" style="width:15px;height:15px;flex:none"/> ¿Requiere factura?</label></div>
+        <div class="form-group full"><label>Notas</label><input type="text" id="edit-notas"/></div>
+      </div>
+    </div>
+    <div class="modal-foot" style="justify-content:space-between">
+      <button class="btn-sm btn-del" id="edit-btn-eliminar" type="button">🗑 Mover a papelera</button>
+      <div style="display:flex;gap:10px">
+        <button class="appbtn appbtn-s" id="edit-btn-cancelar" type="button" style="background:var(--g1);color:var(--g6);box-shadow:none">Cancelar</button>
+        <button class="appbtn appbtn-p" id="edit-btn-guardar" type="button">Guardar cambios</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ Modal: Exportar historial ══════════ -->
+<div class="modal-overlay" id="modal-exportar">
+  <div class="modal-box">
+    <div class="modal-head"><h3>Exportar historial</h3><button class="modal-close" id="export-btn-cerrar" type="button">✕</button></div>
+    <div class="modal-body">
+      <div class="form-grid" style="grid-template-columns:1fr 1fr">
+        <div class="form-group">
+          <label>Rango</label>
+          <select id="export-rango">
+            <option value="hoy">Hoy</option>
+            <option value="ayer">Ayer</option>
+            <option value="semana">Esta semana</option>
+            <option value="mes" selected>Este mes</option>
+            <option value="filtros">Usar filtros actuales del Historial</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Incluir</label>
+          <label style="display:flex;gap:6px;align-items:center;font-size:12.5px;font-weight:400;text-transform:none;padding:9px 0;color:var(--navy)"><input type="checkbox" id="export-incluir-novino" checked style="width:15px;height:15px;flex:none"/> Incluir "No vino"</label>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="appbtn appbtn-s" id="export-btn-cancelar" type="button" style="background:var(--g1);color:var(--g6);box-shadow:none">Cancelar</button>
+      <button class="appbtn appbtn-p" id="export-btn-confirmar" type="button">↓ Exportar a Excel</button>
     </div>
   </div>
 </div>
@@ -536,6 +673,9 @@ function entrarAlShell(perfil){
   window.MI_PUEDE_ELIMINAR_PAPELERA = perfil.rol === 'admin' && perfil.permisos?.puede_eliminar_papelera !== false;
   window.MI_PUEDE_EXPORTAR = perfil.permisos?.puede_exportar !== false;
 
+  document.getElementById('hist-btn-exportar').style.display = window.MI_PUEDE_EXPORTAR ? '' : 'none';
+  document.getElementById('hist-btn-vaciar-papelera').style.display = window.MI_PUEDE_ELIMINAR_PAPELERA ? '' : 'none';
+
   cargarCatalogos();
 }
 
@@ -692,6 +832,10 @@ async function cargarCatalogos(){
   aplicarDefaultsPorRol();
   const fechaEl = document.getElementById('reg-fecha');
   if(fechaEl && !fechaEl.value) fechaEl.value = isoLocal(new Date());
+
+  poblarSelect('hist-tipo', CATALOGOS.tiposServicio.map(t=>({value:t.id, label:t.nombre})), 'Todos los servicios');
+  poblarSelect('hist-medio', CATALOGOS.mediosPago.map(m=>({value:m.nombre, label:m.nombre})), 'Todos los medios');
+  cargarHistorial();
 }
 
 function poblarSelectAtendidoPor(){
@@ -1007,6 +1151,402 @@ function limpiarRegistroParcial(){
 
 document.getElementById('reg-btn-guardar').addEventListener('click', guardarRegistro);
 document.getElementById('reg-btn-limpiar').addEventListener('click', limpiarRegistroCompleto);
+
+// ============================================================
+// Módulo: Historial + Papelera + Exportar
+// ============================================================
+let HIST_ROWS = [];
+let HIST_EXCL_FILTRO = null; // 'facturado' | 'nofacturado' | 'novino' | null
+let HIST_PAPELERA_ABIERTA = false;
+let HIST_EDIT_ID = null;
+
+function fmtFechaCorta(fechaStr){
+  if(!fechaStr) return '—';
+  const [y,m,d] = fechaStr.split('-');
+  return `${d}/${m}/${y}`;
+}
+function fmtFechaHora(ts){
+  if(!ts) return '—';
+  const d = new Date(ts);
+  const dd = String(d.getDate()).padStart(2,'0'), mm = String(d.getMonth()+1).padStart(2,'0');
+  const hh = String(d.getHours()).padStart(2,'0'), mi = String(d.getMinutes()).padStart(2,'0');
+  return `${dd}/${mm} ${hh}:${mi}`;
+}
+function rangoFechaDesde(rango){
+  const d = new Date();
+  switch(rango){
+    case 'hoy': return isoLocal(d);
+    case '7': d.setDate(d.getDate()-7); return isoLocal(d);
+    case '30': d.setDate(d.getDate()-30); return isoLocal(d);
+    case '90': d.setDate(d.getDate()-90); return isoLocal(d);
+    case 'anio': d.setFullYear(d.getFullYear()-1); return isoLocal(d);
+    default: return null; // 'todo'
+  }
+}
+
+async function cargarHistorial(){
+  const tbody = document.getElementById('hist-tbody');
+  const empty = document.getElementById('hist-empty');
+  empty.style.display = 'none';
+  tbody.innerHTML = '<tr><td colspan="9" class="empty-note">Cargando...</td></tr>';
+
+  const buscar = document.getElementById('hist-buscar').value.trim();
+  const rango = document.getElementById('hist-rango').value;
+  const tipoId = document.getElementById('hist-tipo').value;
+  const medio = document.getElementById('hist-medio').value;
+  const desde = rangoFechaDesde(rango);
+
+  let q = sb.from('consultas')
+    .select('id,fecha,descripcion,monto,medio_pago,monto_2,medio_pago_2,factura,num_factura,numero_recibo,no_vino,notas,paciente_id,doctor_id,tipo_servicio_id,equipo_cabina_id,terminal_id,pacientes!inner(nombre,telefono),doctor:personal!doctor_id(nombre),catalogo_tipos_servicio(nombre),catalogo_equipos(nombre),catalogo_terminales(nombre)')
+    .eq('deleted', false)
+    .order('fecha', { ascending:false })
+    .order('created_at', { ascending:false })
+    .limit(300);
+
+  if(desde) q = q.gte('fecha', desde);
+  if(tipoId) q = q.eq('tipo_servicio_id', tipoId);
+  if(medio) q = q.eq('medio_pago', medio);
+  if(buscar) q = q.ilike('pacientes.nombre', `%${buscar}%`);
+  if(HIST_EXCL_FILTRO === 'facturado') q = q.eq('factura', true);
+  else if(HIST_EXCL_FILTRO === 'nofacturado') q = q.eq('factura', false);
+  else if(HIST_EXCL_FILTRO === 'novino') q = q.eq('no_vino', true);
+
+  const { data, error } = await q;
+  if(error){
+    console.error('[SkinFabric] Error cargando historial:', error);
+    tbody.innerHTML = '';
+    empty.style.display = '';
+    empty.textContent = 'No se pudo cargar el historial.';
+    return;
+  }
+  HIST_ROWS = data || [];
+  renderHistorial();
+}
+
+function renderHistorial(){
+  const tbody = document.getElementById('hist-tbody');
+  const empty = document.getElementById('hist-empty');
+  if(!HIST_ROWS.length){
+    tbody.innerHTML = '';
+    empty.style.display = '';
+    empty.textContent = 'No hay consultas para los filtros seleccionados.';
+    return;
+  }
+  empty.style.display = 'none';
+  tbody.innerHTML = HIST_ROWS.map(r=>{
+    const pago1 = r.no_vino ? '—' : esc2(r.medio_pago || '—');
+    const pago2 = (!r.no_vino && r.medio_pago_2) ? `<div style="font-size:10px;color:var(--g6)">+${esc2(r.medio_pago_2)}</div>` : '';
+    const monto2 = (!r.no_vino && r.monto_2) ? `<div style="font-size:10px;color:var(--g6)">+${fmtMoney(r.monto_2)} 2do pago</div>` : '';
+    const servicio = esc2(r.catalogo_tipos_servicio?.nombre || '—') + (r.catalogo_equipos?.nombre ? ' · ' + esc2(r.catalogo_equipos.nombre) : '');
+    return `<tr>
+      <td>${fmtFechaCorta(r.fecha)}</td>
+      <td>${esc2(r.pacientes?.nombre || '—')}${r.no_vino ? ' <span class="badge badge-novino">👻</span>' : ''}</td>
+      <td><span class="badge">${esc2(r.doctor?.nombre || '—')}</span></td>
+      <td>${servicio}</td>
+      <td>${fmtMoney(r.monto)}${monto2}</td>
+      <td>${pago1}${pago2}</td>
+      <td><input type="text" class="hist-inline-factura" data-id="${r.id}" value="${esc2(r.num_factura||'')}" placeholder="${r.factura?'Pendiente':'—'}"/></td>
+      <td><input type="text" class="hist-inline-recibo" data-id="${r.id}" value="${esc2(r.numero_recibo||'')}" placeholder="—"/></td>
+      <td><button class="btn-sm btn-edit" data-id="${r.id}" type="button">✏️</button></td>
+    </tr>`;
+  }).join('');
+
+  tbody.querySelectorAll('.btn-edit').forEach(btn=> btn.addEventListener('click', ()=> abrirModalEditar(btn.dataset.id)));
+  tbody.querySelectorAll('.hist-inline-factura').forEach(inp=> inp.addEventListener('blur', ()=> guardarInline(inp.dataset.id, 'num_factura', inp.value.trim())));
+  tbody.querySelectorAll('.hist-inline-recibo').forEach(inp=> inp.addEventListener('blur', ()=> guardarInline(inp.dataset.id, 'numero_recibo', inp.value.trim())));
+}
+
+async function guardarInline(id, campo, valor){
+  const { error } = await sb.from('consultas').update({ [campo]: valor || null, edited_by: MI_PERFIL?.id || null, edited_at: new Date().toISOString() }).eq('id', id);
+  if(error){
+    console.error('[SkinFabric] Error guardando ' + campo + ':', error);
+    toast('No se pudo guardar. Verifica tu horario de acceso.');
+    return;
+  }
+  const row = HIST_ROWS.find(r=>r.id===id);
+  if(row) row[campo] = valor || null;
+  toast('✓ Guardado');
+}
+
+// ── Filtros ──
+let histBuscarTimeout = null;
+document.getElementById('hist-buscar').addEventListener('input', ()=>{
+  clearTimeout(histBuscarTimeout);
+  histBuscarTimeout = setTimeout(cargarHistorial, 350);
+});
+['hist-rango','hist-tipo','hist-medio'].forEach(id=>{
+  document.getElementById(id).addEventListener('change', cargarHistorial);
+});
+document.querySelectorAll('#app-screen-historial .excl-link').forEach(el=>{
+  el.addEventListener('click', ()=>{
+    const val = el.dataset.val;
+    const yaActivo = el.classList.contains('active');
+    document.querySelectorAll('#app-screen-historial .excl-link').forEach(e=> e.classList.remove('active'));
+    HIST_EXCL_FILTRO = yaActivo ? null : val;
+    if(!yaActivo) el.classList.add('active');
+    cargarHistorial();
+  });
+});
+document.querySelector('.s3-segment button[data-screen2="historial"]').addEventListener('click', cargarHistorial);
+
+// ── Papelera ──
+document.getElementById('hist-btn-papelera').addEventListener('click', ()=>{
+  HIST_PAPELERA_ABIERTA = !HIST_PAPELERA_ABIERTA;
+  document.getElementById('hist-papelera-box').style.display = HIST_PAPELERA_ABIERTA ? '' : 'none';
+  if(HIST_PAPELERA_ABIERTA) cargarPapelera();
+});
+
+async function cargarPapelera(){
+  const tbody = document.getElementById('hist-papelera-tbody');
+  tbody.innerHTML = '<tr><td colspan="6" class="empty-note">Cargando...</td></tr>';
+  const { data, error } = await sb.from('consultas')
+    .select('id,fecha,monto,deleted_at,pacientes(nombre),doctor:personal!doctor_id(nombre),borrador:personal!deleted_by(nombre)')
+    .eq('deleted', true)
+    .order('deleted_at', { ascending:false })
+    .limit(200);
+  if(error){
+    console.error('[SkinFabric] Error cargando papelera:', error);
+    tbody.innerHTML = '<tr><td colspan="6" class="empty-note">No se pudo cargar la papelera.</td></tr>';
+    document.getElementById('hist-papelera-count').textContent = '🗑 Papelera';
+    return;
+  }
+  const rows = data || [];
+  document.getElementById('hist-papelera-count').textContent = `🗑 Papelera (${rows.length} registro${rows.length===1?'':'s'})`;
+  if(!rows.length){
+    tbody.innerHTML = '<tr><td colspan="6" class="empty-note">La papelera está vacía.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = rows.map(r=>`
+    <tr>
+      <td>${fmtFechaCorta(r.fecha)}</td>
+      <td>${esc2(r.pacientes?.nombre || '—')}</td>
+      <td><span class="badge">${esc2(r.doctor?.nombre || '—')}</span></td>
+      <td>${fmtMoney(r.monto)}</td>
+      <td>${esc2(r.borrador?.nombre || '—')} · ${fmtFechaHora(r.deleted_at)}</td>
+      <td>
+        <button class="btn-sm btn-restore" data-id="${r.id}" type="button">↺ Restaurar</button>
+        ${window.MI_PUEDE_ELIMINAR_PAPELERA ? `<button class="btn-sm btn-del" data-id="${r.id}" type="button">✕ Eliminar</button>` : ''}
+      </td>
+    </tr>`).join('');
+  tbody.querySelectorAll('.btn-restore').forEach(btn=> btn.addEventListener('click', ()=> restaurarConsulta(btn.dataset.id)));
+  tbody.querySelectorAll('.btn-del').forEach(btn=> btn.addEventListener('click', eliminarDefinitivoPendiente));
+}
+
+async function restaurarConsulta(id){
+  const ok = await confirmarAsync({ titulo:'¿Restaurar consulta?', mensaje:'El registro volverá a aparecer en el Historial normal.', textoConfirmar:'Restaurar', icono:'↺' });
+  if(!ok) return;
+  const { error } = await sb.from('consultas').update({ deleted:false, deleted_at:null, deleted_by:null }).eq('id', id);
+  if(error){
+    console.error('[SkinFabric] Error restaurando consulta:', error);
+    toast('No se pudo restaurar el registro.');
+    return;
+  }
+  toast('✓ Registro restaurado.');
+  cargarPapelera();
+  cargarHistorial();
+}
+function eliminarDefinitivoPendiente(){
+  toast('La eliminación definitiva estará disponible cuando se active el módulo de Configuración.');
+}
+document.getElementById('hist-btn-vaciar-papelera').addEventListener('click', eliminarDefinitivoPendiente);
+
+// ── Modal: Editar consulta ──
+function poblarSelectEditDoctor(selectedId){
+  const sel = document.getElementById('edit-doctor');
+  sel.innerHTML = '';
+  const grupos = [ { label:'— Médicos', rol:'doctor' }, { label:'— Cosmetólogos/as', rol:'cosmetologo' } ];
+  grupos.forEach(g=>{
+    const items = CATALOGOS.personal.filter(p=>p.rol === g.rol);
+    if(!items.length) return;
+    const og = document.createElement('optgroup');
+    og.label = g.label;
+    items.forEach(p=>{
+      const opt = document.createElement('option');
+      opt.value = p.id; opt.textContent = p.nombre;
+      og.appendChild(opt);
+    });
+    sel.appendChild(og);
+  });
+  sel.value = selectedId || '';
+}
+function poblarEquipoEdit(doctorId){
+  const sel = document.getElementById('edit-equipo');
+  const actual = sel.value;
+  sel.innerHTML = '<option value="">Seleccionar...</option>';
+  CATALOGOS.equipos.filter(e=> !e.doctor_id || e.doctor_id === doctorId).forEach(e=>{
+    const opt = document.createElement('option');
+    opt.value = e.id; opt.textContent = e.nombre + (e.doctor_id ? '' : ' — compartido');
+    sel.appendChild(opt);
+  });
+  if(actual) sel.value = actual;
+}
+function onTipoChangeEdit(){
+  const tipoId = document.getElementById('edit-tipo').value;
+  const tipo = CATALOGOS.tiposServicio.find(t=>t.id === tipoId);
+  document.getElementById('edit-grp-descripcion').style.display = tipo?.requiere_descripcion ? '' : 'none';
+  document.getElementById('edit-grp-equipo').style.display = tipo?.requiere_equipo ? '' : 'none';
+}
+document.getElementById('edit-tipo').addEventListener('change', onTipoChangeEdit);
+document.getElementById('edit-doctor').addEventListener('change', ()=> poblarEquipoEdit(document.getElementById('edit-doctor').value));
+
+function abrirModalEditar(id){
+  const r = HIST_ROWS.find(x=>x.id === id);
+  if(!r) return;
+  HIST_EDIT_ID = id;
+  document.getElementById('edit-paciente-nombre').textContent = r.pacientes?.nombre || '—';
+  document.getElementById('edit-fecha').value = r.fecha;
+  poblarSelectEditDoctor(r.doctor_id);
+  poblarSelect('edit-tipo', CATALOGOS.tiposServicio.map(t=>({value:t.id, label:t.nombre})));
+  document.getElementById('edit-tipo').value = r.tipo_servicio_id || '';
+  onTipoChangeEdit();
+  document.getElementById('edit-descripcion').value = r.descripcion || '';
+  poblarEquipoEdit(r.doctor_id);
+  document.getElementById('edit-equipo').value = r.equipo_cabina_id || '';
+  document.getElementById('edit-monto').value = r.monto;
+  poblarSelect('edit-medio', CATALOGOS.mediosPago.map(m=>({value:m.nombre, label:m.nombre})));
+  document.getElementById('edit-medio').value = r.medio_pago || '';
+  poblarSelect('edit-terminal', CATALOGOS.terminales.map(t=>({value:t.id, label:t.nombre})), '— Sin terminal —');
+  document.getElementById('edit-terminal').value = r.terminal_id || '';
+  document.getElementById('edit-num-factura').value = r.num_factura || '';
+  document.getElementById('edit-numero-recibo').value = r.numero_recibo || '';
+  document.getElementById('edit-factura').checked = !!r.factura;
+  document.getElementById('edit-notas').value = r.notas || '';
+  document.getElementById('modal-editar').classList.add('show');
+}
+function cerrarModalEditar(){
+  document.getElementById('modal-editar').classList.remove('show');
+  HIST_EDIT_ID = null;
+}
+document.getElementById('edit-btn-cerrar').addEventListener('click', cerrarModalEditar);
+document.getElementById('edit-btn-cancelar').addEventListener('click', cerrarModalEditar);
+
+document.getElementById('edit-btn-guardar').addEventListener('click', async ()=>{
+  if(!HIST_EDIT_ID) return;
+  const tipoId = document.getElementById('edit-tipo').value;
+  const tipo = CATALOGOS.tiposServicio.find(t=>t.id === tipoId);
+  const descripcion = document.getElementById('edit-descripcion').value.trim();
+  const equipoId = document.getElementById('edit-equipo').value;
+  if(!document.getElementById('edit-fecha').value){ toast('Selecciona la fecha.'); return; }
+  if(!document.getElementById('edit-doctor').value){ toast('Selecciona quién atiende.'); return; }
+  if(!tipoId){ toast('Selecciona el tipo de servicio.'); return; }
+  if(tipo?.requiere_descripcion && !descripcion){ toast('Este tipo de servicio requiere una descripción.'); return; }
+  if(tipo?.requiere_equipo && !equipoId){ toast('Este tipo de servicio requiere seleccionar equipo/cabina.'); return; }
+
+  const payload = {
+    fecha: document.getElementById('edit-fecha').value,
+    doctor_id: document.getElementById('edit-doctor').value,
+    tipo_servicio_id: tipoId,
+    descripcion: descripcion || null,
+    equipo_cabina_id: equipoId || null,
+    monto: Number(document.getElementById('edit-monto').value || 0),
+    medio_pago: document.getElementById('edit-medio').value || null,
+    terminal_id: document.getElementById('edit-terminal').value || null,
+    num_factura: document.getElementById('edit-num-factura').value.trim() || null,
+    numero_recibo: document.getElementById('edit-numero-recibo').value.trim() || null,
+    factura: document.getElementById('edit-factura').checked,
+    notas: document.getElementById('edit-notas').value.trim() || null,
+    edited_by: MI_PERFIL?.id || null,
+    edited_at: new Date().toISOString(),
+  };
+  const btn = document.getElementById('edit-btn-guardar');
+  btn.disabled = true; btn.textContent = 'Guardando...';
+  const { error } = await sb.from('consultas').update(payload).eq('id', HIST_EDIT_ID);
+  btn.disabled = false; btn.textContent = 'Guardar cambios';
+  if(error){
+    console.error('[SkinFabric] Error guardando edición:', error);
+    toast('No se pudo guardar. Verifica tu horario de acceso.');
+    return;
+  }
+  toast('✓ Cambios guardados.');
+  cerrarModalEditar();
+  cargarHistorial();
+});
+
+document.getElementById('edit-btn-eliminar').addEventListener('click', async ()=>{
+  if(!HIST_EDIT_ID) return;
+  const ok = await confirmarAsync({ titulo:'¿Mover a papelera?', mensaje:'Se moverá a la Papelera. Podrás restaurarla después.', textoConfirmar:'Mover a papelera', icono:'🗑', danger:true });
+  if(!ok) return;
+  const { error } = await sb.from('consultas').update({ deleted:true, deleted_at:new Date().toISOString(), deleted_by: MI_PERFIL?.id || null }).eq('id', HIST_EDIT_ID);
+  if(error){
+    console.error('[SkinFabric] Error eliminando consulta:', error);
+    toast('No se pudo eliminar el registro.');
+    return;
+  }
+  toast('✓ Registro movido a la papelera.');
+  cerrarModalEditar();
+  cargarHistorial();
+});
+
+// ── Modal: Exportar ──
+document.getElementById('hist-btn-exportar').addEventListener('click', ()=> document.getElementById('modal-exportar').classList.add('show'));
+document.getElementById('export-btn-cerrar').addEventListener('click', ()=> document.getElementById('modal-exportar').classList.remove('show'));
+document.getElementById('export-btn-cancelar').addEventListener('click', ()=> document.getElementById('modal-exportar').classList.remove('show'));
+
+function exportarExcel(filas){
+  const datos = filas.map(r=>({
+    'Fecha': r.fecha,
+    'Paciente': r.pacientes?.nombre || '',
+    'Teléfono': r.pacientes?.telefono || '',
+    'Doctor': r.doctor?.nombre || '',
+    'Servicio': r.catalogo_tipos_servicio?.nombre || '',
+    'Equipo/Cabina': r.catalogo_equipos?.nombre || '',
+    'Descripción': r.descripcion || '',
+    'Monto': Number(r.monto || 0),
+    'Medio de pago': r.medio_pago || '',
+    'Monto 2do pago': r.monto_2 != null ? Number(r.monto_2) : '',
+    '2do medio de pago': r.medio_pago_2 || '',
+    'Factura': r.factura ? 'Sí' : 'No',
+    'N° Factura': r.num_factura || '',
+    'N° Recibo': r.numero_recibo || '',
+    'No vino': r.no_vino ? 'Sí' : 'No',
+    'Terminal': r.catalogo_terminales?.nombre || '',
+    'Notas': r.notas || '',
+  }));
+  const ws = XLSX.utils.json_to_sheet(datos);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Historial');
+  const hoy = todayLocal().replace(/\//g, '-');
+  XLSX.writeFile(wb, `SkinFabric_Historial_${hoy}.xlsx`);
+}
+
+document.getElementById('export-btn-confirmar').addEventListener('click', async ()=>{
+  const rango = document.getElementById('export-rango').value;
+  const incluirNoVino = document.getElementById('export-incluir-novino').checked;
+  const btn = document.getElementById('export-btn-confirmar');
+  btn.disabled = true; btn.textContent = 'Generando...';
+  try{
+    let filas;
+    if(rango === 'filtros'){
+      filas = HIST_ROWS.slice();
+    } else {
+      let desde = null, hasta = null;
+      const hoy = new Date();
+      if(rango === 'hoy'){ desde = isoLocal(hoy); hasta = isoLocal(hoy); }
+      else if(rango === 'ayer'){ const a = new Date(hoy); a.setDate(a.getDate()-1); desde = isoLocal(a); hasta = isoLocal(a); }
+      else if(rango === 'semana'){ const a = new Date(hoy); a.setDate(a.getDate()-7); desde = isoLocal(a); hasta = isoLocal(hoy); }
+      else if(rango === 'mes'){ const a = new Date(hoy); a.setDate(a.getDate()-30); desde = isoLocal(a); hasta = isoLocal(hoy); }
+      let q = sb.from('consultas')
+        .select('fecha,monto,medio_pago,monto_2,medio_pago_2,factura,num_factura,numero_recibo,no_vino,notas,descripcion,pacientes(nombre,telefono),doctor:personal!doctor_id(nombre),catalogo_tipos_servicio(nombre),catalogo_equipos(nombre),catalogo_terminales(nombre)')
+        .eq('deleted', false)
+        .order('fecha', { ascending:false });
+      if(desde) q = q.gte('fecha', desde);
+      if(hasta) q = q.lte('fecha', hasta);
+      if(!incluirNoVino) q = q.eq('no_vino', false);
+      const { data, error } = await q;
+      if(error) throw error;
+      filas = data || [];
+    }
+    if(rango === 'filtros' && !incluirNoVino) filas = filas.filter(f=>!f.no_vino);
+    if(!filas.length){ toast('No hay registros para exportar con esos criterios.'); return; }
+    exportarExcel(filas);
+    document.getElementById('modal-exportar').classList.remove('show');
+  }catch(err){
+    console.error('[SkinFabric] Error exportando:', err);
+    toast('No se pudo generar el archivo.');
+  }finally{
+    btn.disabled = false; btn.textContent = '↓ Exportar a Excel';
+  }
+});
 </script>
 </body>
 </html>
