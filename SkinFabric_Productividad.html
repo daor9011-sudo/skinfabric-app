@@ -587,18 +587,27 @@ main.appmain{padding:22px 26px 40px;max-width:1080px;margin:0 auto}
         <button type="button" class="prm-tab-btn" data-target="crm-novinieron-panel">👻 No vinieron</button>
       </div>
       <div class="subpanel active" id="crm-inactivos-panel">
+        <div class="kpi-grid" id="crm-inactivos-kpis"></div>
         <div class="filter-bar">
-          <select id="crm-inactivos-umbral">
-            <option value="30">Inactivos hace más de 30 días</option>
-            <option value="60" selected>Inactivos hace más de 60 días</option>
-            <option value="90">Inactivos hace más de 90 días</option>
-            <option value="120">Inactivos hace más de 120 días</option>
-          </select>
+          <label style="font-size:11.5px;color:var(--g6);align-self:center;font-weight:600">Días sin visita:</label>
+          <input type="number" id="crm-inactivos-umbral" value="60" min="1" style="width:80px"/>
+          <button class="btn-sm btn-teal" id="crm-inactivos-aplicar" type="button">Aplicar</button>
         </div>
-        <div class="crm-list" id="crm-inactivos-list"></div>
+        <div class="tx-table-wrap">
+          <table class="tx-table">
+            <thead><tr><th>Paciente</th><th>Teléfono</th><th>Última visita</th><th>Inactividad</th><th>Último servicio</th><th>Doctor</th><th></th></tr></thead>
+            <tbody id="crm-inactivos-list"></tbody>
+          </table>
+        </div>
       </div>
       <div class="subpanel" id="crm-novinieron-panel">
-        <div class="crm-list" id="crm-novinieron-list"></div>
+        <div class="kpi-grid" id="crm-novinieron-kpis"></div>
+        <div class="tx-table-wrap">
+          <table class="tx-table">
+            <thead><tr><th>Paciente</th><th>Teléfono</th><th>No vino el</th><th>Estado</th><th>Último servicio</th><th>Doctor</th><th></th></tr></thead>
+            <tbody id="crm-novinieron-list"></tbody>
+          </table>
+        </div>
       </div>
     </div>
     <div class="card screen2" id="app-screen-personal">
@@ -2380,7 +2389,8 @@ document.querySelectorAll('#app-screen-prm .prm-tab-btn').forEach(btn=>{
     document.getElementById(btn.dataset.target).classList.add('active');
   });
 });
-document.getElementById('crm-inactivos-umbral').addEventListener('change', cargarInactivos);
+document.getElementById('crm-inactivos-aplicar').addEventListener('click', cargarInactivos);
+document.getElementById('crm-inactivos-umbral').addEventListener('keydown', e=>{ if(e.key==='Enter') cargarInactivos(); });
 document.querySelector('.s3-segment button[data-screen2="prm"]').addEventListener('click', ()=>{
   cargarInactivos();
   cargarNoVinieron();
@@ -2390,11 +2400,11 @@ let inactivosReqId = 0;
 async function cargarInactivos(){
   const miReqId = ++inactivosReqId;
   const cont = document.getElementById('crm-inactivos-list');
-  cont.innerHTML = '<div class="empty-note">Cargando...</div>';
-  const umbralDias = Number(document.getElementById('crm-inactivos-umbral').value);
+  cont.innerHTML = '<tr><td colspan="7" class="empty-note">Cargando...</td></tr>';
+  const umbralDias = Number(document.getElementById('crm-inactivos-umbral').value) || 60;
 
   const { data, error } = await sb.from('consultas')
-    .select('fecha,paciente_id,pacientes(id,nombre,telefono)')
+    .select('fecha,paciente_id,pacientes(id,nombre,telefono),doctor:personal!doctor_id(nombre),catalogo_tipos_servicio(nombre)')
     .eq('deleted', false)
     .eq('no_vino', false)
     .order('fecha', { ascending:false })
@@ -2402,7 +2412,7 @@ async function cargarInactivos(){
   if(miReqId !== inactivosReqId) return;
   if(error){
     console.error('[SkinFabric] Error cargando inactivos:', error);
-    cont.innerHTML = '<div class="empty-note">No se pudo cargar la lista de inactivos.</div>';
+    cont.innerHTML = '<tr><td colspan="7" class="empty-note">No se pudo cargar la lista de inactivos.</td></tr>';
     return;
   }
 
@@ -2410,7 +2420,7 @@ async function cargarInactivos(){
   const ultimaPorPaciente = {};
   (data || []).forEach(r=>{
     if(!r.paciente_id || ultimaPorPaciente[r.paciente_id]) return;
-    ultimaPorPaciente[r.paciente_id] = { id: r.paciente_id, nombre: r.pacientes?.nombre, telefono: r.pacientes?.telefono, ultimaFecha: r.fecha };
+    ultimaPorPaciente[r.paciente_id] = { id: r.paciente_id, nombre: r.pacientes?.nombre, telefono: r.pacientes?.telefono, ultimaFecha: r.fecha, doctor: r.doctor?.nombre, servicio: r.catalogo_tipos_servicio?.nombre };
   });
 
   const hoy = new Date();
@@ -2418,22 +2428,34 @@ async function cargarInactivos(){
   umbralFecha.setDate(umbralFecha.getDate() - umbralDias);
   const umbralIso = isoLocal(umbralFecha);
 
-  const inactivos = Object.values(ultimaPorPaciente)
+  const todos = Object.values(ultimaPorPaciente);
+  const inactivos = todos
     .filter(p => p.ultimaFecha < umbralIso)
     .map(p => ({ ...p, diasSinVenir: diasEntre(p.ultimaFecha, hoy) }))
-    .sort((a, b) => a.ultimaFecha.localeCompare(b.ultimaFecha));
+    .sort((a, b) => b.diasSinVenir - a.diasSinVenir);
 
-  renderInactivos(inactivos);
+  document.getElementById('crm-inactivos-kpis').innerHTML = `
+    <div class="kpi-card"><div class="ico">🎯</div><div class="kpi-label">Pacientes inactivos</div><div class="kpi-val">${inactivos.length}</div></div>
+    <div class="kpi-card"><div class="ico">👥</div><div class="kpi-label">Total pacientes</div><div class="kpi-val">${todos.length}</div></div>
+    <div class="kpi-card"><div class="ico">📊</div><div class="kpi-label">% inactivos</div><div class="kpi-val">${todos.length ? Math.round(inactivos.length/todos.length*100) : 0}%</div></div>
+  `;
+
+  renderInactivos(inactivos, umbralDias);
 }
 
-function renderInactivos(lista){
+function renderInactivos(lista, umbralDias){
   const cont = document.getElementById('crm-inactivos-list');
-  if(!lista.length){ cont.innerHTML = '<div class="empty-note">No hay pacientes inactivos con ese umbral.</div>'; return; }
+  if(!lista.length){ cont.innerHTML = '<tr><td colspan="7" class="empty-note">🎉 Nadie supera ese umbral — todos tus pacientes están activos</td></tr>'; return; }
   cont.innerHTML = lista.map(p => `
-    <div class="crm-row">
-      <div><div class="crm-name">${esc2(p.nombre || '—')}</div><div class="crm-meta">Última visita real: ${fmtFechaCorta(p.ultimaFecha)} · ${p.diasSinVenir} días sin venir</div></div>
-      <button class="btn-sm btn-outline" data-id="${p.id}" data-nombre="${esc2(p.nombre || '')}" type="button">📖 Ver/gestionar</button>
-    </div>`).join('');
+    <tr>
+      <td><b>${esc2(p.nombre || '—')}</b></td>
+      <td>${esc2(p.telefono || '—')}</td>
+      <td>${fmtFechaCorta(p.ultimaFecha)}</td>
+      <td><span class="badge" style="background:${p.diasSinVenir>=umbralDias*2?'#FDECEA':'#FDF6EC'};color:${p.diasSinVenir>=umbralDias*2?'#C0392B':'#9A6010'};border-color:transparent">${p.diasSinVenir} días</span></td>
+      <td>${esc2(p.servicio || '—')}</td>
+      <td>${esc2(p.doctor || '—')}</td>
+      <td><button class="btn-sm btn-outline" data-id="${p.id}" data-nombre="${esc2(p.nombre || '')}" type="button">📖 Ver/gestionar</button></td>
+    </tr>`).join('');
   cont.querySelectorAll('button').forEach(btn=> btn.addEventListener('click', ()=> abrirModalGestion(btn.dataset.id, btn.dataset.nombre)));
 }
 
@@ -2441,32 +2463,54 @@ let novinieronReqId = 0;
 async function cargarNoVinieron(){
   const miReqId = ++novinieronReqId;
   const cont = document.getElementById('crm-novinieron-list');
-  cont.innerHTML = '<div class="empty-note">Cargando...</div>';
+  cont.innerHTML = '<tr><td colspan="7" class="empty-note">Cargando...</td></tr>';
 
   const { data, error } = await sb.from('consultas')
-    .select('id,fecha,paciente_id,pacientes(id,nombre,telefono),doctor:personal!doctor_id(nombre)')
+    .select('fecha,paciente_id,no_vino,pacientes(id,nombre,telefono),doctor:personal!doctor_id(nombre),catalogo_tipos_servicio(nombre)')
     .eq('deleted', false)
-    .eq('no_vino', true)
     .order('fecha', { ascending:false })
-    .limit(200);
+    .limit(5000);
   if(miReqId !== novinieronReqId) return;
   if(error){
     console.error('[SkinFabric] Error cargando no-vinieron:', error);
-    cont.innerHTML = '<div class="empty-note">No se pudo cargar la lista.</div>';
+    cont.innerHTML = '<tr><td colspan="7" class="empty-note">No se pudo cargar la lista.</td></tr>';
     return;
   }
-  renderNoVinieron(data || []);
+
+  // Último registro (cualquiera) por paciente — si el más reciente es "no vino", sigue pendiente;
+  // en cuanto exista una visita real más nueva, el paciente sale solo de la lista.
+  const ultimoGeneral = {};
+  (data || []).forEach(r=>{
+    if(!r.paciente_id || ultimoGeneral[r.paciente_id]) return; // ya viene ordenado desc: la primera fila es la más reciente
+    ultimoGeneral[r.paciente_id] = { id: r.paciente_id, nombre: r.pacientes?.nombre, telefono: r.pacientes?.telefono, fecha: r.fecha, doctor: r.doctor?.nombre, servicio: r.catalogo_tipos_servicio?.nombre, noVino: r.no_vino };
+  });
+
+  const pendientes = Object.values(ultimoGeneral)
+    .filter(p => p.noVino)
+    .sort((a,b) => b.fecha.localeCompare(a.fecha));
+
+  document.getElementById('crm-novinieron-kpis').innerHTML = `
+    <div class="kpi-card"><div class="ico">👻</div><div class="kpi-label">No vinieron</div><div class="kpi-val">${pendientes.length}</div></div>
+    <div class="kpi-card"><div class="ico">👥</div><div class="kpi-label">Total pacientes</div><div class="kpi-val">${Object.keys(ultimoGeneral).length}</div></div>
+    <div class="kpi-card"><div class="ico">📊</div><div class="kpi-label">% pendientes</div><div class="kpi-val">${Object.keys(ultimoGeneral).length ? Math.round(pendientes.length/Object.keys(ultimoGeneral).length*100) : 0}%</div></div>
+  `;
+
+  renderNoVinieron(pendientes);
 }
 
 function renderNoVinieron(lista){
   const cont = document.getElementById('crm-novinieron-list');
-  if(!lista.length){ cont.innerHTML = '<div class="empty-note">No hay pacientes marcados como "No vino".</div>'; return; }
-  cont.innerHTML = lista.map(r => `
-    <div class="crm-row">
-      <div><div class="crm-name">${esc2(r.pacientes?.nombre || '—')} <span class="badge badge-novino">👻</span></div>
-      <div class="crm-meta">No se presentó el ${fmtFechaCorta(r.fecha)} · ${esc2(r.doctor?.nombre || '—')}</div></div>
-      <button class="btn-sm btn-outline" data-id="${r.paciente_id}" data-nombre="${esc2(r.pacientes?.nombre || '')}" type="button">📖 Ver/gestionar</button>
-    </div>`).join('');
+  if(!lista.length){ cont.innerHTML = '<tr><td colspan="7" class="empty-note">🎉 Nadie con "No vino" pendiente</td></tr>'; return; }
+  cont.innerHTML = lista.map(p => `
+    <tr>
+      <td><b>${esc2(p.nombre || '—')}</b></td>
+      <td>${esc2(p.telefono || '—')}</td>
+      <td>${fmtFechaCorta(p.fecha)}</td>
+      <td><span class="badge badge-novino">👻 No vino</span></td>
+      <td>${esc2(p.servicio || '—')}</td>
+      <td>${esc2(p.doctor || '—')}</td>
+      <td><button class="btn-sm btn-outline" data-id="${p.id}" data-nombre="${esc2(p.nombre || '')}" type="button">📖 Ver/gestionar</button></td>
+    </tr>`).join('');
   cont.querySelectorAll('button').forEach(btn=> btn.addEventListener('click', ()=> abrirModalGestion(btn.dataset.id, btn.dataset.nombre)));
 }
 
