@@ -191,6 +191,8 @@ main.appmain{padding:22px 26px 40px;max-width:1080px;margin:0 auto}
 .tx-table tr:last-child td{border-bottom:none}
 .tx-table tr:hover td{background:var(--g1)}
 .tx-table input{padding:5px 8px;font-size:12px;width:100px;border:1px solid var(--g2);border-radius:5px;font-family:inherit;color:var(--navy)}
+.hist-inline-factura.pendiente{background:#FDF6EC;border-color:#F0C36D}
+.hist-inline-factura.pendiente::placeholder{color:#9A6010;font-weight:700;opacity:1}
 /* ── Tabla en "tarjetas" (cada fila es su propia tarjeta flotante) — estilo Cuivan ── */
 .tx-table.tx-cards{border-collapse:separate;border-spacing:0 8px}
 .tx-table.tx-cards thead tr{background:none}
@@ -1679,13 +1681,16 @@ function renderHistorial(){
       <td>${servicio}</td>
       <td>${fmtMoney(r.monto)}${monto2}</td>
       <td>${pago1}${pago2}</td>
-      <td><input type="text" class="hist-inline-factura" data-id="${r.id}" value="${esc2(r.num_factura||'')}" placeholder="${r.factura?'Pendiente':'—'}"/></td>
+      <td><input type="text" class="hist-inline-factura${r.factura && !r.num_factura ? ' pendiente' : ''}" data-id="${r.id}" data-factura="${r.factura ? '1' : '0'}" value="${esc2(r.num_factura||'')}" placeholder="${r.factura?'Pendiente':'—'}"/></td>
       <td><button class="btn-sm btn-edit" data-id="${r.id}" type="button">✏️</button></td>
     </tr>`;
   }).join('');
 
   tbody.querySelectorAll('.btn-edit').forEach(btn=> btn.addEventListener('click', ()=> abrirModalEditar(btn.dataset.id)));
-  tbody.querySelectorAll('.hist-inline-factura').forEach(inp=> inp.addEventListener('blur', ()=> guardarInline(inp.dataset.id, 'num_factura', inp.value.trim())));
+  tbody.querySelectorAll('.hist-inline-factura').forEach(inp=>{
+    inp.addEventListener('blur', ()=> guardarInline(inp.dataset.id, 'num_factura', inp.value.trim()));
+    inp.addEventListener('input', ()=> inp.classList.toggle('pendiente', inp.dataset.factura === '1' && !inp.value.trim()));
+  });
 }
 
 async function guardarInline(id, campo, valor){
