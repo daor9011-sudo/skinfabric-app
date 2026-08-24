@@ -1178,6 +1178,8 @@ function todayLocal(){
 // ============================================================
 const CATALOGOS = { tiposServicio:[], equipos:[], terminales:[], mediosPago:[], procedencias:[], personal:[] };
 function fmtMoney(v){ return '$' + Number(v||0).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+const PAGO_ICON = { Tarjeta:'💳', Efectivo:'💵', Transferencia:'🏦', Cortesía:'🎁', AMEX:'💳' };
+function iconoPago(medio){ return medio ? (PAGO_ICON[medio] || '💰') + ' ' : ''; }
 
 async function cargarCatalogos(){
   const [tipos, equipos, terminales, medios, procedencias, personal] = await Promise.all([
@@ -1671,16 +1673,16 @@ function renderHistorial(){
   }
   empty.style.display = 'none';
   tbody.innerHTML = HIST_ROWS.map(r=>{
-    const pago1 = r.no_vino ? '—' : esc2(r.medio_pago || '—');
-    const pago2 = (!r.no_vino && r.medio_pago_2) ? `<div style="font-size:10px;color:var(--g6)">+${esc2(r.medio_pago_2)}</div>` : '';
+    const pago1 = r.no_vino ? '—' : iconoPago(r.medio_pago) + esc2(r.medio_pago || '—');
+    const pago2 = (!r.no_vino && r.medio_pago_2) ? `<div style="font-size:10px;color:var(--g6)">+${iconoPago(r.medio_pago_2)}${esc2(r.medio_pago_2)}</div>` : '';
     const monto2 = (!r.no_vino && r.monto_2) ? `<div style="font-size:10px;color:var(--g6)">+${fmtMoney(r.monto_2)} 2do pago</div>` : '';
     const servicio = esc2(r.catalogo_tipos_servicio?.nombre || '—') + (r.catalogo_equipos?.nombre ? ' · ' + esc2(r.catalogo_equipos.nombre) : '');
     return `<tr>
       <td>${fmtFechaCorta(r.fecha)}</td>
-      <td>${esc2(r.pacientes?.nombre || '—')}${r.no_vino ? ' <span class="badge badge-novino">👻</span>' : ''}</td>
-      <td><span class="badge">${esc2(r.doctor?.nombre || '—')}</span></td>
+      <td><b>${esc2(r.pacientes?.nombre || '—')}</b>${r.no_vino ? ' <span class="badge badge-novino">👻</span>' : ''}</td>
+      <td>${esc2(r.doctor?.nombre || '—')}</td>
       <td>${servicio}</td>
-      <td>${fmtMoney(r.monto)}${monto2}</td>
+      <td><b style="color:var(--teal)">${fmtMoney(r.monto)}</b>${monto2}</td>
       <td>${pago1}${pago2}</td>
       <td><input type="text" class="hist-inline-factura${r.factura && !r.num_factura ? ' pendiente' : ''}" data-id="${r.id}" data-factura="${r.factura ? '1' : '0'}" value="${esc2(r.num_factura||'')}" placeholder="${r.factura?'Pendiente':'—'}"/></td>
       <td><button class="btn-sm btn-edit" data-id="${r.id}" type="button">✏️</button></td>
