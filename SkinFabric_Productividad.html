@@ -125,8 +125,8 @@ main.appmain{padding:22px 26px 40px;max-width:1080px;margin:0 auto}
 .modal-body2{padding:20px 22px;font-size:12.5px;color:var(--g6);line-height:1.7}
 
 /* confirm/prompt genéricos: SIEMPRE por encima de cualquier otro modal */
-#confirm-modal-overlay,#prompt-modal-overlay{position:fixed;inset:0;background:rgba(11,22,40,.6);display:none;align-items:center;justify-content:center;z-index:9999}
-#confirm-modal-overlay.show,#prompt-modal-overlay.show{display:flex}
+#confirm-modal-overlay,#prompt-modal-overlay,#campo-alert-overlay{position:fixed;inset:0;background:rgba(11,22,40,.6);display:none;align-items:center;justify-content:center;z-index:9999}
+#confirm-modal-overlay.show,#prompt-modal-overlay.show,#campo-alert-overlay.show{display:flex}
 .confirm-box2{background:#fff;border-radius:14px;padding:26px;max-width:400px;width:90%;text-align:center}
 .confirm-icon2{width:52px;height:52px;border-radius:50%;background:var(--teal-soft);color:#0B6E6E;display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 14px}
 .confirm-icon2.danger{background:#FEF0EF;color:var(--red)}
@@ -147,6 +147,8 @@ main.appmain{padding:22px 26px 40px;max-width:1080px;margin:0 auto}
 .form-group input,.form-group select,.form-group textarea{background:#fff;border:1px solid var(--g2);border-radius:8px;padding:9px 12px;color:var(--navy);font-size:13px;font-family:inherit;outline:none;width:100%}
 .form-group input:focus,.form-group select:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(42,191,191,.14)}
 .form-group input:disabled,.form-group select:disabled{background:var(--g1);color:var(--g4)}
+.form-group input.campo-invalido,.form-group select.campo-invalido{border-color:var(--red)!important;box-shadow:0 0 0 3px rgba(229,62,62,.15)!important;animation:campoShake .35s}
+@keyframes campoShake{10%,90%{transform:translateX(-1px)}20%,80%{transform:translateX(2px)}30%,50%,70%{transform:translateX(-3px)}40%,60%{transform:translateX(3px)}}
 .resumen-box{background:linear-gradient(150deg,var(--navy),#132a4d);border-radius:9px;padding:14px 16px;color:#fff;display:flex;flex-direction:column;justify-content:center;gap:6px;box-shadow:inset 0 0 0 1px rgba(42,191,191,.2)}
 .resumen-box .r-label{font-size:9px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;color:var(--teal)}
 .resumen-box .r-name{font-size:14px;font-weight:700;line-height:1.25}
@@ -515,7 +517,7 @@ main.appmain{padding:22px 26px 40px;max-width:1080px;margin:0 auto}
 
       <div class="tx-table-wrap">
         <table class="tx-table tx-cards">
-          <thead><tr><th>Fecha</th><th>Paciente</th><th>Doctor</th><th>Servicio</th><th>Monto</th><th>Pago</th><th>N° Factura</th><th>N° Recibo</th><th></th></tr></thead>
+          <thead><tr><th>Fecha</th><th>Paciente</th><th>Doctor</th><th>Servicio</th><th>Monto</th><th>Pago</th><th>N° Factura</th><th></th></tr></thead>
           <tbody id="hist-tbody"></tbody>
         </table>
         <div class="empty-note" id="hist-empty" style="display:none">No hay consultas para los filtros seleccionados.</div>
@@ -748,6 +750,16 @@ main.appmain{padding:22px 26px 40px;max-width:1080px;margin:0 auto}
     </div>
   </div>
 </div>
+<div id="campo-alert-overlay">
+  <div class="confirm-box2">
+    <div class="confirm-icon2 danger">⚠️</div>
+    <h3 style="font-family:var(--font-d);margin-bottom:8px;color:var(--navy)">Falta un dato</h3>
+    <div class="confirm-msg2" id="campo-alert-mensaje"></div>
+    <div class="confirm-actions2">
+      <button class="appbtn appbtn-p" id="campo-alert-btn-ok" type="button">Entendido</button>
+    </div>
+  </div>
+</div>
 
 <!-- ══════════ Modal: Editar consulta ══════════ -->
 <div class="modal-overlay" id="modal-editar">
@@ -765,7 +777,6 @@ main.appmain{padding:22px 26px 40px;max-width:1080px;margin:0 auto}
         <div class="form-group"><label>Medio de pago</label><select id="edit-medio"></select></div>
         <div class="form-group"><label>Terminal</label><select id="edit-terminal"></select></div>
         <div class="form-group"><label>N° Factura</label><input type="text" id="edit-num-factura"/></div>
-        <div class="form-group"><label>N° Recibo</label><input type="text" id="edit-numero-recibo"/></div>
         <div class="form-group"><label style="display:flex;align-items:center;gap:8px;text-transform:none;font-size:12.5px;font-weight:400;color:var(--navy)"><input type="checkbox" id="edit-factura" style="width:15px;height:15px;flex:none"/> ¿Requiere factura?</label></div>
         <div class="form-group full"><label>Notas</label><input type="text" id="edit-notas"/></div>
       </div>
@@ -1125,6 +1136,27 @@ function toast(msg){
   setTimeout(()=> t.classList.remove('show'), 3200);
 }
 
+// ── Alerta centrada para datos faltantes en un formulario: resalta el campo en rojo ──
+function alertaCampo(campoId, mensaje){
+  document.querySelectorAll('.campo-invalido').forEach(el=> el.classList.remove('campo-invalido'));
+  const campo = campoId ? document.getElementById(campoId) : null;
+  if(campo){
+    campo.classList.add('campo-invalido');
+    campo.scrollIntoView({ behavior:'smooth', block:'center' });
+    const quitarMarca = ()=> campo.classList.remove('campo-invalido');
+    campo.addEventListener('focus', quitarMarca, { once:true });
+    campo.addEventListener('input', quitarMarca, { once:true });
+    campo.addEventListener('change', quitarMarca, { once:true });
+  }
+  document.getElementById('campo-alert-mensaje').textContent = mensaje;
+  document.getElementById('campo-alert-overlay').classList.add('show');
+}
+document.getElementById('campo-alert-btn-ok').addEventListener('click', ()=>{
+  document.getElementById('campo-alert-overlay').classList.remove('show');
+  const campo = document.querySelector('.campo-invalido');
+  if(campo) campo.focus();
+});
+
 // ── Fechas locales (nunca toISOString — se recorre un día en husos negativos) ──
 function isoLocal(d){
   const dd = String(d.getDate()).padStart(2,'0');
@@ -1430,24 +1462,24 @@ async function guardarRegistro(){
   const telefono = document.getElementById('reg-telefono').value.trim();
   const noVino = document.getElementById('reg-novino').checked;
 
-  if(!fecha){ toast('Selecciona la fecha.'); return; }
-  if(!doctorId){ toast('Selecciona quién atiende.'); return; }
-  if(!tipoId){ toast('Selecciona el tipo de servicio.'); return; }
-  if(!nombre){ toast('Escribe el nombre del paciente.'); return; }
+  if(!fecha){ alertaCampo('reg-fecha', 'Selecciona la fecha.'); return; }
+  if(!doctorId){ alertaCampo('reg-doctor', 'Selecciona quién atiende.'); return; }
+  if(!tipoId){ alertaCampo('reg-tipo', 'Selecciona el tipo de servicio.'); return; }
+  if(!nombre){ alertaCampo('reg-paciente-nombre', 'Escribe el nombre del paciente.'); return; }
 
   const tipo = CATALOGOS.tiposServicio.find(t=>t.id === tipoId);
   const descripcion = document.getElementById('reg-descripcion').value.trim();
   const equipoId = document.getElementById('reg-equipo').value;
-  if(tipo?.requiere_descripcion && !descripcion){ toast('Este tipo de servicio requiere una descripción.'); return; }
-  if(tipo?.requiere_equipo && !equipoId){ toast('Este tipo de servicio requiere seleccionar equipo/cabina.'); return; }
+  if(tipo?.requiere_descripcion && !descripcion){ alertaCampo('reg-descripcion', 'Este tipo de servicio requiere una descripción.'); return; }
+  if(tipo?.requiere_equipo && !equipoId){ alertaCampo('reg-equipo', 'Este tipo de servicio requiere seleccionar equipo/cabina.'); return; }
 
   const medio = document.getElementById('reg-medio').value;
   const monto = Number(document.getElementById('reg-monto').value || 0);
   const grpMedio2Visible = document.getElementById('reg-grp-medio2').style.display !== 'none';
   const medio2 = grpMedio2Visible ? document.getElementById('reg-medio2').value : '';
   const monto2 = grpMedio2Visible ? Number(document.getElementById('reg-monto2').value || 0) : 0;
-  if(!noVino && !medio){ toast('Selecciona el medio de pago.'); return; }
-  if(grpMedio2Visible && !medio2){ toast('Selecciona el 2do medio de pago o quítalo.'); return; }
+  if(!noVino && !medio){ alertaCampo('reg-medio', 'Selecciona el medio de pago.'); return; }
+  if(grpMedio2Visible && !medio2){ alertaCampo('reg-medio2', 'Selecciona el 2do medio de pago o quítalo.'); return; }
 
   const terminalId = document.getElementById('reg-terminal').value;
   const factura = document.getElementById('reg-factura').checked;
@@ -1566,7 +1598,7 @@ async function cargarHistorial(){
   const tbody = document.getElementById('hist-tbody');
   const empty = document.getElementById('hist-empty');
   empty.style.display = 'none';
-  tbody.innerHTML = '<tr><td colspan="9" class="empty-note">Cargando...</td></tr>';
+  tbody.innerHTML = '<tr><td colspan="8" class="empty-note">Cargando...</td></tr>';
 
   const buscar = document.getElementById('hist-buscar').value.trim();
   const rango = document.getElementById('hist-rango').value;
@@ -1575,7 +1607,7 @@ async function cargarHistorial(){
   const desde = rangoFechaDesde(rango);
 
   let q = sb.from('consultas')
-    .select('id,fecha,descripcion,monto,medio_pago,monto_2,medio_pago_2,factura,num_factura,numero_recibo,no_vino,notas,paciente_id,doctor_id,tipo_servicio_id,equipo_cabina_id,terminal_id,pacientes!inner(nombre,telefono),doctor:personal!doctor_id(nombre),catalogo_tipos_servicio(nombre),catalogo_equipos(nombre),catalogo_terminales(nombre)')
+    .select('id,fecha,descripcion,monto,medio_pago,monto_2,medio_pago_2,factura,num_factura,no_vino,notas,paciente_id,doctor_id,tipo_servicio_id,equipo_cabina_id,terminal_id,pacientes!inner(nombre,telefono),doctor:personal!doctor_id(nombre),catalogo_tipos_servicio(nombre),catalogo_equipos(nombre),catalogo_terminales(nombre)')
     .eq('deleted', false)
     .order('fecha', { ascending:false })
     .order('created_at', { ascending:false })
@@ -1648,14 +1680,12 @@ function renderHistorial(){
       <td>${fmtMoney(r.monto)}${monto2}</td>
       <td>${pago1}${pago2}</td>
       <td><input type="text" class="hist-inline-factura" data-id="${r.id}" value="${esc2(r.num_factura||'')}" placeholder="${r.factura?'Pendiente':'—'}"/></td>
-      <td><input type="text" class="hist-inline-recibo" data-id="${r.id}" value="${esc2(r.numero_recibo||'')}" placeholder="—"/></td>
       <td><button class="btn-sm btn-edit" data-id="${r.id}" type="button">✏️</button></td>
     </tr>`;
   }).join('');
 
   tbody.querySelectorAll('.btn-edit').forEach(btn=> btn.addEventListener('click', ()=> abrirModalEditar(btn.dataset.id)));
   tbody.querySelectorAll('.hist-inline-factura').forEach(inp=> inp.addEventListener('blur', ()=> guardarInline(inp.dataset.id, 'num_factura', inp.value.trim())));
-  tbody.querySelectorAll('.hist-inline-recibo').forEach(inp=> inp.addEventListener('blur', ()=> guardarInline(inp.dataset.id, 'numero_recibo', inp.value.trim())));
 }
 
 async function guardarInline(id, campo, valor){
@@ -1831,7 +1861,6 @@ function abrirModalEditar(id){
   poblarSelect('edit-terminal', CATALOGOS.terminales.map(t=>({value:t.id, label:t.nombre})), '— Sin terminal —');
   document.getElementById('edit-terminal').value = r.terminal_id || '';
   document.getElementById('edit-num-factura').value = r.num_factura || '';
-  document.getElementById('edit-numero-recibo').value = r.numero_recibo || '';
   document.getElementById('edit-factura').checked = !!r.factura;
   document.getElementById('edit-notas').value = r.notas || '';
   document.getElementById('modal-editar').classList.add('show');
@@ -1865,7 +1894,6 @@ document.getElementById('edit-btn-guardar').addEventListener('click', async ()=>
     medio_pago: document.getElementById('edit-medio').value || null,
     terminal_id: document.getElementById('edit-terminal').value || null,
     num_factura: document.getElementById('edit-num-factura').value.trim() || null,
-    numero_recibo: document.getElementById('edit-numero-recibo').value.trim() || null,
     factura: document.getElementById('edit-factura').checked,
     notas: document.getElementById('edit-notas').value.trim() || null,
     edited_by: MI_PERFIL?.id || null,
@@ -1920,7 +1948,6 @@ function exportarExcel(filas){
     '2do medio de pago': r.medio_pago_2 || '',
     'Factura': r.factura ? 'Sí' : 'No',
     'N° Factura': r.num_factura || '',
-    'N° Recibo': r.numero_recibo || '',
     'No vino': r.no_vino ? 'Sí' : 'No',
     'Terminal': r.catalogo_terminales?.nombre || '',
     'Notas': r.notas || '',
@@ -1949,7 +1976,7 @@ document.getElementById('export-btn-confirmar').addEventListener('click', async 
       else if(rango === 'semana'){ const a = new Date(hoy); a.setDate(a.getDate()-7); desde = isoLocal(a); hasta = isoLocal(hoy); }
       else if(rango === 'mes'){ const a = new Date(hoy); a.setDate(a.getDate()-30); desde = isoLocal(a); hasta = isoLocal(hoy); }
       let q = sb.from('consultas')
-        .select('fecha,monto,medio_pago,monto_2,medio_pago_2,factura,num_factura,numero_recibo,no_vino,notas,descripcion,pacientes(nombre,telefono),doctor:personal!doctor_id(nombre),catalogo_tipos_servicio(nombre),catalogo_equipos(nombre),catalogo_terminales(nombre)')
+        .select('fecha,monto,medio_pago,monto_2,medio_pago_2,factura,num_factura,no_vino,notas,descripcion,pacientes(nombre,telefono),doctor:personal!doctor_id(nombre),catalogo_tipos_servicio(nombre),catalogo_equipos(nombre),catalogo_terminales(nombre)')
         .eq('deleted', false)
         .order('fecha', { ascending:false });
       if(desde) q = q.gte('fecha', desde);
