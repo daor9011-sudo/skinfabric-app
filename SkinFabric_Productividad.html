@@ -1411,18 +1411,22 @@ function opcionesPersonalAgrupadoHtml(selectedId){
 function renderServiciosSel(selId, selMap, doctorPrincipal){
   const cont = document.getElementById(selId);
   if(!selMap.size){ cont.innerHTML = '<div class="a-vacio">Todavía no has seleccionado ningún servicio.</div>'; return; }
-  const labelIgual = 'Igual que arriba' + (doctorPrincipal?.label ? ` (${doctorPrincipal.label})` : '');
-  cont.innerHTML = [...selMap.keys()].map(id=>{
+  cont.innerHTML = [...selMap.keys()].map((id, idx)=>{
     const s = CATALOGOS.tiposServicio.find(x=>x.id === id);
     const nombre = s ? esc2(s.nombre) : '(servicio ya no disponible)';
     const ref = s?.referencia_precio ? ` <span class="ref">ref. ${esc2(s.referencia_precio)}</span>` : '';
     const val = selMap.get(id) || {};
     const monto = val.monto ?? '';
     const atendidoPor = val.atendidoPor || '';
+    // El primer servicio seleccionado asume por default al doctor/atendido principal de arriba
+    // (así no hay que tocarlo cuando es la misma persona). Los demás piden elegir explícitamente,
+    // para no dar por hecho que un procedimiento derivado lo hizo el mismo doctor.
+    const esPrimero = idx === 0;
+    const labelDefault = (esPrimero && doctorPrincipal?.label) ? esc2(doctorPrincipal.label) : 'Seleccionar...';
     return `<div class="a-row" data-id="${esc2(id)}">
       <div class="nom">${nombre}${ref}</div>
       <select class="atendido-select" title="¿Quién atendió este servicio?">
-        <option value="">${esc2(labelIgual)}</option>
+        <option value="">${labelDefault}</option>
         ${opcionesPersonalAgrupadoHtml(atendidoPor)}
       </select>
       <div class="monto-wrap"><span>$</span><input type="number" min="0" step="0.01" placeholder="0.00" value="${esc2(monto)}"/></div>
