@@ -147,7 +147,7 @@ main.appmain{padding:22px 26px 40px;max-width:1080px;margin:0 auto}
 .form-group input,.form-group select,.form-group textarea{background:#fff;border:1px solid var(--g2);border-radius:8px;padding:9px 12px;color:var(--navy);font-size:13px;font-family:inherit;outline:none;width:100%}
 .form-group input:focus,.form-group select:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(42,191,191,.14)}
 .form-group input:disabled,.form-group select:disabled{background:var(--g1);color:var(--g4)}
-.form-group input.campo-invalido,.form-group select.campo-invalido{border-color:var(--red)!important;box-shadow:0 0 0 3px rgba(229,62,62,.15)!important;animation:campoShake .35s}
+.form-group input.campo-invalido,.form-group select.campo-invalido,input.campo-invalido,select.campo-invalido{border-color:var(--red)!important;box-shadow:0 0 0 3px rgba(229,62,62,.15)!important;animation:campoShake .35s}
 @keyframes campoShake{10%,90%{transform:translateX(-1px)}20%,80%{transform:translateX(2px)}30%,50%,70%{transform:translateX(-3px)}40%,60%{transform:translateX(3px)}}
 .resumen-box{background:linear-gradient(150deg,var(--navy),#132a4d);border-radius:9px;padding:14px 16px;color:#fff;display:flex;flex-direction:column;justify-content:center;gap:6px;box-shadow:inset 0 0 0 1px rgba(42,191,191,.2)}
 .resumen-box .r-label{font-size:9px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;color:var(--teal)}
@@ -1653,6 +1653,40 @@ async function guardarRegistro(){
   const notas = document.getElementById('reg-notas').value.trim();
   const procedenciaId = document.getElementById('reg-procedencia').value;
   const duenoId = document.getElementById('reg-dueno').value;
+
+  // ── Validaciones condicionadas al medio de pago ──
+  // Cortesía exime de monto y de terminal; Tarjeta/AMEX exigen terminal; cualquier otro medio exige monto > 0 por servicio.
+  const MEDIOS_REQUIEREN_TERMINAL = new Set(['Tarjeta', 'AMEX']);
+  if(!noVino){
+    const necesitaTerminal = MEDIOS_REQUIEREN_TERMINAL.has(medio) || (grpMedio2Visible && MEDIOS_REQUIEREN_TERMINAL.has(medio2));
+    if(necesitaTerminal && !terminalId){
+      alertaCampo('reg-terminal', 'Selecciona la terminal usada para el pago con tarjeta/AMEX.');
+      return;
+    }
+    if(grpMedio2Visible && medio2 !== 'Cortesía' && !(monto2 > 0)){
+      alertaCampo('reg-monto2', 'El 2do monto debe ser mayor a $0 (a menos que el 2do medio de pago sea Cortesía).');
+      return;
+    }
+    if(medio !== 'Cortesía'){
+      const idsSinMonto = [...REG_SERV_SEL.entries()].filter(([, val]) => !(Number(val?.monto) > 0)).map(([id]) => id);
+      if(idsSinMonto.length){
+        document.querySelectorAll('.campo-invalido').forEach(el => el.classList.remove('campo-invalido'));
+        const filas = document.querySelectorAll('#reg-serv-sel .a-row');
+        filas.forEach(row => {
+          if(idsSinMonto.includes(row.dataset.id)){
+            const input = row.querySelector('.monto-wrap input');
+            input.classList.add('campo-invalido');
+            const quitarMarca = () => input.classList.remove('campo-invalido');
+            input.addEventListener('input', quitarMarca, { once:true });
+          }
+        });
+        if(filas.length) filas[0].scrollIntoView({ behavior:'smooth', block:'center' });
+        document.getElementById('campo-alert-mensaje').textContent = 'Cada servicio debe tener un monto mayor a $0 (a menos que el medio de pago sea Cortesía).';
+        document.getElementById('campo-alert-overlay').classList.add('show');
+        return;
+      }
+    }
+  }
 
   const serviciosSeleccionados = [...REG_SERV_SEL.entries()].map(([id, val]) => ({
     tipo_servicio_id: id,
