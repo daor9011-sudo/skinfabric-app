@@ -1101,6 +1101,39 @@ function entrarAlShell(perfil){
   document.getElementById('hist-btn-vaciar-papelera').style.display = window.MI_PUEDE_ELIMINAR_PAPELERA ? '' : 'none';
 
   cargarCatalogos();
+  iniciarRealtime();
+}
+
+// ── Tiempo real: si alguien más guarda/edita algo, la pantalla que tengas abierta se actualiza sola ──
+let RT_CHANNEL = null;
+let RT_TIMER = null;
+function iniciarRealtime(){
+  detenerRealtime();
+  RT_CHANNEL = sb.channel('cambios-clinica')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'consultas' }, programarRefrescoRealtime)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'consulta_servicios' }, programarRefrescoRealtime)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'pacientes' }, programarRefrescoRealtime)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'gestiones' }, programarRefrescoRealtime)
+    .subscribe();
+}
+function detenerRealtime(){
+  clearTimeout(RT_TIMER);
+  if(RT_CHANNEL){ sb.removeChannel(RT_CHANNEL); RT_CHANNEL = null; }
+}
+function programarRefrescoRealtime(){
+  // Se agrupan varios cambios seguidos (ej. una consulta + sus servicios) en un solo refresco
+  clearTimeout(RT_TIMER);
+  RT_TIMER = setTimeout(refrescarPantallaActivaPorRealtime, 500);
+}
+function refrescarPantallaActivaPorRealtime(){
+  const activa = document.querySelector('.screen2.act');
+  if(!activa) return;
+  switch(activa.id){
+    case 'app-screen-historial': cargarHistorial(); break;
+    case 'app-screen-cierre': cargarCierre(); break;
+    case 'app-screen-dash': cargarDashboard(); break;
+    case 'app-screen-prm': cargarInactivos(); cargarNoVinieron(); break;
+  }
 }
 
 document.querySelectorAll('.s3-segment button[data-screen2]').forEach(btn=>{
@@ -1118,6 +1151,7 @@ document.getElementById('btn-config-header').addEventListener('click', ()=>{
   document.getElementById('app-screen-personal').classList.add('act');
 });
 document.getElementById('btn-logout').addEventListener('click', async ()=>{
+  detenerRealtime();
   await sb.auth.signOut();
   MI_PERFIL = null;
   document.getElementById('app-view').classList.remove('act');
