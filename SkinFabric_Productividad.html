@@ -198,14 +198,16 @@ main.appmain{padding:22px 26px 40px;max-width:1080px;margin:0 auto}
 .a-empty{padding:14px;font-size:12px;color:var(--g6);text-align:center;grid-column:1/-1}
 .a-seleccion{border-top:1px dashed var(--g2);padding-top:12px}
 .a-seleccion-titulo{font-size:10.5px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:var(--g6);margin-bottom:10px}
-.a-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--g2)}
+.a-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--g2);flex-wrap:wrap}
 .a-row:last-of-type{border-bottom:none}
-.a-row .nom{flex:1;font-size:12.5px;font-weight:700;color:var(--navy)}
+.a-row .nom{flex:1 1 150px;min-width:0;font-size:12.5px;font-weight:700;color:var(--navy)}
 .a-row .ref{font-size:10px;color:var(--g4);font-weight:400;margin-left:6px}
+.a-row .atendido-select{flex:0 0 auto;max-width:170px;font-size:11px;padding:6px 8px;border-radius:7px;border:1px solid var(--g2);background:#fff;color:var(--navy);font-family:inherit}
 .a-row .monto-wrap{display:flex;align-items:center;gap:4px;background:#fff;border:1px solid rgba(42,191,191,.5);border-radius:7px;padding:0 8px;width:120px;flex-shrink:0}
 .a-row .monto-wrap span{font-size:12px;color:var(--g6);font-weight:700}
 .a-row .monto-wrap input{border:none;padding:7px 0;font-size:13px;width:100%;outline:none;text-align:right;font-family:inherit;color:var(--navy)}
 .a-row .quitar{background:none;border:none;color:var(--red);cursor:pointer;font-size:15px;padding:2px 4px;line-height:1;flex-shrink:0}
+@media (max-width:560px){.a-row .nom{flex-basis:100%}}
 .a-vacio{font-size:11.5px;color:var(--g4);font-style:italic;padding:4px 0}
 @media (max-width:820px){.form-grid{grid-template-columns:1fr 1fr}}
 @media (max-width:560px){.form-grid{grid-template-columns:1fr}}
@@ -483,6 +485,7 @@ main.appmain{padding:22px 26px 40px;max-width:1080px;margin:0 auto}
         </div>
         <div class="form-group"><label>Teléfono</label><input type="text" id="reg-telefono" placeholder="10 dígitos"/></div>
         <div class="form-group" id="reg-grp-procedencia"><label>Procedencia</label><select id="reg-procedencia"><option value="">Seleccionar...</option></select></div>
+        <div class="form-group" id="reg-grp-dueno"><label>Dueño del paciente</label><select id="reg-dueno"><option value="">— Sin asignar —</option></select></div>
         <div class="form-group full">
           <label>Servicios <span class="req-badge">al menos uno</span></label>
           <div class="a-box">
@@ -827,6 +830,7 @@ main.appmain{padding:22px 26px 40px;max-width:1080px;margin:0 auto}
         <div class="form-group full"><label>Paciente</label><div id="edit-paciente-nombre" style="font-weight:700;color:var(--navy);font-size:13.5px;padding:6px 0"></div></div>
         <div class="form-group"><label>Fecha</label><input type="date" id="edit-fecha"/></div>
         <div class="form-group"><label>Atendido por</label><select id="edit-doctor"></select></div>
+        <div class="form-group"><label>Dueño del paciente</label><select id="edit-dueno"></select></div>
         <div class="form-group full">
           <label>Servicios <span class="req-badge">al menos uno</span></label>
           <div class="a-box">
@@ -1306,6 +1310,7 @@ async function cargarCatalogos(){
   CATALOGOS.personal = personal.data || [];
 
   poblarSelectAtendidoPor();
+  poblarSelectDueno();
   regServRender(document.getElementById('reg-serv-buscar').value);
   poblarSelect('reg-terminal', CATALOGOS.terminales.map(t=>({value:t.id, label:t.nombre})), '— Sin terminal —');
   poblarSelect('reg-medio', CATALOGOS.mediosPago.map(m=>({value:m.nombre, label:m.nombre})));
@@ -1354,31 +1359,32 @@ function poblarSelectDashFiltros(){
 function poblarSelectAtendidoPor(){
   const sel = document.getElementById('reg-doctor');
   const actual = sel.value;
-  sel.innerHTML = '<option value="">Seleccionar...</option>';
-  const grupos = [
-    { label:'— Médicos', rol:'doctor' },
-    { label:'— Cosmetólogos/as', rol:'cosmetologo' },
-  ];
-  grupos.forEach(g=>{
-    const items = CATALOGOS.personal.filter(p=>p.rol === g.rol);
-    if(!items.length) return;
-    const og = document.createElement('optgroup');
-    og.label = g.label;
-    items.forEach(p=>{
-      const opt = document.createElement('option');
-      opt.value = p.id; opt.textContent = p.nombre;
-      og.appendChild(opt);
-    });
-    sel.appendChild(og);
-  });
+  sel.innerHTML = '<option value="">Seleccionar...</option>' + opcionesPersonalAgrupadoHtml(actual);
+  if(actual) sel.value = actual;
+}
+function poblarSelectDueno(){
+  const sel = document.getElementById('reg-dueno');
+  const actual = sel.value;
+  sel.innerHTML = '<option value="">— Sin asignar —</option>' + opcionesPersonalAgrupadoHtml(actual);
   if(actual) sel.value = actual;
 }
 
-function nombresServicios(consultaServicios){
-  return (consultaServicios || []).map(cs => cs.catalogo_tipos_servicio?.nombre).filter(Boolean).join(', ');
+function nombresServicios(consultaServicios, doctorPrincipalNombre){
+  return (consultaServicios || []).map(cs => {
+    const nombre = cs.catalogo_tipos_servicio?.nombre;
+    if(!nombre) return null;
+    const atendioNombre = cs.atendido?.nombre;
+    if(atendioNombre && doctorPrincipalNombre && atendioNombre !== doctorPrincipalNombre){
+      return `${nombre} (${atendioNombre})`;
+    }
+    return nombre;
+  }).filter(Boolean).join(', ');
 }
 
 // ── Selector de servicios (multi-selección, Opción A: cuadrícula + lista de seleccionados) ──
+// Cada valor de selMap es { monto: string, atendidoPor: string } — atendidoPor vacío significa
+// "igual que el doctor/atendido principal de arriba" (así una consulta de un doctor puede derivar
+// un servicio de cabina hecho por otra persona, ej. una cosmetóloga).
 function renderServiciosGrid(gridId, filtro, selMap){
   const grid = document.getElementById(gridId);
   const f = normalizar(filtro || '');
@@ -1393,31 +1399,62 @@ function renderServiciosGrid(gridId, filtro, selMap){
       <div><div class="nom">${esc2(s.nombre)}</div>${s.referencia_precio ? `<div class="ref">ref. ${esc2(s.referencia_precio)}</div>` : ''}</div>
     </label>`).join('');
 }
-function renderServiciosSel(selId, selMap){
+function opcionesPersonalAgrupadoHtml(selectedId){
+  const grupos = [ { label:'Médicos', rol:'doctor' }, { label:'Cosmetólogos/as', rol:'cosmetologo' } ];
+  return grupos.map(g=>{
+    const items = CATALOGOS.personal.filter(p=>p.rol === g.rol);
+    if(!items.length) return '';
+    const opts = items.map(p=> `<option value="${esc2(p.id)}" ${selectedId===p.id?'selected':''}>${esc2(p.nombre)}</option>`).join('');
+    return `<optgroup label="${esc2(g.label)}">${opts}</optgroup>`;
+  }).join('');
+}
+function renderServiciosSel(selId, selMap, doctorPrincipal){
   const cont = document.getElementById(selId);
   if(!selMap.size){ cont.innerHTML = '<div class="a-vacio">Todavía no has seleccionado ningún servicio.</div>'; return; }
+  const labelIgual = 'Igual que arriba' + (doctorPrincipal?.label ? ` (${doctorPrincipal.label})` : '');
   cont.innerHTML = [...selMap.keys()].map(id=>{
     const s = CATALOGOS.tiposServicio.find(x=>x.id === id);
     const nombre = s ? esc2(s.nombre) : '(servicio ya no disponible)';
     const ref = s?.referencia_precio ? ` <span class="ref">ref. ${esc2(s.referencia_precio)}</span>` : '';
-    return `<div class="a-row" data-id="${esc2(id)}"><div class="nom">${nombre}${ref}</div><div class="monto-wrap"><span>$</span><input type="number" min="0" step="0.01" placeholder="0.00" value="${esc2(selMap.get(id) ?? '')}"/></div><button class="quitar" type="button">✕</button></div>`;
+    const val = selMap.get(id) || {};
+    const monto = val.monto ?? '';
+    const atendidoPor = val.atendidoPor || '';
+    return `<div class="a-row" data-id="${esc2(id)}">
+      <div class="nom">${nombre}${ref}</div>
+      <select class="atendido-select" title="¿Quién atendió este servicio?">
+        <option value="">${esc2(labelIgual)}</option>
+        ${opcionesPersonalAgrupadoHtml(atendidoPor)}
+      </select>
+      <div class="monto-wrap"><span>$</span><input type="number" min="0" step="0.01" placeholder="0.00" value="${esc2(monto)}"/></div>
+      <button class="quitar" type="button">✕</button>
+    </div>`;
   }).join('');
 }
-function crearSelectorServicios(ids, selMap, onChange){
+function crearSelectorServicios(ids, selMap, onChange, obtenerDoctorPrincipal){
   function refrescar(){
     renderServiciosGrid(ids.grid, document.getElementById(ids.buscar).value, selMap);
-    renderServiciosSel(ids.sel, selMap);
+    const doctorPrincipal = obtenerDoctorPrincipal ? obtenerDoctorPrincipal() : null;
+    renderServiciosSel(ids.sel, selMap, doctorPrincipal);
     document.getElementById(ids.grid).querySelectorAll('.a-chip').forEach(chip=>{
       const id = chip.dataset.id;
       chip.querySelector('input').addEventListener('change', e=>{
-        if(e.target.checked) selMap.set(id, selMap.get(id) ?? '');
+        if(e.target.checked) selMap.set(id, selMap.get(id) ?? { monto:'', atendidoPor:'' });
         else selMap.delete(id);
         refrescar();
       });
     });
     document.getElementById(ids.sel).querySelectorAll('.a-row').forEach(row=>{
       const id = row.dataset.id;
-      row.querySelector('input').addEventListener('input', e=>{ selMap.set(id, e.target.value); onChange(); });
+      row.querySelector('.monto-wrap input').addEventListener('input', e=>{
+        const prev = selMap.get(id) || { monto:'', atendidoPor:'' };
+        selMap.set(id, { ...prev, monto: e.target.value });
+        onChange();
+      });
+      row.querySelector('.atendido-select').addEventListener('change', e=>{
+        const prev = selMap.get(id) || { monto:'', atendidoPor:'' };
+        selMap.set(id, { ...prev, atendidoPor: e.target.value });
+        onChange();
+      });
       row.querySelector('.quitar').addEventListener('click', ()=>{ selMap.delete(id); refrescar(); onChange(); });
     });
     onChange();
@@ -1426,8 +1463,13 @@ function crearSelectorServicios(ids, selMap, onChange){
   return refrescar;
 }
 
-const REG_SERV_SEL = new Map(); // tipo_servicio_id -> monto (string)
-const regServRefrescar = crearSelectorServicios({ buscar:'reg-serv-buscar', grid:'reg-serv-grid', sel:'reg-serv-sel' }, REG_SERV_SEL, updateResumen);
+const REG_SERV_SEL = new Map(); // tipo_servicio_id -> { monto: string, atendidoPor: string }
+function obtenerDoctorPrincipalReg(){
+  const sel = document.getElementById('reg-doctor');
+  if(!sel.value) return null;
+  return { id: sel.value, label: sel.selectedOptions[0]?.textContent || '' };
+}
+const regServRefrescar = crearSelectorServicios({ buscar:'reg-serv-buscar', grid:'reg-serv-grid', sel:'reg-serv-sel' }, REG_SERV_SEL, updateResumen, obtenerDoctorPrincipalReg);
 function regServRender(filtro){
   if(filtro !== undefined) document.getElementById('reg-serv-buscar').value = filtro;
   regServRefrescar();
@@ -1446,7 +1488,7 @@ function poblarSelect(id, items, placeholder){
   if(actual) sel.value = actual;
 }
 
-document.getElementById('reg-doctor').addEventListener('change', updateResumen);
+document.getElementById('reg-doctor').addEventListener('change', ()=>{ updateResumen(); regServRefrescar(); });
 
 function aplicarDefaultsPorRol(){
   const sel = document.getElementById('reg-doctor');
@@ -1501,6 +1543,7 @@ function seleccionarPaciente(p){
   document.getElementById('reg-telefono').value = p.telefono || '';
   ocultarSugerenciasPaciente();
   document.getElementById('reg-grp-procedencia').style.display = 'none';
+  document.getElementById('reg-grp-dueno').style.display = 'none';
   const chipBox = document.getElementById('reg-paciente-selected');
   chipBox.innerHTML = `<span class="selected-pac-chip">✓ paciente existente <button type="button" id="reg-btn-cambiar-pac">✕ cambiar</button></span>`;
   chipBox.style.display = '';
@@ -1514,6 +1557,7 @@ function limpiarSeleccionPaciente(){
   document.getElementById('reg-paciente-selected').style.display = 'none';
   document.getElementById('reg-paciente-selected').innerHTML = '';
   document.getElementById('reg-grp-procedencia').style.display = '';
+  document.getElementById('reg-grp-dueno').style.display = '';
   document.getElementById('reg-paciente-nombre').focus();
   updateResumen();
 }
@@ -1533,7 +1577,7 @@ function updateResumen(){
   if(doctorLabel && doctorSel.value) metaParts.push(doctorLabel);
   metaParts.push(nServ ? (nServ + (nServ===1 ? ' servicio seleccionado' : ' servicios seleccionados')) : 'sin servicios seleccionados');
   const noVino = document.getElementById('reg-novino').checked;
-  const montoServicios = noVino ? 0 : [...REG_SERV_SEL.values()].reduce((a,v)=> a + (Number(v)||0), 0);
+  const montoServicios = noVino ? 0 : [...REG_SERV_SEL.values()].reduce((a,v)=> a + (Number(v?.monto)||0), 0);
   const monto2 = noVino ? 0 : Number(document.getElementById('reg-monto2').value || 0);
   document.getElementById('reg-r-name').textContent = nombre || '—';
   document.getElementById('reg-r-meta').textContent = metaParts.join(' · ');
@@ -1603,8 +1647,13 @@ async function guardarRegistro(){
   const factura = document.getElementById('reg-factura').checked;
   const notas = document.getElementById('reg-notas').value.trim();
   const procedenciaId = document.getElementById('reg-procedencia').value;
+  const duenoId = document.getElementById('reg-dueno').value;
 
-  const serviciosSeleccionados = [...REG_SERV_SEL.entries()].map(([id, monto]) => ({ tipo_servicio_id: id, monto: noVino ? 0 : Number(monto || 0) }));
+  const serviciosSeleccionados = [...REG_SERV_SEL.entries()].map(([id, val]) => ({
+    tipo_servicio_id: id,
+    monto: noVino ? 0 : Number(val?.monto || 0),
+    atendido_por: val?.atendidoPor || null,
+  }));
   const montoServicios = serviciosSeleccionados.reduce((a,s)=> a + s.monto, 0);
 
   const btn = document.getElementById('reg-btn-guardar');
@@ -1613,7 +1662,7 @@ async function guardarRegistro(){
     let pacienteId = REG_PACIENTE_SELECCIONADO ? REG_PACIENTE_SELECCIONADO.id : null;
     if(!pacienteId){
       const { data: nuevoPaciente, error: errPaciente } = await sb.from('pacientes')
-        .insert({ nombre, telefono: telefono || null, procedencia_id: procedenciaId || null })
+        .insert({ nombre, telefono: telefono || null, procedencia_id: procedenciaId || null, dueno_id: duenoId || null })
         .select('id').single();
       if(errPaciente) throw errPaciente;
       pacienteId = nuevoPaciente.id;
@@ -1636,7 +1685,7 @@ async function guardarRegistro(){
     const { data: nuevaConsulta, error: errConsulta } = await sb.from('consultas').insert(payload).select('id').single();
     if(errConsulta) throw errConsulta;
 
-    const filasServicios = serviciosSeleccionados.map(s => ({ consulta_id: nuevaConsulta.id, tipo_servicio_id: s.tipo_servicio_id, monto: s.monto }));
+    const filasServicios = serviciosSeleccionados.map(s => ({ consulta_id: nuevaConsulta.id, tipo_servicio_id: s.tipo_servicio_id, monto: s.monto, atendido_por: s.atendido_por }));
     const { error: errServ } = await sb.from('consulta_servicios').insert(filasServicios);
     if(errServ) throw errServ;
 
@@ -1664,6 +1713,7 @@ function limpiarRegistroCompleto(){
   document.getElementById('reg-grp-monto2').style.display = 'none';
   document.getElementById('reg-btn-2pago').textContent = '+ agregar 2do pago';
   document.getElementById('reg-grp-procedencia').style.display = '';
+  document.getElementById('reg-grp-dueno').style.display = '';
   REG_SERV_SEL.clear();
   regServRender('');
   limpiarSeleccionPaciente();
@@ -1729,7 +1779,7 @@ async function cargarHistorial(){
   const desde = rangoFechaDesde(rango);
 
   let q = sb.from('consultas')
-    .select('id,fecha,monto,medio_pago,monto_2,medio_pago_2,factura,num_factura,no_vino,notas,paciente_id,doctor_id,terminal_id,pacientes!inner(nombre,telefono),doctor:personal!doctor_id(nombre),catalogo_terminales(nombre),consulta_servicios(tipo_servicio_id,monto,catalogo_tipos_servicio(nombre))')
+    .select('id,fecha,monto,medio_pago,monto_2,medio_pago_2,factura,num_factura,no_vino,notas,paciente_id,doctor_id,terminal_id,pacientes!inner(nombre,telefono,dueno_id),doctor:personal!doctor_id(nombre),catalogo_terminales(nombre),consulta_servicios(tipo_servicio_id,monto,atendido_por,catalogo_tipos_servicio(nombre),atendido:personal(nombre))')
     .eq('deleted', false)
     .order('fecha', { ascending:false })
     .order('created_at', { ascending:false })
@@ -1794,7 +1844,7 @@ function renderHistorial(){
     const pago1 = r.no_vino ? '—' : iconoPago(r.medio_pago) + esc2(r.medio_pago || '—');
     const pago2 = (!r.no_vino && r.medio_pago_2) ? `<div style="font-size:10px;color:var(--g6)">+${iconoPago(r.medio_pago_2)}${esc2(r.medio_pago_2)}</div>` : '';
     const monto2 = (!r.no_vino && r.monto_2) ? `<div style="font-size:10px;color:var(--g6)">+${fmtMoney(r.monto_2)} 2do pago</div>` : '';
-    const servicio = esc2(nombresServicios(r.consulta_servicios) || '—');
+    const servicio = esc2(nombresServicios(r.consulta_servicios, r.doctor?.nombre) || '—');
     return `<tr>
       <td>${fmtFechaCorta(r.fecha)}</td>
       <td><b>${esc2(r.pacientes?.nombre || '—')}</b>${r.no_vino ? ' <span class="badge badge-novino">👻</span>' : ''}</td>
@@ -1932,44 +1982,45 @@ document.getElementById('hist-btn-vaciar-papelera').addEventListener('click', va
 // ── Modal: Editar consulta ──
 function poblarSelectEditDoctor(selectedId){
   const sel = document.getElementById('edit-doctor');
-  sel.innerHTML = '';
-  const grupos = [ { label:'— Médicos', rol:'doctor' }, { label:'— Cosmetólogos/as', rol:'cosmetologo' } ];
-  grupos.forEach(g=>{
-    const items = CATALOGOS.personal.filter(p=>p.rol === g.rol);
-    if(!items.length) return;
-    const og = document.createElement('optgroup');
-    og.label = g.label;
-    items.forEach(p=>{
-      const opt = document.createElement('option');
-      opt.value = p.id; opt.textContent = p.nombre;
-      og.appendChild(opt);
-    });
-    sel.appendChild(og);
-  });
+  sel.innerHTML = opcionesPersonalAgrupadoHtml(selectedId);
   sel.value = selectedId || '';
 }
-const EDIT_SERV_SEL = new Map(); // tipo_servicio_id -> monto (string)
+function poblarSelectEditDueno(selectedId){
+  const sel = document.getElementById('edit-dueno');
+  sel.innerHTML = '<option value="">— Sin asignar —</option>' + opcionesPersonalAgrupadoHtml(selectedId);
+  sel.value = selectedId || '';
+}
+const EDIT_SERV_SEL = new Map(); // tipo_servicio_id -> { monto: string, atendidoPor: string }
 function editServTotal(){
-  const total = [...EDIT_SERV_SEL.values()].reduce((a,v)=> a + (Number(v)||0), 0);
+  const total = [...EDIT_SERV_SEL.values()].reduce((a,v)=> a + (Number(v?.monto)||0), 0);
   document.getElementById('edit-serv-total').textContent = fmtMoney(total);
   const n = EDIT_SERV_SEL.size;
   document.getElementById('edit-serv-meta').textContent = n ? (n + (n===1?' servicio seleccionado':' servicios seleccionados')) : 'Selecciona al menos un servicio';
 }
-const editServRefrescar = crearSelectorServicios({ buscar:'edit-serv-buscar', grid:'edit-serv-grid', sel:'edit-serv-sel' }, EDIT_SERV_SEL, editServTotal);
+function obtenerDoctorPrincipalEdit(){
+  const sel = document.getElementById('edit-doctor');
+  if(!sel.value) return null;
+  return { id: sel.value, label: sel.selectedOptions[0]?.textContent || '' };
+}
+const editServRefrescar = crearSelectorServicios({ buscar:'edit-serv-buscar', grid:'edit-serv-grid', sel:'edit-serv-sel' }, EDIT_SERV_SEL, editServTotal, obtenerDoctorPrincipalEdit);
 function editServRender(filtro){
   if(filtro !== undefined) document.getElementById('edit-serv-buscar').value = filtro;
   editServRefrescar();
 }
+document.getElementById('edit-doctor').addEventListener('change', editServRefrescar);
 
+let HIST_EDIT_PACIENTE_ID = null;
 function abrirModalEditar(id){
   const r = HIST_ROWS.find(x=>x.id === id);
   if(!r) return;
   HIST_EDIT_ID = id;
+  HIST_EDIT_PACIENTE_ID = r.paciente_id || null;
   document.getElementById('edit-paciente-nombre').textContent = r.pacientes?.nombre || '—';
   document.getElementById('edit-fecha').value = r.fecha;
   poblarSelectEditDoctor(r.doctor_id);
+  poblarSelectEditDueno(r.pacientes?.dueno_id || '');
   EDIT_SERV_SEL.clear();
-  (r.consulta_servicios || []).forEach(cs=> EDIT_SERV_SEL.set(cs.tipo_servicio_id, String(cs.monto ?? '')));
+  (r.consulta_servicios || []).forEach(cs=> EDIT_SERV_SEL.set(cs.tipo_servicio_id, { monto: String(cs.monto ?? ''), atendidoPor: cs.atendido_por || '' }));
   editServRender('');
   poblarSelect('edit-medio', CATALOGOS.mediosPago.map(m=>({value:m.nombre, label:m.nombre})));
   document.getElementById('edit-medio').value = r.medio_pago || '';
@@ -1993,8 +2044,9 @@ document.getElementById('edit-btn-guardar').addEventListener('click', async ()=>
   if(!document.getElementById('edit-doctor').value){ toast('Selecciona quién atiende.'); return; }
   if(EDIT_SERV_SEL.size === 0){ toast('Selecciona al menos un servicio.'); return; }
 
-  const servicios = [...EDIT_SERV_SEL.entries()].map(([id, monto]) => ({ tipo_servicio_id: id, monto: Number(monto || 0) }));
+  const servicios = [...EDIT_SERV_SEL.entries()].map(([id, val]) => ({ tipo_servicio_id: id, monto: Number(val?.monto || 0), atendido_por: val?.atendidoPor || null }));
   const montoTotal = servicios.reduce((a,s)=> a + s.monto, 0);
+  const duenoId = document.getElementById('edit-dueno').value;
 
   const payload = {
     fecha: document.getElementById('edit-fecha').value,
@@ -2024,13 +2076,17 @@ document.getElementById('edit-btn-guardar').addEventListener('click', async ()=>
     toast('Se guardaron los datos generales, pero no se pudieron actualizar los servicios.');
     return;
   }
-  const filasServicios = servicios.map(s => ({ consulta_id: HIST_EDIT_ID, tipo_servicio_id: s.tipo_servicio_id, monto: s.monto }));
+  const filasServicios = servicios.map(s => ({ consulta_id: HIST_EDIT_ID, tipo_servicio_id: s.tipo_servicio_id, monto: s.monto, atendido_por: s.atendido_por }));
   const { error: errIns } = await sb.from('consulta_servicios').insert(filasServicios);
   btn.disabled = false; btn.textContent = 'Guardar cambios';
   if(errIns){
     console.error('[SkinFabric] Error guardando servicios:', errIns);
     toast('Se guardaron los datos generales, pero no se pudieron guardar los servicios.');
     return;
+  }
+  if(HIST_EDIT_PACIENTE_ID){
+    const { error: errDueno } = await sb.from('pacientes').update({ dueno_id: duenoId || null }).eq('id', HIST_EDIT_PACIENTE_ID);
+    if(errDueno) console.error('[SkinFabric] Error actualizando dueño del paciente:', errDueno);
   }
   toast('✓ Cambios guardados.');
   cerrarModalEditar();
@@ -2063,7 +2119,7 @@ function exportarExcel(filas){
     'Paciente': r.pacientes?.nombre || '',
     'Teléfono': r.pacientes?.telefono || '',
     'Doctor': r.doctor?.nombre || '',
-    'Servicio(s)': nombresServicios(r.consulta_servicios),
+    'Servicio(s)': nombresServicios(r.consulta_servicios, r.doctor?.nombre),
     'Monto': Number(r.monto || 0),
     'Medio de pago': r.medio_pago || '',
     'Monto 2do pago': r.monto_2 != null ? Number(r.monto_2) : '',
@@ -2098,7 +2154,7 @@ document.getElementById('export-btn-confirmar').addEventListener('click', async 
       else if(rango === 'semana'){ const a = new Date(hoy); a.setDate(a.getDate()-7); desde = isoLocal(a); hasta = isoLocal(hoy); }
       else if(rango === 'mes'){ const a = new Date(hoy); a.setDate(a.getDate()-30); desde = isoLocal(a); hasta = isoLocal(hoy); }
       let q = sb.from('consultas')
-        .select('fecha,monto,medio_pago,monto_2,medio_pago_2,factura,num_factura,no_vino,notas,pacientes(nombre,telefono),doctor:personal!doctor_id(nombre),catalogo_terminales(nombre),consulta_servicios(tipo_servicio_id,monto,catalogo_tipos_servicio(nombre))')
+        .select('fecha,monto,medio_pago,monto_2,medio_pago_2,factura,num_factura,no_vino,notas,pacientes(nombre,telefono),doctor:personal!doctor_id(nombre),catalogo_terminales(nombre),consulta_servicios(tipo_servicio_id,monto,atendido_por,catalogo_tipos_servicio(nombre),atendido:personal(nombre))')
         .eq('deleted', false)
         .order('fecha', { ascending:false });
       if(desde) q = q.gte('fecha', desde);
@@ -2211,7 +2267,7 @@ async function cargarCierre(){
   const desde = modoAlPedir === 'dia' ? isoLocal(fechaAlPedir) : isoLocal(primerDiaMes(fechaAlPedir));
   const hasta = modoAlPedir === 'dia' ? isoLocal(fechaAlPedir) : isoLocal(ultimoDiaMes(fechaAlPedir));
   let q = sb.from('consultas')
-    .select('id,monto,medio_pago,monto_2,medio_pago_2,doctor_id,pacientes(nombre),doctor:personal!doctor_id(nombre),consulta_servicios(tipo_servicio_id,monto,catalogo_tipos_servicio(nombre))')
+    .select('id,monto,medio_pago,monto_2,medio_pago_2,doctor_id,pacientes(nombre),doctor:personal!doctor_id(nombre),consulta_servicios(tipo_servicio_id,monto,atendido_por,catalogo_tipos_servicio(nombre),atendido:personal(nombre))')
     .eq('deleted', false)
     .eq('no_vino', false)
     .gte('fecha', desde)
@@ -2246,7 +2302,7 @@ function renderCierre(){
     if(!porDoctor[docId]) porDoctor[docId] = { nombre:docNombre, total:0, count:0, pagos:{}, pacientes:[] };
     porDoctor[docId].total += totalFila;
     porDoctor[docId].count += 1;
-    const servicio = nombresServicios(r.consulta_servicios) || '—';
+    const servicio = nombresServicios(r.consulta_servicios, r.doctor?.nombre) || '—';
     porDoctor[docId].pacientes.push({ nombre: r.pacientes?.nombre || '—', detalle: servicio, monto: totalFila });
 
     if(r.medio_pago){
@@ -2349,7 +2405,7 @@ async function cargarDashboard(){
   const desde = rangoFechaDashboard(rango);
 
   let q = sb.from('consultas')
-    .select('fecha,monto,monto_2,medio_pago,medio_pago_2,paciente_id,doctor_id,doctor:personal!doctor_id(nombre),consulta_servicios(tipo_servicio_id,monto,catalogo_tipos_servicio(nombre))')
+    .select('fecha,monto,monto_2,medio_pago,medio_pago_2,paciente_id,doctor_id,doctor:personal!doctor_id(nombre),consulta_servicios(tipo_servicio_id,monto,atendido_por,catalogo_tipos_servicio(nombre),atendido:personal(nombre))')
     .eq('deleted', false)
     .eq('no_vino', false)
     .order('fecha', { ascending:true })
@@ -2379,7 +2435,19 @@ function renderDashboard(){
     ingresoTotal += total;
     if(r.paciente_id) pacientesSet.add(r.paciente_id);
     const docNombre = r.doctor?.nombre || '—';
-    porDoctorMap[docNombre] = (porDoctorMap[docNombre] || 0) + total;
+    const servicios = r.consulta_servicios || [];
+    if(servicios.length){
+      // Cada servicio se acredita a quien realmente lo atendió (o al doctor principal si no se especificó otro) —
+      // así una cosmetóloga que hace un procedimiento de cabina dentro de una consulta de un doctor recibe su propio crédito.
+      servicios.forEach(cs=>{
+        const atendioNombre = cs.atendido?.nombre || docNombre;
+        porDoctorMap[atendioNombre] = (porDoctorMap[atendioNombre] || 0) + Number(cs.monto || 0);
+      });
+    } else if(r.monto){
+      porDoctorMap[docNombre] = (porDoctorMap[docNombre] || 0) + Number(r.monto || 0);
+    }
+    // El 2do pago no está ligado a un servicio en particular: se acredita al doctor principal de la consulta
+    if(r.monto_2) porDoctorMap[docNombre] = (porDoctorMap[docNombre] || 0) + Number(r.monto_2 || 0);
   });
   const consultasCount = DASH_ROWS.length;
   const ticketProm = consultasCount ? ingresoTotal / consultasCount : 0;
@@ -2556,7 +2624,7 @@ async function cargarInactivos(){
   const umbralDias = Number(document.getElementById('crm-inactivos-umbral').value) || 60;
 
   const { data, error } = await sb.from('consultas')
-    .select('fecha,paciente_id,pacientes(id,nombre,telefono),doctor:personal!doctor_id(nombre),consulta_servicios(tipo_servicio_id,monto,catalogo_tipos_servicio(nombre))')
+    .select('fecha,paciente_id,pacientes(id,nombre,telefono),doctor:personal!doctor_id(nombre),consulta_servicios(tipo_servicio_id,monto,atendido_por,catalogo_tipos_servicio(nombre),atendido:personal(nombre))')
     .eq('deleted', false)
     .eq('no_vino', false)
     .order('fecha', { ascending:false })
@@ -2572,7 +2640,7 @@ async function cargarInactivos(){
   const ultimaPorPaciente = {};
   (data || []).forEach(r=>{
     if(!r.paciente_id || ultimaPorPaciente[r.paciente_id]) return;
-    ultimaPorPaciente[r.paciente_id] = { id: r.paciente_id, nombre: r.pacientes?.nombre, telefono: r.pacientes?.telefono, ultimaFecha: r.fecha, doctor: r.doctor?.nombre, servicio: nombresServicios(r.consulta_servicios) };
+    ultimaPorPaciente[r.paciente_id] = { id: r.paciente_id, nombre: r.pacientes?.nombre, telefono: r.pacientes?.telefono, ultimaFecha: r.fecha, doctor: r.doctor?.nombre, servicio: nombresServicios(r.consulta_servicios, r.doctor?.nombre) };
   });
 
   const hoy = new Date();
@@ -2618,7 +2686,7 @@ async function cargarNoVinieron(){
   cont.innerHTML = '<tr><td colspan="7" class="empty-note">Cargando...</td></tr>';
 
   const { data, error } = await sb.from('consultas')
-    .select('fecha,paciente_id,no_vino,pacientes(id,nombre,telefono),doctor:personal!doctor_id(nombre),consulta_servicios(tipo_servicio_id,monto,catalogo_tipos_servicio(nombre))')
+    .select('fecha,paciente_id,no_vino,pacientes(id,nombre,telefono),doctor:personal!doctor_id(nombre),consulta_servicios(tipo_servicio_id,monto,atendido_por,catalogo_tipos_servicio(nombre),atendido:personal(nombre))')
     .eq('deleted', false)
     .order('fecha', { ascending:false })
     .limit(5000);
@@ -2634,7 +2702,7 @@ async function cargarNoVinieron(){
   const ultimoGeneral = {};
   (data || []).forEach(r=>{
     if(!r.paciente_id || ultimoGeneral[r.paciente_id]) return; // ya viene ordenado desc: la primera fila es la más reciente
-    ultimoGeneral[r.paciente_id] = { id: r.paciente_id, nombre: r.pacientes?.nombre, telefono: r.pacientes?.telefono, fecha: r.fecha, doctor: r.doctor?.nombre, servicio: nombresServicios(r.consulta_servicios), noVino: r.no_vino };
+    ultimoGeneral[r.paciente_id] = { id: r.paciente_id, nombre: r.pacientes?.nombre, telefono: r.pacientes?.telefono, fecha: r.fecha, doctor: r.doctor?.nombre, servicio: nombresServicios(r.consulta_servicios, r.doctor?.nombre), noVino: r.no_vino };
   });
 
   const pendientes = Object.values(ultimoGeneral)
@@ -2680,7 +2748,7 @@ async function abrirModalGestion(pacienteId, nombre){
   document.getElementById('modal-gestion').classList.add('show');
 
   const [visitasRes, gestionesRes] = await Promise.all([
-    sb.from('consultas').select('fecha,monto,monto_2,consulta_servicios(tipo_servicio_id,monto,catalogo_tipos_servicio(nombre)),doctor:personal!doctor_id(nombre)').eq('paciente_id', pacienteId).eq('deleted', false).eq('no_vino', false).order('fecha', { ascending:false }).limit(50),
+    sb.from('consultas').select('fecha,monto,monto_2,consulta_servicios(tipo_servicio_id,monto,atendido_por,catalogo_tipos_servicio(nombre),atendido:personal(nombre)),doctor:personal!doctor_id(nombre)').eq('paciente_id', pacienteId).eq('deleted', false).eq('no_vino', false).order('fecha', { ascending:false }).limit(50),
     sb.from('gestiones').select('id,tipo,nota,fecha,creado_por,personal(nombre)').eq('paciente_id', pacienteId).order('fecha', { ascending:false }).limit(50),
   ]);
   if(miReqId !== gestionModalReqId) return; // el usuario cerró el modal o abrió otro paciente mientras esto cargaba
@@ -2690,7 +2758,7 @@ async function abrirModalGestion(pacienteId, nombre){
 
   const visitas = visitasRes.data || [];
   document.getElementById('modal-gestion-visitas').innerHTML = visitas.length ? visitas.map(v => `
-    <tr><td>${fmtFechaCorta(v.fecha)}</td><td>${esc2(nombresServicios(v.consulta_servicios) || '—')}</td><td>${esc2(v.doctor?.nombre || '—')}</td><td>${fmtMoney(Number(v.monto||0) + Number(v.monto_2||0))}</td></tr>
+    <tr><td>${fmtFechaCorta(v.fecha)}</td><td>${esc2(nombresServicios(v.consulta_servicios, v.doctor?.nombre) || '—')}</td><td>${esc2(v.doctor?.nombre || '—')}</td><td>${fmtMoney(Number(v.monto||0) + Number(v.monto_2||0))}</td></tr>
   `).join('') : '<tr><td colspan="4" class="empty-note">Sin visitas registradas.</td></tr>';
 
   const gestiones = gestionesRes.data || [];
