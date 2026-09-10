@@ -504,7 +504,7 @@ main.appmain{padding:22px 26px 40px;max-width:1080px;margin:0 auto}
           <button class="toggle-link" id="reg-btn-2pago" type="button" style="margin-top:4px">+ agregar 2do pago</button>
         </div>
         <div class="form-group" id="reg-grp-medio2" style="display:none"><label>2do medio de pago</label><select id="reg-medio2"><option value="">Seleccionar...</option></select></div>
-        <div class="form-group" id="reg-grp-monto2" style="display:none"><label>2do monto ($)</label><input type="number" id="reg-monto2" min="0" step="0.01" value="0"/></div>
+        <div class="form-group" id="reg-grp-monto2" style="display:none"><label>2do monto ($)</label><input type="number" id="reg-monto2" min="0" step="0.01" value="0"/><span style="font-size:10px;color:var(--g6);margin-top:2px">Parte del total de servicios pagada con el 2do medio (no se suma aparte).</span></div>
         <div class="form-group"><label>Terminal</label><select id="reg-terminal"><option value="">— Sin terminal —</option></select></div>
         <div class="form-group full"><label>Notas (opcional)</label><input type="text" id="reg-notas" placeholder="Observaciones..."/></div>
       </div>
@@ -1583,10 +1583,16 @@ function updateResumen(){
   metaParts.push(nServ ? (nServ + (nServ===1 ? ' servicio seleccionado' : ' servicios seleccionados')) : 'sin servicios seleccionados');
   const noVino = document.getElementById('reg-novino').checked;
   const montoServicios = noVino ? 0 : [...REG_SERV_SEL.values()].reduce((a,v)=> a + (Number(v?.monto)||0), 0);
-  const monto2 = noVino ? 0 : Number(document.getElementById('reg-monto2').value || 0);
+  const grpMedio2Visible = document.getElementById('reg-grp-medio2').style.display !== 'none';
+  const monto2 = (noVino || !grpMedio2Visible) ? 0 : Number(document.getElementById('reg-monto2').value || 0);
+  // El total a cobrar es la suma de los servicios: el 2do pago es la parte de ese total pagada
+  // con el 2do medio, no un monto adicional — por eso el total NO suma monto2 aparte.
+  if(grpMedio2Visible && monto2 > 0){
+    metaParts.push(`${fmtMoney(Math.max(montoServicios - monto2, 0))} + ${fmtMoney(monto2)} (2do pago)`);
+  }
   document.getElementById('reg-r-name').textContent = nombre || '—';
   document.getElementById('reg-r-meta').textContent = metaParts.join(' · ');
-  document.getElementById('reg-r-val').textContent = fmtMoney(montoServicios + monto2);
+  document.getElementById('reg-r-val').textContent = fmtMoney(montoServicios);
 }
 ['reg-paciente-nombre','reg-monto2'].forEach(id=>{
   document.getElementById(id).addEventListener('input', updateResumen);
@@ -1654,6 +1660,10 @@ async function guardarRegistro(){
   const procedenciaId = document.getElementById('reg-procedencia').value;
   const duenoId = document.getElementById('reg-dueno').value;
 
+  // El total de la consulta es la suma de los servicios seleccionados. El "2do pago" NO es un
+  // cargo adicional: es la parte de ese mismo total que se cobró con el 2do medio de pago.
+  const montoServicios = [...REG_SERV_SEL.values()].reduce((a,v)=> a + (Number(v?.monto) || 0), 0);
+
   // ── Validaciones condicionadas al medio de pago ──
   // Cortesía exime de monto y de terminal; Tarjeta/AMEX exigen terminal; cualquier otro medio exige monto > 0 por servicio.
   const MEDIOS_REQUIEREN_TERMINAL = new Set(['Tarjeta', 'AMEX']);
@@ -1665,6 +1675,10 @@ async function guardarRegistro(){
     }
     if(grpMedio2Visible && medio2 !== 'Cortesía' && !(monto2 > 0)){
       alertaCampo('reg-monto2', 'El 2do monto debe ser mayor a $0 (a menos que el 2do medio de pago sea Cortesía).');
+      return;
+    }
+    if(grpMedio2Visible && monto2 >= montoServicios){
+      alertaCampo('reg-monto2', `El 2do monto debe ser menor al total de servicios (${fmtMoney(montoServicios)}) — es la parte de ese total que se paga con el 2do medio, no un cargo extra.`);
       return;
     }
     if(medio !== 'Cortesía'){
@@ -1693,7 +1707,6 @@ async function guardarRegistro(){
     monto: noVino ? 0 : Number(val?.monto || 0),
     atendido_por: val?.atendidoPor || null,
   }));
-  const montoServicios = serviciosSeleccionados.reduce((a,s)=> a + s.monto, 0);
 
   const btn = document.getElementById('reg-btn-guardar');
   btn.disabled = true; btn.textContent = 'Guardando...';
@@ -1712,7 +1725,7 @@ async function guardarRegistro(){
       paciente_id: pacienteId,
       doctor_id: doctorId,
       terminal_id: terminalId || null,
-      monto: noVino ? 0 : (montoServicios + monto2),
+      monto: noVino ? 0 : (montoServicios - monto2),
       medio_pago: noVino ? null : (medio || null),
       monto_2: noVino ? null : (grpMedio2Visible ? monto2 : null),
       medio_pago_2: noVino ? null : (grpMedio2Visible ? (medio2 || null) : null),
