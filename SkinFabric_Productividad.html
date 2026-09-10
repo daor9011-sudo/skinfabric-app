@@ -254,7 +254,10 @@ main.appmain{padding:22px 26px 40px;max-width:1080px;margin:0 auto}
 .p-avatar.av-admin{background:linear-gradient(135deg,var(--purple),#5b2d73)}
 .p-avatar.av-doctor{background:linear-gradient(135deg,var(--navy2),var(--navy3))}
 .p-avatar.av-recepcion{background:linear-gradient(135deg,var(--teal),#22a8a8)}
-.cardC-name{font-weight:700;font-size:13px;color:var(--navy);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cardC-name{font-weight:700;font-size:13px;color:var(--navy);display:flex;align-items:center;gap:6px;min-width:0}
+.cardC-name-txt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.btn-icon-edit{border:none;background:none;padding:0;margin:0;font-size:11px;line-height:1;cursor:pointer;opacity:.5;flex-shrink:0}
+.btn-icon-edit:hover{opacity:1}
 .cardC-email{font-size:10.5px;color:var(--g4);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cardC-permgrid{display:flex;flex-wrap:wrap;gap:7px}
 .cardC-right{display:flex;flex-direction:column;align-items:flex-end;gap:10px}
@@ -2792,7 +2795,7 @@ async function renderConfigPersonal(){
   // Este panel es de accesos/permisos del sistema: solo recepción, doctores y admins.
   // Los cosmetólogos/as no manejan accesos ni permisos aquí (siguen existiendo en "personal"
   // para aparecer en "Atendido por", solo que no se listan/gestionan en este panel).
-  const { data, error } = await sb.from('personal').select('*').in('rol', ['admin','doctor','recepcion']).order('nombre');
+  const { data, error } = await sb.from('personal').select('*').in('rol', ['admin','doctor','recepcion']).eq('oculto', false).order('nombre');
   if(error){
     console.error('[SkinFabric] Error listando personal:', error);
     cont.innerHTML = '<div class="empty-note">No se pudo cargar.</div>';
@@ -2805,7 +2808,7 @@ async function renderConfigPersonal(){
       <div class="cardC-profile">
         <div class="p-avatar av-${esc2(p.rol)}">${esc2(inicialesPersonal(p.nombre))}</div>
         <div style="min-width:0">
-          <div class="cardC-name" title="${esc2(p.nombre)}">${esc2(p.nombre)}</div>
+          <div class="cardC-name" title="${esc2(p.nombre)}"><span class="cardC-name-txt">${esc2(p.nombre)}</span><button class="btn-icon-edit cfg-btn-editar-nombre" type="button" title="Editar nombre">✏️</button></div>
           <div class="cardC-email" title="${p.email ? esc2(p.email) : ''}">${p.email ? esc2(p.email) : '<span class="pend">Sin cuenta</span>'}</div>
           <div style="margin-top:6px"><span class="badge">${esc2(ROLE_LABELS[p.rol] || p.rol)}</span></div>
         </div>
@@ -2818,6 +2821,7 @@ async function renderConfigPersonal(){
       <div class="cardC-right">
         <label class="act-txt ${p.activo ? 'on' : ''}"><span class="switch"><input type="checkbox" class="cfg-p-activo" ${p.activo ? 'checked':''}/><span class="slider"></span></span>${p.activo ? 'Activo':'Inactivo'}</label>
         <button class="btn-sm solid cfg-btn-cuenta" type="button">${p.auth_user_id ? 'Reset pass' : 'Dar acceso'}</button>
+        <button class="btn-sm btn-del cfg-btn-quitar" type="button" title="Quitar de esta lista">🗑 Quitar</button>
       </div>
     </div>`).join('');
 
@@ -2859,6 +2863,46 @@ async function renderConfigPersonal(){
       const p = lista.find(x => x.id === id);
       if(!p) return;
       abrirModalAcceso(p.id, p.nombre, p.auth_user_id ? 'reset' : 'crear', p.email);
+    });
+
+    card.querySelector('.cfg-btn-editar-nombre').addEventListener('click', ()=>{
+      const p = lista.find(x => x.id === id);
+      if(!p) return;
+      mostrarPrompt({
+        titulo: 'Editar nombre',
+        mensaje: 'Nuevo nombre para este miembro del personal:',
+        placeholder: 'Nombre completo',
+        icono: '✏️',
+        valorInicial: p.nombre,
+      }, async (valor)=>{
+        const nombre = (valor || '').trim();
+        if(!nombre || nombre === p.nombre) return;
+        const ok = await catalogoActualizar('personal', id, { nombre });
+        if(ok){
+          toast('✓ Nombre actualizado.');
+          renderConfigPersonal();
+          cargarCatalogos();
+        }
+      });
+    });
+
+    card.querySelector('.cfg-btn-quitar').addEventListener('click', async ()=>{
+      const p = lista.find(x => x.id === id);
+      if(!p) return;
+      const ok = await confirmarAsync({
+        titulo: '¿Quitar de la lista?',
+        mensaje: `"${esc2(p.nombre)}" dejará de aparecer aquí y perderá su acceso al sistema. Su historial de consultas y registros pasados se conserva sin cambios — si más adelante necesitas recuperarlo, pídeselo a soporte.`,
+        textoConfirmar: 'Quitar',
+        icono: '🗑',
+        danger: true,
+      });
+      if(!ok) return;
+      const okUpd = await catalogoActualizar('personal', id, { oculto: true, activo: false });
+      if(okUpd){
+        toast('✓ Quitado de la lista.');
+        renderConfigPersonal();
+        cargarCatalogos();
+      }
     });
   });
 }
