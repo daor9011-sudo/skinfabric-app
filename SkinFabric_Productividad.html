@@ -172,6 +172,21 @@ main.appmain{padding:22px 26px 40px;max-width:1080px;margin:0 auto}
 .suggest-item .sp{font-size:11px;color:var(--g6)}
 .selected-pac-chip{display:inline-flex;align-items:center;gap:8px;background:var(--teal-soft);border:1px solid rgba(42,191,191,.4);border-radius:8px;padding:8px 12px;font-size:12.5px;font-weight:700;color:#0B6E6E}
 .selected-pac-chip button{background:none;border:none;cursor:pointer;color:#0B6E6E;font-size:13px;font-weight:800}
+.rs-box{border:1.5px solid var(--g2);border-radius:12px;overflow:hidden}
+.rs-search{width:100%;border:none;border-bottom:1px solid var(--g2);border-radius:0;padding:11px 14px;font-size:13px;font-family:inherit;color:var(--navy);outline:none}
+.rs-list{max-height:280px;overflow-y:auto}
+.rs-row{display:flex;align-items:center;gap:10px;padding:9px 14px;border-bottom:1px solid var(--g1);cursor:pointer}
+.rs-row:last-child{border-bottom:none}
+.rs-row:hover{background:var(--g1)}
+.rs-row.on{background:var(--teal-soft)}
+.rs-row input[type=checkbox]{accent-color:var(--teal);flex-shrink:0;width:16px;height:16px}
+.rs-row .txt{flex:1;min-width:0}
+.rs-row .nom{font-size:12.5px;font-weight:700;color:var(--navy)}
+.rs-empty{padding:14px;font-size:12px;color:var(--g6);text-align:center}
+.rs-row .monto-wrap{display:none;align-items:center;gap:4px;background:#fff;border:1px solid rgba(42,191,191,.5);border-radius:7px;padding:0 8px;width:110px;flex-shrink:0}
+.rs-row.on .monto-wrap{display:flex}
+.rs-row .monto-wrap span{font-size:12px;color:var(--g6);font-weight:700}
+.rs-row .monto-wrap input{border:none;padding:6px 0;font-size:12.5px;width:100%;outline:none;text-align:right;font-family:inherit;color:var(--navy)}
 @media (max-width:820px){.form-grid{grid-template-columns:1fr 1fr}}
 @media (max-width:560px){.form-grid{grid-template-columns:1fr}}
 
@@ -437,7 +452,6 @@ main.appmain{padding:22px 26px 40px;max-width:1080px;margin:0 auto}
       <div class="form-grid" id="reg-form-grid">
         <div class="form-group"><label>Fecha</label><input type="date" id="reg-fecha"/></div>
         <div class="form-group"><label>Atendido por</label><select id="reg-doctor"><option value="">Seleccionar...</option></select></div>
-        <div class="form-group"><label>Tipo de servicio</label><select id="reg-tipo"><option value="">Seleccionar...</option></select></div>
         <div class="form-group" style="position:relative">
           <label>Paciente</label>
           <input type="text" id="reg-paciente-nombre" placeholder="Nombre completo" autocomplete="off"/>
@@ -446,9 +460,13 @@ main.appmain{padding:22px 26px 40px;max-width:1080px;margin:0 auto}
         </div>
         <div class="form-group"><label>Teléfono</label><input type="text" id="reg-telefono" placeholder="10 dígitos"/></div>
         <div class="form-group" id="reg-grp-procedencia"><label>Procedencia</label><select id="reg-procedencia"><option value="">Seleccionar...</option></select></div>
-        <div class="form-group" id="reg-grp-descripcion" style="display:none"><label>Descripción <span class="req-badge">requerido</span></label><input type="text" id="reg-descripcion" placeholder="Detalle del servicio/producto"/></div>
-        <div class="form-group" id="reg-grp-equipo" style="display:none"><label>Equipo / Cabina <span class="req-badge">requerido</span></label><select id="reg-equipo"><option value="">Seleccionar...</option></select></div>
-        <div class="form-group"><label>Monto ($)</label><input type="number" id="reg-monto" min="0" step="0.01" value="0"/></div>
+        <div class="form-group full">
+          <label>Servicios <span class="req-badge">al menos uno</span></label>
+          <div class="rs-box">
+            <input class="rs-search" type="text" id="reg-serv-buscar" placeholder="🔎 Buscar servicio..." autocomplete="off"/>
+            <div class="rs-list" id="reg-serv-list"></div>
+          </div>
+        </div>
         <div class="resumen-box" id="reg-resumen">
           <div class="r-label">Resumen en vivo</div>
           <div class="r-name" id="reg-r-name">—</div>
@@ -773,10 +791,18 @@ main.appmain{padding:22px 26px 40px;max-width:1080px;margin:0 auto}
         <div class="form-group full"><label>Paciente</label><div id="edit-paciente-nombre" style="font-weight:700;color:var(--navy);font-size:13.5px;padding:6px 0"></div></div>
         <div class="form-group"><label>Fecha</label><input type="date" id="edit-fecha"/></div>
         <div class="form-group"><label>Atendido por</label><select id="edit-doctor"></select></div>
-        <div class="form-group"><label>Tipo de servicio</label><select id="edit-tipo"></select></div>
-        <div class="form-group" id="edit-grp-descripcion" style="display:none"><label>Descripción</label><input type="text" id="edit-descripcion"/></div>
-        <div class="form-group" id="edit-grp-equipo" style="display:none"><label>Equipo / Cabina</label><select id="edit-equipo"></select></div>
-        <div class="form-group"><label>Monto ($)</label><input type="number" id="edit-monto" min="0" step="0.01"/></div>
+        <div class="form-group full">
+          <label>Servicios <span class="req-badge">al menos uno</span></label>
+          <div class="rs-box">
+            <input class="rs-search" type="text" id="edit-serv-buscar" placeholder="🔎 Buscar servicio..." autocomplete="off"/>
+            <div class="rs-list" id="edit-serv-list"></div>
+          </div>
+        </div>
+        <div class="resumen-box full" style="grid-column:1/-1">
+          <div class="r-label">Total</div>
+          <div class="r-meta" id="edit-serv-meta">—</div>
+          <div class="r-val" id="edit-serv-total">$0.00</div>
+        </div>
         <div class="form-group"><label>Medio de pago</label><select id="edit-medio"></select></div>
         <div class="form-group"><label>Terminal</label><select id="edit-terminal"></select></div>
         <div class="form-group"><label>N° Factura</label><input type="text" id="edit-num-factura"/></div>
@@ -890,6 +916,7 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 function esc2(s){ return (s==null?'':String(s)).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function normalizar(s){ return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }
 
 function hideLoadingPanel(){ document.getElementById('loading-panel').classList.add('hide'); }
 function showLoadingPanel(text){
@@ -1205,8 +1232,7 @@ async function cargarCatalogos(){
   CATALOGOS.personal = personal.data || [];
 
   poblarSelectAtendidoPor();
-  poblarSelect('reg-tipo', CATALOGOS.tiposServicio.map(t=>({value:t.id, label:t.nombre})));
-  poblarEquipo();
+  regServRender(document.getElementById('reg-serv-buscar').value);
   poblarSelect('reg-terminal', CATALOGOS.terminales.map(t=>({value:t.id, label:t.nombre})), '— Sin terminal —');
   poblarSelect('reg-medio', CATALOGOS.mediosPago.map(m=>({value:m.nombre, label:m.nombre})));
   poblarSelect('reg-medio2', CATALOGOS.mediosPago.map(m=>({value:m.nombre, label:m.nombre})));
@@ -1274,21 +1300,44 @@ function poblarSelectAtendidoPor(){
   if(actual) sel.value = actual;
 }
 
-function poblarEquipo(){
-  const sel = document.getElementById('reg-equipo');
-  const actual = sel.value;
-  const doctorId = document.getElementById('reg-doctor').value;
-  sel.innerHTML = '<option value="">Seleccionar...</option>';
-  CATALOGOS.equipos
-    .filter(e => !e.doctor_id || e.doctor_id === doctorId)
-    .forEach(e=>{
-      const opt = document.createElement('option');
-      opt.value = e.id;
-      opt.textContent = e.nombre + (e.doctor_id ? '' : ' — compartido');
-      sel.appendChild(opt);
-    });
-  if(actual) sel.value = actual;
+function nombresServicios(consultaServicios){
+  return (consultaServicios || []).map(cs => cs.catalogo_tipos_servicio?.nombre).filter(Boolean).join(', ');
 }
+
+// ── Selector de servicios (multi-selección, Opción B) ──
+function renderServPicker(listElId, filtro, selMap, onChange){
+  const cont = document.getElementById(listElId);
+  const f = normalizar(filtro);
+  const visibles = CATALOGOS.tiposServicio.filter(s => normalizar(s.nombre).includes(f));
+  if(!visibles.length){ cont.innerHTML = '<div class="rs-empty">Sin resultados</div>'; return; }
+  cont.innerHTML = visibles.map(s => `
+    <div class="rs-row ${selMap.has(s.id)?'on':''}" data-id="${esc2(s.id)}">
+      <input type="checkbox" ${selMap.has(s.id)?'checked':''}/>
+      <div class="txt"><div class="nom">${esc2(s.nombre)}</div></div>
+      <div class="monto-wrap"><span>$</span><input type="number" min="0" step="0.01" placeholder="0.00" value="${esc2(selMap.get(s.id) ?? '')}"/></div>
+    </div>`).join('');
+  cont.querySelectorAll('.rs-row').forEach(row=>{
+    const id = row.dataset.id;
+    const cb = row.querySelector('input[type=checkbox]');
+    const montoInput = row.querySelector('.monto-wrap input');
+    function marcar(on){
+      if(on) selMap.set(id, selMap.get(id) ?? '');
+      else selMap.delete(id);
+      row.classList.toggle('on', on);
+      cb.checked = on;
+      onChange();
+    }
+    row.addEventListener('click', e=>{ if(e.target === montoInput) return; marcar(!selMap.has(id)); });
+    montoInput.addEventListener('click', e=> e.stopPropagation());
+    montoInput.addEventListener('input', e=>{ selMap.set(id, e.target.value); onChange(); });
+  });
+}
+
+const REG_SERV_SEL = new Map(); // tipo_servicio_id -> monto (string)
+function regServRender(filtro){
+  renderServPicker('reg-serv-list', filtro || '', REG_SERV_SEL, updateResumen);
+}
+document.getElementById('reg-serv-buscar').addEventListener('input', e=> regServRender(e.target.value));
 
 function poblarSelect(id, items, placeholder){
   const sel = document.getElementById(id);
@@ -1303,21 +1352,7 @@ function poblarSelect(id, items, placeholder){
   if(actual) sel.value = actual;
 }
 
-function onTipoChange(){
-  const tipoId = document.getElementById('reg-tipo').value;
-  const tipo = CATALOGOS.tiposServicio.find(t=>t.id === tipoId);
-  const grpDesc = document.getElementById('reg-grp-descripcion');
-  const grpEquipo = document.getElementById('reg-grp-equipo');
-  const mostrarDesc = !!(tipo && tipo.requiere_descripcion);
-  const mostrarEquipo = !!(tipo && tipo.requiere_equipo);
-  grpDesc.style.display = mostrarDesc ? '' : 'none';
-  grpEquipo.style.display = mostrarEquipo ? '' : 'none';
-  if(!mostrarDesc) document.getElementById('reg-descripcion').value = '';
-  if(!mostrarEquipo) document.getElementById('reg-equipo').value = '';
-  updateResumen();
-}
-document.getElementById('reg-tipo').addEventListener('change', onTipoChange);
-document.getElementById('reg-doctor').addEventListener('change', ()=>{ poblarEquipo(); updateResumen(); });
+document.getElementById('reg-doctor').addEventListener('change', updateResumen);
 
 function aplicarDefaultsPorRol(){
   const sel = document.getElementById('reg-doctor');
@@ -1327,7 +1362,6 @@ function aplicarDefaultsPorRol(){
   } else {
     sel.disabled = false;
   }
-  poblarEquipo();
 }
 
 // ── Búsqueda de paciente (anti-duplicados) ──
@@ -1400,27 +1434,20 @@ function updateResumen(){
   const nombre = document.getElementById('reg-paciente-nombre').value.trim();
   const doctorSel = document.getElementById('reg-doctor');
   const doctorLabel = doctorSel.selectedOptions[0] ? doctorSel.selectedOptions[0].textContent : '';
-  const tipoSel = document.getElementById('reg-tipo');
-  const tipoLabel = tipoSel.selectedOptions[0] ? tipoSel.selectedOptions[0].textContent : '';
-  const equipoGrp = document.getElementById('reg-grp-equipo');
+  const nServ = REG_SERV_SEL.size;
   let metaParts = [];
   if(doctorLabel && doctorSel.value) metaParts.push(doctorLabel);
-  if(tipoLabel && tipoSel.value) metaParts.push(tipoLabel);
-  if(equipoGrp.style.display !== 'none'){
-    const equipoSel = document.getElementById('reg-equipo');
-    if(equipoSel.value) metaParts.push(equipoSel.selectedOptions[0].textContent);
-  }
+  metaParts.push(nServ ? (nServ + (nServ===1 ? ' servicio seleccionado' : ' servicios seleccionados')) : 'sin servicios seleccionados');
   const noVino = document.getElementById('reg-novino').checked;
-  const monto1 = noVino ? 0 : Number(document.getElementById('reg-monto').value || 0);
+  const montoServicios = noVino ? 0 : [...REG_SERV_SEL.values()].reduce((a,v)=> a + (Number(v)||0), 0);
   const monto2 = noVino ? 0 : Number(document.getElementById('reg-monto2').value || 0);
   document.getElementById('reg-r-name').textContent = nombre || '—';
-  document.getElementById('reg-r-meta').textContent = metaParts.length ? metaParts.join(' · ') : '—';
-  document.getElementById('reg-r-val').textContent = fmtMoney(monto1 + monto2);
+  document.getElementById('reg-r-meta').textContent = metaParts.join(' · ');
+  document.getElementById('reg-r-val').textContent = fmtMoney(montoServicios + monto2);
 }
-['reg-paciente-nombre','reg-monto','reg-monto2'].forEach(id=>{
+['reg-paciente-nombre','reg-monto2'].forEach(id=>{
   document.getElementById(id).addEventListener('input', updateResumen);
 });
-document.getElementById('reg-equipo').addEventListener('change', updateResumen);
 
 // ── 2do medio de pago ──
 document.getElementById('reg-btn-2pago').addEventListener('click', ()=>{
@@ -1441,7 +1468,7 @@ document.getElementById('reg-btn-2pago').addEventListener('click', ()=>{
 // ── No vino ──
 document.getElementById('reg-novino').addEventListener('change', (e)=>{
   const noVino = e.target.checked;
-  ['reg-monto','reg-medio','reg-terminal','reg-btn-2pago'].forEach(id=>{
+  ['reg-medio','reg-terminal','reg-btn-2pago'].forEach(id=>{
     document.getElementById(id).disabled = noVino;
   });
   document.getElementById('reg-factura').disabled = noVino;
@@ -1462,24 +1489,16 @@ document.getElementById('reg-novino').addEventListener('change', (e)=>{
 async function guardarRegistro(){
   const fecha = document.getElementById('reg-fecha').value;
   const doctorId = document.getElementById('reg-doctor').value;
-  const tipoId = document.getElementById('reg-tipo').value;
   const nombre = document.getElementById('reg-paciente-nombre').value.trim();
   const telefono = document.getElementById('reg-telefono').value.trim();
   const noVino = document.getElementById('reg-novino').checked;
 
   if(!fecha){ alertaCampo('reg-fecha', 'Selecciona la fecha.'); return; }
   if(!doctorId){ alertaCampo('reg-doctor', 'Selecciona quién atiende.'); return; }
-  if(!tipoId){ alertaCampo('reg-tipo', 'Selecciona el tipo de servicio.'); return; }
   if(!nombre){ alertaCampo('reg-paciente-nombre', 'Escribe el nombre del paciente.'); return; }
-
-  const tipo = CATALOGOS.tiposServicio.find(t=>t.id === tipoId);
-  const descripcion = document.getElementById('reg-descripcion').value.trim();
-  const equipoId = document.getElementById('reg-equipo').value;
-  if(tipo?.requiere_descripcion && !descripcion){ alertaCampo('reg-descripcion', 'Este tipo de servicio requiere una descripción.'); return; }
-  if(tipo?.requiere_equipo && !equipoId){ alertaCampo('reg-equipo', 'Este tipo de servicio requiere seleccionar equipo/cabina.'); return; }
+  if(REG_SERV_SEL.size === 0){ alertaCampo('reg-serv-buscar', 'Selecciona al menos un servicio.'); return; }
 
   const medio = document.getElementById('reg-medio').value;
-  const monto = Number(document.getElementById('reg-monto').value || 0);
   const grpMedio2Visible = document.getElementById('reg-grp-medio2').style.display !== 'none';
   const medio2 = grpMedio2Visible ? document.getElementById('reg-medio2').value : '';
   const monto2 = grpMedio2Visible ? Number(document.getElementById('reg-monto2').value || 0) : 0;
@@ -1490,6 +1509,9 @@ async function guardarRegistro(){
   const factura = document.getElementById('reg-factura').checked;
   const notas = document.getElementById('reg-notas').value.trim();
   const procedenciaId = document.getElementById('reg-procedencia').value;
+
+  const serviciosSeleccionados = [...REG_SERV_SEL.entries()].map(([id, monto]) => ({ tipo_servicio_id: id, monto: noVino ? 0 : Number(monto || 0) }));
+  const montoServicios = serviciosSeleccionados.reduce((a,s)=> a + s.monto, 0);
 
   const btn = document.getElementById('reg-btn-guardar');
   btn.disabled = true; btn.textContent = 'Guardando...';
@@ -1507,11 +1529,8 @@ async function guardarRegistro(){
       fecha,
       paciente_id: pacienteId,
       doctor_id: doctorId,
-      tipo_servicio_id: tipoId,
-      descripcion: descripcion || null,
-      equipo_cabina_id: equipoId || null,
       terminal_id: terminalId || null,
-      monto: noVino ? 0 : monto,
+      monto: noVino ? 0 : (montoServicios + monto2),
       medio_pago: noVino ? null : (medio || null),
       monto_2: noVino ? null : (grpMedio2Visible ? monto2 : null),
       medio_pago_2: noVino ? null : (grpMedio2Visible ? (medio2 || null) : null),
@@ -1520,8 +1539,12 @@ async function guardarRegistro(){
       notas: notas || null,
       created_by: MI_PERFIL?.id || null,
     };
-    const { error: errConsulta } = await sb.from('consultas').insert(payload);
+    const { data: nuevaConsulta, error: errConsulta } = await sb.from('consultas').insert(payload).select('id').single();
     if(errConsulta) throw errConsulta;
+
+    const filasServicios = serviciosSeleccionados.map(s => ({ consulta_id: nuevaConsulta.id, tipo_servicio_id: s.tipo_servicio_id, monto: s.monto }));
+    const { error: errServ } = await sb.from('consulta_servicios').insert(filasServicios);
+    if(errServ) throw errServ;
 
     toast('✓ Registro guardado correctamente.');
     limpiarRegistroParcial();
@@ -1535,20 +1558,20 @@ async function guardarRegistro(){
 
 function limpiarRegistroCompleto(){
   document.getElementById('reg-form-grid').querySelectorAll('input[type=text],input[type=number],input[type=date],textarea').forEach(el=>{
-    if(el.id === 'reg-monto' || el.id === 'reg-monto2') el.value = '0';
+    if(el.id === 'reg-monto2') el.value = '0';
     else el.value = '';
   });
   document.getElementById('reg-form-grid').querySelectorAll('select').forEach(el=> el.value = '');
   document.getElementById('reg-doctor').disabled = false;
   document.getElementById('reg-factura').checked = false;
   document.getElementById('reg-novino').checked = false;
-  ['reg-monto','reg-medio','reg-terminal','reg-btn-2pago','reg-factura'].forEach(id=> document.getElementById(id).disabled = false);
+  ['reg-medio','reg-terminal','reg-btn-2pago','reg-factura'].forEach(id=> document.getElementById(id).disabled = false);
   document.getElementById('reg-grp-medio2').style.display = 'none';
   document.getElementById('reg-grp-monto2').style.display = 'none';
   document.getElementById('reg-btn-2pago').textContent = '+ agregar 2do pago';
-  document.getElementById('reg-grp-descripcion').style.display = 'none';
-  document.getElementById('reg-grp-equipo').style.display = 'none';
   document.getElementById('reg-grp-procedencia').style.display = '';
+  REG_SERV_SEL.clear();
+  regServRender('');
   limpiarSeleccionPaciente();
   document.getElementById('reg-fecha').value = isoLocal(new Date());
   aplicarDefaultsPorRol();
@@ -1612,14 +1635,13 @@ async function cargarHistorial(){
   const desde = rangoFechaDesde(rango);
 
   let q = sb.from('consultas')
-    .select('id,fecha,descripcion,monto,medio_pago,monto_2,medio_pago_2,factura,num_factura,no_vino,notas,paciente_id,doctor_id,tipo_servicio_id,equipo_cabina_id,terminal_id,pacientes!inner(nombre,telefono),doctor:personal!doctor_id(nombre),catalogo_tipos_servicio(nombre),catalogo_equipos(nombre),catalogo_terminales(nombre)')
+    .select('id,fecha,monto,medio_pago,monto_2,medio_pago_2,factura,num_factura,no_vino,notas,paciente_id,doctor_id,terminal_id,pacientes!inner(nombre,telefono),doctor:personal!doctor_id(nombre),catalogo_terminales(nombre),consulta_servicios(tipo_servicio_id,monto,catalogo_tipos_servicio(nombre))')
     .eq('deleted', false)
     .order('fecha', { ascending:false })
     .order('created_at', { ascending:false })
     .limit(300);
 
   if(desde) q = q.gte('fecha', desde);
-  if(tipoId) q = q.eq('tipo_servicio_id', tipoId);
   if(medio) q = q.eq('medio_pago', medio);
   if(buscar) q = q.ilike('pacientes.nombre', `%${buscar}%`);
   if(HIST_EXCL_FILTRO === 'facturado') q = q.eq('factura', true);
@@ -1635,7 +1657,9 @@ async function cargarHistorial(){
     empty.textContent = 'No se pudo cargar el historial.';
     return;
   }
-  HIST_ROWS = data || [];
+  let rows = data || [];
+  if(tipoId) rows = rows.filter(r => (r.consulta_servicios||[]).some(cs => cs.tipo_servicio_id === tipoId));
+  HIST_ROWS = rows;
   renderHistorial();
 }
 
@@ -1646,10 +1670,10 @@ function renderHistKpis(){
   const totalIngreso = filasReales.reduce((a,r)=> a + Number(r.monto||0) + Number(r.monto_2||0), 0);
   const pacientesUnicos = new Set(filasReales.map(r=> r.paciente_id)).size;
   const ticketProm = totalIngreso / filasReales.length;
-  const contarTipo = nombre => filasReales.filter(r => r.catalogo_tipos_servicio?.nombre === nombre).length;
+  const contarTipo = nombre => filasReales.filter(r => (r.consulta_servicios||[]).some(cs => cs.catalogo_tipos_servicio?.nombre === nombre)).length;
   const nPrimeraVez = contarTipo('Consulta de Primera Vez');
   const nSubsecuente = contarTipo('Consulta Subsecuente');
-  const nProcedimiento = contarTipo('Procedimiento');
+  const nProcedimiento = contarTipo('Procedimiento menor') + contarTipo('Procedimiento mayor');
   const fmt0 = n => '$' + Math.round(n).toLocaleString('es-MX');
   cont.innerHTML = `
     <div class="hist-chip c-total"><span class="ico">💰</span><div><div class="v">${fmt0(totalIngreso)}</div><div class="l">Total</div></div></div>
@@ -1676,7 +1700,7 @@ function renderHistorial(){
     const pago1 = r.no_vino ? '—' : iconoPago(r.medio_pago) + esc2(r.medio_pago || '—');
     const pago2 = (!r.no_vino && r.medio_pago_2) ? `<div style="font-size:10px;color:var(--g6)">+${iconoPago(r.medio_pago_2)}${esc2(r.medio_pago_2)}</div>` : '';
     const monto2 = (!r.no_vino && r.monto_2) ? `<div style="font-size:10px;color:var(--g6)">+${fmtMoney(r.monto_2)} 2do pago</div>` : '';
-    const servicio = esc2(r.catalogo_tipos_servicio?.nombre || '—') + (r.catalogo_equipos?.nombre ? ' · ' + esc2(r.catalogo_equipos.nombre) : '');
+    const servicio = esc2(nombresServicios(r.consulta_servicios) || '—');
     return `<tr>
       <td>${fmtFechaCorta(r.fecha)}</td>
       <td><b>${esc2(r.pacientes?.nombre || '—')}</b>${r.no_vino ? ' <span class="badge badge-novino">👻</span>' : ''}</td>
@@ -1830,25 +1854,17 @@ function poblarSelectEditDoctor(selectedId){
   });
   sel.value = selectedId || '';
 }
-function poblarEquipoEdit(doctorId){
-  const sel = document.getElementById('edit-equipo');
-  const actual = sel.value;
-  sel.innerHTML = '<option value="">Seleccionar...</option>';
-  CATALOGOS.equipos.filter(e=> !e.doctor_id || e.doctor_id === doctorId).forEach(e=>{
-    const opt = document.createElement('option');
-    opt.value = e.id; opt.textContent = e.nombre + (e.doctor_id ? '' : ' — compartido');
-    sel.appendChild(opt);
-  });
-  if(actual) sel.value = actual;
+const EDIT_SERV_SEL = new Map(); // tipo_servicio_id -> monto (string)
+function editServRender(filtro){
+  renderServPicker('edit-serv-list', filtro || '', EDIT_SERV_SEL, editServTotal);
 }
-function onTipoChangeEdit(){
-  const tipoId = document.getElementById('edit-tipo').value;
-  const tipo = CATALOGOS.tiposServicio.find(t=>t.id === tipoId);
-  document.getElementById('edit-grp-descripcion').style.display = tipo?.requiere_descripcion ? '' : 'none';
-  document.getElementById('edit-grp-equipo').style.display = tipo?.requiere_equipo ? '' : 'none';
+function editServTotal(){
+  const total = [...EDIT_SERV_SEL.values()].reduce((a,v)=> a + (Number(v)||0), 0);
+  document.getElementById('edit-serv-total').textContent = fmtMoney(total);
+  const n = EDIT_SERV_SEL.size;
+  document.getElementById('edit-serv-meta').textContent = n ? (n + (n===1?' servicio seleccionado':' servicios seleccionados')) : 'Selecciona al menos un servicio';
 }
-document.getElementById('edit-tipo').addEventListener('change', onTipoChangeEdit);
-document.getElementById('edit-doctor').addEventListener('change', ()=> poblarEquipoEdit(document.getElementById('edit-doctor').value));
+document.getElementById('edit-serv-buscar').addEventListener('input', e=> editServRender(e.target.value));
 
 function abrirModalEditar(id){
   const r = HIST_ROWS.find(x=>x.id === id);
@@ -1857,13 +1873,11 @@ function abrirModalEditar(id){
   document.getElementById('edit-paciente-nombre').textContent = r.pacientes?.nombre || '—';
   document.getElementById('edit-fecha').value = r.fecha;
   poblarSelectEditDoctor(r.doctor_id);
-  poblarSelect('edit-tipo', CATALOGOS.tiposServicio.map(t=>({value:t.id, label:t.nombre})));
-  document.getElementById('edit-tipo').value = r.tipo_servicio_id || '';
-  onTipoChangeEdit();
-  document.getElementById('edit-descripcion').value = r.descripcion || '';
-  poblarEquipoEdit(r.doctor_id);
-  document.getElementById('edit-equipo').value = r.equipo_cabina_id || '';
-  document.getElementById('edit-monto').value = r.monto;
+  EDIT_SERV_SEL.clear();
+  (r.consulta_servicios || []).forEach(cs=> EDIT_SERV_SEL.set(cs.tipo_servicio_id, String(cs.monto ?? '')));
+  document.getElementById('edit-serv-buscar').value = '';
+  editServRender('');
+  editServTotal();
   poblarSelect('edit-medio', CATALOGOS.mediosPago.map(m=>({value:m.nombre, label:m.nombre})));
   document.getElementById('edit-medio').value = r.medio_pago || '';
   poblarSelect('edit-terminal', CATALOGOS.terminales.map(t=>({value:t.id, label:t.nombre})), '— Sin terminal —');
@@ -1882,23 +1896,17 @@ document.getElementById('edit-btn-cancelar').addEventListener('click', cerrarMod
 
 document.getElementById('edit-btn-guardar').addEventListener('click', async ()=>{
   if(!HIST_EDIT_ID) return;
-  const tipoId = document.getElementById('edit-tipo').value;
-  const tipo = CATALOGOS.tiposServicio.find(t=>t.id === tipoId);
-  const descripcion = document.getElementById('edit-descripcion').value.trim();
-  const equipoId = document.getElementById('edit-equipo').value;
   if(!document.getElementById('edit-fecha').value){ toast('Selecciona la fecha.'); return; }
   if(!document.getElementById('edit-doctor').value){ toast('Selecciona quién atiende.'); return; }
-  if(!tipoId){ toast('Selecciona el tipo de servicio.'); return; }
-  if(tipo?.requiere_descripcion && !descripcion){ toast('Este tipo de servicio requiere una descripción.'); return; }
-  if(tipo?.requiere_equipo && !equipoId){ toast('Este tipo de servicio requiere seleccionar equipo/cabina.'); return; }
+  if(EDIT_SERV_SEL.size === 0){ toast('Selecciona al menos un servicio.'); return; }
+
+  const servicios = [...EDIT_SERV_SEL.entries()].map(([id, monto]) => ({ tipo_servicio_id: id, monto: Number(monto || 0) }));
+  const montoTotal = servicios.reduce((a,s)=> a + s.monto, 0);
 
   const payload = {
     fecha: document.getElementById('edit-fecha').value,
     doctor_id: document.getElementById('edit-doctor').value,
-    tipo_servicio_id: tipoId,
-    descripcion: descripcion || null,
-    equipo_cabina_id: equipoId || null,
-    monto: Number(document.getElementById('edit-monto').value || 0),
+    monto: montoTotal,
     medio_pago: document.getElementById('edit-medio').value || null,
     terminal_id: document.getElementById('edit-terminal').value || null,
     num_factura: document.getElementById('edit-num-factura').value.trim() || null,
@@ -1910,10 +1918,25 @@ document.getElementById('edit-btn-guardar').addEventListener('click', async ()=>
   const btn = document.getElementById('edit-btn-guardar');
   btn.disabled = true; btn.textContent = 'Guardando...';
   const { error } = await sb.from('consultas').update(payload).eq('id', HIST_EDIT_ID);
-  btn.disabled = false; btn.textContent = 'Guardar cambios';
   if(error){
+    btn.disabled = false; btn.textContent = 'Guardar cambios';
     console.error('[SkinFabric] Error guardando edición:', error);
     toast('No se pudo guardar. Verifica tu horario de acceso.');
+    return;
+  }
+  const { error: errDel } = await sb.from('consulta_servicios').delete().eq('consulta_id', HIST_EDIT_ID);
+  if(errDel){
+    btn.disabled = false; btn.textContent = 'Guardar cambios';
+    console.error('[SkinFabric] Error actualizando servicios:', errDel);
+    toast('Se guardaron los datos generales, pero no se pudieron actualizar los servicios.');
+    return;
+  }
+  const filasServicios = servicios.map(s => ({ consulta_id: HIST_EDIT_ID, tipo_servicio_id: s.tipo_servicio_id, monto: s.monto }));
+  const { error: errIns } = await sb.from('consulta_servicios').insert(filasServicios);
+  btn.disabled = false; btn.textContent = 'Guardar cambios';
+  if(errIns){
+    console.error('[SkinFabric] Error guardando servicios:', errIns);
+    toast('Se guardaron los datos generales, pero no se pudieron guardar los servicios.');
     return;
   }
   toast('✓ Cambios guardados.');
@@ -1947,9 +1970,7 @@ function exportarExcel(filas){
     'Paciente': r.pacientes?.nombre || '',
     'Teléfono': r.pacientes?.telefono || '',
     'Doctor': r.doctor?.nombre || '',
-    'Servicio': r.catalogo_tipos_servicio?.nombre || '',
-    'Equipo/Cabina': r.catalogo_equipos?.nombre || '',
-    'Descripción': r.descripcion || '',
+    'Servicio(s)': nombresServicios(r.consulta_servicios),
     'Monto': Number(r.monto || 0),
     'Medio de pago': r.medio_pago || '',
     'Monto 2do pago': r.monto_2 != null ? Number(r.monto_2) : '',
@@ -1984,7 +2005,7 @@ document.getElementById('export-btn-confirmar').addEventListener('click', async 
       else if(rango === 'semana'){ const a = new Date(hoy); a.setDate(a.getDate()-7); desde = isoLocal(a); hasta = isoLocal(hoy); }
       else if(rango === 'mes'){ const a = new Date(hoy); a.setDate(a.getDate()-30); desde = isoLocal(a); hasta = isoLocal(hoy); }
       let q = sb.from('consultas')
-        .select('fecha,monto,medio_pago,monto_2,medio_pago_2,factura,num_factura,no_vino,notas,descripcion,pacientes(nombre,telefono),doctor:personal!doctor_id(nombre),catalogo_tipos_servicio(nombre),catalogo_equipos(nombre),catalogo_terminales(nombre)')
+        .select('fecha,monto,medio_pago,monto_2,medio_pago_2,factura,num_factura,no_vino,notas,pacientes(nombre,telefono),doctor:personal!doctor_id(nombre),catalogo_terminales(nombre),consulta_servicios(tipo_servicio_id,monto,catalogo_tipos_servicio(nombre))')
         .eq('deleted', false)
         .order('fecha', { ascending:false });
       if(desde) q = q.gte('fecha', desde);
@@ -2097,7 +2118,7 @@ async function cargarCierre(){
   const desde = modoAlPedir === 'dia' ? isoLocal(fechaAlPedir) : isoLocal(primerDiaMes(fechaAlPedir));
   const hasta = modoAlPedir === 'dia' ? isoLocal(fechaAlPedir) : isoLocal(ultimoDiaMes(fechaAlPedir));
   let q = sb.from('consultas')
-    .select('id,monto,medio_pago,monto_2,medio_pago_2,doctor_id,pacientes(nombre),doctor:personal!doctor_id(nombre),catalogo_tipos_servicio(nombre),catalogo_equipos(nombre)')
+    .select('id,monto,medio_pago,monto_2,medio_pago_2,doctor_id,pacientes(nombre),doctor:personal!doctor_id(nombre),consulta_servicios(tipo_servicio_id,monto,catalogo_tipos_servicio(nombre))')
     .eq('deleted', false)
     .eq('no_vino', false)
     .gte('fecha', desde)
@@ -2132,7 +2153,7 @@ function renderCierre(){
     if(!porDoctor[docId]) porDoctor[docId] = { nombre:docNombre, total:0, count:0, pagos:{}, pacientes:[] };
     porDoctor[docId].total += totalFila;
     porDoctor[docId].count += 1;
-    const servicio = (r.catalogo_tipos_servicio?.nombre || '—') + (r.catalogo_equipos?.nombre ? ' · ' + r.catalogo_equipos.nombre : '');
+    const servicio = nombresServicios(r.consulta_servicios) || '—';
     porDoctor[docId].pacientes.push({ nombre: r.pacientes?.nombre || '—', detalle: servicio, monto: totalFila });
 
     if(r.medio_pago){
@@ -2235,14 +2256,13 @@ async function cargarDashboard(){
   const desde = rangoFechaDashboard(rango);
 
   let q = sb.from('consultas')
-    .select('fecha,monto,monto_2,medio_pago,medio_pago_2,paciente_id,doctor_id,doctor:personal!doctor_id(nombre),catalogo_tipos_servicio(nombre)')
+    .select('fecha,monto,monto_2,medio_pago,medio_pago_2,paciente_id,doctor_id,doctor:personal!doctor_id(nombre),consulta_servicios(tipo_servicio_id,monto,catalogo_tipos_servicio(nombre))')
     .eq('deleted', false)
     .eq('no_vino', false)
     .order('fecha', { ascending:true })
     .limit(5000);
   if(desde) q = q.gte('fecha', desde);
   if(doctorId) q = q.eq('doctor_id', doctorId);
-  if(tipoId) q = q.eq('tipo_servicio_id', tipoId);
 
   const { data, error } = await q;
   if(miReqId !== dashReqId) return; // el usuario ya cambió los filtros mientras esto cargaba: descartar resultado obsoleto
@@ -2251,7 +2271,9 @@ async function cargarDashboard(){
     toast('No se pudo cargar el dashboard.');
     return;
   }
-  DASH_ROWS = data || [];
+  let rows = data || [];
+  if(tipoId) rows = rows.filter(r => (r.consulta_servicios||[]).some(cs => cs.tipo_servicio_id === tipoId));
+  DASH_ROWS = rows;
   renderDashboard();
 }
 
@@ -2378,8 +2400,10 @@ function renderChartTipo(){
   if(!canvas || typeof Chart === 'undefined') return;
   const map = {};
   DASH_ROWS.forEach(r=>{
-    const nombre = r.catalogo_tipos_servicio?.nombre || '—';
-    map[nombre] = (map[nombre] || 0) + Number(r.monto || 0) + Number(r.monto_2 || 0);
+    (r.consulta_servicios || []).forEach(cs=>{
+      const nombre = cs.catalogo_tipos_servicio?.nombre || '—';
+      map[nombre] = (map[nombre] || 0) + Number(cs.monto || 0);
+    });
   });
   const entries = Object.entries(map).sort((a,b)=> b[1]-a[1]);
   if(chartTipo) chartTipo.destroy();
@@ -2439,7 +2463,7 @@ async function cargarInactivos(){
   const umbralDias = Number(document.getElementById('crm-inactivos-umbral').value) || 60;
 
   const { data, error } = await sb.from('consultas')
-    .select('fecha,paciente_id,pacientes(id,nombre,telefono),doctor:personal!doctor_id(nombre),catalogo_tipos_servicio(nombre)')
+    .select('fecha,paciente_id,pacientes(id,nombre,telefono),doctor:personal!doctor_id(nombre),consulta_servicios(tipo_servicio_id,monto,catalogo_tipos_servicio(nombre))')
     .eq('deleted', false)
     .eq('no_vino', false)
     .order('fecha', { ascending:false })
@@ -2455,7 +2479,7 @@ async function cargarInactivos(){
   const ultimaPorPaciente = {};
   (data || []).forEach(r=>{
     if(!r.paciente_id || ultimaPorPaciente[r.paciente_id]) return;
-    ultimaPorPaciente[r.paciente_id] = { id: r.paciente_id, nombre: r.pacientes?.nombre, telefono: r.pacientes?.telefono, ultimaFecha: r.fecha, doctor: r.doctor?.nombre, servicio: r.catalogo_tipos_servicio?.nombre };
+    ultimaPorPaciente[r.paciente_id] = { id: r.paciente_id, nombre: r.pacientes?.nombre, telefono: r.pacientes?.telefono, ultimaFecha: r.fecha, doctor: r.doctor?.nombre, servicio: nombresServicios(r.consulta_servicios) };
   });
 
   const hoy = new Date();
@@ -2501,7 +2525,7 @@ async function cargarNoVinieron(){
   cont.innerHTML = '<tr><td colspan="7" class="empty-note">Cargando...</td></tr>';
 
   const { data, error } = await sb.from('consultas')
-    .select('fecha,paciente_id,no_vino,pacientes(id,nombre,telefono),doctor:personal!doctor_id(nombre),catalogo_tipos_servicio(nombre)')
+    .select('fecha,paciente_id,no_vino,pacientes(id,nombre,telefono),doctor:personal!doctor_id(nombre),consulta_servicios(tipo_servicio_id,monto,catalogo_tipos_servicio(nombre))')
     .eq('deleted', false)
     .order('fecha', { ascending:false })
     .limit(5000);
@@ -2517,7 +2541,7 @@ async function cargarNoVinieron(){
   const ultimoGeneral = {};
   (data || []).forEach(r=>{
     if(!r.paciente_id || ultimoGeneral[r.paciente_id]) return; // ya viene ordenado desc: la primera fila es la más reciente
-    ultimoGeneral[r.paciente_id] = { id: r.paciente_id, nombre: r.pacientes?.nombre, telefono: r.pacientes?.telefono, fecha: r.fecha, doctor: r.doctor?.nombre, servicio: r.catalogo_tipos_servicio?.nombre, noVino: r.no_vino };
+    ultimoGeneral[r.paciente_id] = { id: r.paciente_id, nombre: r.pacientes?.nombre, telefono: r.pacientes?.telefono, fecha: r.fecha, doctor: r.doctor?.nombre, servicio: nombresServicios(r.consulta_servicios), noVino: r.no_vino };
   });
 
   const pendientes = Object.values(ultimoGeneral)
@@ -2563,7 +2587,7 @@ async function abrirModalGestion(pacienteId, nombre){
   document.getElementById('modal-gestion').classList.add('show');
 
   const [visitasRes, gestionesRes] = await Promise.all([
-    sb.from('consultas').select('fecha,monto,monto_2,catalogo_tipos_servicio(nombre),doctor:personal!doctor_id(nombre)').eq('paciente_id', pacienteId).eq('deleted', false).eq('no_vino', false).order('fecha', { ascending:false }).limit(50),
+    sb.from('consultas').select('fecha,monto,monto_2,consulta_servicios(tipo_servicio_id,monto,catalogo_tipos_servicio(nombre)),doctor:personal!doctor_id(nombre)').eq('paciente_id', pacienteId).eq('deleted', false).eq('no_vino', false).order('fecha', { ascending:false }).limit(50),
     sb.from('gestiones').select('id,tipo,nota,fecha,creado_por,personal(nombre)').eq('paciente_id', pacienteId).order('fecha', { ascending:false }).limit(50),
   ]);
   if(miReqId !== gestionModalReqId) return; // el usuario cerró el modal o abrió otro paciente mientras esto cargaba
@@ -2573,7 +2597,7 @@ async function abrirModalGestion(pacienteId, nombre){
 
   const visitas = visitasRes.data || [];
   document.getElementById('modal-gestion-visitas').innerHTML = visitas.length ? visitas.map(v => `
-    <tr><td>${fmtFechaCorta(v.fecha)}</td><td>${esc2(v.catalogo_tipos_servicio?.nombre || '—')}</td><td>${esc2(v.doctor?.nombre || '—')}</td><td>${fmtMoney(Number(v.monto||0) + Number(v.monto_2||0))}</td></tr>
+    <tr><td>${fmtFechaCorta(v.fecha)}</td><td>${esc2(nombresServicios(v.consulta_servicios) || '—')}</td><td>${esc2(v.doctor?.nombre || '—')}</td><td>${fmtMoney(Number(v.monto||0) + Number(v.monto_2||0))}</td></tr>
   `).join('') : '<tr><td colspan="4" class="empty-note">Sin visitas registradas.</td></tr>';
 
   const gestiones = gestionesRes.data || [];
