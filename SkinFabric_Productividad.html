@@ -503,8 +503,10 @@ main.appmain{padding:22px 26px 40px;max-width:1080px;margin:0 auto}
           <select id="reg-medio"><option value="">Seleccionar...</option></select>
           <button class="toggle-link" id="reg-btn-2pago" type="button" style="margin-top:4px">+ agregar 2do pago</button>
         </div>
+        <div class="form-group" id="reg-grp-monto1" style="display:none"><label>Monto 1er pago ($)</label><input type="number" id="reg-monto1" min="0" step="0.01" value="0"/></div>
         <div class="form-group" id="reg-grp-medio2" style="display:none"><label>2do medio de pago</label><select id="reg-medio2"><option value="">Seleccionar...</option></select></div>
-        <div class="form-group" id="reg-grp-monto2" style="display:none"><label>2do monto ($)</label><input type="number" id="reg-monto2" min="0" step="0.01" value="0"/><span style="font-size:10px;color:var(--g6);margin-top:2px">Parte del total de servicios pagada con el 2do medio (no se suma aparte).</span></div>
+        <div class="form-group" id="reg-grp-monto2" style="display:none"><label>Monto 2do pago ($)</label><input type="number" id="reg-monto2" min="0" step="0.01" value="0"/></div>
+        <div class="form-group full" id="reg-split-check" style="display:none;font-size:11.5px;font-weight:700;padding:6px 2px"></div>
         <div class="form-group"><label>Terminal</label><select id="reg-terminal"><option value="">— Sin terminal —</option></select></div>
         <div class="form-group full"><label>Notas (opcional)</label><input type="text" id="reg-notas" placeholder="Observaciones..."/></div>
       </div>
@@ -1584,30 +1586,56 @@ function updateResumen(){
   const noVino = document.getElementById('reg-novino').checked;
   const montoServicios = noVino ? 0 : [...REG_SERV_SEL.values()].reduce((a,v)=> a + (Number(v?.monto)||0), 0);
   const grpMedio2Visible = document.getElementById('reg-grp-medio2').style.display !== 'none';
+  const monto1 = (noVino || !grpMedio2Visible) ? montoServicios : Number(document.getElementById('reg-monto1').value || 0);
   const monto2 = (noVino || !grpMedio2Visible) ? 0 : Number(document.getElementById('reg-monto2').value || 0);
-  // El total a cobrar es la suma de los servicios: el 2do pago es la parte de ese total pagada
-  // con el 2do medio, no un monto adicional — por eso el total NO suma monto2 aparte.
-  if(grpMedio2Visible && monto2 > 0){
-    metaParts.push(`${fmtMoney(Math.max(montoServicios - monto2, 0))} + ${fmtMoney(monto2)} (2do pago)`);
+  // El total a cobrar es la suma de los servicios: el 1er y 2do pago son las dos partes en que
+  // se reparte ESE mismo total entre dos medios — no se suman aparte al total de servicios.
+  const chequeo = document.getElementById('reg-split-check');
+  if(!noVino && grpMedio2Visible){
+    metaParts.push(`${fmtMoney(monto1)} + ${fmtMoney(monto2)} (2do pago)`);
+    const diff = Math.round((monto1 + monto2 - montoServicios) * 100) / 100;
+    chequeo.style.display = '';
+    if(diff === 0){
+      chequeo.style.color = 'var(--teal)';
+      chequeo.textContent = `✓ Los dos pagos suman el total de servicios (${fmtMoney(montoServicios)}).`;
+    }else if(diff > 0){
+      chequeo.style.color = 'var(--red)';
+      chequeo.textContent = `⚠ Los dos pagos suman ${fmtMoney(monto1+monto2)}, ${fmtMoney(diff)} MÁS que el total de servicios (${fmtMoney(montoServicios)}).`;
+    }else{
+      chequeo.style.color = 'var(--red)';
+      chequeo.textContent = `⚠ Los dos pagos suman ${fmtMoney(monto1+monto2)}, falta ${fmtMoney(-diff)} para llegar al total de servicios (${fmtMoney(montoServicios)}).`;
+    }
+  }else{
+    chequeo.style.display = 'none';
+    chequeo.textContent = '';
   }
   document.getElementById('reg-r-name').textContent = nombre || '—';
   document.getElementById('reg-r-meta').textContent = metaParts.join(' · ');
   document.getElementById('reg-r-val').textContent = fmtMoney(montoServicios);
 }
-['reg-paciente-nombre','reg-monto2'].forEach(id=>{
+['reg-paciente-nombre','reg-monto1','reg-monto2'].forEach(id=>{
   document.getElementById(id).addEventListener('input', updateResumen);
 });
 
 // ── 2do medio de pago ──
 document.getElementById('reg-btn-2pago').addEventListener('click', ()=>{
+  const grpMonto1 = document.getElementById('reg-grp-monto1');
   const grpMedio2 = document.getElementById('reg-grp-medio2');
   const grpMonto2 = document.getElementById('reg-grp-monto2');
   const btn = document.getElementById('reg-btn-2pago');
   const mostrar = grpMedio2.style.display === 'none';
+  grpMonto1.style.display = mostrar ? '' : 'none';
   grpMedio2.style.display = mostrar ? '' : 'none';
   grpMonto2.style.display = mostrar ? '' : 'none';
   btn.textContent = mostrar ? '− quitar 2do pago' : '+ agregar 2do pago';
-  if(!mostrar){
+  if(mostrar){
+    // Por defecto: todo el total va al 1er pago y el 2do arranca en $0 — el usuario ajusta ambos.
+    const montoServicios = [...REG_SERV_SEL.values()].reduce((a,v)=> a + (Number(v?.monto)||0), 0);
+    document.getElementById('reg-monto1').value = montoServicios || '0';
+    document.getElementById('reg-medio2').value = '';
+    document.getElementById('reg-monto2').value = '0';
+  }else{
+    document.getElementById('reg-monto1').value = '0';
     document.getElementById('reg-medio2').value = '';
     document.getElementById('reg-monto2').value = '0';
   }
@@ -1623,12 +1651,13 @@ document.getElementById('reg-novino').addEventListener('change', (e)=>{
   document.getElementById('reg-factura').disabled = noVino;
   if(noVino){
     document.getElementById('reg-factura').checked = false;
+    const grpMonto1 = document.getElementById('reg-grp-monto1');
     const grpMedio2 = document.getElementById('reg-grp-medio2');
     const grpMonto2 = document.getElementById('reg-grp-monto2');
     if(grpMedio2.style.display !== 'none'){
-      grpMedio2.style.display = 'none'; grpMonto2.style.display = 'none';
+      grpMonto1.style.display = 'none'; grpMedio2.style.display = 'none'; grpMonto2.style.display = 'none';
       document.getElementById('reg-btn-2pago').textContent = '+ agregar 2do pago';
-      document.getElementById('reg-medio2').value = ''; document.getElementById('reg-monto2').value = '0';
+      document.getElementById('reg-monto1').value = '0'; document.getElementById('reg-medio2').value = ''; document.getElementById('reg-monto2').value = '0';
     }
   }
   updateResumen();
@@ -1660,9 +1689,10 @@ async function guardarRegistro(){
   const procedenciaId = document.getElementById('reg-procedencia').value;
   const duenoId = document.getElementById('reg-dueno').value;
 
-  // El total de la consulta es la suma de los servicios seleccionados. El "2do pago" NO es un
-  // cargo adicional: es la parte de ese mismo total que se cobró con el 2do medio de pago.
+  // El total de la consulta es la suma de los servicios seleccionados. El "1er/2do pago" reparten
+  // ESE mismo total entre dos medios — no son cargos adicionales que se suman aparte.
   const montoServicios = [...REG_SERV_SEL.values()].reduce((a,v)=> a + (Number(v?.monto) || 0), 0);
+  const monto1 = grpMedio2Visible ? Number(document.getElementById('reg-monto1').value || 0) : montoServicios;
 
   // ── Validaciones condicionadas al medio de pago ──
   // Cortesía exime de monto y de terminal; Tarjeta/AMEX exigen terminal; cualquier otro medio exige monto > 0 por servicio.
@@ -1673,12 +1703,16 @@ async function guardarRegistro(){
       alertaCampo('reg-terminal', 'Selecciona la terminal usada para el pago con tarjeta/AMEX.');
       return;
     }
+    if(grpMedio2Visible && medio !== 'Cortesía' && !(monto1 > 0)){
+      alertaCampo('reg-monto1', 'El monto del 1er pago debe ser mayor a $0 (a menos que el medio de pago sea Cortesía).');
+      return;
+    }
     if(grpMedio2Visible && medio2 !== 'Cortesía' && !(monto2 > 0)){
       alertaCampo('reg-monto2', 'El 2do monto debe ser mayor a $0 (a menos que el 2do medio de pago sea Cortesía).');
       return;
     }
-    if(grpMedio2Visible && monto2 >= montoServicios){
-      alertaCampo('reg-monto2', `El 2do monto debe ser menor al total de servicios (${fmtMoney(montoServicios)}) — es la parte de ese total que se paga con el 2do medio, no un cargo extra.`);
+    if(grpMedio2Visible && Math.round((monto1 + monto2 - montoServicios) * 100) !== 0){
+      alertaCampo('reg-monto2', `El 1er pago (${fmtMoney(monto1)}) y el 2do pago (${fmtMoney(monto2)}) deben sumar exactamente el total de servicios: ${fmtMoney(montoServicios)}.`);
       return;
     }
     if(medio !== 'Cortesía'){
@@ -1725,7 +1759,7 @@ async function guardarRegistro(){
       paciente_id: pacienteId,
       doctor_id: doctorId,
       terminal_id: terminalId || null,
-      monto: noVino ? 0 : (montoServicios - monto2),
+      monto: noVino ? 0 : monto1,
       medio_pago: noVino ? null : (medio || null),
       monto_2: noVino ? null : (grpMedio2Visible ? monto2 : null),
       medio_pago_2: noVino ? null : (grpMedio2Visible ? (medio2 || null) : null),
@@ -1753,7 +1787,7 @@ async function guardarRegistro(){
 
 function limpiarRegistroCompleto(){
   document.getElementById('reg-form-grid').querySelectorAll('input[type=text],input[type=number],input[type=date],textarea').forEach(el=>{
-    if(el.id === 'reg-monto2') el.value = '0';
+    if(el.id === 'reg-monto1' || el.id === 'reg-monto2') el.value = '0';
     else el.value = '';
   });
   document.getElementById('reg-form-grid').querySelectorAll('select').forEach(el=> el.value = '');
@@ -1761,8 +1795,10 @@ function limpiarRegistroCompleto(){
   document.getElementById('reg-factura').checked = false;
   document.getElementById('reg-novino').checked = false;
   ['reg-medio','reg-terminal','reg-btn-2pago','reg-factura'].forEach(id=> document.getElementById(id).disabled = false);
+  document.getElementById('reg-grp-monto1').style.display = 'none';
   document.getElementById('reg-grp-medio2').style.display = 'none';
   document.getElementById('reg-grp-monto2').style.display = 'none';
+  document.getElementById('reg-split-check').style.display = 'none';
   document.getElementById('reg-btn-2pago').textContent = '+ agregar 2do pago';
   document.getElementById('reg-grp-procedencia').style.display = '';
   document.getElementById('reg-grp-dueno').style.display = '';
