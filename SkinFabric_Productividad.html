@@ -256,6 +256,7 @@ main.appmain{padding:22px 26px 40px;max-width:1080px;margin:0 auto}
 .p-avatar.av-admin{background:linear-gradient(135deg,var(--purple),#5b2d73)}
 .p-avatar.av-doctor{background:linear-gradient(135deg,var(--navy2),var(--navy3))}
 .p-avatar.av-recepcion{background:linear-gradient(135deg,var(--teal),#22a8a8)}
+.p-avatar.av-cosmetologo{background:linear-gradient(135deg,#d6558f,#a8386b)}
 .cardC-name{font-weight:700;font-size:13px;color:var(--navy);display:flex;align-items:center;gap:6px;min-width:0}
 .cardC-name-txt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
 .btn-icon-edit{border:none;background:none;padding:0;margin:0;font-size:11px;line-height:1;cursor:pointer;opacity:.5;flex-shrink:0}
@@ -2864,10 +2865,9 @@ function inicialesPersonal(nombre){
 async function renderConfigPersonal(){
   const cont = document.getElementById('cfg-personal-lista');
   cont.innerHTML = '<div class="empty-note">Cargando...</div>';
-  // Este panel es de accesos/permisos del sistema: solo recepción, doctores y admins.
-  // Los cosmetólogos/as no manejan accesos ni permisos aquí (siguen existiendo en "personal"
-  // para aparecer en "Atendido por", solo que no se listan/gestionan en este panel).
-  const { data, error } = await sb.from('personal').select('*').in('rol', ['admin','doctor','recepcion']).eq('oculto', false).order('nombre');
+  // Ahora se listan y gestionan aquí los 4 roles (admin, doctor, cosmetólogo/a y recepción) —
+  // cosmetólogos/as también pueden tener cuenta de acceso, ya que "Atendido por" los incluye igual que a los doctores.
+  const { data, error } = await sb.from('personal').select('*').in('rol', ['admin','doctor','cosmetologo','recepcion']).eq('oculto', false).order('nombre');
   if(error){
     console.error('[SkinFabric] Error listando personal:', error);
     cont.innerHTML = '<div class="empty-note">No se pudo cargar.</div>';
