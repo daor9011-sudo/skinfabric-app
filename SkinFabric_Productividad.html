@@ -384,8 +384,8 @@ main.appmain{padding:22px 26px 40px;max-width:1080px;margin:0 auto}
 .cat-insumos_medicos{background:#DFF3E5;color:#2E7D4F}
 .cat-farmacia{background:#FDF0D2;color:#9A6010}
 .cat-otros{background:#FBDDEA;color:#A3376B}
-.cat-info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;margin:0 0 6px}
-.cat-info-card{border-radius:10px;padding:11px 12px;border:1px solid var(--g2)}
+.cat-info-grid{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin:0 0 6px}
+.cat-info-card{flex:1 1 190px;max-width:240px;border-radius:10px;padding:11px 12px;border:1px solid var(--g2)}
 .cat-info-card .t{font-size:11px;font-weight:800;margin-bottom:3px;display:flex;align-items:center;gap:6px}
 .cat-info-card .d{font-size:10px;color:var(--g6);line-height:1.45}
 .kpi-card.doc-color{border-left:4px solid var(--navy2)}
@@ -645,7 +645,6 @@ main.appmain{padding:22px 26px 40px;max-width:1080px;margin:0 auto}
     </div>
     <div class="card screen2" id="app-screen-dash">
       <div class="tab-title"><span>📊 Dashboard de Indicadores</span></div>
-      <div class="note" style="margin-bottom:14px">👁️ Visible solo para quien tenga el permiso <b>puede_ver_dashboard</b> activo.</div>
       <div class="filter-bar">
         <select id="dash-rango">
           <option value="30" selected>Últimos 30 días</option>
@@ -708,7 +707,6 @@ main.appmain{padding:22px 26px 40px;max-width:1080px;margin:0 auto}
     </div>
     <div class="card screen2" id="app-screen-gastos">
       <div class="tab-title"><span>💸 Gastos de la Clínica</span></div>
-      <div class="note" style="margin-bottom:14px">👁️ Visible solo para quien tenga el permiso <b>puede_ver_gastos</b> activo.</div>
       <div class="split2" id="gasto-split">
         <div class="form-panel" id="gasto-form-panel">
           <h4>➕ Registrar gasto</h4>
