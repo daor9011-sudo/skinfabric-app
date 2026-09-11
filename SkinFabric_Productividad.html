@@ -709,8 +709,8 @@ main.appmain{padding:22px 26px 40px;max-width:1080px;margin:0 auto}
     <div class="card screen2" id="app-screen-gastos">
       <div class="tab-title"><span>💸 Gastos de la Clínica</span></div>
       <div class="note" style="margin-bottom:14px">👁️ Visible solo para quien tenga el permiso <b>puede_ver_gastos</b> activo.</div>
-      <div class="split2">
-        <div class="form-panel">
+      <div class="split2" id="gasto-split">
+        <div class="form-panel" id="gasto-form-panel">
           <h4>➕ Registrar gasto</h4>
           <div class="fg"><label>Fecha del gasto</label><input type="date" id="gasto-fecha"/></div>
           <div class="fg">
@@ -1391,12 +1391,23 @@ document.getElementById('gasto-categoria')?.addEventListener('change', function(
   if(this.value) document.getElementById('gasto-hint-'+this.value)?.classList.add('show');
 });
 
+function aplicarVisibilidadFormGasto(){
+  // Solo los doctores registran sus propios gastos; admin (y cualquier otro perfil
+  // con acceso de solo observación) ve el módulo pero sin el formulario de registro.
+  const puedeRegistrar = MI_PERFIL?.rol === 'doctor';
+  const panel = document.getElementById('gasto-form-panel');
+  const split = document.getElementById('gasto-split');
+  if(panel) panel.style.display = puedeRegistrar ? '' : 'none';
+  if(split) split.style.gridTemplateColumns = puedeRegistrar ? '' : '1fr';
+}
+
 async function cargarGastos(){
+  aplicarVisibilidadFormGasto();
   const tbody = document.getElementById('gasto-tbody');
   tbody.innerHTML = '<tr><td colspan="7" class="empty-note">Cargando...</td></tr>';
 
   const [personalRes, gastosRes] = await Promise.all([
-    sb.from('personal').select('id,nombre').eq('activo', true).contains('permisos', { puede_ver_gastos:true }).order('nombre'),
+    sb.from('personal').select('id,nombre').eq('activo', true).eq('rol', 'doctor').contains('permisos', { puede_ver_gastos:true }).order('nombre'),
     sb.from('gastos').select('id,fecha,categoria,monto,descripcion,creado_por,created_at,personal(nombre)').order('fecha', { ascending:false }).order('created_at', { ascending:false }),
   ]);
   if(personalRes.error) console.error('[SkinFabric] Error cargando personal de gastos:', personalRes.error);
