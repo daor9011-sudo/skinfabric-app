@@ -947,6 +947,25 @@ main.appmain{padding:22px 26px 40px;max-width:1080px;margin:0 auto}
   </div>
 </div>
 
+<!-- ══════════ Modal: Editar gasto ══════════ -->
+<div class="modal-overlay" id="modal-editar-gasto">
+  <div class="modal-box">
+    <div class="modal-head"><h3>Editar gasto</h3><button class="modal-close" id="editg-btn-cerrar" type="button">✕</button></div>
+    <div class="modal-body">
+      <div class="form-grid" style="grid-template-columns:1fr 1fr">
+        <div class="form-group"><label>Fecha del gasto</label><input type="date" id="editg-fecha"/></div>
+        <div class="form-group"><label>Categoría</label><select id="editg-categoria"></select></div>
+        <div class="form-group"><label>Monto ($)</label><input type="number" id="editg-monto" min="0.01" step="0.01"/></div>
+        <div class="form-group full"><label>Descripción del gasto</label><textarea id="editg-descripcion" rows="2" style="width:100%;background:#fff;border:1px solid var(--g2);border-radius:8px;padding:9px 10px;font-size:12.5px;color:var(--navy);font-family:inherit;resize:vertical;min-height:56px"></textarea></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="appbtn appbtn-s" id="editg-btn-cancelar" type="button" style="background:var(--g1);color:var(--g6);box-shadow:none">Cancelar</button>
+      <button class="appbtn appbtn-p" id="editg-btn-guardar" type="button">Guardar cambios</button>
+    </div>
+  </div>
+</div>
+
 <!-- ══════════ Modal: Exportar historial ══════════ -->
 <div class="modal-overlay" id="modal-exportar">
   <div class="modal-box">
@@ -1449,7 +1468,21 @@ function renderGastoCharts(){
   chartGastoCat = new Chart(canvasCat.getContext('2d'), {
     type:'doughnut',
     data:{ labels: GASTO_CATEGORIAS.map(c=>c.label), datasets:[{ data: porCat, backgroundColor: GASTO_CATEGORIAS.map(c=>c.color), borderWidth:2, borderColor:'#fff' }] },
-    options:{ maintainAspectRatio:false, plugins:{ legend:{ display:false } }, cutout:'62%' }
+    options:{
+      maintainAspectRatio:false, cutout:'62%',
+      plugins:{
+        legend:{ display:false },
+        datalabels:{
+          color:'#fff', font:{ size:9, weight:'700' },
+          formatter:(v, ctx)=>{
+            const total = ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b, 0);
+            if(!total || !v) return '';
+            const pct = Math.round(v/total*100);
+            return pct > 0 ? pct + '%' : '';
+          }
+        }
+      }
+    }
   });
 
   const porPersona = {};
@@ -1459,7 +1492,15 @@ function renderGastoCharts(){
   chartGastoDoc = new Chart(canvasDoc.getContext('2d'), {
     type:'bar',
     data:{ labels: nombres, datasets:[{ data: nombres.map(n=> porPersona[n]||0), backgroundColor: nombres.map((n,i)=>DOC_COLORS_GASTO[i % DOC_COLORS_GASTO.length]), borderRadius:6, maxBarThickness:38 }] },
-    options:{ maintainAspectRatio:false, plugins:{ legend:{ display:false } }, scales:{ y:{ beginAtZero:true, ticks:{ font:{size:9} } }, x:{ ticks:{ font:{size:10} } } } }
+    options:{
+      maintainAspectRatio:false,
+      plugins:{
+        legend:{ display:false },
+        datalabels:{ anchor:'end', align:'top', color:'#0B2A4D', font:{ size:9, weight:'700' }, formatter: v => v ? fmtMoney(v) : '' }
+      },
+      layout:{ padding:{ top:14 } },
+      scales:{ y:{ beginAtZero:true, grid:{ display:false }, ticks:{ font:{size:9} } }, x:{ ticks:{ font:{size:10} } } }
+    }
   });
 }
 
@@ -1501,6 +1542,7 @@ function renderGastoTabla(){
     return;
   }
   empty.style.display = 'none';
+  const puedeEditarGasto = MI_PERFIL?.rol === 'doctor';
   tbody.innerHTML = filas.map(g=>{
     const cat = gastoCategoriaInfo(g.categoria);
     return `<tr data-id="${g.id}">
@@ -1510,9 +1552,15 @@ function renderGastoTabla(){
       <td class="autor-cell"><b>${esc2(g.personal?.nombre || '—')}</b></td>
       <td class="autor-cell">${fmtFechaHora(g.created_at)}</td>
       <td>${esc2(g.descripcion)}</td>
-      <td><button class="btn-sm btn-del gasto-btn-eliminar" type="button" title="Eliminar">🗑</button></td>
+      <td>${puedeEditarGasto ? `<div style="display:flex;gap:6px"><button class="btn-sm btn-edit gasto-btn-editar" type="button" title="Editar">✏️</button><button class="btn-sm btn-del gasto-btn-eliminar" type="button" title="Eliminar">🗑</button></div>` : ''}</td>
     </tr>`;
   }).join('');
+  tbody.querySelectorAll('.gasto-btn-editar').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const id = btn.closest('tr').dataset.id;
+      abrirModalEditarGasto(id);
+    });
+  });
   tbody.querySelectorAll('.gasto-btn-eliminar').forEach(btn=>{
     btn.addEventListener('click', async ()=>{
       const id = btn.closest('tr').dataset.id;
@@ -1525,6 +1573,46 @@ function renderGastoTabla(){
     });
   });
 }
+
+let GASTO_EDIT_ID = null;
+function abrirModalEditarGasto(id){
+  const g = GASTO_ROWS.find(x=>x.id === id);
+  if(!g) return;
+  GASTO_EDIT_ID = id;
+  document.getElementById('editg-fecha').value = g.fecha;
+  poblarSelect('editg-categoria', GASTO_CATEGORIAS.map(c=>({ value:c.id, label:c.label })));
+  document.getElementById('editg-categoria').value = g.categoria;
+  document.getElementById('editg-monto').value = g.monto;
+  document.getElementById('editg-descripcion').value = g.descripcion || '';
+  document.getElementById('modal-editar-gasto').classList.add('show');
+}
+function cerrarModalEditarGasto(){
+  document.getElementById('modal-editar-gasto').classList.remove('show');
+  GASTO_EDIT_ID = null;
+}
+document.getElementById('editg-btn-cerrar')?.addEventListener('click', cerrarModalEditarGasto);
+document.getElementById('editg-btn-cancelar')?.addEventListener('click', cerrarModalEditarGasto);
+document.getElementById('editg-btn-guardar')?.addEventListener('click', async ()=>{
+  if(!GASTO_EDIT_ID) return;
+  const fecha = document.getElementById('editg-fecha').value;
+  const categoria = document.getElementById('editg-categoria').value;
+  const monto = Number(document.getElementById('editg-monto').value || 0);
+  const descripcion = document.getElementById('editg-descripcion').value.trim();
+
+  if(!fecha){ alertaCampo('editg-fecha', 'Selecciona la fecha del gasto.'); return; }
+  if(!categoria){ alertaCampo('editg-categoria', 'Selecciona la categoría.'); return; }
+  if(!(monto > 0)){ alertaCampo('editg-monto', 'El monto debe ser mayor a $0.'); return; }
+  if(!descripcion){ alertaCampo('editg-descripcion', 'La descripción del gasto es obligatoria.'); return; }
+
+  const btn = document.getElementById('editg-btn-guardar');
+  btn.disabled = true; btn.textContent = 'Guardando...';
+  const { error } = await sb.from('gastos').update({ fecha, categoria, monto, descripcion }).eq('id', GASTO_EDIT_ID);
+  btn.disabled = false; btn.textContent = 'Guardar cambios';
+  if(error){ console.error('[SkinFabric] Error editando gasto:', error); toast('No se pudo guardar el cambio.'); return; }
+  toast('✓ Gasto actualizado.');
+  cerrarModalEditarGasto();
+  cargarGastos();
+});
 
 ['gasto-buscar','gasto-rango','gasto-doctor-filtro'].forEach(id=>{
   document.getElementById(id)?.addEventListener('input', renderGastoTabla);
