@@ -3262,6 +3262,7 @@ async function renderConfigPersonal(){
       <div class="cardC-permgrid">
         <label class="perm-chip cfg-p-exportar-wrap ${p.permisos?.puede_exportar !== false ? 'on' : ''}"><input type="checkbox" class="cfg-p-exportar" ${p.permisos?.puede_exportar !== false ? 'checked':''}/><span class="ico">⬇️</span>Exportar</label>
         <label class="perm-chip cfg-p-dashboard-wrap ${p.permisos?.puede_ver_dashboard ? 'on' : ''}"><input type="checkbox" class="cfg-p-dashboard" ${p.permisos?.puede_ver_dashboard ? 'checked':''}/><span class="ico">📊</span>Dashboard</label>
+        <label class="perm-chip cfg-p-gastos-wrap ${p.permisos?.puede_ver_gastos ? 'on' : ''}"><input type="checkbox" class="cfg-p-gastos" ${p.permisos?.puede_ver_gastos ? 'checked':''}/><span class="ico">💸</span>Gastos</label>
         <label class="perm-chip cfg-p-papelera-wrap ${p.permisos?.puede_eliminar_papelera !== false ? 'on' : ''}"><input type="checkbox" class="cfg-p-papelera" ${p.permisos?.puede_eliminar_papelera !== false ? 'checked':''}/><span class="ico">🗑️</span>Papelera</label>
       </div>
       <div class="cardC-right">
@@ -3292,6 +3293,7 @@ async function renderConfigPersonal(){
       const permisos = {
         puede_exportar: card.querySelector('.cfg-p-exportar').checked,
         puede_ver_dashboard: card.querySelector('.cfg-p-dashboard').checked,
+        puede_ver_gastos: card.querySelector('.cfg-p-gastos').checked,
         puede_eliminar_papelera: card.querySelector('.cfg-p-papelera').checked,
       };
       const ok = await catalogoActualizar('personal', id, { permisos });
@@ -3446,7 +3448,7 @@ document.getElementById('cfg-personal-btn-agregar').addEventListener('click', as
   btn.disabled = true; btn.textContent = 'Guardando...';
   const ok = await catalogoCrear('personal', {
     nombre, rol, activo:true,
-    permisos: { puede_exportar:true, puede_ver_dashboard: (rol==='admin'||rol==='doctor'), puede_eliminar_papelera: rol==='admin' },
+    permisos: { puede_exportar:true, puede_ver_dashboard: (rol==='admin'||rol==='doctor'), puede_ver_gastos: rol==='admin', puede_eliminar_papelera: rol==='admin' },
   });
   btn.disabled = false; btn.textContent = '+ Agregar personal';
   if(ok){
