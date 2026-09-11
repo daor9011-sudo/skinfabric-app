@@ -374,11 +374,14 @@ main.appmain{padding:22px 26px 40px;max-width:1080px;margin:0 auto}
 .cat-hint{font-size:10.5px;color:var(--g6);background:#fff;border-left:3px solid var(--teal);border-radius:6px;padding:7px 9px;margin-top:6px;line-height:1.4;display:none}
 .cat-hint.show{display:block}
 .chart-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px;min-width:0}
-.chart-box{background:linear-gradient(135deg,var(--g1),#eef3fb);border:1px solid var(--g2);border-radius:9px;padding:10px 12px;height:196px;display:flex;flex-direction:column;min-width:0}
+.chart-box{background:linear-gradient(135deg,var(--g1),#eef3fb);border:1px solid var(--g2);border-radius:9px;padding:10px 12px;height:250px;display:flex;flex-direction:column;min-width:0}
 .chart-box .chart-title{font-size:9.5px;color:var(--g6);letter-spacing:.6px;text-transform:uppercase;font-weight:700;margin-bottom:6px}
 .chart-canvas-wrap{flex:1;position:relative;min-height:0;min-width:0}
-.chart-canvas-wrap.donut{max-width:150px;margin:0 auto;width:100%}
-@media (max-width:640px){.chart-row{grid-template-columns:1fr}.chart-box{height:236px}}
+.chart-canvas-wrap.donut{max-width:190px;margin:0 auto;width:100%}
+.chart-legend-custom{display:flex;flex-wrap:wrap;justify-content:center;gap:5px 12px;margin-top:8px;flex:none}
+.chart-legend-custom .leg-item{display:flex;align-items:center;gap:5px;white-space:nowrap;font-size:10.5px;color:var(--g6);font-weight:600}
+.chart-legend-custom .leg-dot{width:9px;height:9px;border-radius:3px;flex:none}
+@media (max-width:640px){.chart-row{grid-template-columns:1fr}.chart-box{height:290px}}
 .badge-cat{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:99px;font-size:10.5px;font-weight:700;white-space:nowrap}
 .cat-locativos{background:#DCEAFB;color:#1B5C9E}
 .cat-nominas{background:#EBE1F7;color:#6A3691}
@@ -727,7 +730,7 @@ main.appmain{padding:22px 26px 40px;max-width:1080px;margin:0 auto}
         <div>
           <div class="kpi-grid" id="gasto-kpis" style="grid-template-columns:repeat(3,1fr)"></div>
           <div class="chart-row">
-            <div class="chart-box"><div class="chart-title">🍩 Por categoría</div><div class="chart-canvas-wrap donut"><canvas id="chartGastoCat"></canvas></div></div>
+            <div class="chart-box"><div class="chart-title">🍩 Por categoría</div><div class="chart-canvas-wrap donut"><canvas id="chartGastoCat"></canvas></div><div class="chart-legend-custom" id="gasto-legend-cat"></div></div>
             <div class="chart-box"><div class="chart-title">🩺 Por doctor</div><div class="chart-canvas-wrap"><canvas id="chartGastoDoc"></canvas></div></div>
           </div>
           <div class="sec-title">¿Qué incluye cada categoría?</div>
@@ -1493,9 +1496,7 @@ function renderGastoCharts(filas){
     options:{
       maintainAspectRatio:false, cutout:'62%',
       plugins:{
-        legend:{
-          position:'bottom', labels:{ boxWidth:8, boxHeight:8, padding:6, font:{ size:8.5 }, color:'#5b6b82' }
-        },
+        legend:{ display:false },
         datalabels:{
           color:'#fff', font:{ size:9, weight:'700' },
           formatter:(v, ctx)=>{
@@ -1508,6 +1509,11 @@ function renderGastoCharts(filas){
       }
     }
   });
+
+  const legendCat = document.getElementById('gasto-legend-cat');
+  if(legendCat){
+    legendCat.innerHTML = GASTO_CATEGORIAS.map(c=> `<div class="leg-item"><span class="leg-dot" style="background:${c.color}"></span>${c.label}</div>`).join('');
+  }
 
   const porPersona = {};
   filas.forEach(g=>{ const nombre = g.personal?.nombre || '—'; porPersona[nombre] = (porPersona[nombre]||0) + Number(g.monto||0); });
