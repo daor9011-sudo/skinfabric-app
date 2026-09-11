@@ -388,11 +388,11 @@ main.appmain{padding:22px 26px 40px;max-width:1080px;margin:0 auto}
 .cat-insumos_medicos{background:#DFF3E5;color:#2E7D4F}
 .cat-farmacia{background:#FDF0D2;color:#9A6010}
 .cat-papeleria{background:#D9F3F1;color:#0E7C74}
+.cat-leasing_equipos{background:#F1E4D5;color:#8B5E34}
 .cat-otros{background:#FBDDEA;color:#A3376B}
-.cat-info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:0 0 6px;min-width:0}
-.cat-info-card{border-radius:10px;padding:11px 12px;border:1px solid var(--g2);min-width:0}
-@media (max-width:820px){.cat-info-grid{grid-template-columns:repeat(2,1fr)}}
-@media (max-width:480px){.cat-info-grid{grid-template-columns:1fr}}
+.cat-info-grid{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin:0 0 6px;min-width:0}
+.cat-info-card{flex:1 1 220px;max-width:270px;border-radius:10px;padding:11px 12px;border:1px solid var(--g2);min-width:0}
+@media (max-width:480px){.cat-info-card{flex-basis:100%;max-width:none}}
 .cat-info-card .t{font-size:11px;font-weight:800;margin-bottom:3px;display:flex;align-items:center;gap:6px}
 .cat-info-card .d{font-size:10px;color:var(--g6);line-height:1.45}
 .kpi-card.doc-color{border-left:4px solid var(--navy2)}
@@ -1397,6 +1397,7 @@ const GASTO_CATEGORIAS = [
   { id:'insumos_medicos', label:'🧴 Insumos médicos', color:'#2E7D4F', desc:'Material clínico usado en procedimientos (guantes, agujas, ácido hialurónico, etc.).' },
   { id:'farmacia', label:'💊 Farmacia', color:'#9A6010', desc:'Medicamentos y productos recetados o entregados al paciente.' },
   { id:'papeleria', label:'📎 Papelería', color:'#0E7C74', desc:'Papel, tóner, insumos de oficina y material impreso.' },
+  { id:'leasing_equipos', label:'🩻 Leasing equipos médicos', color:'#8B5E34', desc:'Arrendamiento o financiamiento de equipos médicos y tecnología de la clínica.' },
   { id:'otros', label:'📦 Otros', color:'#A3376B', desc:'Marketing, mensajería y gastos imprevistos.' },
 ];
 function gastoCategoriaInfo(id){ return GASTO_CATEGORIAS.find(c => c.id === id) || { id, label: id, color:'#64748b', desc:'' }; }
