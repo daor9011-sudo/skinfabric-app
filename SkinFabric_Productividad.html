@@ -359,6 +359,36 @@ main.appmain{padding:22px 26px 40px;max-width:1080px;margin:0 auto}
 
 .config-section{background:#fff;border:1px solid var(--g2);border-radius:12px;padding:16px 18px;margin-bottom:16px}
 .config-title{font-size:13px;font-weight:800;margin-bottom:12px;display:flex;align-items:center;gap:8px;color:var(--navy)}
+
+/* ══════════ MÓDULO DE GASTOS ══════════ */
+.sec-title{font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--g6);margin:18px 0 10px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.split2{display:grid;grid-template-columns:270px 1fr;gap:16px;align-items:start}
+@media (max-width:820px){.split2{grid-template-columns:1fr}}
+.form-panel{background:var(--g1);border:1.5px solid var(--g2);border-radius:12px;padding:16px;position:sticky;top:10px}
+.form-panel h4{font-size:12px;font-weight:800;margin-bottom:12px;color:var(--navy)}
+.fg{margin-bottom:12px}
+.fg label{font-size:10px;color:var(--g6);letter-spacing:.5px;text-transform:uppercase;font-weight:700;display:block;margin-bottom:5px}
+.fg input,.fg select,.fg textarea{width:100%;background:#fff;border:1px solid var(--g2);border-radius:8px;padding:9px 10px;font-size:12.5px;color:var(--navy);font-family:inherit}
+.fg textarea{resize:vertical;min-height:56px}
+.cat-hint{font-size:10.5px;color:var(--g6);background:#fff;border-left:3px solid var(--teal);border-radius:6px;padding:7px 9px;margin-top:6px;line-height:1.4;display:none}
+.cat-hint.show{display:block}
+.chart-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px}
+.chart-box{background:linear-gradient(135deg,var(--g1),#eef3fb);border:1px solid var(--g2);border-radius:9px;padding:10px 12px;height:168px;display:flex;flex-direction:column}
+.chart-box .chart-title{font-size:9.5px;color:var(--g6);letter-spacing:.6px;text-transform:uppercase;font-weight:700;margin-bottom:6px}
+.chart-canvas-wrap{flex:1;position:relative;min-height:0}
+.chart-canvas-wrap.donut{max-width:150px;margin:0 auto;width:100%}
+@media (max-width:640px){.chart-row{grid-template-columns:1fr}.chart-box{height:190px}}
+.badge-cat{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:99px;font-size:10.5px;font-weight:700;white-space:nowrap}
+.cat-locativos{background:#DCEAFB;color:#1B5C9E}
+.cat-nominas{background:#EBE1F7;color:#6A3691}
+.cat-insumos_medicos{background:#DFF3E5;color:#2E7D4F}
+.cat-farmacia{background:#FDF0D2;color:#9A6010}
+.cat-otros{background:#FBDDEA;color:#A3376B}
+.cat-info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;margin:0 0 6px}
+.cat-info-card{border-radius:10px;padding:11px 12px;border:1px solid var(--g2)}
+.cat-info-card .t{font-size:11px;font-weight:800;margin-bottom:3px;display:flex;align-items:center;gap:6px}
+.cat-info-card .d{font-size:10px;color:var(--g6);line-height:1.45}
+.kpi-card.doc-color{border-left:4px solid var(--navy2)}
 </style>
 </head>
 <body>
@@ -469,6 +499,7 @@ main.appmain{padding:22px 26px 40px;max-width:1080px;margin:0 auto}
       <button type="button" data-screen2="cierre">🧾 Cierre</button>
       <button type="button" data-screen2="dash">📊 Dashboard</button>
       <button type="button" data-screen2="prm">💬 PRM/CRM</button>
+      <button type="button" data-screen2="gastos" id="nav-btn-gastos" style="display:none">💸 Gastos</button>
     </div>
   </div>
 
@@ -672,6 +703,54 @@ main.appmain{padding:22px 26px 40px;max-width:1080px;margin:0 auto}
             <thead><tr><th>Paciente</th><th>Teléfono</th><th>No vino el</th><th>Estado</th><th>Último servicio</th><th>Doctor</th><th></th></tr></thead>
             <tbody id="crm-novinieron-list"></tbody>
           </table>
+        </div>
+      </div>
+    </div>
+    <div class="card screen2" id="app-screen-gastos">
+      <div class="tab-title"><span>💸 Gastos de la Clínica</span></div>
+      <div class="note" style="margin-bottom:14px">👁️ Visible solo para quien tenga el permiso <b>puede_ver_gastos</b> activo.</div>
+      <div class="split2">
+        <div class="form-panel">
+          <h4>➕ Registrar gasto</h4>
+          <div class="fg"><label>Fecha del gasto</label><input type="date" id="gasto-fecha"/></div>
+          <div class="fg">
+            <label>Categoría</label>
+            <select id="gasto-categoria"><option value="">Seleccionar...</option></select>
+            <div id="gasto-hints"></div>
+          </div>
+          <div class="fg"><label>Monto ($)</label><input type="number" id="gasto-monto" min="0.01" step="0.01" placeholder="0.00"/></div>
+          <div class="fg"><label>Descripción del gasto</label><textarea id="gasto-descripcion" rows="2" placeholder="¿En qué se gastó?"></textarea></div>
+          <button class="btn-sm" id="gasto-btn-guardar" type="button" style="width:100%;justify-content:center">✓ Guardar gasto</button>
+        </div>
+        <div>
+          <div class="kpi-grid" id="gasto-kpis" style="grid-template-columns:repeat(3,1fr)"></div>
+          <div class="chart-row">
+            <div class="chart-box"><div class="chart-title">🍩 Por categoría</div><div class="chart-canvas-wrap donut"><canvas id="chartGastoCat"></canvas></div></div>
+            <div class="chart-box"><div class="chart-title">🩺 Por doctor</div><div class="chart-canvas-wrap"><canvas id="chartGastoDoc"></canvas></div></div>
+          </div>
+          <div class="sec-title">¿Qué incluye cada categoría?</div>
+          <div class="cat-info-grid" id="gasto-cat-info"></div>
+          <div class="sec-title">Todos los gastos<button class="btn-sm btn-outline" id="gasto-btn-exportar">↓ Exportar</button></div>
+          <div class="filter-bar">
+            <input type="text" id="gasto-buscar" placeholder="Buscar en descripciones..." style="flex:2;min-width:140px"/>
+            <select id="gasto-rango">
+              <option value="hoy">Hoy</option>
+              <option value="7">7 días</option>
+              <option value="30" selected>30 días</option>
+              <option value="90">90 días</option>
+              <option value="anio">Año</option>
+              <option value="todo">Todo</option>
+            </select>
+            <select id="gasto-doctor-filtro"><option value="">Todos los doctores</option></select>
+          </div>
+          <div class="excl-filters" id="gasto-pills"></div>
+          <div class="tx-table-wrap">
+            <table class="tx-table">
+              <thead><tr><th>Fecha</th><th>Categoría</th><th>Monto</th><th>Agregado por</th><th>Registrado el</th><th>Descripción</th><th></th></tr></thead>
+              <tbody id="gasto-tbody"></tbody>
+            </table>
+            <div class="empty-note" id="gasto-empty" style="display:none">Sin gastos para este filtro.</div>
+          </div>
         </div>
       </div>
     </div>
@@ -1100,8 +1179,10 @@ function entrarAlShell(perfil){
   document.getElementById('app-user-name').innerHTML = '👤 ' + esc2(perfil.nombre);
 
   const showDash = perfil.permisos?.puede_ver_dashboard === true;
+  const showGastos = perfil.permisos?.puede_ver_gastos === true;
   const showConfig = perfil.rol === 'admin';
   document.querySelector('[data-screen2="dash"]').classList.toggle('locked', !showDash);
+  document.getElementById('nav-btn-gastos').style.display = showGastos ? '' : 'none';
   document.getElementById('btn-config-header').style.display = showConfig ? 'inline-flex' : 'none';
   window.MI_ROL_ADMIN = perfil.rol === 'admin';
   window.MI_PUEDE_ELIMINAR_PAPELERA = perfil.rol === 'admin' && perfil.permisos?.puede_eliminar_papelera !== false;
@@ -1124,6 +1205,7 @@ function iniciarRealtime(){
     .on('postgres_changes', { event: '*', schema: 'public', table: 'consulta_servicios' }, programarRefrescoRealtime)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'pacientes' }, programarRefrescoRealtime)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'gestiones' }, programarRefrescoRealtime)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'gastos' }, programarRefrescoRealtime)
     .subscribe();
 }
 function detenerRealtime(){
@@ -1143,6 +1225,7 @@ function refrescarPantallaActivaPorRealtime(){
     case 'app-screen-cierre': cargarCierre(); break;
     case 'app-screen-dash': cargarDashboard(); break;
     case 'app-screen-prm': cargarInactivos(); cargarNoVinieron(); break;
+    case 'app-screen-gastos': cargarGastos(); break;
   }
 }
 
@@ -1280,6 +1363,214 @@ function todayLocal(){
   const mm = String(d.getMonth()+1).padStart(2,'0');
   return `${dd}/${mm}/${d.getFullYear()}`;
 }
+
+// ============================================================
+// Módulo: Gastos (solo para quien tenga permisos.puede_ver_gastos)
+// ============================================================
+const GASTO_CATEGORIAS = [
+  { id:'locativos', label:'🏢 Locativos', color:'#1B5C9E', desc:'Renta, agua, luz, internet, mantenimiento y limpieza del local.' },
+  { id:'nominas', label:'👥 Nóminas', color:'#6A3691', desc:'Sueldos, comisiones y prestaciones del personal.' },
+  { id:'insumos_medicos', label:'🧴 Insumos médicos', color:'#2E7D4F', desc:'Material clínico usado en procedimientos (guantes, agujas, ácido hialurónico, etc.).' },
+  { id:'farmacia', label:'💊 Farmacia', color:'#9A6010', desc:'Medicamentos y productos recetados o entregados al paciente.' },
+  { id:'otros', label:'📦 Otros', color:'#A3376B', desc:'Papelería, marketing, mensajería y gastos imprevistos.' },
+];
+function gastoCategoriaInfo(id){ return GASTO_CATEGORIAS.find(c => c.id === id) || { id, label: id, color:'#64748b', desc:'' }; }
+let GASTO_PERSONAL = []; // personal con permiso puede_ver_gastos
+let GASTO_ROWS = [];
+let chartGastoCat = null, chartGastoDoc = null;
+
+function poblarSelectGastoCategoria(){
+  const sel = document.getElementById('gasto-categoria');
+  if(!sel) return;
+  sel.innerHTML = '<option value="">Seleccionar...</option>' + GASTO_CATEGORIAS.map(c=> `<option value="${c.id}">${c.label}</option>`).join('');
+  document.getElementById('gasto-hints').innerHTML = GASTO_CATEGORIAS.map(c=> `<div class="cat-hint" id="gasto-hint-${c.id}">${esc2(c.desc)}</div>`).join('');
+  document.getElementById('gasto-cat-info').innerHTML = GASTO_CATEGORIAS.map(c=> `<div class="cat-info-card cat-${c.id}"><div class="t">${c.label}</div><div class="d">${esc2(c.desc)}</div></div>`).join('');
+}
+document.getElementById('gasto-categoria')?.addEventListener('change', function(){
+  document.querySelectorAll('#gasto-hints .cat-hint').forEach(h=> h.classList.remove('show'));
+  if(this.value) document.getElementById('gasto-hint-'+this.value)?.classList.add('show');
+});
+
+async function cargarGastos(){
+  const tbody = document.getElementById('gasto-tbody');
+  tbody.innerHTML = '<tr><td colspan="7" class="empty-note">Cargando...</td></tr>';
+
+  const [personalRes, gastosRes] = await Promise.all([
+    sb.from('personal').select('id,nombre').eq('activo', true).contains('permisos', { puede_ver_gastos:true }).order('nombre'),
+    sb.from('gastos').select('id,fecha,categoria,monto,descripcion,creado_por,created_at,personal(nombre)').order('fecha', { ascending:false }).order('created_at', { ascending:false }),
+  ]);
+  if(personalRes.error) console.error('[SkinFabric] Error cargando personal de gastos:', personalRes.error);
+  if(gastosRes.error){ console.error('[SkinFabric] Error cargando gastos:', gastosRes.error); tbody.innerHTML = '<tr><td colspan="7" class="empty-note">No se pudo cargar.</td></tr>'; return; }
+
+  GASTO_PERSONAL = personalRes.data || [];
+  GASTO_ROWS = gastosRes.data || [];
+
+  poblarSelect('gasto-doctor-filtro', GASTO_PERSONAL.map(p=>({ value:p.id, label:p.nombre })), 'Todos los doctores');
+  renderGastoKpis();
+  renderGastoCharts();
+  renderGastoPills();
+  renderGastoTabla();
+}
+
+const DOC_COLORS_GASTO = ['#1B3A6B','#7D3C98','#2E7D4F','#9A6010','#A3376B'];
+function renderGastoKpis(){
+  const cont = document.getElementById('gasto-kpis');
+  const total = GASTO_ROWS.reduce((a,g)=> a + Number(g.monto||0), 0);
+  const porPersona = {};
+  GASTO_ROWS.forEach(g=>{ const nombre = g.personal?.nombre || '—'; porPersona[nombre] = (porPersona[nombre]||0) + Number(g.monto||0); });
+  let html = `<div class="kpi-card"><div class="ico">💸</div><div class="kpi-label">Gasto total</div><div class="kpi-val">${fmtMoney(total)}</div></div>`;
+  GASTO_PERSONAL.forEach((p, i)=>{
+    const val = porPersona[p.nombre] || 0;
+    html += `<div class="kpi-card" style="border-left:4px solid ${DOC_COLORS_GASTO[i % DOC_COLORS_GASTO.length]}"><div class="ico">🩺</div><div class="kpi-label">${esc2(p.nombre)}</div><div class="kpi-val">${fmtMoney(val)}</div></div>`;
+  });
+  cont.innerHTML = html;
+}
+
+function renderGastoCharts(){
+  const canvasCat = document.getElementById('chartGastoCat');
+  const canvasDoc = document.getElementById('chartGastoDoc');
+  if(!canvasCat || !canvasDoc || typeof Chart === 'undefined') return;
+
+  const porCat = GASTO_CATEGORIAS.map(c=> GASTO_ROWS.filter(g=>g.categoria===c.id).reduce((a,g)=> a + Number(g.monto||0), 0));
+  if(chartGastoCat) chartGastoCat.destroy();
+  chartGastoCat = new Chart(canvasCat.getContext('2d'), {
+    type:'doughnut',
+    data:{ labels: GASTO_CATEGORIAS.map(c=>c.label), datasets:[{ data: porCat, backgroundColor: GASTO_CATEGORIAS.map(c=>c.color), borderWidth:2, borderColor:'#fff' }] },
+    options:{ maintainAspectRatio:false, plugins:{ legend:{ display:false } }, cutout:'62%' }
+  });
+
+  const porPersona = {};
+  GASTO_ROWS.forEach(g=>{ const nombre = g.personal?.nombre || '—'; porPersona[nombre] = (porPersona[nombre]||0) + Number(g.monto||0); });
+  const nombres = GASTO_PERSONAL.map(p=>p.nombre);
+  if(chartGastoDoc) chartGastoDoc.destroy();
+  chartGastoDoc = new Chart(canvasDoc.getContext('2d'), {
+    type:'bar',
+    data:{ labels: nombres, datasets:[{ data: nombres.map(n=> porPersona[n]||0), backgroundColor: nombres.map((n,i)=>DOC_COLORS_GASTO[i % DOC_COLORS_GASTO.length]), borderRadius:6, maxBarThickness:38 }] },
+    options:{ maintainAspectRatio:false, plugins:{ legend:{ display:false } }, scales:{ y:{ beginAtZero:true, ticks:{ font:{size:9} } }, x:{ ticks:{ font:{size:10} } } } }
+  });
+}
+
+function renderGastoPills(){
+  const cont = document.getElementById('gasto-pills');
+  const activa = cont.dataset.activa || 'todos';
+  cont.innerHTML = `<div class="excl-link g-pill ${activa==='todos'?'active':''}" data-cat="todos">Todas</div>` +
+    GASTO_CATEGORIAS.map(c=> `<div class="excl-link g-pill ${activa===c.id?'active':''}" data-cat="${c.id}">${c.label}</div>`).join('');
+  cont.querySelectorAll('.g-pill').forEach(pill=>{
+    pill.addEventListener('click', ()=>{
+      cont.dataset.activa = pill.dataset.cat;
+      cont.querySelectorAll('.g-pill').forEach(p=>p.classList.remove('active'));
+      pill.classList.add('active');
+      renderGastoTabla();
+    });
+  });
+}
+
+function renderGastoTabla(){
+  const tbody = document.getElementById('gasto-tbody');
+  const empty = document.getElementById('gasto-empty');
+  const catActiva = document.getElementById('gasto-pills').dataset.activa || 'todos';
+  const texto = document.getElementById('gasto-buscar').value.trim().toLowerCase();
+  const rango = document.getElementById('gasto-rango').value;
+  const doctorId = document.getElementById('gasto-doctor-filtro').value;
+  const desde = rangoFechaDesde(rango);
+
+  const filas = GASTO_ROWS.filter(g=>{
+    if(catActiva !== 'todos' && g.categoria !== catActiva) return false;
+    if(doctorId && g.creado_por !== doctorId) return false;
+    if(desde && g.fecha < desde) return false;
+    if(texto && !(g.descripcion||'').toLowerCase().includes(texto)) return false;
+    return true;
+  });
+
+  if(!filas.length){
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+  tbody.innerHTML = filas.map(g=>{
+    const cat = gastoCategoriaInfo(g.categoria);
+    return `<tr data-id="${g.id}">
+      <td>${fmtFechaCorta(g.fecha)}</td>
+      <td><span class="badge-cat cat-${cat.id}">${cat.label}</span></td>
+      <td class="monto-cell">${fmtMoney(g.monto)}</td>
+      <td class="autor-cell"><b>${esc2(g.personal?.nombre || '—')}</b></td>
+      <td class="autor-cell">${fmtFechaHora(g.created_at)}</td>
+      <td>${esc2(g.descripcion)}</td>
+      <td><button class="btn-sm btn-del gasto-btn-eliminar" type="button" title="Eliminar">🗑</button></td>
+    </tr>`;
+  }).join('');
+  tbody.querySelectorAll('.gasto-btn-eliminar').forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      const id = btn.closest('tr').dataset.id;
+      const ok = await confirmarAsync({ titulo:'¿Eliminar gasto?', mensaje:'Esta acción no se puede deshacer.', textoConfirmar:'Eliminar', danger:true, icono:'🗑️' });
+      if(!ok) return;
+      const { error } = await sb.from('gastos').delete().eq('id', id);
+      if(error){ console.error('[SkinFabric] Error eliminando gasto:', error); toast('No se pudo eliminar.'); return; }
+      toast('✓ Gasto eliminado.');
+      cargarGastos();
+    });
+  });
+}
+
+['gasto-buscar','gasto-rango','gasto-doctor-filtro'].forEach(id=>{
+  document.getElementById(id)?.addEventListener('input', renderGastoTabla);
+  document.getElementById(id)?.addEventListener('change', renderGastoTabla);
+});
+
+document.getElementById('gasto-btn-guardar')?.addEventListener('click', async ()=>{
+  const fecha = document.getElementById('gasto-fecha').value;
+  const categoria = document.getElementById('gasto-categoria').value;
+  const monto = Number(document.getElementById('gasto-monto').value || 0);
+  const descripcion = document.getElementById('gasto-descripcion').value.trim();
+
+  if(!fecha){ alertaCampo('gasto-fecha', 'Selecciona la fecha del gasto.'); return; }
+  if(!categoria){ alertaCampo('gasto-categoria', 'Selecciona la categoría.'); return; }
+  if(!(monto > 0)){ alertaCampo('gasto-monto', 'El monto debe ser mayor a $0.'); return; }
+  if(!descripcion){ alertaCampo('gasto-descripcion', 'La descripción del gasto es obligatoria.'); return; }
+
+  const btn = document.getElementById('gasto-btn-guardar');
+  btn.disabled = true; btn.textContent = 'Guardando...';
+  const { error } = await sb.from('gastos').insert({ fecha, categoria, monto, descripcion, creado_por: MI_PERFIL?.id });
+  btn.disabled = false; btn.textContent = '✓ Guardar gasto';
+  if(error){ console.error('[SkinFabric] Error guardando gasto:', error); toast('No se pudo guardar el gasto.'); return; }
+
+  toast('✓ Gasto guardado.');
+  document.getElementById('gasto-monto').value = '';
+  document.getElementById('gasto-descripcion').value = '';
+  document.getElementById('gasto-categoria').value = '';
+  document.querySelectorAll('#gasto-hints .cat-hint').forEach(h=> h.classList.remove('show'));
+  cargarGastos();
+});
+
+document.getElementById('gasto-btn-exportar')?.addEventListener('click', ()=>{
+  if(typeof XLSX === 'undefined'){ toast('No se pudo exportar.'); return; }
+  const filas = [...document.querySelectorAll('#gasto-tbody tr')].map(tr=>{
+    const id = tr.dataset.id;
+    const g = GASTO_ROWS.find(x=>x.id===id);
+    if(!g) return null;
+    const cat = gastoCategoriaInfo(g.categoria);
+    return {
+      'Fecha del gasto': fmtFechaCorta(g.fecha),
+      'Categoría': cat.label.replace(/^\S+\s/, ''),
+      'Monto': Number(g.monto||0),
+      'Agregado por': g.personal?.nombre || '',
+      'Registrado el': fmtFechaHora(g.created_at),
+      'Descripción': g.descripcion || '',
+    };
+  }).filter(Boolean);
+  if(!filas.length){ toast('No hay gastos para exportar con este filtro.'); return; }
+  const ws = XLSX.utils.json_to_sheet(filas);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Gastos');
+  XLSX.writeFile(wb, `gastos_${isoLocal(new Date())}.xlsx`);
+});
+
+document.querySelector('[data-screen2="gastos"]').addEventListener('click', ()=>{
+  if(!document.getElementById('gasto-fecha').value) document.getElementById('gasto-fecha').value = isoLocal(new Date());
+  cargarGastos();
+});
+poblarSelectGastoCategoria();
 
 // ============================================================
 // Módulo: Registro
