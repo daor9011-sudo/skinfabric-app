@@ -392,9 +392,10 @@ main.appmain{padding:22px 26px 40px;max-width:1080px;margin:0 auto}
 .cat-papeleria{background:#D9F3F1;color:#0E7C74}
 .cat-leasing_equipos{background:#F1E4D5;color:#8B5E34}
 .cat-otros{background:#FBDDEA;color:#A3376B}
-.cat-info-grid{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin:0 0 6px;min-width:0}
-.cat-info-card{flex:1 1 220px;max-width:270px;border-radius:10px;padding:11px 12px;border:1px solid var(--g2);min-width:0}
-@media (max-width:480px){.cat-info-card{flex-basis:100%;max-width:none}}
+.cat-info-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:0 0 6px;min-width:0}
+.cat-info-card{border-radius:10px;padding:11px 12px;border:1px solid var(--g2);min-width:0}
+@media (max-width:820px){.cat-info-grid{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:480px){.cat-info-grid{grid-template-columns:1fr}}
 .cat-info-card .t{font-size:11px;font-weight:800;margin-bottom:3px;display:flex;align-items:center;gap:6px}
 .cat-info-card .d{font-size:10px;color:var(--g6);line-height:1.45}
 .kpi-card.doc-color{border-left:4px solid var(--navy2)}
@@ -719,6 +720,7 @@ main.appmain{padding:22px 26px 40px;max-width:1080px;margin:0 auto}
       <div class="split2" id="gasto-split">
         <div class="form-panel" id="gasto-form-panel">
           <h4>➕ Registrar gasto</h4>
+          <div class="fg" id="gasto-grp-doctor" style="display:none"><label>Asociar a</label><select id="gasto-doctor-asociado"><option value="">Seleccionar doctor/a...</option></select></div>
           <div class="fg"><label>Fecha del gasto</label><input type="date" id="gasto-fecha"/></div>
           <div class="fg">
             <label>Categoría</label>
@@ -1420,13 +1422,16 @@ document.getElementById('gasto-categoria')?.addEventListener('change', function(
 });
 
 function aplicarVisibilidadFormGasto(){
-  // Solo los doctores registran sus propios gastos; admin (y cualquier otro perfil
-  // con acceso de solo observación) ve el módulo pero sin el formulario de registro.
-  const puedeRegistrar = MI_PERFIL?.rol === 'doctor';
+  // Los doctores registran sus propios gastos. El admin también puede registrar,
+  // pero como no tiene gastos "propios" debe elegir a qué doctor se lo asocia.
+  const esAdmin = MI_PERFIL?.rol === 'admin';
+  const puedeRegistrar = MI_PERFIL?.rol === 'doctor' || esAdmin;
   const panel = document.getElementById('gasto-form-panel');
   const split = document.getElementById('gasto-split');
+  const grpDoctor = document.getElementById('gasto-grp-doctor');
   if(panel) panel.style.display = puedeRegistrar ? '' : 'none';
   if(split) split.style.gridTemplateColumns = puedeRegistrar ? '' : '1fr';
+  if(grpDoctor) grpDoctor.style.display = esAdmin ? '' : 'none';
 }
 
 async function cargarGastos(){
@@ -1445,6 +1450,7 @@ async function cargarGastos(){
   GASTO_ROWS = gastosRes.data || [];
 
   poblarSelect('gasto-doctor-filtro', GASTO_PERSONAL.map(p=>({ value:p.id, label:p.nombre })), 'Todos los doctores');
+  poblarSelect('gasto-doctor-asociado', GASTO_PERSONAL.map(p=>({ value:p.id, label:p.nombre })), 'Seleccionar doctor/a...');
   renderGastoPills();
   refrescarGastoVista();
 }
@@ -1642,11 +1648,15 @@ document.getElementById('editg-btn-guardar')?.addEventListener('click', async ()
 });
 
 document.getElementById('gasto-btn-guardar')?.addEventListener('click', async ()=>{
+  const esAdmin = MI_PERFIL?.rol === 'admin';
   const fecha = document.getElementById('gasto-fecha').value;
   const categoria = document.getElementById('gasto-categoria').value;
   const monto = Number(document.getElementById('gasto-monto').value || 0);
   const descripcion = document.getElementById('gasto-descripcion').value.trim();
+  const doctorAsociado = document.getElementById('gasto-doctor-asociado').value;
+  const creadoPor = esAdmin ? doctorAsociado : MI_PERFIL?.id;
 
+  if(esAdmin && !doctorAsociado){ alertaCampo('gasto-doctor-asociado', 'Selecciona a qué doctor/a se asocia este gasto.'); return; }
   if(!fecha){ alertaCampo('gasto-fecha', 'Selecciona la fecha del gasto.'); return; }
   if(!categoria){ alertaCampo('gasto-categoria', 'Selecciona la categoría.'); return; }
   if(!(monto > 0)){ alertaCampo('gasto-monto', 'El monto debe ser mayor a $0.'); return; }
@@ -1654,13 +1664,14 @@ document.getElementById('gasto-btn-guardar')?.addEventListener('click', async ()
 
   const btn = document.getElementById('gasto-btn-guardar');
   btn.disabled = true; btn.textContent = 'Guardando...';
-  const { error } = await sb.from('gastos').insert({ fecha, categoria, monto, descripcion, creado_por: MI_PERFIL?.id });
+  const { error } = await sb.from('gastos').insert({ fecha, categoria, monto, descripcion, creado_por: creadoPor });
   btn.disabled = false; btn.textContent = '✓ Guardar gasto';
   if(error){ console.error('[SkinFabric] Error guardando gasto:', error); toast('No se pudo guardar el gasto.'); return; }
 
   toast('✓ Gasto guardado.');
   document.getElementById('gasto-monto').value = '';
   document.getElementById('gasto-descripcion').value = '';
+  if(esAdmin) document.getElementById('gasto-doctor-asociado').value = '';
   document.getElementById('gasto-categoria').value = '';
   document.querySelectorAll('#gasto-hints .cat-hint').forEach(h=> h.classList.remove('show'));
   cargarGastos();
