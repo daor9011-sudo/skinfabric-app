@@ -96,11 +96,10 @@ body{font-family:var(--font-b);min-height:100vh;color:var(--navy);background:#ee
 .s3-segment button.navact{background:#fff;color:var(--navy);box-shadow:0 3px 10px rgba(11,22,40,.16),0 0 0 1px rgba(42,191,191,.15)}
 .s3-segment button.locked{opacity:.35;cursor:not-allowed}
 
-main.appmain{padding:22px 26px 40px;max-width:1440px;margin:0 auto}
-/* El Registro se queda con el ancho angosto de siempre (un formulario no se lee mejor estirado);
-   las demás pantallas (Historial, Gastos, Dashboard, PRM/CRM, Configuración) sí aprovechan el
-   ancho extra de main.appmain para no verse "reducidas" en pantallas grandes. */
-#app-screen-registro{max-width:1080px;margin:0 auto}
+main.appmain{padding:22px 26px 40px;max-width:1250px;margin:0 auto}
+/* Solo Gastos usa el ancho extra de main.appmain (se sentía muy apretado). El resto de pantallas
+   vuelve a su ancho de siempre (1080px), centrado, para no verse estiradas de más. */
+#app-screen-registro,#app-screen-historial,#app-screen-cierre,#app-screen-dash,#app-screen-prm,#app-screen-personal{max-width:1080px;margin:0 auto}
 .card{background:#fff;border-radius:14px;box-shadow:0 1px 2px rgba(11,22,40,.04),0 12px 28px -8px rgba(11,22,40,.14);padding:20px 22px 18px;position:relative;overflow:hidden}
 .card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--teal),var(--navy2))}
 .tab-title{font-family:var(--font-d);font-size:15.5px;font-weight:800;color:var(--navy);padding-bottom:9px;margin-bottom:14px;border-bottom:1px solid var(--g2);display:flex;align-items:center;gap:7px;justify-content:space-between}
