@@ -529,7 +529,6 @@ main.appmain{padding:22px 26px 40px;max-width:1080px;margin:0 auto}
       <div class="tab-title"><span>📝 Registrar Consulta / Servicio</span></div>
       <div class="form-grid" id="reg-form-grid">
         <div class="form-group"><label>Fecha</label><input type="date" id="reg-fecha"/></div>
-        <div class="form-group"><label>Atendido por</label><select id="reg-doctor"><option value="">Seleccionar...</option></select></div>
         <div class="form-group" style="position:relative">
           <label>Paciente</label>
           <input type="text" id="reg-paciente-nombre" placeholder="Nombre completo" autocomplete="off"/>
@@ -964,7 +963,6 @@ main.appmain{padding:22px 26px 40px;max-width:1080px;margin:0 auto}
       <div class="form-grid" style="grid-template-columns:1fr 1fr">
         <div class="form-group full"><label>Paciente</label><div id="edit-paciente-nombre" style="font-weight:700;color:var(--navy);font-size:13.5px;padding:6px 0"></div></div>
         <div class="form-group"><label>Fecha</label><input type="date" id="edit-fecha"/></div>
-        <div class="form-group"><label>Atendido por</label><select id="edit-doctor"></select></div>
         <div class="form-group"><label>Dueño del paciente</label><select id="edit-dueno"></select></div>
         <div class="form-group full">
           <label>Servicios <span class="req-badge">al menos uno</span></label>
@@ -1492,16 +1490,21 @@ document.getElementById('gasto-categoria')?.addEventListener('change', function(
 });
 
 function aplicarVisibilidadFormGasto(){
-  // Los doctores registran sus propios gastos. El admin también puede registrar,
-  // pero como no tiene gastos "propios" debe elegir a qué doctor se lo asocia.
+  // Los doctores registran sus propios gastos, pero también pueden asociarlos a otro doctor/a
+  // (ej. uno le carga un gasto al otro). El admin no tiene gastos "propios", así que para él
+  // ese campo es obligatorio; para el doctor viene precargado con su propio nombre pero puede
+  // cambiarlo.
   const esAdmin = MI_PERFIL?.rol === 'admin';
-  const puedeRegistrar = MI_PERFIL?.rol === 'doctor' || esAdmin;
+  const esDoctor = MI_PERFIL?.rol === 'doctor';
+  const puedeRegistrar = esDoctor || esAdmin;
   const panel = document.getElementById('gasto-form-panel');
   const split = document.getElementById('gasto-split');
   const grpDoctor = document.getElementById('gasto-grp-doctor');
   if(panel) panel.style.display = puedeRegistrar ? '' : 'none';
   if(split) split.style.gridTemplateColumns = puedeRegistrar ? '' : '1fr';
-  if(grpDoctor) grpDoctor.style.display = esAdmin ? '' : 'none';
+  if(grpDoctor) grpDoctor.style.display = puedeRegistrar ? '' : 'none';
+  const selDoctor = document.getElementById('gasto-doctor-asociado');
+  if(esDoctor && selDoctor && !selDoctor.value) selDoctor.value = MI_PERFIL.id;
 }
 
 async function cargarGastos(){
@@ -1522,6 +1525,10 @@ async function cargarGastos(){
   poblarSelect('gasto-doctor-filtro', GASTO_PERSONAL.map(p=>({ value:p.id, label:p.nombre })), 'Todos los doctores');
   poblarSelect('gasto-doctor-filtro-top', GASTO_PERSONAL.map(p=>({ value:p.id, label:p.nombre })), 'Todos los doctores');
   poblarSelect('gasto-doctor-asociado', GASTO_PERSONAL.map(p=>({ value:p.id, label:p.nombre })), 'Seleccionar doctor/a...');
+  if(MI_PERFIL?.rol === 'doctor'){
+    const selDoctor = document.getElementById('gasto-doctor-asociado');
+    if(selDoctor && !selDoctor.value) selDoctor.value = MI_PERFIL.id;
+  }
   renderGastoPills();
   refrescarGastoVista();
 }
@@ -1752,16 +1759,15 @@ document.getElementById('editg-btn-guardar')?.addEventListener('click', async ()
 });
 
 document.getElementById('gasto-btn-guardar')?.addEventListener('click', async ()=>{
-  const esAdmin = MI_PERFIL?.rol === 'admin';
   const fecha = document.getElementById('gasto-fecha').value;
   const categoria = document.getElementById('gasto-categoria').value;
   const monto = Number(document.getElementById('gasto-monto').value || 0);
   const descripcion = document.getElementById('gasto-descripcion').value.trim();
   const doctorAsociado = document.getElementById('gasto-doctor-asociado').value;
-  const creadoPor = esAdmin ? doctorAsociado : MI_PERFIL?.id;
+  const creadoPor = doctorAsociado;
   const facturacion = document.querySelector('#gasto-fact-group input:checked')?.value || 'no_facturado';
 
-  if(esAdmin && !doctorAsociado){ alertaCampo('gasto-doctor-asociado', 'Selecciona a qué doctor/a se asocia este gasto.'); return; }
+  if(!doctorAsociado){ alertaCampo('gasto-doctor-asociado', 'Selecciona a qué doctor/a se asocia este gasto.'); return; }
   if(!fecha){ alertaCampo('gasto-fecha', 'Selecciona la fecha del gasto.'); return; }
   if(!categoria){ alertaCampo('gasto-categoria', 'Selecciona la categoría.'); return; }
   if(!(monto > 0)){ alertaCampo('gasto-monto', 'El monto debe ser mayor a $0.'); return; }
@@ -1776,7 +1782,9 @@ document.getElementById('gasto-btn-guardar')?.addEventListener('click', async ()
   toast('✓ Gasto guardado.');
   document.getElementById('gasto-monto').value = '';
   document.getElementById('gasto-descripcion').value = '';
-  if(esAdmin) document.getElementById('gasto-doctor-asociado').value = '';
+  // Al admin se le limpia (no tiene un "propio" al cual volver); al doctor se le deja tal cual
+  // quedó, por si va a registrar varios gastos seguidos asociados a la misma persona.
+  if(MI_PERFIL?.rol === 'admin') document.getElementById('gasto-doctor-asociado').value = '';
   document.getElementById('gasto-categoria').value = '';
   document.querySelectorAll('#gasto-hints .cat-hint').forEach(h=> h.classList.remove('show'));
   const radioNoFacturado = document.querySelector('#gasto-fact-group input[value="no_facturado"]');
@@ -1846,7 +1854,6 @@ async function cargarCatalogos(){
   CATALOGOS.procedencias = procedencias.data || [];
   CATALOGOS.personal = personal.data || [];
 
-  poblarSelectAtendidoPor();
   poblarSelectDueno();
   regServRender(document.getElementById('reg-serv-buscar').value);
   poblarSelect('reg-terminal', CATALOGOS.terminales.map(t=>({value:t.id, label:t.nombre})), '— Sin terminal —');
@@ -1893,27 +1900,6 @@ function poblarSelectDashFiltros(){
   poblarSelect('dash-tipo', CATALOGOS.tiposServicio.map(t=>({value:t.id, label:t.nombre})), 'Todos los tipos');
 }
 
-function poblarSelectAtendidoPor(){
-  const sel = document.getElementById('reg-doctor');
-  // Si el selector está bloqueado (un doctor/a o cosmetóloga registrando lo suyo, ver
-  // aplicarDefaultsPorRol), no lo tocamos: ya representa a la persona que inició sesión.
-  if(sel.disabled){ return; }
-  const actual = sel.value;
-  const requiereDoctor = selMapRequiereDoctor(REG_SERV_SEL);
-  sel.innerHTML = '<option value="">Seleccionar...</option>' + opcionesPersonalAgrupadoHtml(actual, requiereDoctor);
-  if(!requiereDoctor){
-    // Sin una Consulta de Primera Vez/Subsecuente de por medio, nunca se hereda ni se asume
-    // un doctor de una selección anterior: queda en blanco para que se elija explícitamente
-    // (o se use el "Atendido por" de cada servicio, en la lista de seleccionados).
-    sel.value = '';
-    return;
-  }
-  const sigueSiendoValida = actual && [...sel.options].some(o => o.value === actual);
-  sel.value = sigueSiendoValida ? actual : '';
-  if(actual && !sigueSiendoValida){
-    alertaCampo('reg-doctor', 'Esta consulta incluye una Consulta de Primera Vez/Subsecuente y debe quedar asociada a un doctor/a — vuelve a elegir en "Atendido por".');
-  }
-}
 function poblarSelectDueno(){
   const sel = document.getElementById('reg-dueno');
   const actual = sel.value;
@@ -1968,6 +1954,20 @@ function esTipoServicioConsulta(tipoServicioId){
 function selMapRequiereDoctor(selMap){
   return [...selMap.keys()].some(esTipoServicioConsulta);
 }
+// Ya no hay un "Atendido por" general de la consulta en el formulario: cada servicio tiene el
+// suyo. Pero la tabla `consultas` sigue necesitando UN doctor_id (no puede ser null), así que se
+// deriva así: si hay una Consulta de Primera Vez/Subsecuente entre los seleccionados, esa fila
+// manda (por definición solo puede ser un doctor/a); si no, se usa el primer servicio elegido
+// (en el orden en que se fueron marcando).
+function personaPrincipalDeSelMap(selMap){
+  const entradas = [...selMap.entries()];
+  const entradaConsulta = entradas.find(([id]) => esTipoServicioConsulta(id));
+  const elegida = entradaConsulta || entradas[0];
+  const atendidoPorId = elegida ? elegida[1]?.atendidoPor : '';
+  if(!atendidoPorId) return null;
+  const persona = CATALOGOS.personal.find(p=>p.id === atendidoPorId);
+  return { id: atendidoPorId, label: persona?.nombre || '' };
+}
 function opcionesPersonalAgrupadoHtml(selectedId, soloDoctor){
   const grupos = soloDoctor
     ? [ { label:'Médicos', rol:'doctor' } ]
@@ -1979,45 +1979,42 @@ function opcionesPersonalAgrupadoHtml(selectedId, soloDoctor){
     return `<optgroup label="${esc2(g.label)}">${opts}</optgroup>`;
   }).join('');
 }
-function renderServiciosSel(selId, selMap, doctorPrincipal){
+function renderServiciosSel(selId, selMap){
   const cont = document.getElementById(selId);
   if(!selMap.size){ cont.innerHTML = '<div class="a-vacio">Todavía no has seleccionado ningún servicio.</div>'; return; }
-  cont.innerHTML = [...selMap.keys()].map((id, idx)=>{
+  cont.innerHTML = [...selMap.keys()].map((id)=>{
     const s = CATALOGOS.tiposServicio.find(x=>x.id === id);
     const nombre = s ? esc2(s.nombre) : '(servicio ya no disponible)';
     const ref = s?.referencia_precio ? ` <span class="ref">ref. ${esc2(s.referencia_precio)}</span>` : '';
     const val = selMap.get(id) || {};
     const monto = val.monto ?? '';
     const atendidoPor = val.atendidoPor || '';
-    // El primer servicio seleccionado asume por default al doctor/atendido principal de arriba
-    // (así no hay que tocarlo cuando es la misma persona). Los demás piden elegir explícitamente,
-    // para no dar por hecho que un procedimiento derivado lo hizo el mismo doctor.
-    const esPrimero = idx === 0;
-    const labelDefault = (esPrimero && doctorPrincipal?.label) ? esc2(doctorPrincipal.label) : 'Seleccionar...';
+    // Cada servicio elige su propio "Atendido por" — ya no hay un "Atendido por" general arriba
+    // del formulario (se quitó para no obligar a elegir dos veces). Si el servicio es una
+    // Consulta de Primera Vez/Subsecuente, esa fila solo puede quedar en manos de un doctor/a.
+    const soloDoctor = esTipoServicioConsulta(id);
     return `<div class="a-row" data-id="${esc2(id)}">
       <div class="nom">${nombre}${ref}</div>
       <select class="atendido-select" title="¿Quién atendió este servicio?">
-        <option value="">${labelDefault}</option>
-        ${opcionesPersonalAgrupadoHtml(atendidoPor)}
+        <option value="">Seleccionar...</option>
+        ${opcionesPersonalAgrupadoHtml(atendidoPor, soloDoctor)}
       </select>
       <div class="monto-wrap"><span>$</span><input type="number" min="0" step="0.01" placeholder="0.00" value="${esc2(monto)}"/></div>
       <button class="quitar" type="button">✕</button>
     </div>`;
   }).join('');
 }
-function crearSelectorServicios(ids, selMap, onChange, obtenerDoctorPrincipal, alCambiarSeleccion){
-  // "pintar" solo redibuja (se usa también al escribir en el buscador, donde NO cambió la
-  // selección de servicios). "refrescar" es lo que se dispara cuando sí cambió qué servicios
-  // están elegidos (marcar/desmarcar uno), y por eso es lo único que dispara alCambiarSeleccion
-  // (el ajuste del "Atendido por" principal según si hay una Consulta de por medio).
-  function pintar(){
+function crearSelectorServicios(ids, selMap, onChange, valorAtendidoPorDefecto){
+  function refrescar(){
     renderServiciosGrid(ids.grid, document.getElementById(ids.buscar).value, selMap);
-    const doctorPrincipal = obtenerDoctorPrincipal ? obtenerDoctorPrincipal() : null;
-    renderServiciosSel(ids.sel, selMap, doctorPrincipal);
+    renderServiciosSel(ids.sel, selMap);
     document.getElementById(ids.grid).querySelectorAll('.a-chip').forEach(chip=>{
       const id = chip.dataset.id;
       chip.querySelector('input').addEventListener('change', e=>{
-        if(e.target.checked) selMap.set(id, selMap.get(id) ?? { monto:'', atendidoPor:'' });
+        if(e.target.checked){
+          const atendidoPor = valorAtendidoPorDefecto ? (valorAtendidoPorDefecto(id) || '') : '';
+          selMap.set(id, selMap.get(id) ?? { monto:'', atendidoPor });
+        }
         else selMap.delete(id);
         refrescar();
       });
@@ -2038,21 +2035,23 @@ function crearSelectorServicios(ids, selMap, onChange, obtenerDoctorPrincipal, a
     });
     onChange();
   }
-  function refrescar(){
-    if(alCambiarSeleccion) alCambiarSeleccion();
-    pintar();
-  }
-  document.getElementById(ids.buscar).addEventListener('input', pintar);
-  return { refrescar, pintar };
+  document.getElementById(ids.buscar).addEventListener('input', refrescar);
+  return refrescar;
 }
 
 const REG_SERV_SEL = new Map(); // tipo_servicio_id -> { monto: string, atendidoPor: string }
-function obtenerDoctorPrincipalReg(){
-  const sel = document.getElementById('reg-doctor');
-  if(!sel.value) return null;
-  return { id: sel.value, label: sel.selectedOptions[0]?.textContent || '' };
+// Al marcar un servicio nuevo en el Registro, si quien inició sesión es doctor/a o cosmetóloga
+// se le precarga a sí mismo/a en el "Atendido por" de esa fila (para no obligarlo a elegirse a
+// propósito cada vez) — pero sigue siendo editable, por si ese servicio en particular lo hizo
+// otra persona. Si la fila es una Consulta de Primera Vez/Subsecuente y quien inició sesión no
+// es doctor/a (ej. una cosmetóloga), no hay a quién precargar: queda en blanco para que se elija
+// explícitamente a un doctor/a.
+function obtenerAtendidoPorDefectoReg(tipoServicioId){
+  if(!MI_PERFIL || (MI_PERFIL.rol !== 'doctor' && MI_PERFIL.rol !== 'cosmetologo')) return '';
+  if(esTipoServicioConsulta(tipoServicioId) && MI_PERFIL.rol !== 'doctor') return '';
+  return MI_PERFIL.id;
 }
-const { refrescar: regServRefrescar, pintar: regServPintar } = crearSelectorServicios({ buscar:'reg-serv-buscar', grid:'reg-serv-grid', sel:'reg-serv-sel' }, REG_SERV_SEL, updateResumen, obtenerDoctorPrincipalReg, poblarSelectAtendidoPor);
+const regServRefrescar = crearSelectorServicios({ buscar:'reg-serv-buscar', grid:'reg-serv-grid', sel:'reg-serv-sel' }, REG_SERV_SEL, updateResumen, obtenerAtendidoPorDefectoReg);
 function regServRender(filtro){
   if(filtro !== undefined) document.getElementById('reg-serv-buscar').value = filtro;
   regServRefrescar();
@@ -2071,21 +2070,11 @@ function poblarSelect(id, items, placeholder){
   if(actual) sel.value = actual;
 }
 
-// Al cambiar el "Atendido por" manualmente, solo se redibuja la vista (para actualizar la
-// etiqueta sugerida del primer servicio). No se usa regServRefrescar aquí: esa función reevalúa
-// si la selección de arriba sigue siendo válida y la limpia si no lo es, algo que solo debe
-// pasar cuando cambian los SERVICIOS elegidos, no cuando la persona elige aquí a propósito.
-document.getElementById('reg-doctor').addEventListener('change', ()=>{ updateResumen(); regServPintar(); });
-
-function aplicarDefaultsPorRol(){
-  const sel = document.getElementById('reg-doctor');
-  if(MI_PERFIL && (MI_PERFIL.rol === 'doctor' || MI_PERFIL.rol === 'cosmetologo')){
-    sel.value = MI_PERFIL.id;
-    sel.disabled = true;
-  } else {
-    sel.disabled = false;
-  }
-}
+// Ya no hay un "Atendido por" general del formulario (se quitó: quedaba redundante con el de
+// cada servicio) — aplicarDefaultsPorRol ahora no tiene nada que precargar/bloquear ahí. Se deja
+// la función (llamada desde limpiarRegistroCompleto y cargarCatalogos) por si a futuro hace
+// falta algún otro default por rol al limpiar el formulario.
+function aplicarDefaultsPorRol(){}
 
 // ── Búsqueda de paciente (anti-duplicados) ──
 let REG_PACIENTE_SELECCIONADO = null;
@@ -2157,11 +2146,10 @@ document.addEventListener('click', (e)=>{
 // ── Resumen en vivo ──
 function updateResumen(){
   const nombre = document.getElementById('reg-paciente-nombre').value.trim();
-  const doctorSel = document.getElementById('reg-doctor');
-  const doctorLabel = doctorSel.selectedOptions[0] ? doctorSel.selectedOptions[0].textContent : '';
+  const principal = personaPrincipalDeSelMap(REG_SERV_SEL);
   const nServ = REG_SERV_SEL.size;
   let metaParts = [];
-  if(doctorLabel && doctorSel.value) metaParts.push(doctorLabel);
+  if(principal?.label) metaParts.push(principal.label);
   metaParts.push(nServ ? (nServ + (nServ===1 ? ' servicio seleccionado' : ' servicios seleccionados')) : 'sin servicios seleccionados');
   const noVino = document.getElementById('reg-novino').checked;
   const montoServicios = noVino ? 0 : [...REG_SERV_SEL.values()].reduce((a,v)=> a + (Number(v?.monto)||0), 0);
@@ -2246,17 +2234,39 @@ document.getElementById('reg-novino').addEventListener('change', (e)=>{
 // ── Guardar ──
 async function guardarRegistro(){
   const fecha = document.getElementById('reg-fecha').value;
-  const doctorId = document.getElementById('reg-doctor').value;
   const nombre = document.getElementById('reg-paciente-nombre').value.trim();
   const telefono = document.getElementById('reg-telefono').value.trim();
   const noVino = document.getElementById('reg-novino').checked;
 
   if(!fecha){ alertaCampo('reg-fecha', 'Selecciona la fecha.'); return; }
-  if(!doctorId){ alertaCampo('reg-doctor', 'Selecciona quién atiende.'); return; }
   if(!nombre){ alertaCampo('reg-paciente-nombre', 'Escribe el nombre del paciente.'); return; }
   if(REG_SERV_SEL.size === 0){ alertaCampo('reg-serv-buscar', 'Selecciona al menos un servicio.'); return; }
+
+  // Ya no hay un "Atendido por" general: cada servicio debe traer el suyo.
+  const idsSinAtendido = [...REG_SERV_SEL.entries()].filter(([, val]) => !val?.atendidoPor).map(([id]) => id);
+  if(idsSinAtendido.length){
+    document.querySelectorAll('.campo-invalido').forEach(el => el.classList.remove('campo-invalido'));
+    const filas = document.querySelectorAll('#reg-serv-sel .a-row');
+    filas.forEach(row => {
+      if(idsSinAtendido.includes(row.dataset.id)){
+        const sel = row.querySelector('.atendido-select');
+        sel.classList.add('campo-invalido');
+        const quitarMarca = () => sel.classList.remove('campo-invalido');
+        sel.addEventListener('change', quitarMarca, { once:true });
+      }
+    });
+    if(filas.length) filas[0].scrollIntoView({ behavior:'smooth', block:'center' });
+    document.getElementById('campo-alert-mensaje').textContent = 'Selecciona quién atendió cada servicio.';
+    document.getElementById('campo-alert-overlay').classList.add('show');
+    return;
+  }
+
+  // El doctor_id de la consulta se deriva de los servicios: manda la Consulta de Primera
+  // Vez/Subsecuente si hay una, si no el primer servicio elegido (ver personaPrincipalDeSelMap).
+  const doctorId = personaPrincipalDeSelMap(REG_SERV_SEL)?.id || '';
+  if(!doctorId){ alertaCampo('reg-serv-buscar', 'No se pudo determinar quién atiende la consulta.'); return; }
   if(selMapRequiereDoctor(REG_SERV_SEL) && CATALOGOS.personal.find(p=>p.id === doctorId)?.rol !== 'doctor'){
-    alertaCampo('reg-doctor', 'Una Consulta de Primera Vez/Subsecuente debe quedar asociada a un doctor/a.');
+    alertaCampo('reg-serv-buscar', 'Una Consulta de Primera Vez/Subsecuente debe quedar asociada a un doctor/a.');
     return;
   }
 
@@ -2375,7 +2385,6 @@ function limpiarRegistroCompleto(){
     else el.value = '';
   });
   document.getElementById('reg-form-grid').querySelectorAll('select').forEach(el=> el.value = '');
-  document.getElementById('reg-doctor').disabled = false;
   document.getElementById('reg-factura').checked = false;
   document.getElementById('reg-novino').checked = false;
   ['reg-medio','reg-terminal','reg-btn-2pago','reg-factura'].forEach(id=> document.getElementById(id).disabled = false);
@@ -2395,10 +2404,8 @@ function limpiarRegistroCompleto(){
 }
 function limpiarRegistroParcial(){
   const fecha = document.getElementById('reg-fecha').value;
-  const doctorId = document.getElementById('reg-doctor').value;
   limpiarRegistroCompleto();
   document.getElementById('reg-fecha').value = fecha;
-  if(doctorId) document.getElementById('reg-doctor').value = doctorId;
 }
 
 document.getElementById('reg-btn-guardar').addEventListener('click', guardarRegistro);
@@ -2652,31 +2659,6 @@ async function vaciarPapelera(){
 document.getElementById('hist-btn-vaciar-papelera').addEventListener('click', vaciarPapelera);
 
 // ── Modal: Editar consulta ──
-// Carga inicial al abrir el modal: respeta el doctor_id ya guardado tal cual (si el registro
-// existente ya tenía esa persona ahí, no se le fuerza a reelegir solo por abrir el modal).
-function poblarSelectEditDoctorInicial(selectedId){
-  const sel = document.getElementById('edit-doctor');
-  const requiereDoctor = selMapRequiereDoctor(EDIT_SERV_SEL);
-  sel.innerHTML = '<option value="">Seleccionar...</option>' + opcionesPersonalAgrupadoHtml(selectedId, requiereDoctor);
-  sel.value = selectedId || '';
-}
-// Reajuste en vivo mientras el modal está abierto y se cambian los servicios seleccionados:
-// aquí sí aplican las mismas reglas que en el registro nuevo (ver poblarSelectAtendidoPor).
-function poblarSelectEditDoctor(){
-  const sel = document.getElementById('edit-doctor');
-  const actual = sel.value;
-  const requiereDoctor = selMapRequiereDoctor(EDIT_SERV_SEL);
-  sel.innerHTML = '<option value="">Seleccionar...</option>' + opcionesPersonalAgrupadoHtml(actual, requiereDoctor);
-  if(!requiereDoctor){
-    sel.value = '';
-    return;
-  }
-  const sigueSiendoValida = actual && [...sel.options].some(o => o.value === actual);
-  sel.value = sigueSiendoValida ? actual : '';
-  if(actual && !sigueSiendoValida){
-    alertaCampo('edit-doctor', 'Esta consulta incluye una Consulta de Primera Vez/Subsecuente y debe quedar asociada a un doctor/a — vuelve a elegir en "Atendido por".');
-  }
-}
 function poblarSelectEditDueno(selectedId){
   const sel = document.getElementById('edit-dueno');
   sel.innerHTML = '<option value="">— Sin asignar —</option>' + opcionesPersonalAgrupadoHtml(selectedId);
@@ -2689,20 +2671,11 @@ function editServTotal(){
   const n = EDIT_SERV_SEL.size;
   document.getElementById('edit-serv-meta').textContent = n ? (n + (n===1?' servicio seleccionado':' servicios seleccionados')) : 'Selecciona al menos un servicio';
 }
-function obtenerDoctorPrincipalEdit(){
-  const sel = document.getElementById('edit-doctor');
-  if(!sel.value) return null;
-  return { id: sel.value, label: sel.selectedOptions[0]?.textContent || '' };
-}
-const { refrescar: editServRefrescar, pintar: editServPintar } = crearSelectorServicios({ buscar:'edit-serv-buscar', grid:'edit-serv-grid', sel:'edit-serv-sel' }, EDIT_SERV_SEL, editServTotal, obtenerDoctorPrincipalEdit, () => poblarSelectEditDoctor());
-// Se usa solo para la carga inicial del modal: redibuja sin disparar el reajuste del "Atendido
-// por" principal, porque en ese momento se quiere respetar el doctor_id ya guardado tal cual
-// (ver poblarSelectEditDoctorInicial), no reevaluarlo como si fuera un cambio en vivo.
+const editServRefrescar = crearSelectorServicios({ buscar:'edit-serv-buscar', grid:'edit-serv-grid', sel:'edit-serv-sel' }, EDIT_SERV_SEL, editServTotal);
 function editServRender(filtro){
   if(filtro !== undefined) document.getElementById('edit-serv-buscar').value = filtro;
-  editServPintar();
+  editServRefrescar();
 }
-document.getElementById('edit-doctor').addEventListener('change', editServPintar);
 
 let HIST_EDIT_PACIENTE_ID = null;
 function abrirModalEditar(id){
@@ -2714,7 +2687,6 @@ function abrirModalEditar(id){
   document.getElementById('edit-fecha').value = r.fecha;
   EDIT_SERV_SEL.clear();
   (r.consulta_servicios || []).forEach(cs=> EDIT_SERV_SEL.set(cs.tipo_servicio_id, { monto: String(cs.monto ?? ''), atendidoPor: cs.atendido_por || '' }));
-  poblarSelectEditDoctorInicial(r.doctor_id);
   poblarSelectEditDueno(r.pacientes?.dueno_id || '');
   editServRender('');
   poblarSelect('edit-medio', CATALOGOS.mediosPago.map(m=>({value:m.nombre, label:m.nombre})));
@@ -2736,14 +2708,14 @@ document.getElementById('edit-btn-cancelar').addEventListener('click', cerrarMod
 document.getElementById('edit-btn-guardar').addEventListener('click', async ()=>{
   if(!HIST_EDIT_ID) return;
   if(!document.getElementById('edit-fecha').value){ toast('Selecciona la fecha.'); return; }
-  if(!document.getElementById('edit-doctor').value){ toast('Selecciona quién atiende.'); return; }
   if(EDIT_SERV_SEL.size === 0){ toast('Selecciona al menos un servicio.'); return; }
-  {
-    const doctorIdEdit = document.getElementById('edit-doctor').value;
-    if(selMapRequiereDoctor(EDIT_SERV_SEL) && CATALOGOS.personal.find(p=>p.id === doctorIdEdit)?.rol !== 'doctor'){
-      toast('Una Consulta de Primera Vez/Subsecuente debe quedar asociada a un doctor/a.');
-      return;
-    }
+  const idsSinAtendidoEdit = [...EDIT_SERV_SEL.entries()].filter(([, val]) => !val?.atendidoPor).map(([id]) => id);
+  if(idsSinAtendidoEdit.length){ toast('Selecciona quién atendió cada servicio.'); return; }
+  const doctorIdEdit = personaPrincipalDeSelMap(EDIT_SERV_SEL)?.id || '';
+  if(!doctorIdEdit){ toast('No se pudo determinar quién atiende la consulta.'); return; }
+  if(selMapRequiereDoctor(EDIT_SERV_SEL) && CATALOGOS.personal.find(p=>p.id === doctorIdEdit)?.rol !== 'doctor'){
+    toast('Una Consulta de Primera Vez/Subsecuente debe quedar asociada a un doctor/a.');
+    return;
   }
 
   const servicios = [...EDIT_SERV_SEL.entries()].map(([id, val]) => ({ tipo_servicio_id: id, monto: Number(val?.monto || 0), atendido_por: val?.atendidoPor || null }));
@@ -2752,7 +2724,7 @@ document.getElementById('edit-btn-guardar').addEventListener('click', async ()=>
 
   const payload = {
     fecha: document.getElementById('edit-fecha').value,
-    doctor_id: document.getElementById('edit-doctor').value,
+    doctor_id: doctorIdEdit,
     monto: montoTotal,
     medio_pago: document.getElementById('edit-medio').value || null,
     terminal_id: document.getElementById('edit-terminal').value || null,
