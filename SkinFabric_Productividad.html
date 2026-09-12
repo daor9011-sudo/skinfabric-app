@@ -242,6 +242,117 @@ main.appmain{padding:22px 26px 40px;max-width:1080px;margin:0 auto}
 .tx-table.tx-cards td{border-bottom:none;padding:12px}
 .tx-table.tx-cards td:first-child{border-radius:10px 0 0 10px;border-left:3px solid var(--teal)}
 .tx-table.tx-cards td:last-child{border-radius:0 10px 10px 0}
+
+/* ══════════ Tablas de datos en móvil: cada fila se convierte en una "tarjeta" apilada ══════════
+   Aplica a todas las .tx-table (Historial, Papelera, Gastos, PRM/CRM, Configuración, historial de
+   un paciente). Como no hay columnas visibles, cada valor lleva su etiqueta arriba usando ::before
+   con texto fijo por posición — si algún día cambia el orden o el nombre de una columna en el
+   <thead> de una tabla, hay que actualizar aquí el nth-child correspondiente. */
+@media (max-width:700px){
+  .tx-table-wrap{overflow-x:visible}
+  .tx-table thead{display:none}
+  .tx-table,.tx-table tbody{display:block;width:100%}
+  .tx-table tr{display:block;background:#fff;border-radius:10px;box-shadow:0 1px 3px rgba(11,22,40,.08);margin-bottom:10px;padding:4px 14px;border-left:3px solid var(--teal)}
+  .tx-table tr:hover{box-shadow:0 1px 3px rgba(11,22,40,.08)}
+  .tx-table td{display:block;padding:8px 0;border-bottom:1px solid var(--g1);vertical-align:top}
+  .tx-table td:last-child{border-bottom:none;padding-top:10px;text-align:right}
+  .tx-table td[colspan]{text-align:center}
+  .tx-table td[colspan]::before{display:none}
+  .tx-table td input[type="text"]{width:100%}
+  .tx-table.tx-cards td{padding:8px 0;border-bottom:1px solid var(--g1)}
+  .tx-table.tx-cards td:first-child{border-radius:0;border-left:none}
+  .tx-table.tx-cards td:last-child{border-radius:0;border-bottom:none;padding-top:10px}
+
+  .tx-table td::before{content:'';display:block;font-size:9px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--g4);margin-bottom:3px}
+
+  /* Historial */
+  #hist-tbody td:nth-child(1)::before{content:"Fecha"}
+  #hist-tbody td:nth-child(2)::before{content:"Paciente"}
+  #hist-tbody td:nth-child(3)::before{content:"Doctor"}
+  #hist-tbody td:nth-child(4)::before{content:"Servicio"}
+  #hist-tbody td:nth-child(5)::before{content:"Monto"}
+  #hist-tbody td:nth-child(6)::before{content:"Pago"}
+  #hist-tbody td:nth-child(7)::before{content:"N° Factura"}
+
+  /* Papelera de Historial */
+  #hist-papelera-tbody td:nth-child(1)::before{content:"Fecha"}
+  #hist-papelera-tbody td:nth-child(2)::before{content:"Paciente"}
+  #hist-papelera-tbody td:nth-child(3)::before{content:"Doctor"}
+  #hist-papelera-tbody td:nth-child(4)::before{content:"Monto"}
+  #hist-papelera-tbody td:nth-child(5)::before{content:"Eliminado"}
+
+  /* PRM/CRM: pacientes inactivos */
+  #crm-inactivos-list td:nth-child(1)::before{content:"Paciente"}
+  #crm-inactivos-list td:nth-child(2)::before{content:"Teléfono"}
+  #crm-inactivos-list td:nth-child(3)::before{content:"Última visita"}
+  #crm-inactivos-list td:nth-child(4)::before{content:"Inactividad"}
+  #crm-inactivos-list td:nth-child(5)::before{content:"Último servicio"}
+  #crm-inactivos-list td:nth-child(6)::before{content:"Doctor"}
+
+  /* PRM/CRM: no vinieron */
+  #crm-novinieron-list td:nth-child(1)::before{content:"Paciente"}
+  #crm-novinieron-list td:nth-child(2)::before{content:"Teléfono"}
+  #crm-novinieron-list td:nth-child(3)::before{content:"No vino el"}
+  #crm-novinieron-list td:nth-child(4)::before{content:"Estado"}
+  #crm-novinieron-list td:nth-child(5)::before{content:"Último servicio"}
+  #crm-novinieron-list td:nth-child(6)::before{content:"Doctor"}
+
+  /* Historial y seguimiento de un paciente (modal desde PRM/CRM) */
+  #modal-gestion-visitas td:nth-child(1)::before{content:"Fecha"}
+  #modal-gestion-visitas td:nth-child(2)::before{content:"Servicio"}
+  #modal-gestion-visitas td:nth-child(3)::before{content:"Doctor"}
+  #modal-gestion-visitas td:nth-child(4)::before{content:"Monto"}
+
+  /* Gastos */
+  #gasto-tbody td:nth-child(1)::before{content:"Fecha"}
+  #gasto-tbody td:nth-child(2)::before{content:"Categoría"}
+  #gasto-tbody td:nth-child(3)::before{content:"Monto"}
+  #gasto-tbody td:nth-child(4)::before{content:"Facturación"}
+  #gasto-tbody td:nth-child(5)::before{content:"Agregado por"}
+  #gasto-tbody td:nth-child(6)::before{content:"Registrado el"}
+  #gasto-tbody td:nth-child(7)::before{content:"Descripción"}
+
+  /* Configuración: catálogos */
+  #cfg-tipos-tbody td:nth-child(1)::before{content:"Nombre"}
+  #cfg-tipos-tbody td:nth-child(2)::before{content:"Requiere descripción"}
+  #cfg-tipos-tbody td:nth-child(3)::before{content:"Requiere equipo"}
+  #cfg-tipos-tbody td:nth-child(4)::before{content:"Activo"}
+
+  #cfg-equipos-tbody td:nth-child(1)::before{content:"Nombre"}
+  #cfg-equipos-tbody td:nth-child(2)::before{content:"Asociado a"}
+  #cfg-equipos-tbody td:nth-child(3)::before{content:"Activo"}
+
+  #cfg-medios-tbody td:nth-child(1)::before,
+  #cfg-procedencia-tbody td:nth-child(1)::before,
+  #cfg-terminal-tbody td:nth-child(1)::before{content:"Nombre"}
+  #cfg-medios-tbody td:nth-child(2)::before,
+  #cfg-procedencia-tbody td:nth-child(2)::before,
+  #cfg-terminal-tbody td:nth-child(2)::before{content:"Activo"}
+
+  /* Últimas columnas = botones de acción (Editar/Eliminar/Restaurar/Ver): sin etiqueta, alineados
+     a la derecha en su propia fila dentro de la tarjeta. */
+  #hist-tbody td:nth-child(8)::before,
+  #hist-papelera-tbody td:nth-child(6)::before,
+  #crm-inactivos-list td:nth-child(7)::before,
+  #crm-novinieron-list td:nth-child(7)::before,
+  #gasto-tbody td:nth-child(8)::before,
+  #cfg-tipos-tbody td:nth-child(5)::before,
+  #cfg-equipos-tbody td:nth-child(4)::before,
+  #cfg-medios-tbody td:nth-child(3)::before,
+  #cfg-procedencia-tbody td:nth-child(3)::before,
+  #cfg-terminal-tbody td:nth-child(3)::before{display:none}
+
+  #hist-tbody td:nth-child(8),
+  #hist-papelera-tbody td:nth-child(6),
+  #crm-inactivos-list td:nth-child(7),
+  #crm-novinieron-list td:nth-child(7),
+  #gasto-tbody td:nth-child(8),
+  #cfg-tipos-tbody td:nth-child(5),
+  #cfg-equipos-tbody td:nth-child(4),
+  #cfg-medios-tbody td:nth-child(3),
+  #cfg-procedencia-tbody td:nth-child(3),
+  #cfg-terminal-tbody td:nth-child(3){display:flex;justify-content:flex-end;align-items:center;gap:6px;flex-wrap:wrap}
+}
 .pend{color:#B8720A;font-style:italic;font-size:11.5px}
 .badge{display:inline-block;padding:2px 10px;border-radius:99px;font-size:10.5px;font-weight:700;background:var(--g1);color:var(--navy);border:1px solid var(--g2);white-space:nowrap}
 .badge-novino{background:#F5EEF8;color:var(--purple);border:1px solid #E4CFEF;margin-left:6px}
