@@ -2519,20 +2519,33 @@ function renderHistorial(){
     return;
   }
   empty.style.display = 'none';
-  tbody.innerHTML = HIST_ROWS.map(r=>{
+
+  // Cada consulta puede tener varios servicios atendidos por personas distintas (ej. el doctor da
+  // la consulta y de ahí deriva un tratamiento de cabina a una cosmetóloga). La tabla ahora muestra
+  // cada servicio como su propia transacción — con quien realmente lo atendió y el monto de ESE
+  // servicio — en vez de agruparlos bajo un solo "doctor responsable" de toda la consulta.
+  const filas = [];
+  HIST_ROWS.forEach(r=>{
+    const servicios = (r.consulta_servicios && r.consulta_servicios.length) ? r.consulta_servicios : [null];
+    servicios.forEach(cs => filas.push({ consulta: r, cs }));
+  });
+
+  tbody.innerHTML = filas.map(({consulta:r, cs})=>{
     const pago1 = r.no_vino ? '—' : iconoPago(r.medio_pago) + esc2(r.medio_pago || '—');
     const pago2 = (!r.no_vino && r.medio_pago_2) ? `<div style="font-size:10px;color:var(--g6)">+${iconoPago(r.medio_pago_2)}${esc2(r.medio_pago_2)}</div>` : '';
-    const monto2 = (!r.no_vino && r.monto_2) ? `<div style="font-size:10px;color:var(--g6)">+${fmtMoney(r.monto_2)} 2do pago</div>` : '';
-    const servicio = esc2(nombresServicios(r.consulta_servicios, r.doctor?.nombre) || '—');
-    return `<tr>
+    const nombreServicio = esc2(cs?.catalogo_tipos_servicio?.nombre || '—');
+    const responsable = esc2(cs?.atendido?.nombre || r.doctor?.nombre || '—');
+    // Sin desglose por servicio (registros antiguos): se muestra el total de la consulta como antes.
+    const monto = cs ? Number(cs.monto || 0) : Number(r.monto||0) + Number(r.monto_2||0);
+    return `<tr data-consulta-id="${esc2(r.id)}">
       <td>${fmtFechaCorta(r.fecha)}</td>
       <td><b>${esc2(r.pacientes?.nombre || '—')}</b>${r.no_vino ? ' <span class="badge badge-novino">👻</span>' : ''}</td>
-      <td>${esc2(r.doctor?.nombre || '—')}</td>
-      <td>${servicio}</td>
-      <td><b style="color:var(--teal)">${fmtMoney(r.monto)}</b>${monto2}</td>
+      <td>${responsable}</td>
+      <td>${nombreServicio}</td>
+      <td><b style="color:var(--teal)">${fmtMoney(monto)}</b></td>
       <td>${pago1}${pago2}</td>
-      <td><input type="text" class="hist-inline-factura${r.factura && !r.num_factura ? ' pendiente' : ''}" data-id="${r.id}" data-factura="${r.factura ? '1' : '0'}" value="${esc2(r.num_factura||'')}" placeholder="${r.factura?'Pendiente':'—'}"/></td>
-      <td><button class="btn-sm btn-edit" data-id="${r.id}" type="button">✏️</button></td>
+      <td><input type="text" class="hist-inline-factura${r.factura && !r.num_factura ? ' pendiente' : ''}" data-id="${esc2(r.id)}" data-factura="${r.factura ? '1' : '0'}" value="${esc2(r.num_factura||'')}" placeholder="${r.factura?'Pendiente':'—'}"/></td>
+      <td><button class="btn-sm btn-edit" data-id="${esc2(r.id)}" type="button">✏️</button></td>
     </tr>`;
   }).join('');
 
@@ -2552,6 +2565,14 @@ async function guardarInline(id, campo, valor){
   }
   const row = HIST_ROWS.find(r=>r.id===id);
   if(row) row[campo] = valor || null;
+  // Una misma consulta ahora puede aparecer repartida en varias filas (una por servicio/persona);
+  // si el campo se editó desde una de ellas, se refleja en las demás sin esperar a un recargar.
+  if(campo === 'num_factura'){
+    document.querySelectorAll(`.hist-inline-factura[data-id="${id}"]`).forEach(el=>{
+      if(el !== document.activeElement) el.value = valor || '';
+      el.classList.toggle('pendiente', el.dataset.factura === '1' && !valor);
+    });
+  }
   toast('✓ Guardado');
 }
 
