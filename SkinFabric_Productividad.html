@@ -728,6 +728,25 @@ main.appmain{padding:22px 26px 40px;max-width:1080px;margin:0 auto}
     </div>
     <div class="card screen2" id="app-screen-gastos">
       <div class="tab-title"><span>💸 Gastos de la Clínica</span></div>
+      <div class="filter-bar">
+        <input type="text" id="gasto-buscar-top" placeholder="Buscar en descripciones..." style="flex:2;min-width:140px"/>
+        <select id="gasto-rango-top">
+          <option value="hoy">Hoy</option>
+          <option value="7">7 días</option>
+          <option value="30" selected>30 días</option>
+          <option value="90">90 días</option>
+          <option value="anio">Año</option>
+          <option value="todo">Todo</option>
+        </select>
+        <select id="gasto-doctor-filtro-top"><option value="">Todos los doctores</option></select>
+        <select id="gasto-facturacion-filtro-top">
+          <option value="">Facturado y no facturado</option>
+          <option value="facturado_skin">Facturado a Skin</option>
+          <option value="facturado_doctor">Facturado a Dr/Dra</option>
+          <option value="no_facturado">No facturado</option>
+        </select>
+      </div>
+      <div class="excl-filters" id="gasto-pills-top"></div>
       <div class="split2" id="gasto-split">
         <div class="form-panel" id="gasto-form-panel">
           <h4>➕ Registrar gasto</h4>
@@ -1501,13 +1520,14 @@ async function cargarGastos(){
   GASTO_ROWS = gastosRes.data || [];
 
   poblarSelect('gasto-doctor-filtro', GASTO_PERSONAL.map(p=>({ value:p.id, label:p.nombre })), 'Todos los doctores');
+  poblarSelect('gasto-doctor-filtro-top', GASTO_PERSONAL.map(p=>({ value:p.id, label:p.nombre })), 'Todos los doctores');
   poblarSelect('gasto-doctor-asociado', GASTO_PERSONAL.map(p=>({ value:p.id, label:p.nombre })), 'Seleccionar doctor/a...');
   renderGastoPills();
   refrescarGastoVista();
 }
 
 function gastoFilasFiltradas(){
-  const catActiva = document.getElementById('gasto-pills').dataset.activa || 'todos';
+  const catActiva = GASTO_PILL_ACTIVA;
   const texto = document.getElementById('gasto-buscar').value.trim().toLowerCase();
   const rango = document.getElementById('gasto-rango').value;
   const doctorId = document.getElementById('gasto-doctor-filtro').value;
@@ -1598,17 +1618,22 @@ function renderGastoCharts(filas){
   });
 }
 
+// Estado compartido del filtro de categoría: hay dos barras de filtros (arriba del todo
+// y arriba de la tabla, ver #gasto-pills y #gasto-pills-top) que deben quedar sincronizadas,
+// así que la categoría activa vive en esta variable y no en el dataset de un solo contenedor.
+let GASTO_PILL_ACTIVA = 'todos';
 function renderGastoPills(){
-  const cont = document.getElementById('gasto-pills');
-  const activa = cont.dataset.activa || 'todos';
-  cont.innerHTML = `<div class="excl-link g-pill ${activa==='todos'?'active':''}" data-cat="todos">Todas</div>` +
-    GASTO_CATEGORIAS.map(c=> `<div class="excl-link g-pill ${activa===c.id?'active':''}" data-cat="${c.id}">${c.label}</div>`).join('');
-  cont.querySelectorAll('.g-pill').forEach(pill=>{
-    pill.addEventListener('click', ()=>{
-      cont.dataset.activa = pill.dataset.cat;
-      cont.querySelectorAll('.g-pill').forEach(p=>p.classList.remove('active'));
-      pill.classList.add('active');
-      refrescarGastoVista();
+  ['gasto-pills', 'gasto-pills-top'].forEach(contId=>{
+    const cont = document.getElementById(contId);
+    if(!cont) return;
+    cont.innerHTML = `<div class="excl-link g-pill ${GASTO_PILL_ACTIVA==='todos'?'active':''}" data-cat="todos">Todas</div>` +
+      GASTO_CATEGORIAS.map(c=> `<div class="excl-link g-pill ${GASTO_PILL_ACTIVA===c.id?'active':''}" data-cat="${c.id}">${c.label}</div>`).join('');
+    cont.querySelectorAll('.g-pill').forEach(pill=>{
+      pill.addEventListener('click', ()=>{
+        GASTO_PILL_ACTIVA = pill.dataset.cat;
+        renderGastoPills();
+        refrescarGastoVista();
+      });
     });
   });
 }
@@ -1703,9 +1728,27 @@ document.getElementById('editg-btn-guardar')?.addEventListener('click', async ()
   cargarGastos();
 });
 
-['gasto-buscar','gasto-rango','gasto-doctor-filtro','gasto-facturacion-filtro'].forEach(id=>{
-  document.getElementById(id)?.addEventListener('input', refrescarGastoVista);
-  document.getElementById(id)?.addEventListener('change', refrescarGastoVista);
+// Cada filtro existe dos veces (barra de arriba del todo + barra de arriba de la tabla),
+// así que cada input se mantiene sincronizado con su pareja en ambas direcciones.
+[
+  ['gasto-buscar', 'gasto-buscar-top'],
+  ['gasto-rango', 'gasto-rango-top'],
+  ['gasto-doctor-filtro', 'gasto-doctor-filtro-top'],
+  ['gasto-facturacion-filtro', 'gasto-facturacion-filtro-top'],
+].forEach(([idA, idB])=>{
+  const elA = document.getElementById(idA);
+  const elB = document.getElementById(idB);
+  if(!elA || !elB) return;
+  const conectar = (origen, destino)=>{
+    ['input','change'].forEach(evt=>{
+      origen.addEventListener(evt, ()=>{
+        if(destino.value !== origen.value) destino.value = origen.value;
+        refrescarGastoVista();
+      });
+    });
+  };
+  conectar(elA, elB);
+  conectar(elB, elA);
 });
 
 document.getElementById('gasto-btn-guardar')?.addEventListener('click', async ()=>{
@@ -1852,9 +1895,17 @@ function poblarSelectDashFiltros(){
 
 function poblarSelectAtendidoPor(){
   const sel = document.getElementById('reg-doctor');
+  // Si el selector está bloqueado (un doctor/a o cosmetóloga registrando lo suyo, ver
+  // aplicarDefaultsPorRol), no lo tocamos: ya representa a la persona que inició sesión.
+  if(sel.disabled){ return; }
   const actual = sel.value;
-  sel.innerHTML = '<option value="">Seleccionar...</option>' + opcionesPersonalAgrupadoHtml(actual);
-  if(actual) sel.value = actual;
+  const requiereDoctor = selMapRequiereDoctor(REG_SERV_SEL);
+  sel.innerHTML = '<option value="">Seleccionar...</option>' + opcionesPersonalAgrupadoHtml(actual, requiereDoctor);
+  const sigueSiendoValida = actual && [...sel.options].some(o => o.value === actual);
+  sel.value = sigueSiendoValida ? actual : '';
+  if(actual && !sigueSiendoValida){
+    toast('Esta consulta incluye "Consulta de Primera Vez/Subsecuente": elige de nuevo quién atiende (debe ser un doctor/a).');
+  }
 }
 function poblarSelectDueno(){
   const sel = document.getElementById('reg-dueno');
@@ -1893,8 +1944,27 @@ function renderServiciosGrid(gridId, filtro, selMap){
       <div><div class="nom">${esc2(s.nombre)}</div>${s.referencia_precio ? `<div class="ref">ref. ${esc2(s.referencia_precio)}</div>` : ''}</div>
     </label>`).join('');
 }
-function opcionesPersonalAgrupadoHtml(selectedId){
-  const grupos = [ { label:'Médicos', rol:'doctor' }, { label:'Cosmetólogos/as', rol:'cosmetologo' } ];
+// IDs de los tipos de servicio "Consulta de Primera Vez" / "Consulta Subsecuente": son los únicos
+// que exigen que la consulta completa quede asociada a un doctor/a (nunca a una cosmetóloga),
+// porque de ahí se puede derivar un servicio de cabina hecho por otra persona (ver comentario
+// en renderServiciosGrid). Se valida por ID y, como respaldo, por nombre normalizado.
+const IDS_TIPO_SERVICIO_CONSULTA = new Set([
+  '435768b9-eb5c-4963-b571-97f704b5bcc6', // Consulta de Primera Vez
+  'ad1fdd0e-7cda-44ab-9613-217a07e9fd12', // Consulta Subsecuente
+]);
+function esTipoServicioConsulta(tipoServicioId){
+  if(IDS_TIPO_SERVICIO_CONSULTA.has(tipoServicioId)) return true;
+  const s = CATALOGOS.tiposServicio.find(x=>x.id === tipoServicioId);
+  const nombre = normalizar(s?.nombre || '');
+  return nombre === 'consulta de primera vez' || nombre === 'consulta subsecuente';
+}
+function selMapRequiereDoctor(selMap){
+  return [...selMap.keys()].some(esTipoServicioConsulta);
+}
+function opcionesPersonalAgrupadoHtml(selectedId, soloDoctor){
+  const grupos = soloDoctor
+    ? [ { label:'Médicos', rol:'doctor' } ]
+    : [ { label:'Médicos', rol:'doctor' }, { label:'Cosmetólogos/as', rol:'cosmetologo' } ];
   return grupos.map(g=>{
     const items = CATALOGOS.personal.filter(p=>p.rol === g.rol);
     if(!items.length) return '';
@@ -1928,8 +1998,9 @@ function renderServiciosSel(selId, selMap, doctorPrincipal){
     </div>`;
   }).join('');
 }
-function crearSelectorServicios(ids, selMap, onChange, obtenerDoctorPrincipal){
+function crearSelectorServicios(ids, selMap, onChange, obtenerDoctorPrincipal, alCambiarSeleccion){
   function refrescar(){
+    if(alCambiarSeleccion) alCambiarSeleccion();
     renderServiciosGrid(ids.grid, document.getElementById(ids.buscar).value, selMap);
     const doctorPrincipal = obtenerDoctorPrincipal ? obtenerDoctorPrincipal() : null;
     renderServiciosSel(ids.sel, selMap, doctorPrincipal);
@@ -1967,7 +2038,7 @@ function obtenerDoctorPrincipalReg(){
   if(!sel.value) return null;
   return { id: sel.value, label: sel.selectedOptions[0]?.textContent || '' };
 }
-const regServRefrescar = crearSelectorServicios({ buscar:'reg-serv-buscar', grid:'reg-serv-grid', sel:'reg-serv-sel' }, REG_SERV_SEL, updateResumen, obtenerDoctorPrincipalReg);
+const regServRefrescar = crearSelectorServicios({ buscar:'reg-serv-buscar', grid:'reg-serv-grid', sel:'reg-serv-sel' }, REG_SERV_SEL, updateResumen, obtenerDoctorPrincipalReg, poblarSelectAtendidoPor);
 function regServRender(filtro){
   if(filtro !== undefined) document.getElementById('reg-serv-buscar').value = filtro;
   regServRefrescar();
@@ -2166,6 +2237,10 @@ async function guardarRegistro(){
   if(!doctorId){ alertaCampo('reg-doctor', 'Selecciona quién atiende.'); return; }
   if(!nombre){ alertaCampo('reg-paciente-nombre', 'Escribe el nombre del paciente.'); return; }
   if(REG_SERV_SEL.size === 0){ alertaCampo('reg-serv-buscar', 'Selecciona al menos un servicio.'); return; }
+  if(selMapRequiereDoctor(REG_SERV_SEL) && CATALOGOS.personal.find(p=>p.id === doctorId)?.rol !== 'doctor'){
+    alertaCampo('reg-doctor', 'Una Consulta de Primera Vez/Subsecuente debe quedar asociada a un doctor/a.');
+    return;
+  }
 
   const medio = document.getElementById('reg-medio').value;
   const grpMedio2Visible = document.getElementById('reg-grp-medio2').style.display !== 'none';
@@ -2561,8 +2636,14 @@ document.getElementById('hist-btn-vaciar-papelera').addEventListener('click', va
 // ── Modal: Editar consulta ──
 function poblarSelectEditDoctor(selectedId){
   const sel = document.getElementById('edit-doctor');
-  sel.innerHTML = opcionesPersonalAgrupadoHtml(selectedId);
-  sel.value = selectedId || '';
+  const actual = selectedId !== undefined ? selectedId : sel.value;
+  const requiereDoctor = selMapRequiereDoctor(EDIT_SERV_SEL);
+  sel.innerHTML = '<option value="">Seleccionar...</option>' + opcionesPersonalAgrupadoHtml(actual, requiereDoctor);
+  const sigueSiendoValida = actual && [...sel.options].some(o => o.value === actual);
+  sel.value = sigueSiendoValida ? actual : '';
+  if(actual && !sigueSiendoValida){
+    toast('Esta consulta incluye "Consulta de Primera Vez/Subsecuente": elige de nuevo quién atiende (debe ser un doctor/a).');
+  }
 }
 function poblarSelectEditDueno(selectedId){
   const sel = document.getElementById('edit-dueno');
@@ -2581,7 +2662,7 @@ function obtenerDoctorPrincipalEdit(){
   if(!sel.value) return null;
   return { id: sel.value, label: sel.selectedOptions[0]?.textContent || '' };
 }
-const editServRefrescar = crearSelectorServicios({ buscar:'edit-serv-buscar', grid:'edit-serv-grid', sel:'edit-serv-sel' }, EDIT_SERV_SEL, editServTotal, obtenerDoctorPrincipalEdit);
+const editServRefrescar = crearSelectorServicios({ buscar:'edit-serv-buscar', grid:'edit-serv-grid', sel:'edit-serv-sel' }, EDIT_SERV_SEL, editServTotal, obtenerDoctorPrincipalEdit, () => poblarSelectEditDoctor());
 function editServRender(filtro){
   if(filtro !== undefined) document.getElementById('edit-serv-buscar').value = filtro;
   editServRefrescar();
@@ -2596,10 +2677,10 @@ function abrirModalEditar(id){
   HIST_EDIT_PACIENTE_ID = r.paciente_id || null;
   document.getElementById('edit-paciente-nombre').textContent = r.pacientes?.nombre || '—';
   document.getElementById('edit-fecha').value = r.fecha;
-  poblarSelectEditDoctor(r.doctor_id);
-  poblarSelectEditDueno(r.pacientes?.dueno_id || '');
   EDIT_SERV_SEL.clear();
   (r.consulta_servicios || []).forEach(cs=> EDIT_SERV_SEL.set(cs.tipo_servicio_id, { monto: String(cs.monto ?? ''), atendidoPor: cs.atendido_por || '' }));
+  poblarSelectEditDoctor(r.doctor_id);
+  poblarSelectEditDueno(r.pacientes?.dueno_id || '');
   editServRender('');
   poblarSelect('edit-medio', CATALOGOS.mediosPago.map(m=>({value:m.nombre, label:m.nombre})));
   document.getElementById('edit-medio').value = r.medio_pago || '';
@@ -2622,6 +2703,13 @@ document.getElementById('edit-btn-guardar').addEventListener('click', async ()=>
   if(!document.getElementById('edit-fecha').value){ toast('Selecciona la fecha.'); return; }
   if(!document.getElementById('edit-doctor').value){ toast('Selecciona quién atiende.'); return; }
   if(EDIT_SERV_SEL.size === 0){ toast('Selecciona al menos un servicio.'); return; }
+  {
+    const doctorIdEdit = document.getElementById('edit-doctor').value;
+    if(selMapRequiereDoctor(EDIT_SERV_SEL) && CATALOGOS.personal.find(p=>p.id === doctorIdEdit)?.rol !== 'doctor'){
+      toast('Una Consulta de Primera Vez/Subsecuente debe quedar asociada a un doctor/a.');
+      return;
+    }
+  }
 
   const servicios = [...EDIT_SERV_SEL.entries()].map(([id, val]) => ({ tipo_servicio_id: id, monto: Number(val?.monto || 0), atendido_por: val?.atendidoPor || null }));
   const montoTotal = servicios.reduce((a,s)=> a + s.monto, 0);
