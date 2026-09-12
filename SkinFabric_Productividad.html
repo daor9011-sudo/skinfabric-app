@@ -1901,10 +1901,17 @@ function poblarSelectAtendidoPor(){
   const actual = sel.value;
   const requiereDoctor = selMapRequiereDoctor(REG_SERV_SEL);
   sel.innerHTML = '<option value="">Seleccionar...</option>' + opcionesPersonalAgrupadoHtml(actual, requiereDoctor);
+  if(!requiereDoctor){
+    // Sin una Consulta de Primera Vez/Subsecuente de por medio, nunca se hereda ni se asume
+    // un doctor de una selección anterior: queda en blanco para que se elija explícitamente
+    // (o se use el "Atendido por" de cada servicio, en la lista de seleccionados).
+    sel.value = '';
+    return;
+  }
   const sigueSiendoValida = actual && [...sel.options].some(o => o.value === actual);
   sel.value = sigueSiendoValida ? actual : '';
   if(actual && !sigueSiendoValida){
-    toast('Esta consulta incluye "Consulta de Primera Vez/Subsecuente": elige de nuevo quién atiende (debe ser un doctor/a).');
+    alertaCampo('reg-doctor', 'Esta consulta incluye una Consulta de Primera Vez/Subsecuente y debe quedar asociada a un doctor/a — vuelve a elegir en "Atendido por".');
   }
 }
 function poblarSelectDueno(){
@@ -1999,8 +2006,11 @@ function renderServiciosSel(selId, selMap, doctorPrincipal){
   }).join('');
 }
 function crearSelectorServicios(ids, selMap, onChange, obtenerDoctorPrincipal, alCambiarSeleccion){
-  function refrescar(){
-    if(alCambiarSeleccion) alCambiarSeleccion();
+  // "pintar" solo redibuja (se usa también al escribir en el buscador, donde NO cambió la
+  // selección de servicios). "refrescar" es lo que se dispara cuando sí cambió qué servicios
+  // están elegidos (marcar/desmarcar uno), y por eso es lo único que dispara alCambiarSeleccion
+  // (el ajuste del "Atendido por" principal según si hay una Consulta de por medio).
+  function pintar(){
     renderServiciosGrid(ids.grid, document.getElementById(ids.buscar).value, selMap);
     const doctorPrincipal = obtenerDoctorPrincipal ? obtenerDoctorPrincipal() : null;
     renderServiciosSel(ids.sel, selMap, doctorPrincipal);
@@ -2028,8 +2038,12 @@ function crearSelectorServicios(ids, selMap, onChange, obtenerDoctorPrincipal, a
     });
     onChange();
   }
-  document.getElementById(ids.buscar).addEventListener('input', refrescar);
-  return refrescar;
+  function refrescar(){
+    if(alCambiarSeleccion) alCambiarSeleccion();
+    pintar();
+  }
+  document.getElementById(ids.buscar).addEventListener('input', pintar);
+  return { refrescar, pintar };
 }
 
 const REG_SERV_SEL = new Map(); // tipo_servicio_id -> { monto: string, atendidoPor: string }
@@ -2038,7 +2052,7 @@ function obtenerDoctorPrincipalReg(){
   if(!sel.value) return null;
   return { id: sel.value, label: sel.selectedOptions[0]?.textContent || '' };
 }
-const regServRefrescar = crearSelectorServicios({ buscar:'reg-serv-buscar', grid:'reg-serv-grid', sel:'reg-serv-sel' }, REG_SERV_SEL, updateResumen, obtenerDoctorPrincipalReg, poblarSelectAtendidoPor);
+const { refrescar: regServRefrescar, pintar: regServPintar } = crearSelectorServicios({ buscar:'reg-serv-buscar', grid:'reg-serv-grid', sel:'reg-serv-sel' }, REG_SERV_SEL, updateResumen, obtenerDoctorPrincipalReg, poblarSelectAtendidoPor);
 function regServRender(filtro){
   if(filtro !== undefined) document.getElementById('reg-serv-buscar').value = filtro;
   regServRefrescar();
@@ -2057,7 +2071,11 @@ function poblarSelect(id, items, placeholder){
   if(actual) sel.value = actual;
 }
 
-document.getElementById('reg-doctor').addEventListener('change', ()=>{ updateResumen(); regServRefrescar(); });
+// Al cambiar el "Atendido por" manualmente, solo se redibuja la vista (para actualizar la
+// etiqueta sugerida del primer servicio). No se usa regServRefrescar aquí: esa función reevalúa
+// si la selección de arriba sigue siendo válida y la limpia si no lo es, algo que solo debe
+// pasar cuando cambian los SERVICIOS elegidos, no cuando la persona elige aquí a propósito.
+document.getElementById('reg-doctor').addEventListener('change', ()=>{ updateResumen(); regServPintar(); });
 
 function aplicarDefaultsPorRol(){
   const sel = document.getElementById('reg-doctor');
@@ -2634,15 +2652,29 @@ async function vaciarPapelera(){
 document.getElementById('hist-btn-vaciar-papelera').addEventListener('click', vaciarPapelera);
 
 // ── Modal: Editar consulta ──
-function poblarSelectEditDoctor(selectedId){
+// Carga inicial al abrir el modal: respeta el doctor_id ya guardado tal cual (si el registro
+// existente ya tenía esa persona ahí, no se le fuerza a reelegir solo por abrir el modal).
+function poblarSelectEditDoctorInicial(selectedId){
   const sel = document.getElementById('edit-doctor');
-  const actual = selectedId !== undefined ? selectedId : sel.value;
+  const requiereDoctor = selMapRequiereDoctor(EDIT_SERV_SEL);
+  sel.innerHTML = '<option value="">Seleccionar...</option>' + opcionesPersonalAgrupadoHtml(selectedId, requiereDoctor);
+  sel.value = selectedId || '';
+}
+// Reajuste en vivo mientras el modal está abierto y se cambian los servicios seleccionados:
+// aquí sí aplican las mismas reglas que en el registro nuevo (ver poblarSelectAtendidoPor).
+function poblarSelectEditDoctor(){
+  const sel = document.getElementById('edit-doctor');
+  const actual = sel.value;
   const requiereDoctor = selMapRequiereDoctor(EDIT_SERV_SEL);
   sel.innerHTML = '<option value="">Seleccionar...</option>' + opcionesPersonalAgrupadoHtml(actual, requiereDoctor);
+  if(!requiereDoctor){
+    sel.value = '';
+    return;
+  }
   const sigueSiendoValida = actual && [...sel.options].some(o => o.value === actual);
   sel.value = sigueSiendoValida ? actual : '';
   if(actual && !sigueSiendoValida){
-    toast('Esta consulta incluye "Consulta de Primera Vez/Subsecuente": elige de nuevo quién atiende (debe ser un doctor/a).');
+    alertaCampo('edit-doctor', 'Esta consulta incluye una Consulta de Primera Vez/Subsecuente y debe quedar asociada a un doctor/a — vuelve a elegir en "Atendido por".');
   }
 }
 function poblarSelectEditDueno(selectedId){
@@ -2662,12 +2694,15 @@ function obtenerDoctorPrincipalEdit(){
   if(!sel.value) return null;
   return { id: sel.value, label: sel.selectedOptions[0]?.textContent || '' };
 }
-const editServRefrescar = crearSelectorServicios({ buscar:'edit-serv-buscar', grid:'edit-serv-grid', sel:'edit-serv-sel' }, EDIT_SERV_SEL, editServTotal, obtenerDoctorPrincipalEdit, () => poblarSelectEditDoctor());
+const { refrescar: editServRefrescar, pintar: editServPintar } = crearSelectorServicios({ buscar:'edit-serv-buscar', grid:'edit-serv-grid', sel:'edit-serv-sel' }, EDIT_SERV_SEL, editServTotal, obtenerDoctorPrincipalEdit, () => poblarSelectEditDoctor());
+// Se usa solo para la carga inicial del modal: redibuja sin disparar el reajuste del "Atendido
+// por" principal, porque en ese momento se quiere respetar el doctor_id ya guardado tal cual
+// (ver poblarSelectEditDoctorInicial), no reevaluarlo como si fuera un cambio en vivo.
 function editServRender(filtro){
   if(filtro !== undefined) document.getElementById('edit-serv-buscar').value = filtro;
-  editServRefrescar();
+  editServPintar();
 }
-document.getElementById('edit-doctor').addEventListener('change', editServRefrescar);
+document.getElementById('edit-doctor').addEventListener('change', editServPintar);
 
 let HIST_EDIT_PACIENTE_ID = null;
 function abrirModalEditar(id){
@@ -2679,7 +2714,7 @@ function abrirModalEditar(id){
   document.getElementById('edit-fecha').value = r.fecha;
   EDIT_SERV_SEL.clear();
   (r.consulta_servicios || []).forEach(cs=> EDIT_SERV_SEL.set(cs.tipo_servicio_id, { monto: String(cs.monto ?? ''), atendidoPor: cs.atendido_por || '' }));
-  poblarSelectEditDoctor(r.doctor_id);
+  poblarSelectEditDoctorInicial(r.doctor_id);
   poblarSelectEditDueno(r.pacientes?.dueno_id || '');
   editServRender('');
   poblarSelect('edit-medio', CATALOGOS.mediosPago.map(m=>({value:m.nombre, label:m.nombre})));
