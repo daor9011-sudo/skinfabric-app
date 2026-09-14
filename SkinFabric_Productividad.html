@@ -1075,7 +1075,7 @@ main.appmain{padding:22px 26px 40px;max-width:1250px;margin:0 auto}
     <div class="modal-head"><h3>Editar consulta</h3><button class="modal-close" id="edit-btn-cerrar" type="button">✕</button></div>
     <div class="modal-body">
       <div class="form-grid" style="grid-template-columns:1fr 1fr">
-        <div class="form-group full"><label>Paciente</label><div id="edit-paciente-nombre" style="font-weight:700;color:var(--navy);font-size:13.5px;padding:6px 0"></div></div>
+        <div class="form-group full"><label>Paciente</label><input type="text" id="edit-paciente-nombre" style="font-weight:700"/></div>
         <div class="form-group"><label>Fecha</label><input type="date" id="edit-fecha"/></div>
         <div class="form-group"><label>Dueño del paciente</label><select id="edit-dueno"></select></div>
         <div class="form-group full">
@@ -2818,7 +2818,7 @@ function abrirModalEditar(id){
   if(!r) return;
   HIST_EDIT_ID = id;
   HIST_EDIT_PACIENTE_ID = r.paciente_id || null;
-  document.getElementById('edit-paciente-nombre').textContent = r.pacientes?.nombre || '—';
+  document.getElementById('edit-paciente-nombre').value = r.pacientes?.nombre || '';
   document.getElementById('edit-fecha').value = r.fecha;
   EDIT_SERV_SEL.clear();
   (r.consulta_servicios || []).forEach(cs=> EDIT_SERV_SEL.set(cs.tipo_servicio_id, { monto: String(cs.monto ?? ''), atendidoPor: cs.atendido_por || '' }));
@@ -2842,6 +2842,8 @@ document.getElementById('edit-btn-cancelar').addEventListener('click', cerrarMod
 
 document.getElementById('edit-btn-guardar').addEventListener('click', async ()=>{
   if(!HIST_EDIT_ID) return;
+  const nombrePacienteEdit = document.getElementById('edit-paciente-nombre').value.trim();
+  if(!nombrePacienteEdit){ toast('Escribe el nombre del paciente.'); return; }
   if(!document.getElementById('edit-fecha').value){ toast('Selecciona la fecha.'); return; }
   if(EDIT_SERV_SEL.size === 0){ toast('Selecciona al menos un servicio.'); return; }
   const idsSinAtendidoEdit = [...EDIT_SERV_SEL.entries()].filter(([, val]) => !val?.atendidoPor).map(([id]) => id);
@@ -2894,8 +2896,13 @@ document.getElementById('edit-btn-guardar').addEventListener('click', async ()=>
     return;
   }
   if(HIST_EDIT_PACIENTE_ID){
-    const { error: errDueno } = await sb.from('pacientes').update({ dueno_id: duenoId || null }).eq('id', HIST_EDIT_PACIENTE_ID);
+    const { error: errDueno } = await sb.from('pacientes').update({ nombre: nombrePacienteEdit, dueno_id: duenoId || null }).eq('id', HIST_EDIT_PACIENTE_ID);
     if(errDueno) console.error('[SkinFabric] Error actualizando dueño del paciente:', errDueno);
+    else{
+      // Reflejar el nombre corregido de inmediato en las filas de esta consulta, sin esperar a recargar.
+      HIST_ROWS.forEach(r=>{ if(r.paciente_id === HIST_EDIT_PACIENTE_ID && r.pacientes) r.pacientes.nombre = nombrePacienteEdit; });
+      renderHistorial();
+    }
   }
   toast('✓ Cambios guardados.');
   cerrarModalEditar();
