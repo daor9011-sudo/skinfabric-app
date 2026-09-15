@@ -430,9 +430,9 @@ main.appmain{padding:22px 26px 40px;max-width:1250px;margin:0 auto}
 .doc-pill{display:inline-flex;align-items:center;gap:4px;font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:20px;margin:6px 6px 0 0}
 .acordeon-pac{margin-top:8px;border-top:1px dashed var(--g2);padding-top:7px;display:none}
 .acordeon-pac.open{display:block}
-.pac-row-grid{display:grid;grid-template-columns:2fr 1.4fr auto;gap:10px;padding:5px 0;border-bottom:1px solid var(--g1);font-size:11px;align-items:center}
-.pac-row-grid .pac-nombre{color:var(--navy);font-weight:600}
-.pac-row-grid .pac-detalle{color:var(--g4)}
+.pac-row-grid{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1.4fr) minmax(64px,auto);gap:10px;padding:5px 0;border-bottom:1px solid var(--g1);font-size:11px;align-items:center}
+.pac-row-grid .pac-nombre{color:var(--navy);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pac-row-grid .pac-detalle{color:var(--g4);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pac-row-grid .pac-monto{color:var(--teal);font-weight:700;text-align:right}
 
 .pago-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
