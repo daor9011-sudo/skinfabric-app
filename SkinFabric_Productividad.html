@@ -95,6 +95,16 @@ body{font-family:var(--font-b);min-height:100vh;color:var(--navy);background:#ee
 .s3-segment button{font-family:var(--font-b);border:none;background:none;color:var(--g6);padding:8px 16px;border-radius:9px;font-size:12px;font-weight:700;cursor:pointer;transition:.15s;display:flex;align-items:center;gap:6px}
 .s3-segment button.navact{background:#fff;color:var(--navy);box-shadow:0 3px 10px rgba(11,22,40,.16),0 0 0 1px rgba(42,191,191,.15)}
 .s3-segment button.locked{opacity:.35;cursor:not-allowed}
+/* En móvil el header (logo/título + insignia/usuario/botones) se veía apeñuscado: los 3 bloques competían
+   por espacio en una sola fila de grid. Se apilan en columna, cada uno centrado y con aire entre ellos. */
+@media (max-width:700px){
+  .s3-strip{grid-template-columns:1fr;justify-items:center;text-align:center;gap:10px;padding:16px 18px}
+  .s3-brand-left{justify-self:center}
+  .s3-brand-center{justify-self:center}
+  .s3-right{justify-self:center;justify-content:center;width:100%;gap:8px 10px}
+  .tab-title{flex-wrap:wrap;row-gap:10px}
+  .tab-title .actions{width:100%}
+}
 
 main.appmain{padding:22px 26px 40px;max-width:1250px;margin:0 auto}
 /* Solo Gastos usa el ancho extra de main.appmain (se sentía muy apretado). El resto de pantallas
