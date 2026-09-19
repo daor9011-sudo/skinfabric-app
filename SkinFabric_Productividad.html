@@ -918,10 +918,7 @@ main.appmain{padding:22px 26px 40px;max-width:1250px;margin:0 auto}
         </div>
         <div class="fac2"><div class="chart-title"><span>🩺 Ingreso por doctor/cosmetólogo</span></div><div id="chartDoc-wrap" style="height:190px"><canvas id="chartDoc"></canvas></div></div>
       </div>
-      <div class="chart-grid">
-        <div class="fac2"><div class="chart-title"><span>💳 Medios de pago</span></div><div style="height:210px"><canvas id="chartPago"></canvas></div></div>
-        <div class="fac2"><div class="chart-title"><span>📋 Ingreso por tipo de servicio</span></div><div style="height:210px"><canvas id="chartTipo"></canvas></div></div>
-      </div>
+      <div class="fac2" style="margin-bottom:10px"><div class="chart-title"><span>💳 Medios de pago</span></div><div style="height:210px"><canvas id="chartPago"></canvas></div></div>
     </div>
     <div class="card screen2" id="app-screen-prm">
       <div class="tab-title"><span>💬 PRM — Pacientes</span></div>
@@ -3314,7 +3311,7 @@ try{ if(window.Chart && window.ChartDataLabels) Chart.register(ChartDataLabels);
 
 let DASH_ROWS = [];
 let DASH_TEND_MODO = 'dia';
-let chartTend = null, chartDoc = null, chartPago = null, chartTipo = null;
+let chartTend = null, chartDoc = null, chartPago = null;
 
 function rangoFechaDashboard(rango){
   const d = new Date();
@@ -3395,7 +3392,6 @@ function renderDashboard(){
   renderChartTend();
   renderChartDoc(porDoctorMap);
   renderChartPago();
-  renderChartTipo();
   actualizarPanelProductividad(porDoctorMap);
 }
 
@@ -3518,38 +3514,6 @@ function renderChartPago(){
           }
         }
       }
-    }
-  });
-}
-
-function renderChartTipo(){
-  const canvas = document.getElementById('chartTipo');
-  if(!canvas || typeof Chart === 'undefined') return;
-  const map = {};
-  DASH_ROWS.forEach(r=>{
-    (r.consulta_servicios || []).forEach(cs=>{
-      const nombre = cs.catalogo_tipos_servicio?.nombre || '—';
-      map[nombre] = (map[nombre] || 0) + Number(cs.monto || 0);
-    });
-  });
-  const entries = Object.entries(map).sort((a,b)=> b[1]-a[1]);
-  if(chartTipo) chartTipo.destroy();
-  chartTipo = new Chart(canvas.getContext('2d'), {
-    type: 'bar',
-    data: { labels: entries.map(e=>e[0]), datasets: [{ data: entries.map(e=>e[1]), backgroundColor:'#1B3A6B', borderRadius:6 }] },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      // Un poco de aire arriba (monto de la barra más alta) y a la derecha (monto de la última barra,
-      // que se recortaba contra el borde del gráfico) para que ninguna etiqueta quede pegada al borde.
-      layout: { padding: { top: 18, right: 16 } },
-      plugins: {
-        legend: { display:false },
-        // Con varios tipos de servicio, en pantallas angostas las barras quedan tan juntas que los
-        // montos arriba de cada una se encimaban y se volvían ilegibles. display:'auto' hace que el
-        // plugin oculte por sí solo las etiquetas que ya no caben, en vez de dibujarlas encimadas.
-        datalabels: { anchor:'end', align:'top', clamp:true, display:'auto', color:'#0B2A4D', font:{ size:9, weight:'700' }, formatter: v => fmtMoney(v) }
-      },
-      scales: { y: { ticks: { maxTicksLimit:5, callback: v => '$' + Number(v).toLocaleString('es-MX') } } }
     }
   });
 }
