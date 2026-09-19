@@ -810,9 +810,9 @@ main.appmain{padding:22px 26px 40px;max-width:1250px;margin:0 auto}
           <div class="chart-title"><span>📈 Tendencia de ingresos</span>
             <span class="chart-toggle"><button id="dash-tend-dia" class="on" type="button">Día</button><button id="dash-tend-mes" class="off" type="button">Mes</button></span>
           </div>
-          <div style="height:190px"><canvas id="chartTend"></canvas></div>
+          <div id="chartTend-wrap" style="height:190px"><canvas id="chartTend"></canvas></div>
         </div>
-        <div class="fac2"><div class="chart-title"><span>🩺 Ingreso por doctor/cosmetólogo</span></div><div style="height:190px"><canvas id="chartDoc"></canvas></div></div>
+        <div class="fac2"><div class="chart-title"><span>🩺 Ingreso por doctor/cosmetólogo</span></div><div id="chartDoc-wrap" style="height:190px"><canvas id="chartDoc"></canvas></div></div>
       </div>
       <div class="chart-grid">
         <div class="fac2"><div class="chart-title"><span>💳 Medios de pago</span></div><div style="height:210px"><canvas id="chartPago"></canvas></div></div>
@@ -3328,21 +3328,53 @@ function actualizarTendToggle(){
   btnMes.classList.toggle('off', DASH_TEND_MODO !== 'mes');
 }
 
+// Los nombres completos (ej. "Dra. Alejandra Guerrero Martínez") no caben en una sola línea del eje Y
+// en pantallas angostas y Chart.js los recorta por la izquierda contra el borde del canvas. En vez de
+// perder información, se parten en 2 líneas (Chart.js soporta arrays como etiqueta) para que siempre
+// quepan completos.
+function partirEtiquetaEje(nombre, maxLen){
+  if(!nombre || nombre.length <= maxLen) return nombre;
+  const palabras = nombre.split(' ');
+  let l1 = '', l2 = '';
+  palabras.forEach(p=>{
+    if(!l2 && (l1 ? l1 + ' ' + p : p).length <= maxLen) l1 = l1 ? l1 + ' ' + p : p;
+    else l2 = l2 ? l2 + ' ' + p : p;
+  });
+  return l2 ? [l1, l2] : l1;
+}
+
 function renderChartDoc(porDoctorMap){
   const canvas = document.getElementById('chartDoc');
   if(!canvas || typeof Chart === 'undefined') return;
   const entries = Object.entries(porDoctorMap).sort((a,b)=> b[1]-a[1]);
+  // Con muchos doctores/cosmetólogas las barras se apretaban tanto que Chart.js empezaba a ocultar
+  // nombres para "no encimarlos" (autoSkip). La altura crece con la cantidad de filas para que
+  // siempre quepan todas con su etiqueta, y autoSkip:false abajo asegura que ninguna se oculte.
+  const alturaFilas = Math.max(190, entries.length * 44) + 'px';
+  const wrap = document.getElementById('chartDoc-wrap');
+  if(wrap) wrap.style.height = alturaFilas;
+  // La tarjeta vecina (Tendencia de ingresos) comparte fila de grid: se iguala su alto para que
+  // ambas tarjetas terminen parejas en vez de dejar un hueco vacío bajo el gráfico de línea.
+  const wrapTend = document.getElementById('chartTend-wrap');
+  if(wrapTend) wrapTend.style.height = alturaFilas;
   if(chartDoc) chartDoc.destroy();
   chartDoc = new Chart(canvas.getContext('2d'), {
     type: 'bar',
-    data: { labels: entries.map(e=>e[0]), datasets: [{ label:'Ingreso', data: entries.map(e=>e[1]), backgroundColor:'#22a8a8', borderRadius:6 }] },
+    data: { labels: entries.map(e=>partirEtiquetaEje(e[0], 16)), datasets: [{ label:'Ingreso', data: entries.map(e=>e[1]), backgroundColor:'#22a8a8', borderRadius:6 }] },
     options: {
       indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      // Espacio extra a la derecha + clamp para que el monto de la barra más larga nunca quede
+      // cortado contra el borde del gráfico (se veía "$47," en vez de "$47,600.00").
+      layout: { padding: { right: 46 } },
       plugins: {
         legend: { display:false },
-        datalabels: { anchor:'end', align:'right', color:'#0B2A4D', font:{ size:10, weight:'700' }, formatter: v => fmtMoney(v) }
+        tooltip: { callbacks: { title: (items) => { const l = items[0]?.label; return Array.isArray(l) ? l.join(' ') : l; } } },
+        datalabels: { anchor:'end', align:'right', clamp:true, color:'#0B2A4D', font:{ size:10, weight:'700' }, formatter: v => fmtMoney(v) }
       },
-      scales: { x: { ticks: { callback: v => '$' + Number(v).toLocaleString('es-MX') } } }
+      scales: {
+        x: { ticks: { maxTicksLimit:4, font:{ size:9.5 }, callback: v => '$' + Number(v).toLocaleString('es-MX') } },
+        y: { ticks: { font:{ size:10.5 }, autoSkip:false } }
+      }
     }
   });
 }
@@ -3399,11 +3431,17 @@ function renderChartTipo(){
     data: { labels: entries.map(e=>e[0]), datasets: [{ data: entries.map(e=>e[1]), backgroundColor:'#1B3A6B', borderRadius:6 }] },
     options: {
       responsive: true, maintainAspectRatio: false,
+      // Un poco de aire arriba (monto de la barra más alta) y a la derecha (monto de la última barra,
+      // que se recortaba contra el borde del gráfico) para que ninguna etiqueta quede pegada al borde.
+      layout: { padding: { top: 18, right: 16 } },
       plugins: {
         legend: { display:false },
-        datalabels: { anchor:'end', align:'top', color:'#0B2A4D', font:{ size:9, weight:'700' }, formatter: v => fmtMoney(v) }
+        // Con varios tipos de servicio, en pantallas angostas las barras quedan tan juntas que los
+        // montos arriba de cada una se encimaban y se volvían ilegibles. display:'auto' hace que el
+        // plugin oculte por sí solo las etiquetas que ya no caben, en vez de dibujarlas encimadas.
+        datalabels: { anchor:'end', align:'top', clamp:true, display:'auto', color:'#0B2A4D', font:{ size:9, weight:'700' }, formatter: v => fmtMoney(v) }
       },
-      scales: { y: { ticks: { callback: v => '$' + Number(v).toLocaleString('es-MX') } } }
+      scales: { y: { ticks: { maxTicksLimit:5, callback: v => '$' + Number(v).toLocaleString('es-MX') } } }
     }
   });
 }
