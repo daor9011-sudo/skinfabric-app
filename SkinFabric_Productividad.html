@@ -2053,7 +2053,7 @@ poblarSelectGastoCategoria();
 // ============================================================
 const CATALOGOS = { tiposServicio:[], equipos:[], terminales:[], mediosPago:[], procedencias:[], personal:[] };
 function fmtMoney(v){ return '$' + Number(v||0).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2}); }
-const PAGO_ICON = { Tarjeta:'💳', Efectivo:'💵', Transferencia:'🏦', Cortesía:'🎁', AMEX:'💳' };
+const PAGO_ICON = { Efectivo:'💵', Tarjeta:'💳', 'Tarjeta Crédito':'💳', 'Tarjeta Débito':'💳', Transferencia:'🏦', Cortesía:'🎁', AMEX:'💳', Amex:'💳' };
 function iconoPago(medio){ return medio ? (PAGO_ICON[medio] || '💰') + ' ' : ''; }
 
 async function cargarCatalogos(){
@@ -2092,6 +2092,15 @@ async function cargarCatalogos(){
 
   poblarSelect('hist-tipo', CATALOGOS.tiposServicio.map(t=>({value:t.id, label:t.nombre})), 'Todos los servicios');
   poblarSelect('hist-medio', CATALOGOS.mediosPago.map(m=>({value:m.nombre, label:m.nombre})), 'Todos los medios');
+  // "Tarjeta" (sin distinguir crédito/débito) ya no es un medio seleccionable para consultas nuevas,
+  // pero sigue existiendo en consultas registradas antes de este cambio: se deja como opción de
+  // filtro para no perder la capacidad de encontrarlas en el Historial.
+  const selHistMedio = document.getElementById('hist-medio');
+  if(selHistMedio && ![...selHistMedio.options].some(o=>o.value==='Tarjeta')){
+    const optLegacy = document.createElement('option');
+    optLegacy.value = 'Tarjeta'; optLegacy.textContent = 'Tarjeta (anterior)';
+    selHistMedio.appendChild(optLegacy);
+  }
   cargarHistorial();
 
   poblarSelectCierreDoctor();
@@ -2514,12 +2523,14 @@ async function guardarRegistro(){
   const monto1 = grpMedio2Visible ? Number(document.getElementById('reg-monto1').value || 0) : montoServicios;
 
   // ── Validaciones condicionadas al medio de pago ──
-  // Cortesía exime de monto y de terminal; Tarjeta/AMEX exigen terminal; cualquier otro medio exige monto > 0 por servicio.
-  const MEDIOS_REQUIEREN_TERMINAL = new Set(['Tarjeta', 'AMEX']);
+  // Cortesía exime de monto y de terminal; cualquier pago con tarjeta (crédito/débito) o Amex exige
+  // terminal; cualquier otro medio exige monto > 0 por servicio. "Tarjeta" (sin distinguir crédito/
+  // débito) se conserva aquí solo por compatibilidad con consultas registradas antes de este cambio.
+  const MEDIOS_REQUIEREN_TERMINAL = new Set(['Tarjeta', 'Tarjeta Crédito', 'Tarjeta Débito', 'AMEX', 'Amex']);
   if(!noVino){
     const necesitaTerminal = MEDIOS_REQUIEREN_TERMINAL.has(medio) || (grpMedio2Visible && MEDIOS_REQUIEREN_TERMINAL.has(medio2));
     if(necesitaTerminal && !terminalId){
-      alertaCampo('reg-terminal', 'Selecciona la terminal usada para el pago con tarjeta/AMEX.');
+      alertaCampo('reg-terminal', 'Selecciona la terminal usada para el pago con tarjeta o Amex.');
       return;
     }
     if(grpMedio2Visible && medio !== 'Cortesía' && !(monto1 > 0)){
@@ -2936,7 +2947,16 @@ function abrirModalEditar(id){
   poblarSelectEditDueno(r.pacientes?.dueno_id || '');
   editServRender('');
   poblarSelect('edit-medio', CATALOGOS.mediosPago.map(m=>({value:m.nombre, label:m.nombre})));
-  document.getElementById('edit-medio').value = r.medio_pago || '';
+  // Si el medio de pago guardado ya no está en el catálogo activo (p.ej. "Tarjeta" de antes de
+  // separarse en Crédito/Débito), se agrega como opción extra para no perderlo silenciosamente
+  // si el usuario guarda la edición sin haberse dado cuenta de que el select quedó en blanco.
+  const selEditMedio = document.getElementById('edit-medio');
+  if(r.medio_pago && ![...selEditMedio.options].some(o=>o.value===r.medio_pago)){
+    const optLegacy = document.createElement('option');
+    optLegacy.value = r.medio_pago; optLegacy.textContent = r.medio_pago + ' (anterior)';
+    selEditMedio.appendChild(optLegacy);
+  }
+  selEditMedio.value = r.medio_pago || '';
   poblarSelect('edit-terminal', CATALOGOS.terminales.map(t=>({value:t.id, label:t.nombre})), '— Sin terminal —');
   document.getElementById('edit-terminal').value = r.terminal_id || '';
   document.getElementById('edit-num-factura').value = r.num_factura || '';
@@ -3113,6 +3133,8 @@ let CIERRE_ROWS = [];
 const MEDIO_COLORES = {
   efectivo: { bg:'#EAF7EE', border:'#A8D8B4', fg:'#2E7D4F', bar:'#2E7D4F', ico:'💵' },
   tarjeta: { bg:'#EEF5FC', border:'#BDD5F0', fg:'#1B5C9E', bar:'#1B5C9E', ico:'💳' },
+  'tarjeta credito': { bg:'#EEF5FC', border:'#BDD5F0', fg:'#1B5C9E', bar:'#1B5C9E', ico:'💳' },
+  'tarjeta debito': { bg:'#F0EEFA', border:'#C9C2E8', fg:'#5B4FA8', bar:'#5B4FA8', ico:'💳' },
   transferencia: { bg:'#FDF6EC', border:'#EDD49A', fg:'#9A6010', bar:'#9A6010', ico:'🏦' },
   cortesia: { bg:'#F5F0FC', border:'#D2B4DE', fg:'#7D3C98', bar:'#7D3C98', ico:'🎁' },
   amex: { bg:'#E9F7F7', border:'#A8DEDE', fg:'#0B6E6E', bar:'#0B6E6E', ico:'💠' },
