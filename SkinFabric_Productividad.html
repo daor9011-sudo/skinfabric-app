@@ -285,12 +285,13 @@ main.appmain{padding:22px 26px 40px;max-width:1250px;margin:0 auto}
   #hist-tbody td:nth-child(1)::before{content:"Fecha"}
   #hist-tbody td:nth-child(2)::before{content:"Paciente"}
   #hist-tbody td:nth-child(3)::before{content:"Procedencia"}
-  #hist-tbody td:nth-child(4)::before{content:"Dueño"}
-  #hist-tbody td:nth-child(5)::before{content:"Doctor"}
-  #hist-tbody td:nth-child(6)::before{content:"Servicio"}
-  #hist-tbody td:nth-child(7)::before{content:"Monto"}
-  #hist-tbody td:nth-child(8)::before{content:"Pago"}
-  #hist-tbody td:nth-child(9)::before{content:"N° Factura"}
+  #hist-tbody td:nth-child(4)::before{content:"Dueño del paciente"}
+  #hist-tbody td:nth-child(5)::before{content:"Doctor (consulta)"}
+  #hist-tbody td:nth-child(6)::before{content:"Atendió"}
+  #hist-tbody td:nth-child(7)::before{content:"Servicio"}
+  #hist-tbody td:nth-child(8)::before{content:"Monto"}
+  #hist-tbody td:nth-child(9)::before{content:"Pago"}
+  #hist-tbody td:nth-child(10)::before{content:"N° Factura"}
 
   /* Papelera de Historial */
   #hist-papelera-tbody td:nth-child(1)::before{content:"Fecha"}
@@ -349,7 +350,7 @@ main.appmain{padding:22px 26px 40px;max-width:1250px;margin:0 auto}
 
   /* Últimas columnas = botones de acción (Editar/Eliminar/Restaurar/Ver): sin etiqueta, alineados
      a la derecha en su propia fila dentro de la tarjeta. */
-  #hist-tbody td:nth-child(10)::before,
+  #hist-tbody td:nth-child(11)::before,
   #hist-papelera-tbody td:nth-child(6)::before,
   #crm-inactivos-list td:nth-child(7)::before,
   #crm-novinieron-list td:nth-child(7)::before,
@@ -360,7 +361,7 @@ main.appmain{padding:22px 26px 40px;max-width:1250px;margin:0 auto}
   #cfg-procedencia-tbody td:nth-child(3)::before,
   #cfg-terminal-tbody td:nth-child(3)::before{display:none}
 
-  #hist-tbody td:nth-child(10),
+  #hist-tbody td:nth-child(11),
   #hist-papelera-tbody td:nth-child(6),
   #crm-inactivos-list td:nth-child(7),
   #crm-novinieron-list td:nth-child(7),
@@ -901,7 +902,7 @@ main.appmain{padding:22px 26px 40px;max-width:1250px;margin:0 auto}
 
       <div class="tx-table-wrap">
         <table class="tx-table tx-cards">
-          <thead><tr><th>Fecha</th><th>Paciente</th><th>Procedencia</th><th>Dueño</th><th>Doctor</th><th>Servicio</th><th>Monto</th><th>Pago</th><th>N° Factura</th><th></th></tr></thead>
+          <thead><tr><th>Fecha</th><th>Paciente</th><th>Procedencia</th><th>Dueño del paciente</th><th title="Doctor registrado en la consulta">Doctor</th><th title="Quién atendió este servicio en particular">Atendió</th><th>Servicio</th><th>Monto</th><th>Pago</th><th>N° Factura</th><th></th></tr></thead>
           <tbody id="hist-tbody"></tbody>
         </table>
         <div class="empty-note" id="hist-empty" style="display:none">No hay consultas para los filtros seleccionados.</div>
@@ -1471,7 +1472,7 @@ main.appmain{padding:22px 26px 40px;max-width:1250px;margin:0 auto}
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.10.03-5';
+const APP_VERSION = 'v2026.10.03-7';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 const SUPABASE_URL = 'https://omjugldgnixuwqnnziyz.supabase.co';
@@ -3333,7 +3334,13 @@ function renderHistorial(){
     const pago1 = r.no_vino ? '—' : iconoPago(r.medio_pago) + esc2(r.medio_pago || '—');
     const pago2 = (!r.no_vino && r.medio_pago_2) ? `<div style="font-size:10px;color:var(--g6)">+${iconoPago(r.medio_pago_2)}${esc2(r.medio_pago_2)}</div>` : '';
     const nombreServicio = esc2(cs?.catalogo_tipos_servicio?.nombre || '—');
-    const responsable = esc2(cs?.atendido?.nombre || r.doctor?.nombre || '—');
+    // "Doctor (consulta)" = quién abrió/es responsable de la visita completa. "Atendió" = quién
+    // hizo ESTE servicio en particular — normalmente son la misma persona, pero no siempre: una
+    // visita puede traer la consulta de un doctor y, aparte, un tratamiento de cabina hecho por
+    // una cosmetóloga. Se muestran ambas columnas (igual que en el Excel exportado) para que no
+    // haya que adivinar cuál es cuál al revisar.
+    const doctorConsulta = esc2(r.doctor?.nombre || '—');
+    const atendio = esc2(cs?.atendido?.nombre || r.doctor?.nombre || '—');
     const procedencia = esc2(r.pacientes?.catalogo_procedencia?.nombre || '—');
     const dueno = esc2(r.pacientes?.dueno?.nombre || '—');
     // Sin desglose por servicio (registros antiguos): se muestra el total de la consulta como antes.
@@ -3343,7 +3350,8 @@ function renderHistorial(){
       <td><b>${esc2(r.pacientes?.nombre || '—')}</b>${r.no_vino ? ' <span class="badge badge-novino">👻</span>' : ''}</td>
       <td>${procedencia}</td>
       <td>${dueno}</td>
-      <td>${responsable}</td>
+      <td>${doctorConsulta}</td>
+      <td>${atendio}</td>
       <td>${nombreServicio}</td>
       <td><b style="color:var(--teal)">${fmtMoney(monto)}</b></td>
       <td>${pago1}${pago2}</td>
