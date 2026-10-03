@@ -2172,8 +2172,11 @@ const COM_SERVICIOS_CABINA = [
   'Facial limpieza profunda','Facial hidratación','Hydrafacial delux','Hydrafacial platinum','Hydrafacial signature',
   'IPL skin reset','Facial and body reset','Peelings','Facial efecto princesa','Depilación','Facial 3 en 1',
 ];
-// Equipo dedicado a la Dra. Alejandra (el resto de la cabina es equipo compartido entre ambos doctores)
+// Equipo dedicado a cada doctor/a (el resto de la cabina es equipo compartido entre ambos).
+// Confirmado con la tabla de "dueño de equipo" de la clínica: Depilación (Magic Smooth) y
+// Facial 3 en 1 (geneo) son de la Dra. Alejandra; Láser luz pulsada (M2) es del Dr. Carlos.
 const COM_SERVICIOS_EQUIPO_DEDICADO_ALEJANDRA = ['Depilación','Facial 3 en 1'];
+const COM_SERVICIOS_EQUIPO_DEDICADO_CARLOS = ['Láser luz pulsada'];
 
 let COM_SERVICE_ROWS = [];
 let COM_TERMINAL_TOTALS = {};
@@ -2201,6 +2204,7 @@ function comCalcularFila(row, docAlejandra, docOtro){
   const monto = row.monto;
   const esCabina = COM_SERVICIOS_CABINA.includes(row.servicio);
   const equipoDedicadoAlejandra = COM_SERVICIOS_EQUIPO_DEDICADO_ALEJANDRA.includes(row.servicio);
+  const equipoDedicadoCarlos = COM_SERVICIOS_EQUIPO_DEDICADO_CARLOS.includes(row.servicio);
 
   const comCosmAtiende = (row.atiendeRol === 'cosmetologo' && row.atiendeId && row.atiendeId !== row.duenoId) ? monto * 0.03 : 0;
   // El 5% de "dueña del paciente" solo existe dentro de cabina — es la comisión por el trabajo
@@ -2233,6 +2237,9 @@ function comCalcularFila(row, docAlejandra, docOtro){
     if(esCabina && equipoDedicadoAlejandra && duenoEsOtro){
       comOtro = resto * 0.70; comAlejandra = resto * 0.30;
       regla = '70/30 · equipo de ' + (docAlejandra?.nombre || 'Dra. Alejandra');
+    } else if(esCabina && equipoDedicadoCarlos && duenoEsAlejandra){
+      comAlejandra = resto * 0.70; comOtro = resto * 0.30;
+      regla = '70/30 · equipo de ' + (docOtro?.nombre || 'Dr. Carlos');
     } else if(duenoEsOtro){
       comOtro = resto; regla = '100% · dueño';
     } else if(duenoEsAlejandra){
@@ -2600,15 +2607,14 @@ async function cargarCatalogos(){
     optLegacy.value = 'Tarjeta'; optLegacy.textContent = 'Tarjeta (anterior)';
     selHistMedio.appendChild(optLegacy);
   }
-  cargarHistorial();
-
+  // Historial, Cierre, PRM/CRM y Comisiones ya NO se precargan aquí — cada uno trae sus propios
+  // datos justo cuando el usuario entra a esa pestaña (igual que Gastos). Antes se disparaban
+  // todas estas consultas de golpe al iniciar sesión (incluso para pestañas que nadie iba a abrir
+  // todavía), compitiendo con las de arriba y haciendo que la primera pestaña que sí abrías —
+  // normalmente Historial — se sintiera lenta. Sus botones de navegación ya tienen el listener
+  // que las carga al hacer clic, así que no se pierde nada.
   poblarSelectCierreDoctor();
-  actualizarCierreUI();
-
   poblarSelectDashFiltros();
-
-  cargarInactivos();
-  cargarNoVinieron();
 }
 
 function poblarSelectDashFiltros(){
@@ -3728,7 +3734,7 @@ document.getElementById('cierre-date-input').addEventListener('change', (e)=>{
   actualizarCierreUI();
 });
 document.getElementById('cierre-doctor').addEventListener('change', cargarCierre);
-document.querySelector('.s3-segment button[data-screen2="cierre"]').addEventListener('click', ()=> cargarCierre());
+document.querySelector('.s3-segment button[data-screen2="cierre"]').addEventListener('click', ()=> actualizarCierreUI());
 
 document.querySelectorAll('#app-screen-cierre .prm-tab-btn').forEach(btn=>{
   btn.addEventListener('click', ()=>{
