@@ -850,7 +850,7 @@ table.com-det thead th.num{text-align:right}
         <div class="form-group" id="reg-grp-medio2" style="display:none"><label>2do medio de pago</label><select id="reg-medio2"><option value="">Seleccionar...</option></select></div>
         <div class="form-group" id="reg-grp-monto2" style="display:none"><label>Monto 2do pago ($)</label><input type="number" id="reg-monto2" min="0" step="0.01" value="0"/></div>
         <div class="form-group full" id="reg-split-check" style="display:none;font-size:11.5px;font-weight:700;padding:6px 2px"></div>
-        <div class="form-group"><label>Terminal</label><select id="reg-terminal"><option value="">— Sin terminal —</option></select></div>
+        <div class="form-group"><label>Terminal</label><select id="reg-terminal"><option value="">— Sin terminal —</option></select><div id="reg-terminal-hint" style="display:none;font-size:10.5px;color:var(--g6);margin-top:4px">Pago en efectivo: no se usa terminal.</div></div>
         <div class="form-group full"><label>Notas (opcional)</label><input type="text" id="reg-notas" placeholder="Observaciones..."/></div>
       </div>
       <div style="display:flex;gap:12px;margin:16px 0;flex-wrap:wrap">
@@ -1064,10 +1064,10 @@ table.com-det thead th.num{text-align:right}
       </div>
 
       <div class="subpanel" id="com-pago-panel">
-        <div class="com-nota-box">💡 Aquí solo cuenta la <b>producción de cabina</b>: servicios que atendieron las cosmetólogas. Ese dinero lo cobra la terminal de un doctor, pero la comisión se reparte entre los dos según las reglas (dueño del paciente, equipo dedicado, etc.). Por cada servicio se mira en qué terminal se cobró: quien lo cobró se quedó con el dinero y le debe al otro doctor la parte que le corresponde. Al final se compensan las dos deudas y queda una sola transferencia. La comisión de las cosmetólogas se paga aparte. Lo cobrado en Farmacia, Skin Fabric o sin terminal no se puede saldar todavía y se lista abajo.</div>
+        <div class="com-nota-box">💡 Aquí solo cuenta la <b>producción de cabina</b>: servicios que atendieron las cosmetólogas. Ese dinero lo cobra la terminal de un doctor, pero la comisión se reparte entre los dos según las reglas (dueño del paciente, equipo dedicado, etc.). Por cada servicio se mira en qué terminal se cobró: quien lo cobró se quedó con el dinero y le debe al otro doctor la parte que le corresponde. Al final se compensan las dos deudas y queda una sola transferencia. La comisión de las cosmetólogas se paga aparte. Lo que se pagó en efectivo (no pasa por terminal) o en otras terminales no se puede saldar por este método: se lista abajo, con lo que le toca a cada doctor.</div>
         <div id="com-transfer-banner"></div>
         <div class="com-pago-grid" id="com-pago-grid"></div>
-        <div class="sec-title">Cabina cobrada fuera de las terminales de los doctores (pendiente de asignar)</div>
+        <div class="sec-title">Cabina en efectivo y en otras terminales (lo que le toca a cada doctor)</div>
         <div id="com-pago-otros"></div>
         <div class="sec-title">Detalle de cabina <span style="font-weight:600;text-transform:none;letter-spacing:0;font-size:10.5px" id="com-pago-detalle-count"></span></div>
         <div class="tx-table-wrap" id="com-pago-detalle"></div>
@@ -1359,7 +1359,7 @@ table.com-det thead th.num{text-align:right}
           <div class="r-val" id="edit-serv-total">$0.00</div>
         </div>
         <div class="form-group"><label>Medio de pago</label><select id="edit-medio"></select></div>
-        <div class="form-group"><label>Terminal</label><select id="edit-terminal"></select></div>
+        <div class="form-group"><label>Terminal</label><select id="edit-terminal"></select><div id="edit-terminal-hint" style="display:none;font-size:10.5px;color:var(--g6);margin-top:4px">Pago en efectivo: no se usa terminal.</div></div>
         <div class="form-group"><label>N° Factura</label><input type="text" id="edit-num-factura"/></div>
         <div class="form-group"><label style="display:flex;align-items:center;gap:8px;text-transform:none;font-size:12.5px;font-weight:400;color:var(--navy)"><input type="checkbox" id="edit-factura" style="width:15px;height:15px;flex:none"/> ¿Requiere factura?</label></div>
         <div class="form-group full"><label>Notas</label><input type="text" id="edit-notas"/></div>
@@ -1503,7 +1503,7 @@ table.com-det thead th.num{text-align:right}
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.10.03-12';
+const APP_VERSION = 'v2026.10.03-13';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 const SUPABASE_URL = 'https://omjugldgnixuwqnnziyz.supabase.co';
@@ -2314,7 +2314,7 @@ async function cargarComisiones(){
   const hasta = document.getElementById('com-hasta').value;
 
   let q = sb.from('consultas')
-    .select('id,fecha,monto,monto_2,doctor_id,terminal_id,no_vino,catalogo_terminales(nombre),pacientes!inner(nombre,dueno_id,dueno:personal!dueno_id(nombre,rol)),doctor:personal!doctor_id(nombre,rol),consulta_servicios(monto,tipo_servicio_id,atendido_por,catalogo_tipos_servicio(nombre),atendido:personal(nombre,rol))')
+    .select('id,fecha,monto,monto_2,medio_pago,medio_pago_2,doctor_id,terminal_id,no_vino,catalogo_terminales(nombre),pacientes!inner(nombre,dueno_id,dueno:personal!dueno_id(nombre,rol)),doctor:personal!doctor_id(nombre,rol),consulta_servicios(monto,monto_1,monto_2,tipo_servicio_id,atendido_por,catalogo_tipos_servicio(nombre),atendido:personal(nombre,rol))')
     .eq('deleted', false)
     .eq('no_vino', false)
     .order('fecha', { ascending:false })
@@ -2334,6 +2334,12 @@ async function cargarComisiones(){
   (data || []).forEach(c => {
     const termNombre = c.catalogo_terminales?.nombre || null;
 
+    // Cuánto de cada servicio se pagó en efectivo (para el saldo entre doctores). Si el servicio ya trae su
+    // propio 1er/2do pago se usa tal cual; si no (registros anteriores), se reparte el pago de la consulta
+    // proporcionalmente al monto del servicio (1er pago → medio_pago, 2do pago → medio_pago_2).
+    const esEfectivo = m => /efectivo/i.test(m || '');
+    const c1 = Number(c.monto || 0), c2 = Number(c.monto_2 || 0), cTot = c1 + c2;
+
     const duenoId = c.pacientes?.dueno_id || null;
     const duenoRol = c.pacientes?.dueno?.rol || null;
     const duenoNombre = c.pacientes?.dueno?.nombre || null;
@@ -2344,13 +2350,19 @@ async function cargarComisiones(){
       const atiendeId = cs.atendido_por || c.doctor_id || null;
       const atiendeRol = cs.atendido_por ? (cs.atendido?.rol || null) : (c.doctor?.rol || null);
       const atiendeNombre = cs.atendido_por ? (cs.atendido?.nombre || '—') : (c.doctor?.nombre || '—');
+      let p1, p2;
+      if(cs.monto_1 != null){ p1 = Number(cs.monto_1 || 0); p2 = Number(cs.monto_2 || 0); }
+      else { p1 = cTot > 0 ? monto * (c1 / cTot) : monto; p2 = monto - p1; }
+      const efectivo = (esEfectivo(c.medio_pago) ? p1 : 0) + (esEfectivo(c.medio_pago_2) ? p2 : 0);
       serviceRows.push({
+        efectivo: Math.min(Math.max(efectivo, 0), monto),
         fecha: c.fecha,
         pacienteNombre: c.pacientes?.nombre || '—',
         duenoId, duenoRol, duenoNombre,
         servicio: cs.catalogo_tipos_servicio?.nombre || '—',
         atiendeId, atiendeRol, atiendeNombre,
         terminal: termNombre,
+        medioPago: c.medio_pago || null,
         monto,
       });
     });
@@ -2574,56 +2586,68 @@ function renderComisionesPago(docAlejandra, docOtro){
   }
   const nombreCorto = d => d.nombre.split(' ').slice(0,2).join(' ');
 
-  // Anota a cada fila de cabina quién cobró.
+  // Cada servicio de cabina se parte en la porción pagada en efectivo (no pasa por terminal) y la
+  // porción pagada con tarjeta/transferencia (la cobra la terminal de la consulta). La comisión de cada
+  // doctor se reparte en la misma proporción.
   const filas = cabina.map(r => {
+    const fEf = r.monto > 0 ? (r.efectivo || 0) / r.monto : 0;
     const holder = comDoctorDeTerminal(r.terminal, docAlejandra, docOtro);
-    return { ...r, holder };
+    const noEf = r.monto - (r.efectivo || 0);
+    return {
+      ...r, holder, fEf,
+      efMonto: r.efectivo || 0, efOtro: r.comOtro * fEf, efAle: r.comAlejandra * fEf,
+      tMonto: noEf, tOtro: r.comOtro * (1 - fEf), tAle: r.comAlejandra * (1 - fEf),
+    };
   });
-  const cobradas = filas.filter(r => r.holder);
-  const sueltas = filas.filter(r => !r.holder);
+  const conTerminalDoctor = filas.filter(r => r.holder && r.tMonto > 0.005);
+  const otrasTerminales = filas.filter(r => !r.holder && r.tMonto > 0.005);
+  const conEfectivo = filas.filter(r => r.efMonto > 0.005);
 
-  // Por doctor: lo que cobró su terminal, lo que de eso le toca a él y lo que le toca al otro.
   const acum = d => {
-    const esAlejandra = d.id === docAlejandra.id;
-    const propia = r => esAlejandra ? r.comAlejandra : r.comOtro;
-    const delOtro = r => esAlejandra ? r.comOtro : r.comAlejandra;
-    const enSuTerminal = cobradas.filter(r => r.holder.id === d.id);
-    const enTerminalDelOtro = cobradas.filter(r => r.holder.id !== d.id);
+    const esAle = d.id === docAlejandra.id;
+    const propia = r => esAle ? r.tAle : r.tOtro;
+    const delOtro = r => esAle ? r.tOtro : r.tAle;
+    const propiaEf = r => esAle ? r.efAle : r.efOtro;
+    const enSu = conTerminalDoctor.filter(r => r.holder.id === d.id);
+    const enOtro = conTerminalDoctor.filter(r => r.holder.id !== d.id);
     return {
       doctor: d,
-      n: enSuTerminal.length,
-      cobrado: enSuTerminal.reduce((a,r)=> a + r.monto, 0),
-      suyoEnSuTerminal: enSuTerminal.reduce((a,r)=> a + propia(r), 0),
-      debeAlOtro: enSuTerminal.reduce((a,r)=> a + delOtro(r), 0),
-      nOtro: enTerminalDelOtro.length,
-      cobradoPorElOtro: enTerminalDelOtro.reduce((a,r)=> a + r.monto, 0),
-      leDebenDelOtro: enTerminalDelOtro.reduce((a,r)=> a + propia(r), 0),
+      n: enSu.length,
+      cobrado: enSu.reduce((a,r)=> a + r.tMonto, 0),
+      suyoEnSuTerminal: enSu.reduce((a,r)=> a + propia(r), 0),
+      debeAlOtro: enSu.reduce((a,r)=> a + delOtro(r), 0),
+      nOtro: enOtro.length,
+      leDebenDelOtro: enOtro.reduce((a,r)=> a + propia(r), 0),
+      enEfectivo: conEfectivo.reduce((a,r)=> a + propiaEf(r), 0),
+      enOtras: otrasTerminales.reduce((a,r)=> a + propia(r), 0),
     };
   };
   const a = acum(docOtro), b = acum(docAlejandra); // a = Carlos, b = Alejandra
-  const debeA = a.debeAlOtro;   // Carlos le debe a Alejandra
-  const debeB = b.debeAlOtro;   // Alejandra le debe a Carlos
+  const debeA = a.debeAlOtro, debeB = b.debeAlOtro;
   const neto = debeA - debeB;
+  const totalCosm = cabina.reduce((acc,r)=> acc + r.comCosmAtiende + r.comCosmDueno, 0);
+  const efectivoTotal = conEfectivo.reduce((acc,r)=> acc + r.efMonto, 0);
 
-  const totalCosm = cabina.reduce((a,r)=> a + r.comCosmAtiende + r.comCosmDueno, 0);
-
-  document.getElementById('com-pago-grid').innerHTML = [a, b].map(x => `
+  document.getElementById('com-pago-grid').innerHTML = [a, b].map(x => {
+    const saldo = x.leDebenDelOtro - x.debeAlOtro;
+    return `
     <div class="com-pago-card">
       <h3>${esc2(x.doctor.nombre)}</h3>
-      <div class="fila"><span>Cabina cobrada en su terminal (${x.n} servicio${x.n===1?'':'s'})</span><b>${fmtMoney(x.cobrado)}</b></div>
+      <div class="fila"><span>Cabina cobrada con tarjeta en su terminal (${x.n} servicio${x.n===1?'':'s'})</span><b>${fmtMoney(x.cobrado)}</b></div>
       <div class="fila"><span>De eso, le corresponde a ${esc2(nombreCorto(x.doctor))}</span><b>${fmtMoney(x.suyoEnSuTerminal)}</b></div>
       <div class="fila"><span>De eso, es del otro doctor (debe transferir)</span><b>${fmtMoney(x.debeAlOtro)}</b></div>
       <div class="fila"><span>Cobrado en la terminal del otro que le corresponde (${x.nOtro} servicio${x.nOtro===1?'':'s'})</span><b>${fmtMoney(x.leDebenDelOtro)}</b></div>
-      <div class="fila dif"><span>Saldo neto</span><b class="${(x.leDebenDelOtro - x.debeAlOtro) >= 0 ? 'pos' : 'neg'}">${(x.leDebenDelOtro - x.debeAlOtro) >= 0 ? '+' : '−'}${fmtMoney(Math.abs(x.leDebenDelOtro - x.debeAlOtro))}</b></div>
-    </div>`).join('');
+      <div class="fila dif"><span>Saldo neto de terminales</span><b class="${saldo >= 0 ? 'pos' : 'neg'}">${saldo >= 0 ? '+' : '−'}${fmtMoney(Math.abs(saldo))}</b></div>
+      <div class="fila"><span>Cabina en efectivo: le corresponde</span><b>${fmtMoney(x.enEfectivo)}</b></div>
+      ${x.enOtras > 0.005 ? `<div class="fila"><span>Cabina en otras terminales: le corresponde</span><b>${fmtMoney(x.enOtras)}</b></div>` : ''}
+      <div class="fila dif"><span>Total que le corresponde de cabina</span><b>${fmtMoney(x.suyoEnSuTerminal + x.leDebenDelOtro + x.enEfectivo + x.enOtras)}</b></div>
+    </div>`;
+  }).join('');
 
-  const sueltasTotal = sueltas.reduce((acc,r)=> acc + r.monto, 0);
-  const notaSueltas = sueltas.length
-    ? ` Quedan ${fmtMoney(sueltasTotal)} de cabina en ${sueltas.length} servicio${sueltas.length===1?'':'s'} cobrados fuera de las terminales de los doctores, que no entran en este saldo.`
-    : '';
+  const notaEfectivo = efectivoTotal > 0.005 ? ` Aparte hay ${fmtMoney(efectivoTotal)} de cabina pagados en efectivo, que no pasan por terminal y no entran en este saldo.` : '';
   const notaCosm = ` Comisión de cosmetólogas de esta cabina (se paga aparte): ${fmtMoney(totalCosm)}.`;
   if(Math.abs(neto) < 1){
-    banner.innerHTML = `<div class="com-transfer-banner ok"><div class="ico">✅</div><div class="txt"><div class="t1">Cuentas igualadas</div><div class="t2">Ninguno de los dos le debe nada al otro por la cabina de este periodo.${notaSueltas}${notaCosm}</div></div></div>`;
+    banner.innerHTML = `<div class="com-transfer-banner ok"><div class="ico">✅</div><div class="txt"><div class="t1">Cuentas igualadas</div><div class="t2">Ninguno de los dos le debe nada al otro por la cabina cobrada en terminales.${notaEfectivo}${notaCosm}</div></div></div>`;
   } else {
     const deudor = neto > 0 ? docOtro : docAlejandra;
     const acreedor = neto > 0 ? docAlejandra : docOtro;
@@ -2631,24 +2655,29 @@ function renderComisionesPago(docAlejandra, docOtro){
       <div class="ico">🤝</div>
       <div class="txt">
         <div class="t1">${esc2(deudor.nombre)} le transfiere a ${esc2(acreedor.nombre)}: ${fmtMoney(Math.abs(neto))}</div>
-        <div class="t2">${esc2(nombreCorto(docOtro))} cobró en su terminal cabina de la que ${fmtMoney(debeA)} corresponden a ${esc2(nombreCorto(docAlejandra))}; ${esc2(nombreCorto(docAlejandra))} cobró en la suya cabina de la que ${fmtMoney(debeB)} corresponden a ${esc2(nombreCorto(docOtro))}. Compensadas las dos deudas, queda esta transferencia.${notaSueltas}${notaCosm}</div>
+        <div class="t2">${esc2(nombreCorto(docOtro))} cobró en su terminal cabina de la que ${fmtMoney(debeA)} corresponden a ${esc2(nombreCorto(docAlejandra))}; ${esc2(nombreCorto(docAlejandra))} cobró en la suya cabina de la que ${fmtMoney(debeB)} corresponden a ${esc2(nombreCorto(docOtro))}. Compensadas las dos deudas, queda esta transferencia.${notaEfectivo}${notaCosm}</div>
       </div>
     </div>`;
   }
 
-  // ── Cabina cobrada fuera de las terminales de los doctores ──
-  const porTerminal = {};
-  sueltas.forEach(r => {
-    const k = r.terminal || '(sin terminal asignada)';
-    const t = porTerminal[k] || (porTerminal[k] = { n:0, monto:0, comOtro:0, comAlejandra:0 });
-    t.n++; t.monto += r.monto; t.comOtro += r.comOtro; t.comAlejandra += r.comAlejandra;
+  // ── Cabina cobrada fuera de las terminales de los doctores: efectivo y otras terminales ──
+  const grupos = [];
+  if(conEfectivo.length){
+    grupos.push({ k:'Efectivo', n:conEfectivo.length, monto:efectivoTotal,
+      comOtro: conEfectivo.reduce((x,r)=> x + r.efOtro, 0), comAle: conEfectivo.reduce((x,r)=> x + r.efAle, 0) });
+  }
+  const porTerm = {};
+  otrasTerminales.forEach(r => {
+    const k = r.terminal || 'Sin terminal';
+    const t = porTerm[k] || (porTerm[k] = { k, n:0, monto:0, comOtro:0, comAle:0 });
+    t.n++; t.monto += r.tMonto; t.comOtro += r.tOtro; t.comAle += r.tAle;
   });
-  const keys = Object.keys(porTerminal);
-  document.getElementById('com-pago-otros').innerHTML = keys.length
-    ? `<div class="tx-table-wrap"><table class="tx-table"><thead><tr><th>Terminal</th><th>Servicios</th><th>Cobrado</th><th>Le toca a ${esc2(nombreCorto(docOtro))}</th><th>Le toca a ${esc2(nombreCorto(docAlejandra))}</th></tr></thead><tbody>${
-        keys.map(k => { const t = porTerminal[k]; return `<tr><td>${esc2(k)}</td><td>${t.n}</td><td>${fmtMoney(t.monto)}</td><td>${fmtMoney(t.comOtro)}</td><td>${fmtMoney(t.comAlejandra)}</td></tr>`; }).join('')
+  Object.values(porTerm).forEach(t => grupos.push(t));
+  document.getElementById('com-pago-otros').innerHTML = grupos.length
+    ? `<div class="tx-table-wrap"><table class="tx-table"><thead><tr><th>Cobrado en</th><th>Servicios</th><th>Cobrado</th><th>Le toca a ${esc2(nombreCorto(docOtro))}</th><th>Le toca a ${esc2(nombreCorto(docAlejandra))}</th></tr></thead><tbody>${
+        grupos.map(t => `<tr><td>${esc2(t.k)}</td><td>${t.n}</td><td>${fmtMoney(t.monto)}</td><td>${fmtMoney(t.comOtro)}</td><td>${fmtMoney(t.comAle)}</td></tr>`).join('')
       }</tbody></table></div>`
-    : '<div class="empty-note">Toda la cabina de este periodo se cobró en terminales de los doctores.</div>';
+    : '<div class="empty-note">Toda la cabina de este periodo se cobró con tarjeta en terminales de los doctores.</div>';
 
   // ── Detalle servicio por servicio ──
   const LIMITE = 400;
@@ -2656,15 +2685,15 @@ function renderComisionesPago(docAlejandra, docOtro){
   const visibles = ordenadas.slice(0, LIMITE);
   document.getElementById('com-pago-detalle-count').textContent = `(${filas.length} servicios${filas.length > LIMITE ? ` · mostrando los ${LIMITE} más recientes` : ''})`;
   const quienDebe = r => {
-    if(!r.holder) return '<span style="color:var(--g4)">Pendiente de asignar</span>';
-    const esAlejandraHolder = r.holder.id === docAlejandra.id;
-    const monto = esAlejandraHolder ? r.comOtro : r.comAlejandra;
-    const acreedor = esAlejandraHolder ? docOtro : docAlejandra;
+    if(!r.holder || r.tMonto <= 0.005) return '<span style="color:var(--g4)">—</span>';
+    const esAleHolder = r.holder.id === docAlejandra.id;
+    const monto = esAleHolder ? r.tOtro : r.tAle;
+    const acreedor = esAleHolder ? docOtro : docAlejandra;
     if(monto < 0.005) return '<span style="color:var(--g4)">—</span>';
     return `${esc2(nombreCorto(r.holder))} → ${esc2(nombreCorto(acreedor))}: <b>${fmtMoney(monto)}</b>`;
   };
   document.getElementById('com-pago-detalle').innerHTML = visibles.length
-    ? `<table class="tx-table"><thead><tr><th>Fecha</th><th>Paciente</th><th>Servicio</th><th>Atendió</th><th>Dueño</th><th>Terminal</th><th>Valor</th><th>Com. ${esc2(nombreCorto(docOtro))}</th><th>Com. ${esc2(nombreCorto(docAlejandra))}</th><th>Quién debe</th></tr></thead><tbody>${
+    ? `<table class="tx-table"><thead><tr><th>Fecha</th><th>Paciente</th><th>Servicio</th><th>Atendió</th><th>Dueño</th><th>Terminal</th><th>Valor</th><th>En efectivo</th><th>Com. ${esc2(nombreCorto(docOtro))}</th><th>Com. ${esc2(nombreCorto(docAlejandra))}</th><th>Quién debe (tarjeta)</th></tr></thead><tbody>${
         visibles.map(r => `<tr>
           <td>${fmtFechaCorta(r.fecha)}</td>
           <td>${esc2(r.pacienteNombre)}</td>
@@ -2673,6 +2702,7 @@ function renderComisionesPago(docAlejandra, docOtro){
           <td>${r.duenoNombre ? esc2(r.duenoNombre) : '—'}</td>
           <td>${esc2(r.terminal || '(sin terminal)')}</td>
           <td>${fmtMoney(r.monto)}</td>
+          <td>${r.efMonto > 0.005 ? fmtMoney(r.efMonto) : '—'}</td>
           <td>${fmtMoney(r.comOtro)}</td>
           <td>${fmtMoney(r.comAlejandra)}</td>
           <td>${quienDebe(r)}</td>
@@ -3166,6 +3196,7 @@ document.getElementById('reg-btn-2pago').addEventListener('click', ()=>{
     document.getElementById('reg-monto2').value = '0';
   }
   regServRefrescar();
+  regActualizarTerminal();
   updateResumen();
 });
 
@@ -3188,8 +3219,26 @@ document.getElementById('reg-novino').addEventListener('change', (e)=>{
       regServRefrescar();
     }
   }
+  regActualizarTerminal();
   updateResumen();
 });
+
+// ── Regla: pago 100% en efectivo → no aplica terminal ──
+// El efectivo no pasa por ninguna terminal, así que mientras todos los medios elegidos sean Efectivo
+// el campo Terminal se limpia y se inactiva. Si hay un 2do pago con tarjeta, la terminal sí aplica.
+const esMedioEfectivo = m => /^efectivo$/i.test((m || '').trim());
+function regActualizarTerminal(){
+  const sel = document.getElementById('reg-terminal');
+  const medio = document.getElementById('reg-medio').value;
+  const hay2 = document.getElementById('reg-grp-medio2').style.display !== 'none';
+  const medio2 = hay2 ? document.getElementById('reg-medio2').value : '';
+  const todoEfectivo = esMedioEfectivo(medio) && (!hay2 || !medio2 || esMedioEfectivo(medio2));
+  const noVino = document.getElementById('reg-novino').checked;
+  if(todoEfectivo) sel.value = '';
+  sel.disabled = noVino || todoEfectivo;
+  document.getElementById('reg-terminal-hint').style.display = (todoEfectivo && !noVino) ? '' : 'none';
+}
+['reg-medio','reg-medio2'].forEach(id => document.getElementById(id).addEventListener('change', regActualizarTerminal));
 
 // ── Guardar ──
 async function guardarRegistro(){
@@ -3245,7 +3294,8 @@ async function guardarRegistro(){
   if(!noVino && !medio){ alertaCampo('reg-medio', 'Selecciona el medio de pago.'); return; }
   if(grpMedio2Visible && !medio2){ alertaCampo('reg-medio2', 'Selecciona el 2do medio de pago o quítalo.'); return; }
 
-  const terminalId = document.getElementById('reg-terminal').value;
+  const todoEfectivoGuardar = esMedioEfectivo(medio) && (!grpMedio2Visible || !medio2 || esMedioEfectivo(medio2));
+  const terminalId = todoEfectivoGuardar ? '' : document.getElementById('reg-terminal').value;
   const factura = document.getElementById('reg-factura').checked;
   const notas = document.getElementById('reg-notas').value.trim();
   const procedenciaId = document.getElementById('reg-procedencia').value;
@@ -3401,6 +3451,7 @@ function limpiarRegistroCompleto(){
   document.getElementById('reg-factura').checked = false;
   document.getElementById('reg-novino').checked = false;
   ['reg-medio','reg-terminal','reg-btn-2pago','reg-factura'].forEach(id=> document.getElementById(id).disabled = false);
+  document.getElementById('reg-terminal-hint').style.display = 'none';
   document.getElementById('reg-grp-monto1').style.display = 'none';
   document.getElementById('reg-grp-medio2').style.display = 'none';
   document.getElementById('reg-grp-monto2').style.display = 'none';
@@ -3797,6 +3848,8 @@ function abrirModalEditar(id){
   selEditMedio.value = r.medio_pago || '';
   poblarSelect('edit-terminal', CATALOGOS.terminales.map(t=>({value:t.id, label:t.nombre})), '— Sin terminal —');
   document.getElementById('edit-terminal').value = r.terminal_id || '';
+  EDIT_MEDIO2 = r.medio_pago_2 || null;
+  editActualizarTerminal();
   document.getElementById('edit-num-factura').value = r.num_factura || '';
   document.getElementById('edit-factura').checked = !!r.factura;
   document.getElementById('edit-notas').value = r.notas || '';
@@ -3806,6 +3859,16 @@ function cerrarModalEditar(){
   document.getElementById('modal-editar').classList.remove('show');
   HIST_EDIT_ID = null;
 }
+let EDIT_MEDIO2 = null;
+function editActualizarTerminal(){
+  const sel = document.getElementById('edit-terminal');
+  // El modal de edición solo edita el 1er medio; si la consulta tiene un 2do pago con tarjeta, la terminal sigue aplicando.
+  const todoEfectivo = esMedioEfectivo(document.getElementById('edit-medio').value) && (!EDIT_MEDIO2 || esMedioEfectivo(EDIT_MEDIO2));
+  if(todoEfectivo) sel.value = '';
+  sel.disabled = todoEfectivo;
+  document.getElementById('edit-terminal-hint').style.display = todoEfectivo ? '' : 'none';
+}
+document.getElementById('edit-medio').addEventListener('change', editActualizarTerminal);
 document.getElementById('edit-btn-cerrar').addEventListener('click', cerrarModalEditar);
 document.getElementById('edit-btn-cancelar').addEventListener('click', cerrarModalEditar);
 
@@ -3833,7 +3896,7 @@ document.getElementById('edit-btn-guardar').addEventListener('click', async ()=>
     doctor_id: doctorIdEdit,
     monto: montoTotal,
     medio_pago: document.getElementById('edit-medio').value || null,
-    terminal_id: document.getElementById('edit-terminal').value || null,
+    terminal_id: (esMedioEfectivo(document.getElementById('edit-medio').value) && (!EDIT_MEDIO2 || esMedioEfectivo(EDIT_MEDIO2))) ? null : (document.getElementById('edit-terminal').value || null),
     num_factura: document.getElementById('edit-num-factura').value.trim() || null,
     factura: document.getElementById('edit-factura').checked,
     notas: document.getElementById('edit-notas').value.trim() || null,
