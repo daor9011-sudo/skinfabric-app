@@ -109,7 +109,7 @@ body{font-family:var(--font-b);min-height:100vh;color:var(--navy);background:#ee
 main.appmain{padding:22px 26px 40px;max-width:1250px;margin:0 auto}
 /* Solo Gastos usa el ancho extra de main.appmain (se sentía muy apretado). El resto de pantallas
    vuelve a su ancho de siempre (1080px), centrado, para no verse estiradas de más. */
-#app-screen-registro,#app-screen-historial,#app-screen-cierre,#app-screen-dash,#app-screen-prm,#app-screen-personal{max-width:1080px;margin:0 auto}
+#app-screen-registro,#app-screen-historial,#app-screen-cierre,#app-screen-dash,#app-screen-comisiones,#app-screen-prm,#app-screen-personal{max-width:1080px;margin:0 auto}
 .card{background:#fff;border-radius:14px;box-shadow:0 1px 2px rgba(11,22,40,.04),0 12px 28px -8px rgba(11,22,40,.14);padding:20px 22px 18px;position:relative;overflow:hidden}
 .card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--teal),var(--navy2))}
 .tab-title{font-family:var(--font-d);font-size:15.5px;font-weight:800;color:var(--navy);padding-bottom:9px;margin-bottom:14px;border-bottom:1px solid var(--g2);display:flex;align-items:center;gap:7px;justify-content:space-between}
@@ -599,6 +599,72 @@ main.appmain{padding:22px 26px 40px;max-width:1250px;margin:0 auto}
 .cat-info-card .t{font-size:11px;font-weight:800;margin-bottom:3px;display:flex;align-items:center;gap:6px}
 .cat-info-card .d{font-size:10px;color:var(--g6);line-height:1.45}
 .kpi-card.doc-color{border-left:4px solid var(--navy2)}
+
+/* ══════════ MÓDULO DE COMISIONES ══════════ */
+.com-periodo-bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.com-periodo-bar select, .com-periodo-bar input[type="date"]{background:#fff;border:1px solid var(--g2);border-radius:8px;padding:8px 10px;font-size:12px;color:var(--navy);font-family:inherit}
+.com-periodo-bar .sep{font-size:11px;color:var(--g6)}
+
+.rubro-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:16px}
+.rubro{border:1.5px solid var(--g2);border-radius:12px;padding:16px}
+.rubro.cabina{border-color:#D2B4DE;background:#FBF7FD}
+.rubro h3{margin:0 0 2px;font-family:var(--font-d);font-size:14px}
+.rubro .sub{font-size:11px;color:var(--g6);margin-bottom:12px}
+.rubro .fila{display:flex;justify-content:space-between;gap:8px;font-size:12.5px;padding:5px 0;border-top:1px solid var(--g1)}
+.rubro .fila:first-of-type{border-top:none}
+.rubro .fila b{font-family:var(--font-d);font-variant-numeric:tabular-nums}
+.rubro .nota{margin-top:10px;padding-top:8px;border-top:1px dashed var(--g2);font-size:10.5px;line-height:1.4;color:var(--g6)}
+@media (max-width:700px){.rubro-grid{grid-template-columns:1fr}}
+
+.persona-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:16px}
+.persona{border:1px solid var(--g2);border-radius:12px;padding:14px;position:relative;overflow:hidden;background:#fff;min-width:0}
+.persona::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.persona.doc1::before{background:var(--teal)}
+.persona.doc2::before{background:var(--navy2)}
+.persona.cosm::before{background:#C8820A}
+.persona .nombre{font-weight:700;font-size:13px}
+.persona .rol{font-size:10.5px;color:var(--g6);margin-bottom:10px}
+.persona .fila{display:flex;justify-content:space-between;gap:8px;font-size:12px;padding:4px 0;border-top:1px solid var(--g1)}
+.persona .fila:first-of-type{border-top:none}
+.persona .fila span{white-space:nowrap}
+.persona .fila b{font-family:var(--font-d);white-space:nowrap;font-variant-numeric:tabular-nums}
+.persona .total-block{margin-top:9px;padding-top:9px;border-top:1.5px solid var(--g2)}
+.persona .total-label{font-size:10px;font-weight:800;letter-spacing:.3px;text-transform:uppercase;color:var(--g6)}
+.persona .total-value{font-family:var(--font-d);font-size:19px;font-weight:700;color:var(--teal);margin-top:2px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.persona .cosm-fila{padding:6px 0;border-top:1px solid var(--g1)}
+.persona .cosm-fila:first-of-type{border-top:none}
+.persona .cf-label{font-size:10.5px;color:var(--g6);display:flex;justify-content:space-between}
+.persona .cf-pct{font-weight:800;color:#9A6010}
+.persona .cf-calc{display:flex;align-items:baseline;gap:5px;margin-top:2px}
+.persona .cf-base{font-size:11.5px;color:var(--g6);font-variant-numeric:tabular-nums;white-space:nowrap}
+.persona .cf-arrow{font-size:10px;color:var(--g4)}
+.persona .cf-com{font-family:var(--font-d);font-size:13px;font-weight:700;white-space:nowrap;font-variant-numeric:tabular-nums;margin-left:auto}
+@media (max-width:900px){.persona-grid{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:560px){.persona-grid{grid-template-columns:1fr}}
+
+.chip{display:inline-block;padding:3px 8px;border-radius:999px;font-size:10.5px;font-weight:700;white-space:nowrap}
+.chip-100{background:var(--teal-soft);color:#0F7A7A}
+.chip-7030{background:#EAF0FC;color:#2452B8}
+.chip-cosm{background:#FDF1E0;color:#9A6010}
+.chip-5050{background:#F5F0FC;color:#7D3C98}
+
+.com-pago-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:14px}
+@media (max-width:700px){.com-pago-grid{grid-template-columns:1fr}}
+.com-pago-card{border:1.5px solid var(--g2);border-radius:12px;padding:16px;background:#fff}
+.com-pago-card h3{margin:0 0 10px;font-family:var(--font-d);font-size:14px}
+.com-pago-card .fila{display:flex;justify-content:space-between;gap:8px;font-size:12.5px;padding:7px 0;border-top:1px solid var(--g1)}
+.com-pago-card .fila:first-of-type{border-top:none}
+.com-pago-card .fila b{font-family:var(--font-d);font-variant-numeric:tabular-nums}
+.com-pago-card .fila.dif b.pos{color:#1B7A4D}
+.com-pago-card .fila.dif b.neg{color:#B23B3B}
+.com-transfer-banner{border-radius:12px;padding:16px 18px;margin-bottom:14px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.com-transfer-banner.ok{background:var(--teal-soft);border:1.5px solid rgba(42,191,191,.4)}
+.com-transfer-banner.pend{background:#FFF6E2;border:1.5px solid #F0D18A}
+.com-transfer-banner .ico{font-size:24px}
+.com-transfer-banner .txt{flex:1;min-width:200px}
+.com-transfer-banner .txt .t1{font-size:13px;font-weight:800;color:var(--navy)}
+.com-transfer-banner .txt .t2{font-size:11.5px;color:var(--g6);margin-top:2px;line-height:1.4}
+.com-nota-box{background:var(--g1);border-left:3px solid var(--g4);border-radius:8px;padding:10px 12px;font-size:11px;color:var(--g6);line-height:1.5;margin-bottom:14px}
 </style>
 </head>
 <body>
@@ -708,6 +774,7 @@ main.appmain{padding:22px 26px 40px;max-width:1250px;margin:0 auto}
       <button type="button" data-screen2="historial">🗂️ Historial</button>
       <button type="button" data-screen2="cierre">🧾 Cierre</button>
       <button type="button" data-screen2="dash">📊 Dashboard</button>
+      <button type="button" data-screen2="comisiones" id="nav-btn-comisiones" style="display:none">💰 Comisiones</button>
       <button type="button" data-screen2="prm">💬 PRM/CRM</button>
       <button type="button" data-screen2="gastos" id="nav-btn-gastos" style="display:none">💸 Gastos</button>
     </div>
@@ -793,9 +860,11 @@ main.appmain{padding:22px 26px 40px;max-width:1250px;margin:0 auto}
           <option value="7">7 días</option>
           <option value="30" selected>30 días</option>
           <option value="90">90 días</option>
+          <option value="mes">Mes específico</option>
           <option value="anio">Año</option>
           <option value="todo">Todo</option>
         </select>
+        <input type="month" id="hist-mes" style="display:none"/>
         <select id="hist-tipo"><option value="">Todos los servicios</option></select>
         <select id="hist-medio"><option value="">Todos los medios</option></select>
       </div>
@@ -921,6 +990,44 @@ main.appmain{padding:22px 26px 40px;max-width:1250px;margin:0 auto}
         <div class="fac2"><div class="chart-title"><span>🩺 Ingreso por doctor/cosmetólogo</span></div><div id="chartDoc-wrap" style="height:190px"><canvas id="chartDoc"></canvas></div></div>
       </div>
       <div class="fac2" style="margin-bottom:10px"><div class="chart-title"><span>💳 Medios de pago</span></div><div style="height:210px"><canvas id="chartPago"></canvas></div></div>
+    </div>
+    <div class="card screen2" id="app-screen-comisiones">
+      <div class="tab-title"><span>💰 Comisiones</span></div>
+      <div class="com-periodo-bar">
+        <span class="sep">Mes:</span>
+        <input type="month" id="com-mes"/>
+        <span class="sep">o rango:</span>
+        <input type="date" id="com-desde"/>
+        <span class="sep">a</span>
+        <input type="date" id="com-hasta"/>
+        <button class="btn-sm btn-outline" id="com-btn-todo" type="button">Ver todo</button>
+      </div>
+
+      <div class="prm-tabs">
+        <button type="button" class="prm-tab-btn act" data-target="com-resumen-panel">📊 Resumen</button>
+        <button type="button" class="prm-tab-btn" data-target="com-pago-panel">🤝 Pago entre doctores</button>
+      </div>
+
+      <div class="subpanel active" id="com-resumen-panel">
+        <div class="kpi-grid cols4" id="com-kpis"></div>
+
+        <div class="sec-title">Por rubro — producción real (quién la atendió)</div>
+        <div class="rubro-grid" id="com-rubro-grid"></div>
+
+        <div class="sec-title">Resumen por persona — comisión final</div>
+        <div class="persona-grid" id="com-persona-grid"></div>
+
+        <div class="sec-title">Detalle de servicios <span style="font-weight:600;text-transform:none;letter-spacing:0;font-size:10.5px" id="com-detalle-count"></span></div>
+        <div class="tx-table-wrap" id="com-detalle-wrap"><div class="empty-note">Cargando...</div></div>
+      </div>
+
+      <div class="subpanel" id="com-pago-panel">
+        <div class="com-nota-box">💡 Esta vista compara, para cada doctor/a, lo que efectivamente cobró su propia terminal contra lo que le corresponde según las reglas de comisión. La diferencia es lo que hay que transferirse entre ellos para quedar a mano. No incluye la comisión de las cosmetólogas (se paga aparte) ni el dinero sin terminal asignada — ambos se muestran por separado, abajo.</div>
+        <div id="com-transfer-banner"></div>
+        <div class="com-pago-grid" id="com-pago-grid"></div>
+        <div class="sec-title">Otras terminales (fuera de este cálculo)</div>
+        <div id="com-pago-otros"></div>
+      </div>
     </div>
     <div class="card screen2" id="app-screen-prm">
       <div class="tab-title"><span>💬 PRM — Pacientes</span></div>
@@ -1485,9 +1592,11 @@ function entrarAlShell(perfil){
 
   const showDash = perfil.permisos?.puede_ver_dashboard === true;
   const showGastos = perfil.permisos?.puede_ver_gastos === true;
+  const showComisiones = perfil.permisos?.puede_ver_comisiones === true;
   const showConfig = perfil.rol === 'admin';
   document.querySelector('[data-screen2="dash"]').classList.toggle('locked', !showDash);
   document.getElementById('nav-btn-gastos').style.display = showGastos ? '' : 'none';
+  document.getElementById('nav-btn-comisiones').style.display = showComisiones ? '' : 'none';
   document.getElementById('btn-config-header').style.display = showConfig ? 'inline-flex' : 'none';
   window.MI_ROL_ADMIN = perfil.rol === 'admin';
   window.MI_PUEDE_ELIMINAR_PAPELERA = perfil.rol === 'admin' && perfil.permisos?.puede_eliminar_papelera !== false;
@@ -1531,6 +1640,7 @@ function refrescarPantallaActivaPorRealtime(){
     case 'app-screen-dash': cargarDashboard(); break;
     case 'app-screen-prm': cargarInactivos(); cargarNoVinieron(); break;
     case 'app-screen-gastos': cargarGastos(); break;
+    case 'app-screen-comisiones': cargarComisiones(); break;
   }
 }
 
@@ -2049,6 +2159,393 @@ document.querySelector('[data-screen2="gastos"]').addEventListener('click', ()=>
   cargarGastos();
 });
 poblarSelectGastoCategoria();
+
+// ============================================================
+// Módulo: Comisiones
+// ============================================================
+// Reglas de negocio confirmadas con la clínica (no viven en la base de datos, son conocimiento
+// del negocio): qué servicios usan equipo de cabina, y cuáles de esos usan un equipo DEDICADO
+// a un solo doctor en vez del equipo compartido. Si en el futuro cambia el catálogo de servicios
+// o se agregan equipos dedicados nuevos, esta lista es lo único que hay que tocar.
+const COM_SERVICIOS_CABINA = [
+  'Dermapen PDRN salmón','Tricopat','Dermapen pelo','Láser luz pulsada','Láser CO2','CO2 flash',
+  'Facial limpieza profunda','Facial hidratación','Hydrafacial delux','Hydrafacial platinum','Hydrafacial signature',
+  'IPL skin reset','Facial and body reset','Peelings','Facial efecto princesa','Depilación','Facial 3 en 1',
+];
+// Equipo dedicado a la Dra. Alejandra (el resto de la cabina es equipo compartido entre ambos doctores)
+const COM_SERVICIOS_EQUIPO_DEDICADO_ALEJANDRA = ['Depilación','Facial 3 en 1'];
+
+let COM_SERVICE_ROWS = [];
+let COM_TERMINAL_TOTALS = {};
+let comReqId = 0;
+
+// Identifica a los 2 doctores por nombre (hay exactamente 2 en la clínica). Se resuelve en vivo
+// contra CATALOGOS.personal en vez de guardar IDs fijos, para no romperse si algún día cambian.
+function comResolverDoctores(){
+  const docs = (CATALOGOS.personal || []).filter(p => p.rol === 'doctor');
+  const docAlejandra = docs.find(d => (d.nombre || '').toLowerCase().includes('alejandra')) || null;
+  const docOtro = docs.find(d => d.id !== docAlejandra?.id) || null;
+  return { docAlejandra, docOtro };
+}
+
+// El motor de reglas — aplica las 4 reglas de comisión confirmadas a un servicio individual.
+// Devuelve cuánto le toca a cada doctor y, si aplica, a la cosmetóloga que atendió y/o a la que
+// es dueña del paciente. Esto es un espejo exacto, fila por fila, de las reglas ya validadas:
+//  1) Dueño doctor + equipo compartido (o sin equipo de cabina) → 100% para el dueño.
+//  2) Dueño doctor + equipo dedicado del OTRO doctor → 70% dueño / 30% dueño del equipo.
+//  3) Cosmetóloga que atiende (y no es la dueña) → 3% para ella.
+//  4) Dueño del paciente es cosmetóloga → ella se lleva 5%, y el resto se reparte 50/50 entre
+//     los 2 doctores (sin importar equipo ni quién atendió). Un paciente SIN dueño asignado se
+//     trata igual (50/50), caso que aún no nos han confirmado pero es el default más razonable.
+function comCalcularFila(row, docAlejandra, docOtro){
+  const monto = row.monto;
+  const esCabina = COM_SERVICIOS_CABINA.includes(row.servicio);
+  const equipoDedicadoAlejandra = COM_SERVICIOS_EQUIPO_DEDICADO_ALEJANDRA.includes(row.servicio);
+
+  const comCosmAtiende = (row.atiendeRol === 'cosmetologo' && row.atiendeId && row.atiendeId !== row.duenoId) ? monto * 0.03 : 0;
+  // El 5% de "dueña del paciente" solo existe dentro de cabina — es la comisión por el trabajo
+  // de la cosmetóloga, no por simplemente figurar como dueña del paciente en el sistema. Si ese
+  // mismo paciente ve a un doctor para una consulta o procedimiento (fuera de cabina), ella no
+  // comisiona nada ahí: confirmado explícitamente para no repetir el error de antes.
+  const comCosmDueno = (row.duenoRol === 'cosmetologo' && esCabina) ? monto * 0.05 : 0;
+  const resto = monto - comCosmAtiende - comCosmDueno;
+
+  const duenoEsOtro = docOtro && row.duenoId === docOtro.id;
+  const duenoEsAlejandra = docAlejandra && row.duenoId === docAlejandra.id;
+  const atiendeEsOtro = docOtro && row.atiendeId === docOtro.id;
+  const atiendeEsAlejandra = docAlejandra && row.atiendeId === docAlejandra.id;
+
+  let comAlejandra = 0, comOtro = 0, regla = '—';
+  if(row.duenoRol === 'cosmetologo' && esCabina){
+    comAlejandra = resto * 0.5; comOtro = resto * 0.5;
+    regla = '50/50 · dueña cosmetóloga';
+  } else if(row.duenoRol === 'cosmetologo' && !esCabina){
+    // Fuera de cabina la dueña cosmetóloga no tiene nada que ver — el 100% es para el doctor
+    // que de verdad atendió esa consulta (no se reparte entre los 2 doctores, porque aquí no
+    // hay ningún conflicto de equipo que justifique partirlo).
+    if(atiendeEsOtro){ comOtro = resto; regla = '100% · doctor que atendió (fuera de cabina)'; }
+    else if(atiendeEsAlejandra){ comAlejandra = resto; regla = '100% · doctora que atendió (fuera de cabina)'; }
+    else { comAlejandra = resto * 0.5; comOtro = resto * 0.5; regla = '50/50 · sin doctor identificado'; }
+  } else if(!row.duenoId){
+    comAlejandra = resto * 0.5; comOtro = resto * 0.5;
+    regla = '50/50 · sin dueño asignado';
+  } else if(row.duenoRol === 'doctor'){
+    if(esCabina && equipoDedicadoAlejandra && duenoEsOtro){
+      comOtro = resto * 0.70; comAlejandra = resto * 0.30;
+      regla = '70/30 · equipo de ' + (docAlejandra?.nombre || 'Dra. Alejandra');
+    } else if(duenoEsOtro){
+      comOtro = resto; regla = '100% · dueño';
+    } else if(duenoEsAlejandra){
+      comAlejandra = resto; regla = '100% · dueña';
+    }
+  }
+  return { ...row, esCabina, comCosmAtiende, comCosmDueno, comAlejandra, comOtro, regla };
+}
+
+async function cargarComisiones(){
+  const miReqId = ++comReqId;
+  const wrap = document.getElementById('com-detalle-wrap');
+  wrap.innerHTML = '<div class="empty-note">Cargando...</div>';
+
+  const desde = document.getElementById('com-desde').value;
+  const hasta = document.getElementById('com-hasta').value;
+
+  let q = sb.from('consultas')
+    .select('id,fecha,monto,monto_2,doctor_id,terminal_id,no_vino,catalogo_terminales(nombre),pacientes!inner(nombre,dueno_id,dueno:personal!dueno_id(nombre,rol)),doctor:personal!doctor_id(nombre,rol),consulta_servicios(monto,tipo_servicio_id,atendido_por,catalogo_tipos_servicio(nombre),atendido:personal(nombre,rol))')
+    .eq('deleted', false)
+    .eq('no_vino', false)
+    .order('fecha', { ascending:false })
+    .limit(5000);
+  if(desde) q = q.gte('fecha', desde);
+  if(hasta) q = q.lte('fecha', hasta);
+
+  const { data, error } = await q;
+  if(miReqId !== comReqId) return;
+  if(error){
+    console.error('[SkinFabric] Error cargando comisiones:', error);
+    wrap.innerHTML = '<div class="empty-note">No se pudo cargar.</div>';
+    return;
+  }
+
+  const serviceRows = [];
+  const terminalTotals = {};
+  (data || []).forEach(c => {
+    const totalConsulta = Number(c.monto || 0) + Number(c.monto_2 || 0);
+    const termNombre = c.catalogo_terminales?.nombre || '(sin terminal asignada)';
+    if(!terminalTotals[termNombre]) terminalTotals[termNombre] = { monto:0, n:0 };
+    terminalTotals[termNombre].monto += totalConsulta;
+    terminalTotals[termNombre].n += 1;
+
+    const duenoId = c.pacientes?.dueno_id || null;
+    const duenoRol = c.pacientes?.dueno?.rol || null;
+    const duenoNombre = c.pacientes?.dueno?.nombre || null;
+
+    (c.consulta_servicios || []).forEach(cs => {
+      const monto = Number(cs.monto || 0);
+      if(monto <= 0) return;
+      const atiendeId = cs.atendido_por || c.doctor_id || null;
+      const atiendeRol = cs.atendido_por ? (cs.atendido?.rol || null) : (c.doctor?.rol || null);
+      const atiendeNombre = cs.atendido_por ? (cs.atendido?.nombre || '—') : (c.doctor?.nombre || '—');
+      serviceRows.push({
+        fecha: c.fecha,
+        pacienteNombre: c.pacientes?.nombre || '—',
+        duenoId, duenoRol, duenoNombre,
+        servicio: cs.catalogo_tipos_servicio?.nombre || '—',
+        atiendeId, atiendeRol, atiendeNombre,
+        monto,
+      });
+    });
+  });
+
+  const { docAlejandra, docOtro } = comResolverDoctores();
+  COM_SERVICE_ROWS = serviceRows.map(r => comCalcularFila(r, docAlejandra, docOtro));
+  COM_TERMINAL_TOTALS = terminalTotals;
+
+  renderComisionesResumen(docAlejandra, docOtro);
+  renderComisionesPago(docAlejandra, docOtro);
+}
+
+function renderComisionesResumen(docAlejandra, docOtro){
+  const rows = COM_SERVICE_ROWS;
+  const ingresoTotal = rows.reduce((a,r)=> a + r.monto, 0);
+  const comCosmTotal = rows.reduce((a,r)=> a + r.comCosmAtiende + r.comCosmDueno, 0);
+  const serviciosDuenaCosm = rows.filter(r => r.duenoRol === 'cosmetologo').length;
+
+  document.getElementById('com-kpis').innerHTML = `
+    <div class="kpi-card"><div class="ico">💰</div><div class="kpi-label">Ingreso total</div><div class="kpi-val">${fmtMoney(ingresoTotal)}</div></div>
+    <div class="kpi-card"><div class="ico">🧴</div><div class="kpi-label">Comisión cosmetólogas</div><div class="kpi-val">${fmtMoney(comCosmTotal)}</div></div>
+    <div class="kpi-card"><div class="ico">👤</div><div class="kpi-label">Servicios con dueña cosmetóloga</div><div class="kpi-val">${serviciosDuenaCosm}</div></div>
+    <div class="kpi-card"><div class="ico">🧾</div><div class="kpi-label">Servicios en el periodo</div><div class="kpi-val">${rows.length}</div></div>
+  `;
+
+  // ── Por rubro: PRODUCCIÓN real (quién la atendió), no comisión ──
+  const noCabina = rows.filter(r => !r.esCabina);
+  const cabina = rows.filter(r => r.esCabina);
+  const ingresoNoCabina = noCabina.reduce((a,r)=> a + r.monto, 0);
+  const ingresoCabina = cabina.reduce((a,r)=> a + r.monto, 0);
+
+  const sumarPor = (lista, nombre) => lista.filter(r => r.atiendeNombre === nombre).reduce((a,r)=> a + r.monto, 0);
+  const doctores = (CATALOGOS.personal || []).filter(p => p.rol === 'doctor');
+  const cosmetologas = (CATALOGOS.personal || []).filter(p => p.rol === 'cosmetologo');
+
+  const filasConsultas = doctores.map(d => {
+    const n = noCabina.filter(r => r.atiendeNombre === d.nombre).length;
+    const monto = sumarPor(noCabina, d.nombre);
+    return monto > 0 || n > 0 ? `<div class="fila"><span>Producción ${esc2(d.nombre)}</span><b>${fmtMoney(monto)}</b></div>` : '';
+  }).join('');
+
+  const cabinaCosm = cosmetologas.map(c => ({ nombre:c.nombre, monto: sumarPor(cabina, c.nombre) }));
+  const cabinaCosmTotal = cabinaCosm.reduce((a,c)=> a + c.monto, 0);
+  const cabinaDoctoresDirecto = cabina.filter(r => r.atiendeRol === 'doctor');
+  const cabinaDoctoresMonto = cabinaDoctoresDirecto.reduce((a,r)=> a + r.monto, 0);
+  const filasCabina = cabinaCosm.filter(c => c.monto > 0).map(c =>
+    `<div class="fila"><span>Producción ${esc2(c.nombre)}</span><b>${fmtMoney(c.monto)}</b></div>`
+  ).join('');
+  const notaCabina = cabinaDoctoresMonto > 0
+    ? `<div class="nota">+ ${fmtMoney(cabinaDoctoresMonto)} (${cabinaDoctoresDirecto.length} servicios) atendidos directo por los doctores en cabina — no se cuentan aquí, pero sí están incluidos en su comisión de cabina más abajo.</div>`
+    : '';
+
+  document.getElementById('com-rubro-grid').innerHTML = `
+    <div class="rubro">
+      <h3>🩺 Consultas y Procedimientos</h3>
+      <div class="sub">${noCabina.length} servicios · sin equipo de cabina · esto es producción, no comisión</div>
+      <div class="fila"><span>Ingreso total</span><b>${fmtMoney(ingresoNoCabina)}</b></div>
+      ${filasConsultas || '<div class="fila"><span>Sin datos en este periodo</span><b>—</b></div>'}
+    </div>
+    <div class="rubro cabina">
+      <h3>🛁 Cabina</h3>
+      <div class="sub">${cabina.length} servicios · usan equipo (compartido o dedicado) · producción por cosmetóloga</div>
+      <div class="fila"><span>Ingreso total</span><b>${fmtMoney(ingresoCabina)}</b></div>
+      ${filasCabina || '<div class="fila"><span>Sin datos en este periodo</span><b>—</b></div>'}
+      ${notaCabina}
+    </div>
+  `;
+
+  // ── Resumen por persona: comisión FINAL ya aplicadas las reglas ──
+  let personaHtml = '';
+  doctores.forEach((d, i) => {
+    const esAlejandra = d.id === docAlejandra?.id;
+    const valDe = r => esAlejandra ? r.comAlejandra : r.comOtro;
+    const comConsultas = noCabina.reduce((a,r)=> a + valDe(r), 0);
+    const comCabina = cabina.reduce((a,r)=> a + valDe(r), 0);
+    const total = comConsultas + comCabina;
+    const nServicios = rows.filter(r => r.duenoId === d.id).length;
+    personaHtml += `<div class="persona ${i===0?'doc1':'doc2'}">
+      <div class="nombre">${esc2(d.nombre)}</div>
+      <div class="rol">Doctor${d.nombre.toLowerCase().startsWith('dra')?'a':''} · dueño/a de ${nServicios} servicios</div>
+      <div class="fila"><span>Consultas y Proc.</span><b>${fmtMoney(comConsultas)}</b></div>
+      <div class="fila"><span>Cabina</span><b>${fmtMoney(comCabina)}</b></div>
+      <div class="total-block"><div class="total-label">Comisión total</div><div class="total-value">${fmtMoney(total)}</div></div>
+    </div>`;
+  });
+  cosmetologas.forEach(c => {
+    const clinicaRows = rows.filter(r => r.atiendeId === c.id && r.atiendeRol === 'cosmetologo' && r.atiendeId !== r.duenoId);
+    const propiosRows = rows.filter(r => r.duenoRol === 'cosmetologo' && r.duenoId === c.id && r.esCabina);
+    const montoClinica = clinicaRows.reduce((a,r)=> a + r.monto, 0);
+    const comClinica = clinicaRows.reduce((a,r)=> a + r.comCosmAtiende, 0);
+    const montoPropios = propiosRows.reduce((a,r)=> a + r.monto, 0);
+    const comPropios = propiosRows.reduce((a,r)=> a + r.comCosmDueno, 0);
+    const total = comClinica + comPropios;
+    personaHtml += `<div class="persona cosm">
+      <div class="nombre">${esc2(c.nombre)}</div>
+      <div class="rol">Cosmetóloga · 100% su comisión es de cabina</div>
+      <div class="cosm-fila"><div class="cf-label"><span>Px clínica</span><span class="cf-pct">3%</span></div><div class="cf-calc"><span class="cf-base">${fmtMoney(montoClinica)}</span><span class="cf-arrow">→</span><b class="cf-com">${fmtMoney(comClinica)}</b></div></div>
+      <div class="cosm-fila"><div class="cf-label"><span>Px propios</span><span class="cf-pct">5%</span></div><div class="cf-calc"><span class="cf-base">${fmtMoney(montoPropios)}</span><span class="cf-arrow">→</span><b class="cf-com">${fmtMoney(comPropios)}</b></div></div>
+      <div class="total-block"><div class="total-label">Comisión total</div><div class="total-value">${fmtMoney(total)}</div></div>
+    </div>`;
+  });
+  document.getElementById('com-persona-grid').innerHTML = personaHtml || '<div class="empty-note">Sin personal con comisión configurada.</div>';
+
+  // ── Detalle ──
+  const nombreOtro = docOtro?.nombre || 'Doctor';
+  const nombreAlejandra = docAlejandra?.nombre || 'Dra. Alejandra';
+  const detalle = rows.slice().sort((a,b)=> (a.fecha < b.fecha ? 1 : -1)).slice(0, 400);
+  document.getElementById('com-detalle-count').textContent = `(${rows.length} servicios en el periodo${rows.length>400 ? ', mostrando los 400 más recientes':''})`;
+  const reglaChip = regla => {
+    if(regla.startsWith('100%')) return `<span class="chip chip-100">${esc2(regla)}</span>`;
+    if(regla.startsWith('70/30')) return `<span class="chip chip-7030">${esc2(regla)}</span>`;
+    if(regla.startsWith('50/50')) return `<span class="chip chip-5050">${esc2(regla)}</span>`;
+    return `<span class="chip">${esc2(regla)}</span>`;
+  };
+  const filasHtml = detalle.map(r => `
+    <tr class="${r.duenoRol==='cosmetologo' ? 'duenacosm' : ''}">
+      <td>${fmtFechaCorta(r.fecha)}</td>
+      <td>${esc2(r.pacienteNombre)}</td>
+      <td>${r.duenoNombre ? esc2(r.duenoNombre) : '<span style="color:var(--g4)">— sin dueño —</span>'}</td>
+      <td>${esc2(r.servicio)}</td>
+      <td>${esc2(r.atiendeNombre)}</td>
+      <td>${reglaChip(r.regla)}</td>
+      <td>${fmtMoney(r.monto)}</td>
+      <td>${fmtMoney(r.comOtro)}</td>
+      <td>${fmtMoney(r.comAlejandra)}</td>
+      <td>${fmtMoney(r.comCosmAtiende + r.comCosmDueno)}</td>
+    </tr>`).join('');
+  document.getElementById('com-detalle-wrap').innerHTML = `
+    <table class="tx-table">
+      <thead><tr><th>Fecha</th><th>Paciente</th><th>Dueño Px</th><th>Servicio</th><th>Atendió</th><th>Regla aplicada</th><th>Monto</th><th>Com. ${esc2(nombreOtro)}</th><th>Com. ${esc2(nombreAlejandra)}</th><th>Com. cosmetóloga</th></tr></thead>
+      <tbody>${filasHtml || '<tr><td colspan="10" class="empty-note">Sin servicios en este periodo.</td></tr>'}</tbody>
+    </table>`;
+}
+
+function renderComisionesPago(docAlejandra, docOtro){
+  const doctores = [docOtro, docAlejandra].filter(Boolean);
+  const rows = COM_SERVICE_ROWS;
+
+  const entitlementDe = (doctor) => {
+    const esAlejandra = doctor.id === docAlejandra?.id;
+    return rows.reduce((a,r)=> a + (esAlejandra ? r.comAlejandra : r.comOtro), 0);
+  };
+  // La terminal del doctor se llama distinto a su nombre completo en personal (p.ej. "Dr. Carlos"
+  // vs. "Dr. Carlos Barrera"), así que se empareja por coincidencia de texto en vez de exigir
+  // que sean idénticos.
+  const comTerminalKeyDe = (doctor) => Object.keys(COM_TERMINAL_TOTALS).find(k => k !== '(sin terminal asignada)' && (doctor.nombre||'').toLowerCase().includes(k.toLowerCase()));
+  const terminalDe = (doctor) => COM_TERMINAL_TOTALS[comTerminalKeyDe(doctor)] || { monto:0, n:0 };
+
+  const info = doctores.map(d => {
+    const entitlement = entitlementDe(d);
+    const terminal = terminalDe(d);
+    const diferencia = terminal.monto - entitlement;
+    return { doctor:d, entitlement, terminal, diferencia };
+  });
+
+  document.getElementById('com-pago-grid').innerHTML = info.map(x => `
+    <div class="com-pago-card">
+      <h3>${esc2(x.doctor.nombre)}</h3>
+      <div class="fila"><span>Cobrado por su terminal (${x.terminal.n} consultas)</span><b>${fmtMoney(x.terminal.monto)}</b></div>
+      <div class="fila"><span>Le corresponde según comisiones</span><b>${fmtMoney(x.entitlement)}</b></div>
+      <div class="fila dif"><span>Diferencia</span><b class="${x.diferencia >= 0 ? 'pos' : 'neg'}">${x.diferencia >= 0 ? '+' : ''}${fmtMoney(x.diferencia)}</b></div>
+    </div>`).join('');
+
+  // ── Conclusión: ¿quién le transfiere a quién? ──
+  const banner = document.getElementById('com-transfer-banner');
+  if(info.length < 2){
+    banner.innerHTML = `<div class="com-transfer-banner pend"><div class="ico">⚠️</div><div class="txt"><div class="t1">Faltan datos</div><div class="t2">No se encontraron los 2 doctores de la clínica — revisa el catálogo de personal.</div></div></div>`;
+  } else {
+    const [a, b] = info; // a = docOtro, b = docAlejandra
+    const SIN_TERMINAL = COM_TERMINAL_TOTALS['(sin terminal asignada)'] || { monto:0, n:0 };
+    if(a.diferencia > 0 && b.diferencia < 0){
+      const monto = Math.min(a.diferencia, -b.diferencia);
+      banner.innerHTML = comBannerTransferencia(a.doctor.nombre, b.doctor.nombre, monto, SIN_TERMINAL);
+    } else if(b.diferencia > 0 && a.diferencia < 0){
+      const monto = Math.min(b.diferencia, -a.diferencia);
+      banner.innerHTML = comBannerTransferencia(b.doctor.nombre, a.doctor.nombre, monto, SIN_TERMINAL);
+    } else if(Math.abs(a.diferencia) < 1 && Math.abs(b.diferencia) < 1){
+      banner.innerHTML = `<div class="com-transfer-banner ok"><div class="ico">✅</div><div class="txt"><div class="t1">Cuentas igualadas</div><div class="t2">Ninguno de los dos doctores necesita transferirle nada al otro en este periodo.</div></div></div>`;
+    } else {
+      // Mismo signo en los dos: ninguno le debe al otro directamente — el desbalance está
+      // sentado en dinero sin terminal asignada (probablemente efectivo sin repartir todavía).
+      banner.innerHTML = `<div class="com-transfer-banner pend">
+        <div class="ico">💡</div>
+        <div class="txt">
+          <div class="t1">No hay transferencia directa entre ellos por ahora</div>
+          <div class="t2">Los dos ${a.diferencia<0&&b.diferencia<0?'cobraron menos de lo que les corresponde':'cobraron más de lo que les corresponde'} en su propia terminal. La diferencia (${fmtMoney(Math.abs(a.diferencia))} y ${fmtMoney(Math.abs(b.diferencia))}) está sentada en el dinero sin terminal asignada (${fmtMoney(SIN_TERMINAL.monto)} en ${SIN_TERMINAL.n} consultas) — hay que asignarlo o cobrarlo antes de poder cuadrar del todo.</div>
+        </div>
+      </div>`;
+    }
+  }
+
+  // ── Otras terminales (Farmacia, Skin Fabric, sin asignar) — fuera del cálculo de arriba ──
+  const keysDeDoctores = new Set(doctores.map(d => comTerminalKeyDe(d)).filter(Boolean));
+  const otras = Object.entries(COM_TERMINAL_TOTALS).filter(([nombre]) => !keysDeDoctores.has(nombre));
+  document.getElementById('com-pago-otros').innerHTML = otras.length
+    ? `<div class="tx-table-wrap"><table class="tx-table"><thead><tr><th>Terminal</th><th>Consultas</th><th>Cobrado</th></tr></thead><tbody>${
+        otras.map(([nombre, t]) => `<tr><td>${esc2(nombre)}</td><td>${t.n}</td><td>${fmtMoney(t.monto)}</td></tr>`).join('')
+      }</tbody></table></div>`
+    : '<div class="empty-note">No hay otras terminales con movimientos en este periodo.</div>';
+}
+
+function comBannerTransferencia(deNombre, aNombre, monto, sinTerminal){
+  const notaSinTerminal = sinTerminal.monto > 0
+    ? ` (sin contar ${fmtMoney(sinTerminal.monto)} que todavía no tienen terminal asignada en ${sinTerminal.n} consultas)`
+    : '';
+  return `<div class="com-transfer-banner pend">
+    <div class="ico">🤝</div>
+    <div class="txt">
+      <div class="t1">${esc2(deNombre)} debería transferirle a ${esc2(aNombre)}: ${fmtMoney(monto)}</div>
+      <div class="t2">Es lo que hace falta para que lo que cada quien tiene en su terminal cuadre con lo que le corresponde según las reglas de comisión${notaSinTerminal}.</div>
+    </div>
+  </div>`;
+}
+
+document.querySelectorAll('#app-screen-comisiones .prm-tab-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('#app-screen-comisiones .prm-tab-btn').forEach(b=> b.classList.remove('act'));
+    btn.classList.add('act');
+    document.querySelectorAll('#app-screen-comisiones .subpanel').forEach(p=> p.classList.remove('active'));
+    document.getElementById(btn.dataset.target).classList.add('active');
+  });
+});
+document.getElementById('com-mes').addEventListener('change', function(){
+  const r = rangoDeMes(this.value);
+  document.getElementById('com-desde').value = r.desde || '';
+  document.getElementById('com-hasta').value = r.hasta || '';
+  cargarComisiones();
+});
+document.getElementById('com-desde').addEventListener('change', ()=>{
+  document.getElementById('com-mes').value = ''; // el rango ya no corresponde exactamente a un mes completo
+  cargarComisiones();
+});
+document.getElementById('com-hasta').addEventListener('change', ()=>{
+  document.getElementById('com-mes').value = '';
+  cargarComisiones();
+});
+document.getElementById('com-btn-todo').addEventListener('click', ()=>{
+  document.getElementById('com-mes').value = '';
+  document.getElementById('com-desde').value = '';
+  document.getElementById('com-hasta').value = '';
+  cargarComisiones();
+});
+document.querySelector('[data-screen2="comisiones"]').addEventListener('click', ()=> cargarComisiones());
+
+// Las comisiones se liquidan mes a mes, así que al abrir esta pantalla por primera vez se parte
+// del mes en curso en vez de "todo" — sigue pudiéndose ampliar con "Ver todo" si hace falta.
+(function comInicializarMesActual(){
+  const mesInput = document.getElementById('com-mes');
+  mesInput.value = mesActualISO();
+  const r = rangoDeMes(mesInput.value);
+  document.getElementById('com-desde').value = r.desde || '';
+  document.getElementById('com-hasta').value = r.hasta || '';
+})();
 
 // ============================================================
 // Módulo: Registro
@@ -2680,6 +3177,18 @@ function rangoFechaDesde(rango){
     default: return null; // 'todo'
   }
 }
+// Convierte un valor de <input type="month"> ("YYYY-MM") en el primer y último día de ese mes,
+// en formato ISO local — usado tanto por Historial como por Comisiones para el filtro "Mes específico"
+// (las comisiones se liquidan mes a mes, así que este es el recorte más natural para ambas pantallas).
+function rangoDeMes(valorMes){
+  if(!valorMes) return { desde:null, hasta:null };
+  const [y, m] = valorMes.split('-').map(Number);
+  return { desde: isoLocal(new Date(y, m-1, 1)), hasta: isoLocal(new Date(y, m, 0)) };
+}
+function mesActualISO(){
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+}
 
 let histReqId = 0;
 async function cargarHistorial(){
@@ -2693,7 +3202,13 @@ async function cargarHistorial(){
   const rango = document.getElementById('hist-rango').value;
   const tipoId = document.getElementById('hist-tipo').value;
   const medio = document.getElementById('hist-medio').value;
-  const desde = rangoFechaDesde(rango);
+  let desde, hasta = null;
+  if(rango === 'mes'){
+    const r = rangoDeMes(document.getElementById('hist-mes').value);
+    desde = r.desde; hasta = r.hasta;
+  } else {
+    desde = rangoFechaDesde(rango);
+  }
 
   let q = sb.from('consultas')
     .select('id,fecha,monto,medio_pago,monto_2,medio_pago_2,factura,num_factura,no_vino,notas,paciente_id,doctor_id,terminal_id,pacientes!inner(nombre,telefono,dueno_id,procedencia_id,catalogo_procedencia(nombre),dueno:personal!dueno_id(nombre)),doctor:personal!doctor_id(nombre),catalogo_terminales(nombre),consulta_servicios(tipo_servicio_id,monto,atendido_por,catalogo_tipos_servicio(nombre),atendido:personal(nombre))')
@@ -2703,6 +3218,7 @@ async function cargarHistorial(){
     .limit(300);
 
   if(desde) q = q.gte('fecha', desde);
+  if(hasta) q = q.lte('fecha', hasta);
   if(medio) q = q.eq('medio_pago', medio);
   if(buscar) q = q.ilike('pacientes.nombre', `%${buscar}%`);
   if(HIST_EXCL_FILTRO === 'facturado') q = q.eq('factura', true);
@@ -2824,8 +3340,15 @@ document.getElementById('hist-buscar').addEventListener('input', ()=>{
   clearTimeout(histBuscarTimeout);
   histBuscarTimeout = setTimeout(cargarHistorial, 350);
 });
-['hist-rango','hist-tipo','hist-medio'].forEach(id=>{
+['hist-tipo','hist-medio','hist-mes'].forEach(id=>{
   document.getElementById(id).addEventListener('change', cargarHistorial);
+});
+document.getElementById('hist-rango').addEventListener('change', function(){
+  const mesInput = document.getElementById('hist-mes');
+  const esMes = this.value === 'mes';
+  mesInput.style.display = esMes ? '' : 'none';
+  if(esMes && !mesInput.value) mesInput.value = mesActualISO();
+  cargarHistorial();
 });
 document.querySelectorAll('#app-screen-historial .excl-link').forEach(el=>{
   el.addEventListener('click', ()=>{
@@ -4143,6 +4666,7 @@ async function renderConfigPersonal(){
         <label class="perm-chip cfg-p-exportar-wrap ${p.permisos?.puede_exportar !== false ? 'on' : ''}"><input type="checkbox" class="cfg-p-exportar" ${p.permisos?.puede_exportar !== false ? 'checked':''}/><span class="ico">⬇️</span>Exportar</label>
         <label class="perm-chip cfg-p-dashboard-wrap ${p.permisos?.puede_ver_dashboard ? 'on' : ''}"><input type="checkbox" class="cfg-p-dashboard" ${p.permisos?.puede_ver_dashboard ? 'checked':''}/><span class="ico">📊</span>Dashboard</label>
         <label class="perm-chip cfg-p-gastos-wrap ${p.permisos?.puede_ver_gastos ? 'on' : ''}"><input type="checkbox" class="cfg-p-gastos" ${p.permisos?.puede_ver_gastos ? 'checked':''}/><span class="ico">💸</span>Gastos</label>
+        <label class="perm-chip cfg-p-comisiones-wrap ${p.permisos?.puede_ver_comisiones ? 'on' : ''}"><input type="checkbox" class="cfg-p-comisiones" ${p.permisos?.puede_ver_comisiones ? 'checked':''}/><span class="ico">💰</span>Comisiones</label>
         <label class="perm-chip cfg-p-papelera-wrap ${p.permisos?.puede_eliminar_papelera !== false ? 'on' : ''}"><input type="checkbox" class="cfg-p-papelera" ${p.permisos?.puede_eliminar_papelera !== false ? 'checked':''}/><span class="ico">🗑️</span>Papelera</label>
       </div>
       <div class="cardC-right">
@@ -4174,6 +4698,7 @@ async function renderConfigPersonal(){
         puede_exportar: card.querySelector('.cfg-p-exportar').checked,
         puede_ver_dashboard: card.querySelector('.cfg-p-dashboard').checked,
         puede_ver_gastos: card.querySelector('.cfg-p-gastos').checked,
+        puede_ver_comisiones: card.querySelector('.cfg-p-comisiones').checked,
         puede_eliminar_papelera: card.querySelector('.cfg-p-papelera').checked,
       };
       const ok = await catalogoActualizar('personal', id, { permisos });
@@ -4328,7 +4853,7 @@ document.getElementById('cfg-personal-btn-agregar').addEventListener('click', as
   btn.disabled = true; btn.textContent = 'Guardando...';
   const ok = await catalogoCrear('personal', {
     nombre, rol, activo:true,
-    permisos: { puede_exportar:true, puede_ver_dashboard: (rol==='admin'||rol==='doctor'), puede_ver_gastos: rol==='admin', puede_eliminar_papelera: rol==='admin' },
+    permisos: { puede_exportar:true, puede_ver_dashboard: (rol==='admin'||rol==='doctor'), puede_ver_gastos: rol==='admin', puede_ver_comisiones: (rol==='admin'||rol==='doctor'), puede_eliminar_papelera: rol==='admin' },
   });
   btn.disabled = false; btn.textContent = '+ Agregar personal';
   if(ok){
