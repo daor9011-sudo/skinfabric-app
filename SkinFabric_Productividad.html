@@ -1386,6 +1386,7 @@ main.appmain{padding:22px 26px 40px;max-width:1250px;margin:0 auto}
           <label style="display:flex;gap:6px;align-items:center;font-size:12.5px;font-weight:400;text-transform:none;padding:9px 0;color:var(--navy)"><input type="checkbox" id="export-incluir-novino" checked style="width:15px;height:15px;flex:none"/> Incluir "No vino"</label>
         </div>
       </div>
+      <div class="empty-note" style="text-align:left;margin-top:4px">Cada fila del Excel es un servicio (no una consulta): si una consulta tuvo, por ejemplo, una consulta con el doctor y además un tratamiento de cabina con una cosmetóloga, salen en dos filas separadas, cada una con quién la atendió realmente y su propio monto. Para sumar el total usa la columna "Monto del servicio" — las columnas de pago de la consulta (1er/2do pago) solo vienen llenas en la primera fila de cada consulta para que no se dupliquen al sumarlas.</div>
     </div>
     <div class="modal-foot">
       <button class="appbtn appbtn-s" id="export-btn-cancelar" type="button" style="background:var(--g1);color:var(--g6);box-shadow:none">Cancelar</button>
@@ -1456,7 +1457,7 @@ main.appmain{padding:22px 26px 40px;max-width:1250px;margin:0 auto}
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.10.03-2';
+const APP_VERSION = 'v2026.10.03-4';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 const SUPABASE_URL = 'https://omjugldgnixuwqnnziyz.supabase.co';
@@ -2336,8 +2337,17 @@ function renderComisionesResumen(docAlejandra, docOtro){
   `;
 
   // ── Por rubro: PRODUCCIÓN real (quién la atendió), no comisión ──
-  const noCabina = rows.filter(r => !r.esCabina);
-  const cabina = rows.filter(r => r.esCabina);
+  // "Cabina" aquí significa trabajo de cabina que de verdad hizo una cosmetóloga. Si un doctor
+  // hace él mismo un procedimiento de cabina (p.ej. un Tricopat), para este resumen es su propia
+  // producción normal — por eso entra en "Consultas y Procedimientos" de ese doctor y no en
+  // "Cabina". Antes ese dinero sí sumaba al total de la tarjeta "Cabina" pero no aparecía en
+  // ninguna fila (solo en una nota aparte), lo que hacía que el total de la tarjeta no cuadrara
+  // con lo que mostraba abajo. La comisión en sí no cambia — las reglas de cabina (5%, 70/30, etc.)
+  // se siguen calculando igual con el esCabina real de cada servicio; esto solo cambia cómo se
+  // AGRUPA la producción para mostrarla en este resumen.
+  const esCabinaDeCosmetologa = r => r.esCabina && r.atiendeRol === 'cosmetologo';
+  const noCabina = rows.filter(r => !esCabinaDeCosmetologa(r));
+  const cabina = rows.filter(r => esCabinaDeCosmetologa(r));
   const ingresoNoCabina = noCabina.reduce((a,r)=> a + r.monto, 0);
   const ingresoCabina = cabina.reduce((a,r)=> a + r.monto, 0);
 
@@ -2353,28 +2363,22 @@ function renderComisionesResumen(docAlejandra, docOtro){
 
   const cabinaCosm = cosmetologas.map(c => ({ nombre:c.nombre, monto: sumarPor(cabina, c.nombre) }));
   const cabinaCosmTotal = cabinaCosm.reduce((a,c)=> a + c.monto, 0);
-  const cabinaDoctoresDirecto = cabina.filter(r => r.atiendeRol === 'doctor');
-  const cabinaDoctoresMonto = cabinaDoctoresDirecto.reduce((a,r)=> a + r.monto, 0);
   const filasCabina = cabinaCosm.filter(c => c.monto > 0).map(c =>
     `<div class="fila"><span>Producción ${esc2(c.nombre)}</span><b>${fmtMoney(c.monto)}</b></div>`
   ).join('');
-  const notaCabina = cabinaDoctoresMonto > 0
-    ? `<div class="nota">+ ${fmtMoney(cabinaDoctoresMonto)} (${cabinaDoctoresDirecto.length} servicios) atendidos directo por los doctores en cabina — no se cuentan aquí, pero sí están incluidos en su comisión de cabina más abajo.</div>`
-    : '';
 
   document.getElementById('com-rubro-grid').innerHTML = `
     <div class="rubro">
       <h3>🩺 Consultas y Procedimientos</h3>
-      <div class="sub">${noCabina.length} servicios · sin equipo de cabina · esto es producción, no comisión</div>
+      <div class="sub">${noCabina.length} servicios · incluye procedimientos de cabina atendidos directo por el/la doctor(a)</div>
       <div class="fila"><span>Ingreso total</span><b>${fmtMoney(ingresoNoCabina)}</b></div>
       ${filasConsultas || '<div class="fila"><span>Sin datos en este periodo</span><b>—</b></div>'}
     </div>
     <div class="rubro cabina">
       <h3>🛁 Cabina</h3>
-      <div class="sub">${cabina.length} servicios · usan equipo (compartido o dedicado) · producción por cosmetóloga</div>
+      <div class="sub">${cabina.length} servicios · atendidos por una cosmetóloga · producción por cosmetóloga</div>
       <div class="fila"><span>Ingreso total</span><b>${fmtMoney(ingresoCabina)}</b></div>
       ${filasCabina || '<div class="fila"><span>Sin datos en este periodo</span><b>—</b></div>'}
-      ${notaCabina}
     </div>
   `;
 
@@ -3613,25 +3617,45 @@ document.getElementById('hist-btn-exportar').addEventListener('click', ()=> docu
 document.getElementById('export-btn-cerrar').addEventListener('click', ()=> document.getElementById('modal-exportar').classList.remove('show'));
 document.getElementById('export-btn-cancelar').addEventListener('click', ()=> document.getElementById('modal-exportar').classList.remove('show'));
 
+// OJO: una fila por SERVICIO, no por consulta. Antes esta función hacía un solo renglón por
+// consulta con una columna "Servicio(s)" de puro texto y un único "Doctor" — eso funcionaba
+// perfecto mientras cada consulta tuviera un solo servicio, pero en cuanto una consulta mezclaba
+// (p.ej. el doctor dio la consulta Y además una cosmetóloga hizo un tratamiento de cabina en la
+// misma visita), el Excel solo mostraba el doctor de la consulta y el monto total junto — y
+// cualquier pivote armado sobre esa columna le cargaba TODO el dinero al doctor, aunque una parte
+// real la hubiera producido la cosmetóloga. Por eso un pivote de Excel y el tab de Comisiones
+// (que sí calcula por servicio) podían salir con números distintos sin que hubiera ningún bug en
+// los cálculos — solo que el Excel no tenía el detalle necesario. Ahora cada servicio sale en su
+// propia fila con quién lo atendió de verdad y su propio monto, igual que ya se ve en pantalla.
 function exportarExcel(filas){
-  const datos = filas.map(r=>({
-    'Fecha': r.fecha,
-    'Paciente': r.pacientes?.nombre || '',
-    'Procedencia': r.pacientes?.catalogo_procedencia?.nombre || '',
-    'Dueño del paciente': r.pacientes?.dueno?.nombre || '',
-    'Teléfono': r.pacientes?.telefono || '',
-    'Doctor': r.doctor?.nombre || '',
-    'Servicio(s)': nombresServicios(r.consulta_servicios, r.doctor?.nombre),
-    'Monto': Number(r.monto || 0),
-    'Medio de pago': r.medio_pago || '',
-    'Monto 2do pago': r.monto_2 != null ? Number(r.monto_2) : '',
-    '2do medio de pago': r.medio_pago_2 || '',
-    'Factura': r.factura ? 'Sí' : 'No',
-    'N° Factura': r.num_factura || '',
-    'No vino': r.no_vino ? 'Sí' : 'No',
-    'Terminal': r.catalogo_terminales?.nombre || '',
-    'Notas': r.notas || '',
-  }));
+  const datos = [];
+  filas.forEach(r=>{
+    const servicios = (r.consulta_servicios && r.consulta_servicios.length) ? r.consulta_servicios : [null];
+    servicios.forEach((cs, i) => {
+      datos.push({
+        'Fecha': r.fecha,
+        'Paciente': r.pacientes?.nombre || '',
+        'Procedencia': r.pacientes?.catalogo_procedencia?.nombre || '',
+        'Dueño del paciente': r.pacientes?.dueno?.nombre || '',
+        'Teléfono': r.pacientes?.telefono || '',
+        'Doctor (consulta)': r.doctor?.nombre || '',
+        'Servicio': cs?.catalogo_tipos_servicio?.nombre || '',
+        'Atendió': cs?.atendido?.nombre || r.doctor?.nombre || '',
+        'Monto del servicio': Number((cs ? cs.monto : r.monto) || 0),
+        // Los montos y medios de pago son de la CONSULTA completa, no de cada servicio — solo se
+        // repiten en la primera fila de cada consulta para que sumarlos no duplique el total.
+        'Monto consulta (1er pago)': i===0 ? Number(r.monto || 0) : '',
+        'Medio de pago': i===0 ? (r.medio_pago || '') : '',
+        'Monto consulta (2do pago)': i===0 ? (r.monto_2 != null ? Number(r.monto_2) : '') : '',
+        '2do medio de pago': i===0 ? (r.medio_pago_2 || '') : '',
+        'Factura': i===0 ? (r.factura ? 'Sí' : 'No') : '',
+        'N° Factura': i===0 ? (r.num_factura || '') : '',
+        'No vino': i===0 ? (r.no_vino ? 'Sí' : 'No') : '',
+        'Terminal': i===0 ? (r.catalogo_terminales?.nombre || '') : '',
+        'Notas': i===0 ? (r.notas || '') : '',
+      });
+    });
+  });
   const ws = XLSX.utils.json_to_sheet(datos);
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Historial');
