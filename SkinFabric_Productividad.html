@@ -223,6 +223,10 @@ main.appmain{padding:22px 26px 40px;max-width:1250px;margin:0 auto}
 .a-row .monto-wrap span{font-size:12px;color:var(--g6);font-weight:700}
 .a-row .monto-wrap input{border:none;padding:7px 0;font-size:13px;width:100%;outline:none;text-align:right;font-family:inherit;color:var(--navy)}
 .a-row .quitar{background:none;border:none;color:var(--red);cursor:pointer;font-size:15px;padding:2px 4px;line-height:1;flex-shrink:0}
+.split-pago-row{flex:1 1 100%;display:flex;align-items:center;gap:10px;margin-top:4px;padding-top:6px;border-top:1px dashed var(--g2)}
+.split-pago-row label{display:flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;color:var(--g6)}
+.split-pago-row input{border:1px solid rgba(42,191,191,.5);border-radius:6px;padding:4px 6px;font-size:12.5px;width:90px;text-align:right;font-family:inherit;color:var(--navy)}
+.split-pago-row .split2-preview{font-size:11.5px;color:var(--g6);font-weight:600}
 @media (max-width:560px){.a-row .nom{flex-basis:100%}}
 .a-vacio{font-size:11.5px;color:var(--g4);font-style:italic;padding:4px 0}
 @media (max-width:820px){.form-grid{grid-template-columns:1fr 1fr}}
@@ -801,7 +805,7 @@ main.appmain{padding:22px 26px 40px;max-width:1250px;margin:0 auto}
         </div>
         <div class="form-group"><label>Teléfono</label><input type="text" id="reg-telefono" placeholder="10 dígitos"/></div>
         <div class="form-group" id="reg-grp-procedencia"><label>Procedencia</label><select id="reg-procedencia"><option value="">Seleccionar...</option></select></div>
-        <div class="form-group" id="reg-grp-dueno"><label>Dueño del paciente</label><select id="reg-dueno"><option value="">— Sin asignar —</option></select></div>
+        <div class="form-group" id="reg-grp-dueno"><label>Dueño del paciente <span class="req-badge">obligatorio</span></label><select id="reg-dueno"><option value="">Seleccionar...</option></select></div>
         <div class="form-group full">
           <label>Servicios <span class="req-badge">al menos uno</span></label>
           <div class="a-box">
@@ -1401,7 +1405,7 @@ main.appmain{padding:22px 26px 40px;max-width:1250px;margin:0 auto}
           <input type="date" id="export-hasta"/>
         </div>
       </div>
-      <div class="empty-note" style="text-align:left;margin-top:4px">Cada fila del Excel es un servicio (no una consulta): si una consulta tuvo, por ejemplo, una consulta con el doctor y además un tratamiento de cabina con una cosmetóloga, salen en dos filas separadas, cada una con quién la atendió realmente y su propio monto. Para sumar el total usa la columna "Monto del servicio" — las columnas de pago de la consulta (1er/2do pago) solo vienen llenas en la primera fila de cada consulta para que no se dupliquen al sumarlas.</div>
+      <div class="empty-note" style="text-align:left;margin-top:4px">Cada fila del Excel es un servicio (no una consulta): si una consulta tuvo, por ejemplo, una consulta con el doctor y además un tratamiento de cabina con una cosmetóloga, salen en dos filas separadas, cada una con quién la atendió realmente y su propio monto — la columna "Fila de la consulta" dice "1 de 2", "2 de 2", etc. Desde este cambio, "1er pago de este servicio" y "2do pago de este servicio" también son del servicio de ESA fila (no de toda la consulta), así que puedes sumarlas sin que se dupliquen ni se mezclen entre servicios. La columna "Reparto de pago" dice "Por servicio (exacto)" cuando el dato viene de ese desglose nuevo, o "Aproximado (consulta completa, no por servicio)" en consultas registradas antes de este cambio, donde solo se sabe el pago de toda la visita.</div>
     </div>
     <div class="modal-foot">
       <button class="appbtn appbtn-s" id="export-btn-cancelar" type="button" style="background:var(--g1);color:var(--g6);box-shadow:none">Cancelar</button>
@@ -1472,7 +1476,7 @@ main.appmain{padding:22px 26px 40px;max-width:1250px;margin:0 auto}
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.10.03-7';
+const APP_VERSION = 'v2026.10.03-9';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 const SUPABASE_URL = 'https://omjugldgnixuwqnnziyz.supabase.co';
@@ -2671,7 +2675,7 @@ function poblarSelectDashFiltros(){
 function poblarSelectDueno(){
   const sel = document.getElementById('reg-dueno');
   const actual = sel.value;
-  sel.innerHTML = '<option value="">— Sin asignar —</option>' + opcionesPersonalAgrupadoHtml(actual);
+  sel.innerHTML = '<option value="">Seleccionar...</option>' + opcionesPersonalAgrupadoHtml(actual);
   if(actual) sel.value = actual;
 }
 
@@ -2747,9 +2751,13 @@ function opcionesPersonalAgrupadoHtml(selectedId, soloDoctor){
     return `<optgroup label="${esc2(g.label)}">${opts}</optgroup>`;
   }).join('');
 }
-function renderServiciosSel(selId, selMap){
+function renderServiciosSel(selId, selMap, debeMostrarSplitPago){
   const cont = document.getElementById(selId);
   if(!selMap.size){ cont.innerHTML = '<div class="a-vacio">Todavía no has seleccionado ningún servicio.</div>'; return; }
+  // El desglose "1er pago / 2do pago" por servicio solo tiene sentido (y solo se muestra) cuando
+  // hay un 2do pago activo en la consulta Y hay más de un servicio — con un solo servicio, todo
+  // el 1er/2do pago de la consulta ya es, por definición, el de ese único servicio.
+  const mostrarSplit = (typeof debeMostrarSplitPago === 'function') && debeMostrarSplitPago() && selMap.size > 1;
   cont.innerHTML = [...selMap.keys()].map((id)=>{
     const s = CATALOGOS.tiposServicio.find(x=>x.id === id);
     const nombre = s ? esc2(s.nombre) : '(servicio ya no disponible)';
@@ -2761,6 +2769,20 @@ function renderServiciosSel(selId, selMap){
     // del formulario (se quitó para no obligar a elegir dos veces). Si el servicio es una
     // Consulta de Primera Vez/Subsecuente, esa fila solo puede quedar en manos de un doctor/a.
     const soloDoctor = esTipoServicioConsulta(id);
+    let splitHtml = '';
+    if(mostrarSplit){
+      const montoNum = Number(monto) || 0;
+      // Si todavía no se ha tocado el reparto de esta fila (p.ej. porque el servicio se agregó
+      // DESPUÉS de activar el 2do pago), se asume por default que va completo al 1er pago — igual
+      // que las filas que ya existían cuando se activó — en vez de dejarlo en blanco/$0.
+      const monto1 = (val.monto1 === undefined || val.monto1 === '') ? monto : val.monto1;
+      const monto1Num = Number(monto1) || 0;
+      const monto2Num = Math.max(montoNum - monto1Num, 0);
+      splitHtml = `<div class="split-pago-row">
+        <label>1er pago de este servicio $<input type="number" class="split1-input" min="0" max="${montoNum}" step="0.01" placeholder="0.00" value="${esc2(monto1)}"/></label>
+        <span class="split2-preview">2do pago: ${fmtMoney(monto2Num)}</span>
+      </div>`;
+    }
     return `<div class="a-row" data-id="${esc2(id)}">
       <div class="nom">${nombre}${ref}</div>
       <select class="atendido-select" title="¿Quién atendió este servicio?">
@@ -2769,13 +2791,14 @@ function renderServiciosSel(selId, selMap){
       </select>
       <div class="monto-wrap"><span>$</span><input type="number" min="0" step="0.01" placeholder="0.00" value="${esc2(monto)}"/></div>
       <button class="quitar" type="button">✕</button>
+      ${splitHtml}
     </div>`;
   }).join('');
 }
-function crearSelectorServicios(ids, selMap, onChange, valorAtendidoPorDefecto){
+function crearSelectorServicios(ids, selMap, onChange, valorAtendidoPorDefecto, debeMostrarSplitPago){
   function refrescar(){
     renderServiciosGrid(ids.grid, document.getElementById(ids.buscar).value, selMap);
-    renderServiciosSel(ids.sel, selMap);
+    renderServiciosSel(ids.sel, selMap, debeMostrarSplitPago);
     document.getElementById(ids.grid).querySelectorAll('.a-chip').forEach(chip=>{
       const id = chip.dataset.id;
       chip.querySelector('input').addEventListener('change', e=>{
@@ -2792,6 +2815,16 @@ function crearSelectorServicios(ids, selMap, onChange, valorAtendidoPorDefecto){
       row.querySelector('.monto-wrap input').addEventListener('input', e=>{
         const prev = selMap.get(id) || { monto:'', atendidoPor:'' };
         selMap.set(id, { ...prev, monto: e.target.value });
+        // Si el monto del servicio cambia mientras el desglose de 1er/2do pago está visible, el
+        // "2do pago" mostrado (y el tope del input de 1er pago) se recalculan al vuelo, sin
+        // necesidad de un refrescar() completo que le quitaría el foco al campo.
+        const split1 = row.querySelector('.split1-input');
+        if(split1){
+          const montoNum = Number(e.target.value) || 0;
+          split1.max = String(montoNum);
+          const monto1Num = Number(split1.value) || 0;
+          row.querySelector('.split2-preview').textContent = '2do pago: ' + fmtMoney(Math.max(montoNum - monto1Num, 0));
+        }
         onChange();
       });
       row.querySelector('.atendido-select').addEventListener('change', e=>{
@@ -2799,6 +2832,17 @@ function crearSelectorServicios(ids, selMap, onChange, valorAtendidoPorDefecto){
         selMap.set(id, { ...prev, atendidoPor: e.target.value });
         onChange();
       });
+      const split1Input = row.querySelector('.split1-input');
+      if(split1Input){
+        split1Input.addEventListener('input', e=>{
+          const prev = selMap.get(id) || { monto:'', atendidoPor:'' };
+          selMap.set(id, { ...prev, monto1: e.target.value });
+          const montoNum = Number(prev.monto) || 0;
+          const monto1Num = Number(e.target.value) || 0;
+          row.querySelector('.split2-preview').textContent = '2do pago: ' + fmtMoney(Math.max(montoNum - monto1Num, 0));
+          onChange();
+        });
+      }
       row.querySelector('.quitar').addEventListener('click', ()=>{ selMap.delete(id); refrescar(); onChange(); });
     });
     onChange();
@@ -2819,7 +2863,7 @@ function obtenerAtendidoPorDefectoReg(tipoServicioId){
   if(esTipoServicioConsulta(tipoServicioId) && MI_PERFIL.rol !== 'doctor') return '';
   return MI_PERFIL.id;
 }
-const regServRefrescar = crearSelectorServicios({ buscar:'reg-serv-buscar', grid:'reg-serv-grid', sel:'reg-serv-sel' }, REG_SERV_SEL, updateResumen, obtenerAtendidoPorDefectoReg);
+const regServRefrescar = crearSelectorServicios({ buscar:'reg-serv-buscar', grid:'reg-serv-grid', sel:'reg-serv-sel' }, REG_SERV_SEL, updateResumen, obtenerAtendidoPorDefectoReg, () => document.getElementById('reg-grp-medio2').style.display !== 'none');
 function regServRender(filtro){
   if(filtro !== undefined) document.getElementById('reg-serv-buscar').value = filtro;
   regServRefrescar();
@@ -2855,7 +2899,7 @@ document.getElementById('reg-paciente-nombre').addEventListener('input', (e)=>{
   regBuscarPacienteTimeout = setTimeout(()=> buscarPacientes(term), 280);
 });
 async function buscarPacientes(term){
-  const { data, error } = await sb.from('pacientes').select('id,nombre,telefono')
+  const { data, error } = await sb.from('pacientes').select('id,nombre,telefono,dueno_id')
     .or(`nombre.ilike.%${term}%,telefono.ilike.%${term}%`)
     .limit(8);
   if(error){ console.error('[SkinFabric] Error buscando pacientes:', error); return; }
@@ -2887,7 +2931,16 @@ function seleccionarPaciente(p){
   document.getElementById('reg-telefono').value = p.telefono || '';
   ocultarSugerenciasPaciente();
   document.getElementById('reg-grp-procedencia').style.display = 'none';
-  document.getElementById('reg-grp-dueno').style.display = 'none';
+  // Paciente ya existente: si YA tiene dueño asignado, no hay nada que pedir — se oculta el campo.
+  // Si todavía no tiene (quedó "sin dueño" de antes), se deja visible y obligatorio para asignarlo
+  // ahora, en vez de dejarlo pasar de nuevo.
+  const grpDueno = document.getElementById('reg-grp-dueno');
+  if(p.dueno_id){
+    grpDueno.style.display = 'none';
+  } else {
+    grpDueno.style.display = '';
+    document.getElementById('reg-dueno').value = '';
+  }
   const chipBox = document.getElementById('reg-paciente-selected');
   chipBox.innerHTML = `<span class="selected-pac-chip">✓ paciente existente <button type="button" id="reg-btn-cambiar-pac">✕ cambiar</button></span>`;
   chipBox.style.display = '';
@@ -2970,11 +3023,15 @@ document.getElementById('reg-btn-2pago').addEventListener('click', ()=>{
     document.getElementById('reg-monto1').value = montoServicios || '0';
     document.getElementById('reg-medio2').value = '';
     document.getElementById('reg-monto2').value = '0';
+    // Mismo criterio por servicio: arranca con todo en el 1er pago (el usuario reparte desde ahí
+    // si el pago real se dividió distinto entre los servicios de esta misma consulta).
+    REG_SERV_SEL.forEach((val, id) => REG_SERV_SEL.set(id, { ...val, monto1: val?.monto ?? '' }));
   }else{
     document.getElementById('reg-monto1').value = '0';
     document.getElementById('reg-medio2').value = '';
     document.getElementById('reg-monto2').value = '0';
   }
+  regServRefrescar();
   updateResumen();
 });
 
@@ -2994,6 +3051,7 @@ document.getElementById('reg-novino').addEventListener('change', (e)=>{
       grpMonto1.style.display = 'none'; grpMedio2.style.display = 'none'; grpMonto2.style.display = 'none';
       document.getElementById('reg-btn-2pago').textContent = '+ agregar 2do pago';
       document.getElementById('reg-monto1').value = '0'; document.getElementById('reg-medio2').value = ''; document.getElementById('reg-monto2').value = '0';
+      regServRefrescar();
     }
   }
   updateResumen();
@@ -3008,6 +3066,14 @@ async function guardarRegistro(){
 
   if(!fecha){ alertaCampo('reg-fecha', 'Selecciona la fecha.'); return; }
   if(!nombre){ alertaCampo('reg-paciente-nombre', 'Escribe el nombre del paciente.'); return; }
+  // El dueño del paciente es obligatorio siempre que el campo esté visible: para un paciente nuevo
+  // (visible por defecto), o para uno existente que todavía no tenía dueño asignado (ver
+  // seleccionarPaciente). Si ya tiene dueño, el campo está oculto y no se vuelve a pedir.
+  const grpDuenoVisible = document.getElementById('reg-grp-dueno').style.display !== 'none';
+  if(grpDuenoVisible && !document.getElementById('reg-dueno').value){
+    alertaCampo('reg-dueno', 'Selecciona el dueño del paciente.');
+    return;
+  }
   if(REG_SERV_SEL.size === 0){ alertaCampo('reg-serv-buscar', 'Selecciona al menos un servicio.'); return; }
 
   // Ya no hay un "Atendido por" general: cada servicio debe traer el suyo.
@@ -3079,6 +3145,18 @@ async function guardarRegistro(){
       alertaCampo('reg-monto2', `El 1er pago (${fmtMoney(monto1)}) y el 2do pago (${fmtMoney(monto2)}) deben sumar exactamente el total de servicios: ${fmtMoney(montoServicios)}.`);
       return;
     }
+    // Con 2do pago activo Y más de un servicio, cada servicio reparte cuánto de SU propio monto
+    // fue 1er/2do pago (ver split-pago-row) — esto es lo que hace posible, por ejemplo, que 3
+    // servicios se hayan pagado mitad en efectivo y mitad con tarjeta sin que el Excel/reporte
+    // tenga que adivinar cómo se repartió. Antes de guardar, se verifica que ese reparto por
+    // servicio sume exactamente los mismos totales ya capturados arriba.
+    if(grpMedio2Visible && REG_SERV_SEL.size > 1){
+      const sumaMonto1Servicios = [...REG_SERV_SEL.values()].reduce((a,v)=> a + (Number(v?.monto1) || 0), 0);
+      if(Math.round((sumaMonto1Servicios - monto1) * 100) !== 0){
+        alertaCampo(null, `El 1er pago repartido entre los servicios suma ${fmtMoney(sumaMonto1Servicios)}, pero el total de 1er pago de la consulta es ${fmtMoney(monto1)}. Ajusta el "1er pago de este servicio" en cada fila hasta que coincidan.`);
+        return;
+      }
+    }
     if(medio !== 'Cortesía'){
       const idsSinMonto = [...REG_SERV_SEL.entries()].filter(([, val]) => !(Number(val?.monto) > 0)).map(([id]) => id);
       if(idsSinMonto.length){
@@ -3100,11 +3178,37 @@ async function guardarRegistro(){
     }
   }
 
-  const serviciosSeleccionados = [...REG_SERV_SEL.entries()].map(([id, val]) => ({
-    tipo_servicio_id: id,
-    monto: noVino ? 0 : Number(val?.monto || 0),
-    atendido_por: val?.atendidoPor || null,
-  }));
+  // Además del monto total de cada servicio (lo que ya existía), se guarda cuánto de ESE
+  // servicio fue 1er pago y cuánto 2do pago — así el Excel/Historial ya no necesita el truco de
+  // "solo llenar la primera fila de la consulta" para no duplicar: cada fila trae su propio
+  // desglose completo, sin importar cuántos servicios o medios de pago tuvo la visita.
+  const serviciosSeleccionados = [...REG_SERV_SEL.entries()].map(([id, val]) => {
+    const montoRow = noVino ? 0 : Number(val?.monto || 0);
+    let monto1Row, monto2Row;
+    if(noVino){
+      monto1Row = 0; monto2Row = 0;
+    }else if(!grpMedio2Visible){
+      // Un solo pago para toda la consulta: no hay nada que repartir, todo cae en el 1er pago.
+      monto1Row = montoRow; monto2Row = 0;
+    }else if(REG_SERV_SEL.size === 1){
+      // Un solo servicio: el reparto de la consulta YA es, por definición, el de ese servicio.
+      monto1Row = monto1; monto2Row = monto2;
+    }else{
+      // Igual que en el render: si esta fila nunca tuvo su propio reparto tocado, se asume que
+      // quedó completa en el 1er pago (no que es $0), para que coincida con lo que se ve en
+      // pantalla por default.
+      const monto1Raw = (val?.monto1 === undefined || val?.monto1 === '') ? montoRow : Number(val.monto1 || 0);
+      monto1Row = Math.min(Math.max(monto1Raw, 0), montoRow);
+      monto2Row = Math.max(montoRow - monto1Row, 0);
+    }
+    return {
+      tipo_servicio_id: id,
+      monto: montoRow,
+      monto_1: monto1Row,
+      monto_2: monto2Row,
+      atendido_por: val?.atendidoPor || null,
+    };
+  });
 
   const btn = document.getElementById('reg-btn-guardar');
   btn.disabled = true; btn.textContent = 'Guardando...';
@@ -3116,6 +3220,11 @@ async function guardarRegistro(){
         .select('id').single();
       if(errPaciente) throw errPaciente;
       pacienteId = nuevoPaciente.id;
+    } else if(!REG_PACIENTE_SELECCIONADO.dueno_id && duenoId){
+      // Paciente existente que no tenía dueño: se lo asigna ahora con lo que se eligió arriba,
+      // en vez de dejarlo "sin dueño" para siempre.
+      const { error: errDuenoExistente } = await sb.from('pacientes').update({ dueno_id: duenoId }).eq('id', pacienteId);
+      if(errDuenoExistente) throw errDuenoExistente;
     }
 
     const payload = {
@@ -3135,7 +3244,7 @@ async function guardarRegistro(){
     const { data: nuevaConsulta, error: errConsulta } = await sb.from('consultas').insert(payload).select('id').single();
     if(errConsulta) throw errConsulta;
 
-    const filasServicios = serviciosSeleccionados.map(s => ({ consulta_id: nuevaConsulta.id, tipo_servicio_id: s.tipo_servicio_id, monto: s.monto, atendido_por: s.atendido_por }));
+    const filasServicios = serviciosSeleccionados.map(s => ({ consulta_id: nuevaConsulta.id, tipo_servicio_id: s.tipo_servicio_id, monto: s.monto, monto_1: s.monto_1, monto_2: s.monto_2, atendido_por: s.atendido_por }));
     const { error: errServ } = await sb.from('consulta_servicios').insert(filasServicios);
     if(errServ) throw errServ;
 
@@ -3254,7 +3363,7 @@ async function cargarHistorial(){
   // movimiento, se perdían calladamente los primeros días del mes y el total salía de menos).
   // 5000 cubre con margen holgado el volumen actual de la clínica incluso filtrando "Ver todo".
   let q = sb.from('consultas')
-    .select('id,fecha,monto,medio_pago,monto_2,medio_pago_2,factura,num_factura,no_vino,notas,paciente_id,doctor_id,terminal_id,pacientes!inner(nombre,telefono,dueno_id,procedencia_id,catalogo_procedencia(nombre),dueno:personal!dueno_id(nombre)),doctor:personal!doctor_id(nombre),catalogo_terminales(nombre),consulta_servicios(tipo_servicio_id,monto,atendido_por,catalogo_tipos_servicio(nombre),atendido:personal(nombre))')
+    .select('id,fecha,monto,medio_pago,monto_2,medio_pago_2,factura,num_factura,no_vino,notas,paciente_id,doctor_id,terminal_id,pacientes!inner(nombre,telefono,dueno_id,procedencia_id,catalogo_procedencia(nombre),dueno:personal!dueno_id(nombre)),doctor:personal!doctor_id(nombre),catalogo_terminales(nombre),consulta_servicios(tipo_servicio_id,monto,monto_1,monto_2,atendido_por,catalogo_tipos_servicio(nombre),atendido:personal(nombre))')
     .eq('deleted', false)
     .order('fecha', { ascending:false })
     .order('created_at', { ascending:false })
@@ -3613,7 +3722,11 @@ document.getElementById('edit-btn-guardar').addEventListener('click', async ()=>
     toast('Se guardaron los datos generales, pero no se pudieron actualizar los servicios.');
     return;
   }
-  const filasServicios = servicios.map(s => ({ consulta_id: HIST_EDIT_ID, tipo_servicio_id: s.tipo_servicio_id, monto: s.monto, atendido_por: s.atendido_por }));
+  // OJO: este modal todavía no tiene UI para 2do pago (ver Registro), así que al editar se asume
+  // que cada servicio quedó completo en el 1er pago. Si la consulta sí tenía un 2do pago con
+  // reparto por servicio (hecho desde Registro), esa edición no lo conserva — solo afecta
+  // consultas editadas aquí, no el reparto que ya quedó guardado si no se toca esta consulta.
+  const filasServicios = servicios.map(s => ({ consulta_id: HIST_EDIT_ID, tipo_servicio_id: s.tipo_servicio_id, monto: s.monto, monto_1: s.monto, monto_2: 0, atendido_por: s.atendido_por }));
   const { error: errIns } = await sb.from('consulta_servicios').insert(filasServicios);
   btn.disabled = false; btn.textContent = 'Guardar cambios';
   if(errIns){
@@ -3679,11 +3792,37 @@ document.getElementById('export-btn-cancelar').addEventListener('click', ()=> do
 // (que sí calcula por servicio) podían salir con números distintos sin que hubiera ningún bug en
 // los cálculos — solo que el Excel no tenía el detalle necesario. Ahora cada servicio sale en su
 // propia fila con quién lo atendió de verdad y su propio monto, igual que ya se ve en pantalla.
+//
+// Desde que Registro guarda 1er/2do pago por servicio (consulta_servicios.monto_1/monto_2), cada
+// fila de aquí trae su propio desglose exacto — ya no hace falta el truco de "solo llenar la
+// primera fila de la consulta" para no duplicar al sumar. Las consultas guardadas ANTES de ese
+// cambio no tienen monto_1/monto_2 (quedan NULL): para esas se usa la aproximación de antes —
+// el pago completo de la consulta en la primera fila — y la columna "Reparto de pago" lo marca
+// como "Aproximado" para que no se confunda con el desglose real.
 function exportarExcel(filas){
   const datos = [];
   filas.forEach(r=>{
     const servicios = (r.consulta_servicios && r.consulta_servicios.length) ? r.consulta_servicios : [null];
     servicios.forEach((cs, i) => {
+      const montoRow = Number((cs ? cs.monto : r.monto) || 0);
+      const tieneRepartoReal = cs && cs.monto_1 != null;
+      let pago1, pago2, repartoLabel;
+      if(tieneRepartoReal){
+        pago1 = Number(cs.monto_1 || 0);
+        pago2 = Number(cs.monto_2 || 0);
+        repartoLabel = 'Por servicio (exacto)';
+      } else if(i === 0){
+        // Consulta de antes del cambio: lo único que se sabe es el pago de TODA la visita, así
+        // que se pone completo en la primera fila nomás como aproximación — no es el pago real
+        // de este servicio en particular si la consulta tuvo más de uno.
+        pago1 = Number(r.monto || 0);
+        pago2 = r.monto_2 != null ? Number(r.monto_2) : '';
+        repartoLabel = servicios.length > 1 ? 'Aproximado (consulta completa, no por servicio)' : 'Por servicio (exacto)';
+      } else {
+        pago1 = '';
+        pago2 = '';
+        repartoLabel = '';
+      }
       datos.push({
         'Fecha': r.fecha,
         'Paciente': r.pacientes?.nombre || '',
@@ -3692,18 +3831,19 @@ function exportarExcel(filas){
         'Teléfono': r.pacientes?.telefono || '',
         'Doctor (consulta)': r.doctor?.nombre || '',
         'Servicio': cs?.catalogo_tipos_servicio?.nombre || '',
+        // Deja explícito cuándo una consulta trae más de un servicio.
+        'Fila de la consulta': servicios.length > 1 ? `${i+1} de ${servicios.length}` : '1 de 1',
         'Atendió': cs?.atendido?.nombre || r.doctor?.nombre || '',
-        'Monto del servicio': Number((cs ? cs.monto : r.monto) || 0),
-        // Los montos y medios de pago son de la CONSULTA completa, no de cada servicio — solo se
-        // repiten en la primera fila de cada consulta para que sumarlos no duplique el total.
-        'Monto consulta (1er pago)': i===0 ? Number(r.monto || 0) : '',
-        'Medio de pago': i===0 ? (r.medio_pago || '') : '',
-        'Monto consulta (2do pago)': i===0 ? (r.monto_2 != null ? Number(r.monto_2) : '') : '',
-        '2do medio de pago': i===0 ? (r.medio_pago_2 || '') : '',
-        'Factura': i===0 ? (r.factura ? 'Sí' : 'No') : '',
-        'N° Factura': i===0 ? (r.num_factura || '') : '',
-        'No vino': i===0 ? (r.no_vino ? 'Sí' : 'No') : '',
-        'Terminal': i===0 ? (r.catalogo_terminales?.nombre || '') : '',
+        'Monto del servicio': montoRow,
+        '1er pago de este servicio': pago1,
+        'Medio de pago': r.medio_pago || '',
+        '2do pago de este servicio': pago2,
+        '2do medio de pago': r.medio_pago_2 || '',
+        'Reparto de pago': repartoLabel,
+        'Factura': r.factura ? 'Sí' : 'No',
+        'N° Factura': r.num_factura || '',
+        'No vino': r.no_vino ? 'Sí' : 'No',
+        'Terminal': r.catalogo_terminales?.nombre || '',
         'Notas': i===0 ? (r.notas || '') : '',
       });
     });
@@ -3737,7 +3877,7 @@ document.getElementById('export-btn-confirmar').addEventListener('click', async 
         if(!desde && !hasta){ toast('Elige al menos una fecha.'); btn.disabled = false; btn.textContent = '↓ Exportar a Excel'; return; }
       }
       let q = sb.from('consultas')
-        .select('fecha,monto,medio_pago,monto_2,medio_pago_2,factura,num_factura,no_vino,notas,pacientes(nombre,telefono,procedencia_id,catalogo_procedencia(nombre),dueno:personal!dueno_id(nombre)),doctor:personal!doctor_id(nombre),catalogo_terminales(nombre),consulta_servicios(tipo_servicio_id,monto,atendido_por,catalogo_tipos_servicio(nombre),atendido:personal(nombre))')
+        .select('fecha,monto,medio_pago,monto_2,medio_pago_2,factura,num_factura,no_vino,notas,pacientes(nombre,telefono,procedencia_id,catalogo_procedencia(nombre),dueno:personal!dueno_id(nombre)),doctor:personal!doctor_id(nombre),catalogo_terminales(nombre),consulta_servicios(tipo_servicio_id,monto,monto_1,monto_2,atendido_por,catalogo_tipos_servicio(nombre),atendido:personal(nombre))')
         .eq('deleted', false)
         .order('fecha', { ascending:false });
       if(desde) q = q.gte('fecha', desde);
