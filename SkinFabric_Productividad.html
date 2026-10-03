@@ -868,10 +868,15 @@ main.appmain{padding:22px 26px 40px;max-width:1250px;margin:0 auto}
           <option value="30" selected>30 días</option>
           <option value="90">90 días</option>
           <option value="mes">Mes específico</option>
+          <option value="rango">Rango de fechas específico</option>
           <option value="anio">Año</option>
           <option value="todo">Todo</option>
         </select>
         <input type="month" id="hist-mes" style="display:none"/>
+        <span class="sep" id="hist-rango-sep" style="display:none">de</span>
+        <input type="date" id="hist-desde" style="display:none"/>
+        <span class="sep" id="hist-rango-sep-2" style="display:none">a</span>
+        <input type="date" id="hist-hasta" style="display:none"/>
         <select id="hist-tipo"><option value="">Todos los servicios</option></select>
         <select id="hist-medio"><option value="">Todos los medios</option></select>
       </div>
@@ -1378,12 +1383,21 @@ main.appmain{padding:22px 26px 40px;max-width:1250px;margin:0 auto}
             <option value="ayer">Ayer</option>
             <option value="semana">Esta semana</option>
             <option value="mes" selected>Este mes</option>
+            <option value="rango">Rango de fechas específico</option>
             <option value="filtros">Usar filtros actuales del Historial</option>
           </select>
         </div>
         <div class="form-group">
           <label>Incluir</label>
           <label style="display:flex;gap:6px;align-items:center;font-size:12.5px;font-weight:400;text-transform:none;padding:9px 0;color:var(--navy)"><input type="checkbox" id="export-incluir-novino" checked style="width:15px;height:15px;flex:none"/> Incluir "No vino"</label>
+        </div>
+        <div class="form-group" id="export-rango-fechas-wrap" style="display:none">
+          <label>Desde</label>
+          <input type="date" id="export-desde"/>
+        </div>
+        <div class="form-group" id="export-rango-fechas-wrap-2" style="display:none">
+          <label>Hasta</label>
+          <input type="date" id="export-hasta"/>
         </div>
       </div>
       <div class="empty-note" style="text-align:left;margin-top:4px">Cada fila del Excel es un servicio (no una consulta): si una consulta tuvo, por ejemplo, una consulta con el doctor y además un tratamiento de cabina con una cosmetóloga, salen en dos filas separadas, cada una con quién la atendió realmente y su propio monto. Para sumar el total usa la columna "Monto del servicio" — las columnas de pago de la consulta (1er/2do pago) solo vienen llenas en la primera fila de cada consulta para que no se dupliquen al sumarlas.</div>
@@ -1457,7 +1471,7 @@ main.appmain{padding:22px 26px 40px;max-width:1250px;margin:0 auto}
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.10.03-4';
+const APP_VERSION = 'v2026.10.03-5';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 const SUPABASE_URL = 'https://omjugldgnixuwqnnziyz.supabase.co';
@@ -3226,6 +3240,9 @@ async function cargarHistorial(){
   if(rango === 'mes'){
     const r = rangoDeMes(document.getElementById('hist-mes').value);
     desde = r.desde; hasta = r.hasta;
+  } else if(rango === 'rango'){
+    desde = document.getElementById('hist-desde').value || null;
+    hasta = document.getElementById('hist-hasta').value || null;
   } else {
     desde = rangoFechaDesde(rango);
   }
@@ -3368,7 +3385,7 @@ document.getElementById('hist-buscar').addEventListener('input', ()=>{
   clearTimeout(histBuscarTimeout);
   histBuscarTimeout = setTimeout(cargarHistorial, 350);
 });
-['hist-tipo','hist-medio','hist-mes'].forEach(id=>{
+['hist-tipo','hist-medio','hist-mes','hist-desde','hist-hasta'].forEach(id=>{
   document.getElementById(id).addEventListener('change', cargarHistorial);
 });
 document.getElementById('hist-rango').addEventListener('change', function(){
@@ -3376,6 +3393,19 @@ document.getElementById('hist-rango').addEventListener('change', function(){
   const esMes = this.value === 'mes';
   mesInput.style.display = esMes ? '' : 'none';
   if(esMes && !mesInput.value) mesInput.value = mesActualISO();
+
+  const esRango = this.value === 'rango';
+  ['hist-rango-sep','hist-desde','hist-rango-sep-2','hist-hasta'].forEach(id=>{
+    document.getElementById(id).style.display = esRango ? '' : 'none';
+  });
+  if(esRango){
+    // Precargar con los últimos 30 días la primera vez, para no dejar los campos vacíos —
+    // se pueden cambiar libremente después.
+    const hastaInput = document.getElementById('hist-hasta');
+    const desdeInput = document.getElementById('hist-desde');
+    if(!hastaInput.value) hastaInput.value = isoLocal(new Date());
+    if(!desdeInput.value){ const a = new Date(); a.setDate(a.getDate()-30); desdeInput.value = isoLocal(a); }
+  }
   cargarHistorial();
 });
 document.querySelectorAll('#app-screen-historial .excl-link').forEach(el=>{
@@ -3614,6 +3644,20 @@ document.getElementById('edit-btn-eliminar').addEventListener('click', async ()=
 
 // ── Modal: Exportar ──
 document.getElementById('hist-btn-exportar').addEventListener('click', ()=> document.getElementById('modal-exportar').classList.add('show'));
+document.getElementById('export-rango').addEventListener('change', function(){
+  const esRango = this.value === 'rango';
+  document.getElementById('export-rango-fechas-wrap').style.display = esRango ? '' : 'none';
+  document.getElementById('export-rango-fechas-wrap-2').style.display = esRango ? '' : 'none';
+  if(esRango){
+    // Primera vez que se abre: precargar con un rango razonable (últimos 30 días) para no dejar
+    // los campos vacíos — el usuario los puede cambiar libremente antes de exportar.
+    const desdeInput = document.getElementById('export-desde');
+    const hastaInput = document.getElementById('export-hasta');
+    const hoy = new Date();
+    if(!hastaInput.value) hastaInput.value = isoLocal(hoy);
+    if(!desdeInput.value){ const a = new Date(hoy); a.setDate(a.getDate()-30); desdeInput.value = isoLocal(a); }
+  }
+});
 document.getElementById('export-btn-cerrar').addEventListener('click', ()=> document.getElementById('modal-exportar').classList.remove('show'));
 document.getElementById('export-btn-cancelar').addEventListener('click', ()=> document.getElementById('modal-exportar').classList.remove('show'));
 
@@ -3679,6 +3723,11 @@ document.getElementById('export-btn-confirmar').addEventListener('click', async 
       else if(rango === 'ayer'){ const a = new Date(hoy); a.setDate(a.getDate()-1); desde = isoLocal(a); hasta = isoLocal(a); }
       else if(rango === 'semana'){ const a = new Date(hoy); a.setDate(a.getDate()-7); desde = isoLocal(a); hasta = isoLocal(hoy); }
       else if(rango === 'mes'){ const a = new Date(hoy); a.setDate(a.getDate()-30); desde = isoLocal(a); hasta = isoLocal(hoy); }
+      else if(rango === 'rango'){
+        desde = document.getElementById('export-desde').value || null;
+        hasta = document.getElementById('export-hasta').value || null;
+        if(!desde && !hasta){ toast('Elige al menos una fecha.'); btn.disabled = false; btn.textContent = '↓ Exportar a Excel'; return; }
+      }
       let q = sb.from('consultas')
         .select('fecha,monto,medio_pago,monto_2,medio_pago_2,factura,num_factura,no_vino,notas,pacientes(nombre,telefono,procedencia_id,catalogo_procedencia(nombre),dueno:personal!dueno_id(nombre)),doctor:personal!doctor_id(nombre),catalogo_terminales(nombre),consulta_servicios(tipo_servicio_id,monto,atendido_por,catalogo_tipos_servicio(nombre),atendido:personal(nombre))')
         .eq('deleted', false)
