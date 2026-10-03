@@ -647,6 +647,16 @@ main.appmain{padding:22px 26px 40px;max-width:1250px;margin:0 auto}
 .persona .cf-base{font-size:11.5px;color:var(--g6);font-variant-numeric:tabular-nums;white-space:nowrap}
 .persona .cf-arrow{font-size:10px;color:var(--g4)}
 .persona .cf-com{font-family:var(--font-d);font-size:13px;font-weight:700;white-space:nowrap;font-variant-numeric:tabular-nums;margin-left:auto}
+.persona .fila.acordeon{cursor:pointer;user-select:none}
+.persona .fila.acordeon:hover{background:var(--g1)}
+.persona .fila.acordeon .chev{display:inline-block;font-size:9px;color:var(--g4);margin-left:5px;transition:transform .15s}
+.persona .fila.acordeon.open .chev{transform:rotate(180deg)}
+.persona .acordeon-detalle{display:none;max-height:240px;overflow-y:auto;margin-bottom:4px;padding-left:6px;border-left:2px solid var(--g2)}
+.persona .acordeon-detalle.open{display:block}
+.persona .acordeon-row{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:10.5px;color:var(--g6);padding:3px 0 3px 4px;border-bottom:1px dashed var(--g1)}
+.persona .acordeon-row:last-child{border-bottom:none}
+.persona .acordeon-row .ar-main{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.persona .acordeon-row .ar-monto{flex:none;font-weight:700;color:var(--navy);font-variant-numeric:tabular-nums}
 @media (max-width:900px){.persona-grid{grid-template-columns:repeat(2,1fr)}}
 @media (max-width:560px){.persona-grid{grid-template-columns:1fr}}
 
@@ -1405,7 +1415,7 @@ main.appmain{padding:22px 26px 40px;max-width:1250px;margin:0 auto}
           <input type="date" id="export-hasta"/>
         </div>
       </div>
-      <div class="empty-note" style="text-align:left;margin-top:4px">Cada fila del Excel es un servicio (no una consulta): si una consulta tuvo, por ejemplo, una consulta con el doctor y además un tratamiento de cabina con una cosmetóloga, salen en dos filas separadas, cada una con quién la atendió realmente y su propio monto — la columna "Fila de la consulta" dice "1 de 2", "2 de 2", etc. Desde este cambio, "1er pago de este servicio" y "2do pago de este servicio" también son del servicio de ESA fila (no de toda la consulta), así que puedes sumarlas sin que se dupliquen ni se mezclen entre servicios. La columna "Reparto de pago" dice "Por servicio (exacto)" cuando el dato viene de ese desglose nuevo, o "Aproximado (consulta completa, no por servicio)" en consultas registradas antes de este cambio, donde solo se sabe el pago de toda la visita.</div>
+      <div class="empty-note" style="text-align:left;margin-top:4px">Cada fila del Excel es un servicio (no una consulta): si una consulta tuvo, por ejemplo, una consulta con el doctor y además un tratamiento de cabina con una cosmetóloga, salen en dos filas separadas, cada una con quién la atendió realmente y su propio monto. "1er pago de este servicio" y "2do pago de este servicio" son del servicio de esa fila (no de toda la consulta), así que puedes sumarlas sin que se dupliquen ni se mezclen entre servicios.</div>
     </div>
     <div class="modal-foot">
       <button class="appbtn appbtn-s" id="export-btn-cancelar" type="button" style="background:var(--g1);color:var(--g6);box-shadow:none">Cancelar</button>
@@ -1476,7 +1486,7 @@ main.appmain{padding:22px 26px 40px;max-width:1250px;margin:0 auto}
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.10.03-9';
+const APP_VERSION = 'v2026.10.03-11';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 const SUPABASE_URL = 'https://omjugldgnixuwqnnziyz.supabase.co';
@@ -2402,6 +2412,14 @@ function renderComisionesResumen(docAlejandra, docOtro){
   `;
 
   // ── Resumen por persona: comisión FINAL ya aplicadas las reglas ──
+  // El acordeón de cada fila muestra, servicio por servicio, qué pacientes/servicios componen
+  // esa cifra — solo las filas donde esta persona de verdad recibió algo (valDe(r) > 0), para que
+  // la suma de lo que se ve adentro coincida exactamente con el monto de la fila.
+  const filaAcordeonHtml = (lista, valDe) => {
+    const conComision = lista.filter(r => valDe(r) > 0.005).slice().sort((a,b)=> (a.fecha < b.fecha ? 1 : -1));
+    if(!conComision.length) return '<div class="acordeon-row"><span class="ar-main">Sin servicios en este periodo</span></div>';
+    return conComision.map(r => `<div class="acordeon-row"><span class="ar-main" title="${esc2(r.pacienteNombre)} · ${esc2(r.servicio)}">${esc2(fmtFechaCorta(r.fecha))} · ${esc2(r.pacienteNombre)} · ${esc2(r.servicio)}</span><span class="ar-monto">${fmtMoney(valDe(r))}</span></div>`).join('');
+  };
   let personaHtml = '';
   doctores.forEach((d, i) => {
     const esAlejandra = d.id === docAlejandra?.id;
@@ -2410,11 +2428,15 @@ function renderComisionesResumen(docAlejandra, docOtro){
     const comCabina = cabina.reduce((a,r)=> a + valDe(r), 0);
     const total = comConsultas + comCabina;
     const nServicios = rows.filter(r => r.duenoId === d.id).length;
+    const accConsultasId = `com-acc-consultas-${d.id}`;
+    const accCabinaId = `com-acc-cabina-${d.id}`;
     personaHtml += `<div class="persona ${i===0?'doc1':'doc2'}">
       <div class="nombre">${esc2(d.nombre)}</div>
       <div class="rol">Doctor${d.nombre.toLowerCase().startsWith('dra')?'a':''} · dueño/a de ${nServicios} servicios</div>
-      <div class="fila"><span>Consultas y Proc.</span><b>${fmtMoney(comConsultas)}</b></div>
-      <div class="fila"><span>Cabina</span><b>${fmtMoney(comCabina)}</b></div>
+      <div class="fila acordeon" data-acc="${accConsultasId}"><span>Consultas y Proc. <span class="chev">▾</span></span><b>${fmtMoney(comConsultas)}</b></div>
+      <div class="acordeon-detalle" id="${accConsultasId}">${filaAcordeonHtml(noCabina, valDe)}</div>
+      <div class="fila acordeon" data-acc="${accCabinaId}"><span>Cabina <span class="chev">▾</span></span><b>${fmtMoney(comCabina)}</b></div>
+      <div class="acordeon-detalle" id="${accCabinaId}">${filaAcordeonHtml(cabina, valDe)}</div>
       <div class="total-block"><div class="total-label">Comisión total</div><div class="total-value">${fmtMoney(total)}</div></div>
     </div>`;
   });
@@ -2466,6 +2488,18 @@ function renderComisionesResumen(docAlejandra, docOtro){
       <tbody>${filasHtml || '<tr><td colspan="10" class="empty-note">Sin servicios en este periodo.</td></tr>'}</tbody>
     </table>`;
 }
+
+// Acordeón de "Resumen por persona": un solo listener delegado (el contenedor es fijo en el HTML,
+// aunque su contenido se vuelve a pintar cada vez que corre renderComisionesResumen) en vez de
+// re-agregar el listener en cada render, que los iría acumulando.
+document.getElementById('com-persona-grid').addEventListener('click', (e) => {
+  const fila = e.target.closest('.fila.acordeon');
+  if(!fila) return;
+  const detalle = document.getElementById(fila.dataset.acc);
+  if(!detalle) return;
+  fila.classList.toggle('open');
+  detalle.classList.toggle('open');
+});
 
 function renderComisionesPago(docAlejandra, docOtro){
   const doctores = [docOtro, docAlejandra].filter(Boolean);
@@ -3806,22 +3840,19 @@ function exportarExcel(filas){
     servicios.forEach((cs, i) => {
       const montoRow = Number((cs ? cs.monto : r.monto) || 0);
       const tieneRepartoReal = cs && cs.monto_1 != null;
-      let pago1, pago2, repartoLabel;
+      let pago1, pago2;
       if(tieneRepartoReal){
         pago1 = Number(cs.monto_1 || 0);
         pago2 = Number(cs.monto_2 || 0);
-        repartoLabel = 'Por servicio (exacto)';
       } else if(i === 0){
-        // Consulta de antes del cambio: lo único que se sabe es el pago de TODA la visita, así
-        // que se pone completo en la primera fila nomás como aproximación — no es el pago real
-        // de este servicio en particular si la consulta tuvo más de uno.
+        // Consulta de antes de guardar el reparto por servicio: lo único que se sabe es el pago
+        // de TODA la visita, así que se pone completo en la primera fila nomás como aproximación
+        // — no es el pago real de este servicio en particular si la consulta tuvo más de uno.
         pago1 = Number(r.monto || 0);
         pago2 = r.monto_2 != null ? Number(r.monto_2) : '';
-        repartoLabel = servicios.length > 1 ? 'Aproximado (consulta completa, no por servicio)' : 'Por servicio (exacto)';
       } else {
         pago1 = '';
         pago2 = '';
-        repartoLabel = '';
       }
       datos.push({
         'Fecha': r.fecha,
@@ -3829,17 +3860,13 @@ function exportarExcel(filas){
         'Procedencia': r.pacientes?.catalogo_procedencia?.nombre || '',
         'Dueño del paciente': r.pacientes?.dueno?.nombre || '',
         'Teléfono': r.pacientes?.telefono || '',
-        'Doctor (consulta)': r.doctor?.nombre || '',
         'Servicio': cs?.catalogo_tipos_servicio?.nombre || '',
-        // Deja explícito cuándo una consulta trae más de un servicio.
-        'Fila de la consulta': servicios.length > 1 ? `${i+1} de ${servicios.length}` : '1 de 1',
         'Atendió': cs?.atendido?.nombre || r.doctor?.nombre || '',
         'Monto del servicio': montoRow,
         '1er pago de este servicio': pago1,
         'Medio de pago': r.medio_pago || '',
         '2do pago de este servicio': pago2,
         '2do medio de pago': r.medio_pago_2 || '',
-        'Reparto de pago': repartoLabel,
         'Factura': r.factura ? 'Sí' : 'No',
         'N° Factura': r.num_factura || '',
         'No vino': r.no_vino ? 'Sí' : 'No',
@@ -5098,7 +5125,10 @@ document.getElementById('cfg-personal-btn-agregar').addEventListener('click', as
   btn.disabled = true; btn.textContent = 'Guardando...';
   const ok = await catalogoCrear('personal', {
     nombre, rol, activo:true,
-    permisos: { puede_exportar:true, puede_ver_dashboard: (rol==='admin'||rol==='doctor'), puede_ver_gastos: rol==='admin', puede_ver_comisiones: (rol==='admin'||rol==='doctor'), puede_eliminar_papelera: rol==='admin' },
+    // puede_ver_comisiones ya NO se activa por default para nadie (ni admin/doctor): la pestaña
+    // Comisiones se dejó visible solo para el perfil de Dani por decisión explícita. Si se
+    // necesita dársela a alguien más, se activa a mano desde su tarjeta de permisos aquí mismo.
+    permisos: { puede_exportar:true, puede_ver_dashboard: (rol==='admin'||rol==='doctor'), puede_ver_gastos: rol==='admin', puede_ver_comisiones: false, puede_eliminar_papelera: rol==='admin' },
   });
   btn.disabled = false; btn.textContent = '+ Agregar personal';
   if(ok){
