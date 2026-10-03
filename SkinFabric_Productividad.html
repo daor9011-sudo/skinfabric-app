@@ -21,6 +21,9 @@
 }
 body{font-family:var(--font-b);min-height:100vh;color:var(--navy);background:#eef1f7}
 
+/* ══════════ MARCA DE VERSIÓN (huella discreta, esquina inferior) ══════════ */
+#app-version-tag{position:fixed;bottom:4px;right:7px;font-family:var(--font-b);font-size:9px;color:var(--g4);opacity:.45;letter-spacing:.2px;z-index:9999;pointer-events:none;user-select:none}
+
 /* ══════════ LOADING PANEL ══════════ */
 #loading-panel{position:fixed;inset:0;background:radial-gradient(circle at 20% 10%,#183660 0%,#0B1628 55%,#080f1c 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;z-index:999;transition:opacity .25s ease}
 #loading-panel.hide{opacity:0;pointer-events:none}
@@ -668,6 +671,10 @@ main.appmain{padding:22px 26px 40px;max-width:1250px;margin:0 auto}
 </style>
 </head>
 <body>
+
+<!-- Huella discreta de versión — solo visible de cerca, sirve para confirmar qué versión del
+     archivo está cargada (p.ej. después de un refresh/relogin tras una actualización). -->
+<div id="app-version-tag"></div>
 
 <!-- ══════════ LOADING PANEL ══════════ -->
 <div id="loading-panel">
@@ -1449,6 +1456,9 @@ main.appmain{padding:22px 26px 40px;max-width:1250px;margin:0 auto}
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
+const APP_VERSION = 'v2026.10.03-2';
+console.log('[SkinFabric] versión', APP_VERSION);
+document.getElementById('app-version-tag').textContent = APP_VERSION;
 const SUPABASE_URL = 'https://omjugldgnixuwqnnziyz.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9tanVnbGRnbml4dXdxbm56aXl6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODczNTY2NDUsImV4cCI6MjEwMjkzMjY0NX0.1nwsZtmR3SlnJTiK45XFReHWOY4Ur8hJUoz64Vkudw4';
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -3216,12 +3226,17 @@ async function cargarHistorial(){
     desde = rangoFechaDesde(rango);
   }
 
+  // OJO: el límite de filas debe ser generoso. Como el resultado viene ordenado por fecha
+  // descendente, un límite bajo no recorta "lo más viejo que sobre" de forma inofensiva — recorta
+  // las fechas MÁS ANTIGUAS del rango filtrado (p.ej. al filtrar un mes completo con bastante
+  // movimiento, se perdían calladamente los primeros días del mes y el total salía de menos).
+  // 5000 cubre con margen holgado el volumen actual de la clínica incluso filtrando "Ver todo".
   let q = sb.from('consultas')
     .select('id,fecha,monto,medio_pago,monto_2,medio_pago_2,factura,num_factura,no_vino,notas,paciente_id,doctor_id,terminal_id,pacientes!inner(nombre,telefono,dueno_id,procedencia_id,catalogo_procedencia(nombre),dueno:personal!dueno_id(nombre)),doctor:personal!doctor_id(nombre),catalogo_terminales(nombre),consulta_servicios(tipo_servicio_id,monto,atendido_por,catalogo_tipos_servicio(nombre),atendido:personal(nombre))')
     .eq('deleted', false)
     .order('fecha', { ascending:false })
     .order('created_at', { ascending:false })
-    .limit(300);
+    .limit(5000);
 
   if(desde) q = q.gte('fecha', desde);
   if(hasta) q = q.lte('fecha', hasta);
@@ -3241,6 +3256,9 @@ async function cargarHistorial(){
     return;
   }
   let rows = data || [];
+  if(data && data.length >= 5000){
+    console.warn('[SkinFabric] Historial: se alcanzó el límite de 5000 filas — puede haber datos más antiguos sin mostrar. Hay que subir el límite o paginar.');
+  }
   if(tipoId) rows = rows.filter(r => (r.consulta_servicios||[]).some(cs => cs.tipo_servicio_id === tipoId));
   HIST_ROWS = rows;
   renderHistorial();
