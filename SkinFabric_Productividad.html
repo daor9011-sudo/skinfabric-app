@@ -1503,7 +1503,7 @@ table.com-det thead th.num{text-align:right}
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.10.03-13';
+const APP_VERSION = 'v2026.10.03-14';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 const SUPABASE_URL = 'https://omjugldgnixuwqnnziyz.supabase.co';
@@ -2616,7 +2616,7 @@ function renderComisionesPago(docAlejandra, docOtro){
       cobrado: enSu.reduce((a,r)=> a + r.tMonto, 0),
       suyoEnSuTerminal: enSu.reduce((a,r)=> a + propia(r), 0),
       debeAlOtro: enSu.reduce((a,r)=> a + delOtro(r), 0),
-      nOtro: enOtro.length,
+      nOtro: enOtro.filter(r => propia(r) > 0.005).length,
       leDebenDelOtro: enOtro.reduce((a,r)=> a + propia(r), 0),
       enEfectivo: conEfectivo.reduce((a,r)=> a + propiaEf(r), 0),
       enOtras: otrasTerminales.reduce((a,r)=> a + propia(r), 0),
@@ -2633,11 +2633,11 @@ function renderComisionesPago(docAlejandra, docOtro){
     return `
     <div class="com-pago-card">
       <h3>${esc2(x.doctor.nombre)}</h3>
-      <div class="fila"><span>Cabina cobrada con tarjeta en su terminal (${x.n} servicio${x.n===1?'':'s'})</span><b>${fmtMoney(x.cobrado)}</b></div>
-      <div class="fila"><span>De eso, le corresponde a ${esc2(nombreCorto(x.doctor))}</span><b>${fmtMoney(x.suyoEnSuTerminal)}</b></div>
-      <div class="fila"><span>De eso, es del otro doctor (debe transferir)</span><b>${fmtMoney(x.debeAlOtro)}</b></div>
-      <div class="fila"><span>Cobrado en la terminal del otro que le corresponde (${x.nOtro} servicio${x.nOtro===1?'':'s'})</span><b>${fmtMoney(x.leDebenDelOtro)}</b></div>
-      <div class="fila dif"><span>Saldo neto de terminales</span><b class="${saldo >= 0 ? 'pos' : 'neg'}">${saldo >= 0 ? '+' : '−'}${fmtMoney(Math.abs(saldo))}</b></div>
+      <div class="fila"><span>Cabina que cobró con tarjeta en SU terminal (${x.n} servicio${x.n===1?'':'s'})</span><b>${fmtMoney(x.cobrado)}</b></div>
+      <div class="fila"><span>De eso, se queda ${esc2(nombreCorto(x.doctor))}</span><b>${fmtMoney(x.suyoEnSuTerminal)}</b></div>
+      <div class="fila"><span>De eso, es del otro doctor → ${esc2(nombreCorto(x.doctor))} se lo debe</span><b>${fmtMoney(x.debeAlOtro)}</b></div>
+      <div class="fila"><span>Cabina que cobró el OTRO doctor y le toca a ${esc2(nombreCorto(x.doctor))} → el otro se lo debe (${x.nOtro} servicio${x.nOtro===1?'':'s'})</span><b>${fmtMoney(x.leDebenDelOtro)}</b></div>
+      <div class="fila dif"><span>Saldo neto: lo que le deben menos lo que debe</span><b class="${saldo >= 0 ? 'pos' : 'neg'}">${saldo >= 0 ? '+' : '−'}${fmtMoney(Math.abs(saldo))}</b></div>
       <div class="fila"><span>Cabina en efectivo: le corresponde</span><b>${fmtMoney(x.enEfectivo)}</b></div>
       ${x.enOtras > 0.005 ? `<div class="fila"><span>Cabina en otras terminales: le corresponde</span><b>${fmtMoney(x.enOtras)}</b></div>` : ''}
       <div class="fila dif"><span>Total que le corresponde de cabina</span><b>${fmtMoney(x.suyoEnSuTerminal + x.leDebenDelOtro + x.enEfectivo + x.enOtras)}</b></div>
