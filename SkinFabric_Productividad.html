@@ -647,16 +647,30 @@ main.appmain{padding:22px 26px 40px;max-width:1250px;margin:0 auto}
 .persona .cf-base{font-size:11.5px;color:var(--g6);font-variant-numeric:tabular-nums;white-space:nowrap}
 .persona .cf-arrow{font-size:10px;color:var(--g4)}
 .persona .cf-com{font-family:var(--font-d);font-size:13px;font-weight:700;white-space:nowrap;font-variant-numeric:tabular-nums;margin-left:auto}
-.persona .fila.acordeon{cursor:pointer;user-select:none}
+.persona .fila.acordeon{cursor:pointer;user-select:none;padding:8px 6px;margin:0 -6px;border-radius:7px}
 .persona .fila.acordeon:hover{background:var(--g1)}
-.persona .fila.acordeon .chev{display:inline-block;font-size:9px;color:var(--g4);margin-left:5px;transition:transform .15s}
-.persona .fila.acordeon.open .chev{transform:rotate(180deg)}
-.persona .acordeon-detalle{display:none;max-height:240px;overflow-y:auto;margin-bottom:4px;padding-left:6px;border-left:2px solid var(--g2)}
-.persona .acordeon-detalle.open{display:block}
-.persona .acordeon-row{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:10.5px;color:var(--g6);padding:3px 0 3px 4px;border-bottom:1px dashed var(--g1)}
-.persona .acordeon-row:last-child{border-bottom:none}
-.persona .acordeon-row .ar-main{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.persona .acordeon-row .ar-monto{flex:none;font-weight:700;color:var(--navy);font-variant-numeric:tabular-nums}
+.persona .fila.acordeon.open{background:var(--teal-soft)}
+.persona .fila.acordeon > span{display:flex;align-items:center;gap:5px}
+.persona .fila.acordeon .chev{font-size:9px;color:var(--g4);transition:transform .15s}
+.persona .fila.acordeon.open .chev{transform:rotate(180deg);color:var(--navy2)}
+/* Panel de detalle de comisión: de ancho completo debajo de la cuadrícula de personas (no adentro de la tarjeta angosta, donde se cortaba). */
+.com-det-panel{display:none;margin:-4px 0 16px;border:1.5px solid var(--teal);border-radius:12px;overflow:hidden;background:#fff}
+.com-det-panel.show{display:block}
+.com-det-head{background:var(--teal-soft);padding:12px 16px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.com-det-head h4{margin:0;font-family:var(--font-d);font-size:13.5px;color:var(--navy)}
+.com-det-head .sub{font-size:11px;color:var(--g6);margin-top:2px}
+.com-det-head .cerrar{background:none;border:none;color:var(--navy2);font-size:13px;font-weight:700;cursor:pointer;padding:4px 10px;border-radius:7px;font-family:inherit}
+.com-det-head .cerrar:hover{background:rgba(255,255,255,.6)}
+.com-det-wrap{overflow:auto;max-height:380px}
+table.com-det{width:100%;border-collapse:collapse;font-size:12px;min-width:780px}
+table.com-det thead th{position:sticky;top:0;background:#fff;text-align:left;font-size:10px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:var(--g6);padding:9px 14px;border-bottom:2px solid var(--g2);white-space:nowrap}
+table.com-det tbody td{padding:9px 14px;border-bottom:1px solid var(--g1);white-space:nowrap}
+table.com-det tbody tr:hover{background:var(--g1)}
+table.com-det tbody tr:last-child td{border-bottom:none}
+table.com-det .num{font-family:var(--font-d);font-variant-numeric:tabular-nums;text-align:right}
+table.com-det thead th.num{text-align:right}
+.com-det-foot{padding:10px 16px;border-top:1.5px solid var(--g2);display:flex;justify-content:flex-end;flex-wrap:wrap;gap:6px 18px;font-size:12px;background:var(--g1)}
+.com-det-foot b{font-family:var(--font-d);font-variant-numeric:tabular-nums}
 @media (max-width:900px){.persona-grid{grid-template-columns:repeat(2,1fr)}}
 @media (max-width:560px){.persona-grid{grid-template-columns:1fr}}
 
@@ -1043,17 +1057,20 @@ main.appmain{padding:22px 26px 40px;max-width:1250px;margin:0 auto}
 
         <div class="sec-title">Resumen por persona — comisión final</div>
         <div class="persona-grid" id="com-persona-grid"></div>
+        <div id="com-persona-detalle"></div>
 
         <div class="sec-title">Detalle de servicios <span style="font-weight:600;text-transform:none;letter-spacing:0;font-size:10.5px" id="com-detalle-count"></span></div>
         <div class="tx-table-wrap" id="com-detalle-wrap"><div class="empty-note">Cargando...</div></div>
       </div>
 
       <div class="subpanel" id="com-pago-panel">
-        <div class="com-nota-box">💡 Esta vista compara, para cada doctor/a, lo que efectivamente cobró su propia terminal contra lo que le corresponde según las reglas de comisión. La diferencia es lo que hay que transferirse entre ellos para quedar a mano. No incluye la comisión de las cosmetólogas (se paga aparte) ni el dinero sin terminal asignada — ambos se muestran por separado, abajo.</div>
+        <div class="com-nota-box">💡 Aquí solo cuenta la <b>producción de cabina</b>: servicios que atendieron las cosmetólogas. Ese dinero lo cobra la terminal de un doctor, pero la comisión se reparte entre los dos según las reglas (dueño del paciente, equipo dedicado, etc.). Por cada servicio se mira en qué terminal se cobró: quien lo cobró se quedó con el dinero y le debe al otro doctor la parte que le corresponde. Al final se compensan las dos deudas y queda una sola transferencia. La comisión de las cosmetólogas se paga aparte. Lo cobrado en Farmacia, Skin Fabric o sin terminal no se puede saldar todavía y se lista abajo.</div>
         <div id="com-transfer-banner"></div>
         <div class="com-pago-grid" id="com-pago-grid"></div>
-        <div class="sec-title">Otras terminales (fuera de este cálculo)</div>
+        <div class="sec-title">Cabina cobrada fuera de las terminales de los doctores (pendiente de asignar)</div>
         <div id="com-pago-otros"></div>
+        <div class="sec-title">Detalle de cabina <span style="font-weight:600;text-transform:none;letter-spacing:0;font-size:10.5px" id="com-pago-detalle-count"></span></div>
+        <div class="tx-table-wrap" id="com-pago-detalle"></div>
       </div>
     </div>
     <div class="card screen2" id="app-screen-prm">
@@ -1486,7 +1503,7 @@ main.appmain{padding:22px 26px 40px;max-width:1250px;margin:0 auto}
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.10.03-11';
+const APP_VERSION = 'v2026.10.03-12';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 const SUPABASE_URL = 'https://omjugldgnixuwqnnziyz.supabase.co';
@@ -2219,7 +2236,6 @@ const COM_SERVICIOS_EQUIPO_DEDICADO_ALEJANDRA = ['Depilación','Facial 3 en 1'];
 const COM_SERVICIOS_EQUIPO_DEDICADO_CARLOS = ['Láser luz pulsada'];
 
 let COM_SERVICE_ROWS = [];
-let COM_TERMINAL_TOTALS = {};
 let comReqId = 0;
 
 // Identifica a los 2 doctores por nombre (hay exactamente 2 en la clínica). Se resuelve en vivo
@@ -2315,13 +2331,8 @@ async function cargarComisiones(){
   }
 
   const serviceRows = [];
-  const terminalTotals = {};
   (data || []).forEach(c => {
-    const totalConsulta = Number(c.monto || 0) + Number(c.monto_2 || 0);
-    const termNombre = c.catalogo_terminales?.nombre || '(sin terminal asignada)';
-    if(!terminalTotals[termNombre]) terminalTotals[termNombre] = { monto:0, n:0 };
-    terminalTotals[termNombre].monto += totalConsulta;
-    terminalTotals[termNombre].n += 1;
+    const termNombre = c.catalogo_terminales?.nombre || null;
 
     const duenoId = c.pacientes?.dueno_id || null;
     const duenoRol = c.pacientes?.dueno?.rol || null;
@@ -2339,6 +2350,7 @@ async function cargarComisiones(){
         duenoId, duenoRol, duenoNombre,
         servicio: cs.catalogo_tipos_servicio?.nombre || '—',
         atiendeId, atiendeRol, atiendeNombre,
+        terminal: termNombre,
         monto,
       });
     });
@@ -2346,7 +2358,6 @@ async function cargarComisiones(){
 
   const { docAlejandra, docOtro } = comResolverDoctores();
   COM_SERVICE_ROWS = serviceRows.map(r => comCalcularFila(r, docAlejandra, docOtro));
-  COM_TERMINAL_TOTALS = terminalTotals;
 
   renderComisionesResumen(docAlejandra, docOtro);
   renderComisionesPago(docAlejandra, docOtro);
@@ -2412,14 +2423,41 @@ function renderComisionesResumen(docAlejandra, docOtro){
   `;
 
   // ── Resumen por persona: comisión FINAL ya aplicadas las reglas ──
-  // El acordeón de cada fila muestra, servicio por servicio, qué pacientes/servicios componen
-  // esa cifra — solo las filas donde esta persona de verdad recibió algo (valDe(r) > 0), para que
-  // la suma de lo que se ve adentro coincida exactamente con el monto de la fila.
-  const filaAcordeonHtml = (lista, valDe) => {
-    const conComision = lista.filter(r => valDe(r) > 0.005).slice().sort((a,b)=> (a.fecha < b.fecha ? 1 : -1));
-    if(!conComision.length) return '<div class="acordeon-row"><span class="ar-main">Sin servicios en este periodo</span></div>';
-    return conComision.map(r => `<div class="acordeon-row"><span class="ar-main" title="${esc2(r.pacienteNombre)} · ${esc2(r.servicio)}">${esc2(fmtFechaCorta(r.fecha))} · ${esc2(r.pacienteNombre)} · ${esc2(r.servicio)}</span><span class="ar-monto">${fmtMoney(valDe(r))}</span></div>`).join('');
+  // Cada fila "Consultas y Proc." / "Cabina" abre un panel de ancho completo (debajo de la cuadrícula)
+  // con el detalle servicio por servicio: solo las filas donde esta persona de verdad recibió algo
+  // (valDe(r) > 0), para que la suma de la columna "Comisión" coincida exactamente con la cifra de la fila.
+  const reglaChip = regla => {
+    if(regla.startsWith('100%')) return `<span class="chip chip-100">${esc2(regla)}</span>`;
+    if(regla.startsWith('70/30')) return `<span class="chip chip-7030">${esc2(regla)}</span>`;
+    if(regla.startsWith('50/50')) return `<span class="chip chip-5050">${esc2(regla)}</span>`;
+    return `<span class="chip">${esc2(regla)}</span>`;
   };
+  const panelDetalleHtml = (panelId, titulo, nombreCorto, lista, valDe) => {
+    const conComision = lista.filter(r => valDe(r) > 0.005).slice().sort((a,b)=> (a.fecha < b.fecha ? 1 : -1));
+    const sumaValor = conComision.reduce((a,r)=> a + r.monto, 0);
+    const sumaCom = conComision.reduce((a,r)=> a + valDe(r), 0);
+    const filas = conComision.map(r => `<tr>
+        <td>${fmtFechaCorta(r.fecha)}</td>
+        <td>${esc2(r.pacienteNombre)}</td>
+        <td>${esc2(r.servicio)}</td>
+        <td>${r.duenoNombre ? esc2(r.duenoNombre) : '<span style="color:var(--g4)">— sin dueño —</span>'}</td>
+        <td class="num">${fmtMoney(r.monto)}</td>
+        <td>${reglaChip(r.regla)}</td>
+        <td class="num"><b>${fmtMoney(valDe(r))}</b></td>
+      </tr>`).join('');
+    return `<div class="com-det-panel" id="${panelId}">
+      <div class="com-det-head">
+        <div><h4>${esc2(titulo)}</h4><div class="sub">${conComision.length} servicio${conComision.length===1?'':'s'} que le generaron comisión en este periodo</div></div>
+        <button class="cerrar" type="button" data-cerrar>✕ Cerrar</button>
+      </div>
+      <div class="com-det-wrap"><table class="com-det">
+        <thead><tr><th>Fecha</th><th>Paciente</th><th>Procedimiento</th><th>Dueño del paciente</th><th class="num">Valor pagado</th><th>Regla</th><th class="num">Comisión ${esc2(nombreCorto)}</th></tr></thead>
+        <tbody>${filas || '<tr><td colspan="7" style="text-align:center;color:var(--g6);padding:22px">Sin servicios en este periodo.</td></tr>'}</tbody>
+      </table></div>
+      <div class="com-det-foot"><span>Valor pagado: <b>${fmtMoney(sumaValor)}</b></span><span>Comisión de ${esc2(nombreCorto)}: <b>${fmtMoney(sumaCom)}</b></span></div>
+    </div>`;
+  };
+  let panelesHtml = '';
   let personaHtml = '';
   doctores.forEach((d, i) => {
     const esAlejandra = d.id === docAlejandra?.id;
@@ -2428,15 +2466,16 @@ function renderComisionesResumen(docAlejandra, docOtro){
     const comCabina = cabina.reduce((a,r)=> a + valDe(r), 0);
     const total = comConsultas + comCabina;
     const nServicios = rows.filter(r => r.duenoId === d.id).length;
-    const accConsultasId = `com-acc-consultas-${d.id}`;
-    const accCabinaId = `com-acc-cabina-${d.id}`;
+    const panelConsultasId = `com-det-consultas-${d.id}`;
+    const panelCabinaId = `com-det-cabina-${d.id}`;
+    const nombreCorto = d.nombre.split(' ').slice(0,2).join(' ');
+    panelesHtml += panelDetalleHtml(panelConsultasId, `${d.nombre} — Consultas y Procedimientos`, nombreCorto, noCabina, valDe);
+    panelesHtml += panelDetalleHtml(panelCabinaId, `${d.nombre} — Cabina`, nombreCorto, cabina, valDe);
     personaHtml += `<div class="persona ${i===0?'doc1':'doc2'}">
       <div class="nombre">${esc2(d.nombre)}</div>
       <div class="rol">Doctor${d.nombre.toLowerCase().startsWith('dra')?'a':''} · dueño/a de ${nServicios} servicios</div>
-      <div class="fila acordeon" data-acc="${accConsultasId}"><span>Consultas y Proc. <span class="chev">▾</span></span><b>${fmtMoney(comConsultas)}</b></div>
-      <div class="acordeon-detalle" id="${accConsultasId}">${filaAcordeonHtml(noCabina, valDe)}</div>
-      <div class="fila acordeon" data-acc="${accCabinaId}"><span>Cabina <span class="chev">▾</span></span><b>${fmtMoney(comCabina)}</b></div>
-      <div class="acordeon-detalle" id="${accCabinaId}">${filaAcordeonHtml(cabina, valDe)}</div>
+      <div class="fila acordeon" data-panel="${panelConsultasId}" title="Ver el detalle"><span>Consultas y Proc. <span class="chev">▾</span></span><b>${fmtMoney(comConsultas)}</b></div>
+      <div class="fila acordeon" data-panel="${panelCabinaId}" title="Ver el detalle"><span>Cabina <span class="chev">▾</span></span><b>${fmtMoney(comCabina)}</b></div>
       <div class="total-block"><div class="total-label">Comisión total</div><div class="total-value">${fmtMoney(total)}</div></div>
     </div>`;
   });
@@ -2457,18 +2496,13 @@ function renderComisionesResumen(docAlejandra, docOtro){
     </div>`;
   });
   document.getElementById('com-persona-grid').innerHTML = personaHtml || '<div class="empty-note">Sin personal con comisión configurada.</div>';
+  document.getElementById('com-persona-detalle').innerHTML = panelesHtml;
 
   // ── Detalle ──
   const nombreOtro = docOtro?.nombre || 'Doctor';
   const nombreAlejandra = docAlejandra?.nombre || 'Dra. Alejandra';
   const detalle = rows.slice().sort((a,b)=> (a.fecha < b.fecha ? 1 : -1)).slice(0, 400);
   document.getElementById('com-detalle-count').textContent = `(${rows.length} servicios en el periodo${rows.length>400 ? ', mostrando los 400 más recientes':''})`;
-  const reglaChip = regla => {
-    if(regla.startsWith('100%')) return `<span class="chip chip-100">${esc2(regla)}</span>`;
-    if(regla.startsWith('70/30')) return `<span class="chip chip-7030">${esc2(regla)}</span>`;
-    if(regla.startsWith('50/50')) return `<span class="chip chip-5050">${esc2(regla)}</span>`;
-    return `<span class="chip">${esc2(regla)}</span>`;
-  };
   const filasHtml = detalle.map(r => `
     <tr class="${r.duenoRol==='cosmetologo' ? 'duenacosm' : ''}">
       <td>${fmtFechaCorta(r.fecha)}</td>
@@ -2489,96 +2523,162 @@ function renderComisionesResumen(docAlejandra, docOtro){
     </table>`;
 }
 
-// Acordeón de "Resumen por persona": un solo listener delegado (el contenedor es fijo en el HTML,
-// aunque su contenido se vuelve a pintar cada vez que corre renderComisionesResumen) en vez de
-// re-agregar el listener en cada render, que los iría acumulando.
+// Paneles de detalle de "Resumen por persona": listeners delegados sobre contenedores fijos del HTML
+// (su contenido se vuelve a pintar en cada render). Solo un panel abierto a la vez.
+function comAbrirCerrarPanel(panelId){
+  const panel = document.getElementById(panelId);
+  if(!panel) return;
+  const yaAbierto = panel.classList.contains('show');
+  document.querySelectorAll('#com-persona-detalle .com-det-panel.show').forEach(p => p.classList.remove('show'));
+  document.querySelectorAll('#com-persona-grid .fila.acordeon.open').forEach(f => f.classList.remove('open'));
+  if(!yaAbierto){
+    panel.classList.add('show');
+    document.querySelector(`#com-persona-grid .fila.acordeon[data-panel="${panelId}"]`)?.classList.add('open');
+    panel.scrollIntoView({ behavior:'smooth', block:'nearest' });
+  }
+}
 document.getElementById('com-persona-grid').addEventListener('click', (e) => {
   const fila = e.target.closest('.fila.acordeon');
-  if(!fila) return;
-  const detalle = document.getElementById(fila.dataset.acc);
-  if(!detalle) return;
-  fila.classList.toggle('open');
-  detalle.classList.toggle('open');
+  if(fila) comAbrirCerrarPanel(fila.dataset.panel);
+});
+document.getElementById('com-persona-detalle').addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-cerrar]');
+  if(!btn) return;
+  btn.closest('.com-det-panel').classList.remove('show');
+  document.querySelectorAll('#com-persona-grid .fila.acordeon.open').forEach(f => f.classList.remove('open'));
 });
 
-function renderComisionesPago(docAlejandra, docOtro){
-  const doctores = [docOtro, docAlejandra].filter(Boolean);
-  const rows = COM_SERVICE_ROWS;
-
-  const entitlementDe = (doctor) => {
-    const esAlejandra = doctor.id === docAlejandra?.id;
-    return rows.reduce((a,r)=> a + (esAlejandra ? r.comAlejandra : r.comOtro), 0);
-  };
-  // La terminal del doctor se llama distinto a su nombre completo en personal (p.ej. "Dr. Carlos"
-  // vs. "Dr. Carlos Barrera"), así que se empareja por coincidencia de texto en vez de exigir
-  // que sean idénticos.
-  const comTerminalKeyDe = (doctor) => Object.keys(COM_TERMINAL_TOTALS).find(k => k !== '(sin terminal asignada)' && (doctor.nombre||'').toLowerCase().includes(k.toLowerCase()));
-  const terminalDe = (doctor) => COM_TERMINAL_TOTALS[comTerminalKeyDe(doctor)] || { monto:0, n:0 };
-
-  const info = doctores.map(d => {
-    const entitlement = entitlementDe(d);
-    const terminal = terminalDe(d);
-    const diferencia = terminal.monto - entitlement;
-    return { doctor:d, entitlement, terminal, diferencia };
-  });
-
-  document.getElementById('com-pago-grid').innerHTML = info.map(x => `
-    <div class="com-pago-card">
-      <h3>${esc2(x.doctor.nombre)}</h3>
-      <div class="fila"><span>Cobrado por su terminal (${x.terminal.n} consultas)</span><b>${fmtMoney(x.terminal.monto)}</b></div>
-      <div class="fila"><span>Le corresponde según comisiones</span><b>${fmtMoney(x.entitlement)}</b></div>
-      <div class="fila dif"><span>Diferencia</span><b class="${x.diferencia >= 0 ? 'pos' : 'neg'}">${x.diferencia >= 0 ? '+' : ''}${fmtMoney(x.diferencia)}</b></div>
-    </div>`).join('');
-
-  // ── Conclusión: ¿quién le transfiere a quién? ──
-  const banner = document.getElementById('com-transfer-banner');
-  if(info.length < 2){
-    banner.innerHTML = `<div class="com-transfer-banner pend"><div class="ico">⚠️</div><div class="txt"><div class="t1">Faltan datos</div><div class="t2">No se encontraron los 2 doctores de la clínica — revisa el catálogo de personal.</div></div></div>`;
-  } else {
-    const [a, b] = info; // a = docOtro, b = docAlejandra
-    const SIN_TERMINAL = COM_TERMINAL_TOTALS['(sin terminal asignada)'] || { monto:0, n:0 };
-    if(a.diferencia > 0 && b.diferencia < 0){
-      const monto = Math.min(a.diferencia, -b.diferencia);
-      banner.innerHTML = comBannerTransferencia(a.doctor.nombre, b.doctor.nombre, monto, SIN_TERMINAL);
-    } else if(b.diferencia > 0 && a.diferencia < 0){
-      const monto = Math.min(b.diferencia, -a.diferencia);
-      banner.innerHTML = comBannerTransferencia(b.doctor.nombre, a.doctor.nombre, monto, SIN_TERMINAL);
-    } else if(Math.abs(a.diferencia) < 1 && Math.abs(b.diferencia) < 1){
-      banner.innerHTML = `<div class="com-transfer-banner ok"><div class="ico">✅</div><div class="txt"><div class="t1">Cuentas igualadas</div><div class="t2">Ninguno de los dos doctores necesita transferirle nada al otro en este periodo.</div></div></div>`;
-    } else {
-      // Mismo signo en los dos: ninguno le debe al otro directamente — el desbalance está
-      // sentado en dinero sin terminal asignada (probablemente efectivo sin repartir todavía).
-      banner.innerHTML = `<div class="com-transfer-banner pend">
-        <div class="ico">💡</div>
-        <div class="txt">
-          <div class="t1">No hay transferencia directa entre ellos por ahora</div>
-          <div class="t2">Los dos ${a.diferencia<0&&b.diferencia<0?'cobraron menos de lo que les corresponde':'cobraron más de lo que les corresponde'} en su propia terminal. La diferencia (${fmtMoney(Math.abs(a.diferencia))} y ${fmtMoney(Math.abs(b.diferencia))}) está sentada en el dinero sin terminal asignada (${fmtMoney(SIN_TERMINAL.monto)} en ${SIN_TERMINAL.n} consultas) — hay que asignarlo o cobrarlo antes de poder cuadrar del todo.</div>
-        </div>
-      </div>`;
-    }
-  }
-
-  // ── Otras terminales (Farmacia, Skin Fabric, sin asignar) — fuera del cálculo de arriba ──
-  const keysDeDoctores = new Set(doctores.map(d => comTerminalKeyDe(d)).filter(Boolean));
-  const otras = Object.entries(COM_TERMINAL_TOTALS).filter(([nombre]) => !keysDeDoctores.has(nombre));
-  document.getElementById('com-pago-otros').innerHTML = otras.length
-    ? `<div class="tx-table-wrap"><table class="tx-table"><thead><tr><th>Terminal</th><th>Consultas</th><th>Cobrado</th></tr></thead><tbody>${
-        otras.map(([nombre, t]) => `<tr><td>${esc2(nombre)}</td><td>${t.n}</td><td>${fmtMoney(t.monto)}</td></tr>`).join('')
-      }</tbody></table></div>`
-    : '<div class="empty-note">No hay otras terminales con movimientos en este periodo.</div>';
+// ── Pago entre doctores ──
+// Solo producción de cabina de cosmetólogas (esCabinaDeCosmetologa). Quien cobró en su terminal
+// se quedó con el dinero y le debe al otro doctor la comisión que a este le corresponde de ese servicio.
+// La terminal del doctor se llama distinto a su nombre completo en personal ("Dr. Carlos" vs
+// "Dr. Carlos Barrera"), así que se empareja por coincidencia de texto.
+function comDoctorDeTerminal(terminal, docAlejandra, docOtro){
+  if(!terminal) return null;
+  const t = terminal.toLowerCase();
+  const coincide = d => d && (d.nombre||'').toLowerCase().includes(t);
+  if(coincide(docOtro)) return docOtro;
+  if(coincide(docAlejandra)) return docAlejandra;
+  return null;
 }
 
-function comBannerTransferencia(deNombre, aNombre, monto, sinTerminal){
-  const notaSinTerminal = sinTerminal.monto > 0
-    ? ` (sin contar ${fmtMoney(sinTerminal.monto)} que todavía no tienen terminal asignada en ${sinTerminal.n} consultas)`
+function renderComisionesPago(docAlejandra, docOtro){
+  const cabina = COM_SERVICE_ROWS.filter(r => r.esCabina && r.atiendeRol === 'cosmetologo');
+  const banner = document.getElementById('com-transfer-banner');
+  if(!docAlejandra || !docOtro){
+    banner.innerHTML = `<div class="com-transfer-banner pend"><div class="ico">⚠️</div><div class="txt"><div class="t1">Faltan datos</div><div class="t2">No se encontraron los 2 doctores de la clínica — revisa el catálogo de personal.</div></div></div>`;
+    document.getElementById('com-pago-grid').innerHTML = '';
+    document.getElementById('com-pago-otros').innerHTML = '';
+    document.getElementById('com-pago-detalle').innerHTML = '';
+    return;
+  }
+  const nombreCorto = d => d.nombre.split(' ').slice(0,2).join(' ');
+
+  // Anota a cada fila de cabina quién cobró.
+  const filas = cabina.map(r => {
+    const holder = comDoctorDeTerminal(r.terminal, docAlejandra, docOtro);
+    return { ...r, holder };
+  });
+  const cobradas = filas.filter(r => r.holder);
+  const sueltas = filas.filter(r => !r.holder);
+
+  // Por doctor: lo que cobró su terminal, lo que de eso le toca a él y lo que le toca al otro.
+  const acum = d => {
+    const esAlejandra = d.id === docAlejandra.id;
+    const propia = r => esAlejandra ? r.comAlejandra : r.comOtro;
+    const delOtro = r => esAlejandra ? r.comOtro : r.comAlejandra;
+    const enSuTerminal = cobradas.filter(r => r.holder.id === d.id);
+    const enTerminalDelOtro = cobradas.filter(r => r.holder.id !== d.id);
+    return {
+      doctor: d,
+      n: enSuTerminal.length,
+      cobrado: enSuTerminal.reduce((a,r)=> a + r.monto, 0),
+      suyoEnSuTerminal: enSuTerminal.reduce((a,r)=> a + propia(r), 0),
+      debeAlOtro: enSuTerminal.reduce((a,r)=> a + delOtro(r), 0),
+      nOtro: enTerminalDelOtro.length,
+      cobradoPorElOtro: enTerminalDelOtro.reduce((a,r)=> a + r.monto, 0),
+      leDebenDelOtro: enTerminalDelOtro.reduce((a,r)=> a + propia(r), 0),
+    };
+  };
+  const a = acum(docOtro), b = acum(docAlejandra); // a = Carlos, b = Alejandra
+  const debeA = a.debeAlOtro;   // Carlos le debe a Alejandra
+  const debeB = b.debeAlOtro;   // Alejandra le debe a Carlos
+  const neto = debeA - debeB;
+
+  const totalCosm = cabina.reduce((a,r)=> a + r.comCosmAtiende + r.comCosmDueno, 0);
+
+  document.getElementById('com-pago-grid').innerHTML = [a, b].map(x => `
+    <div class="com-pago-card">
+      <h3>${esc2(x.doctor.nombre)}</h3>
+      <div class="fila"><span>Cabina cobrada en su terminal (${x.n} servicio${x.n===1?'':'s'})</span><b>${fmtMoney(x.cobrado)}</b></div>
+      <div class="fila"><span>De eso, le corresponde a ${esc2(nombreCorto(x.doctor))}</span><b>${fmtMoney(x.suyoEnSuTerminal)}</b></div>
+      <div class="fila"><span>De eso, es del otro doctor (debe transferir)</span><b>${fmtMoney(x.debeAlOtro)}</b></div>
+      <div class="fila"><span>Cobrado en la terminal del otro que le corresponde (${x.nOtro} servicio${x.nOtro===1?'':'s'})</span><b>${fmtMoney(x.leDebenDelOtro)}</b></div>
+      <div class="fila dif"><span>Saldo neto</span><b class="${(x.leDebenDelOtro - x.debeAlOtro) >= 0 ? 'pos' : 'neg'}">${(x.leDebenDelOtro - x.debeAlOtro) >= 0 ? '+' : '−'}${fmtMoney(Math.abs(x.leDebenDelOtro - x.debeAlOtro))}</b></div>
+    </div>`).join('');
+
+  const sueltasTotal = sueltas.reduce((acc,r)=> acc + r.monto, 0);
+  const notaSueltas = sueltas.length
+    ? ` Quedan ${fmtMoney(sueltasTotal)} de cabina en ${sueltas.length} servicio${sueltas.length===1?'':'s'} cobrados fuera de las terminales de los doctores, que no entran en este saldo.`
     : '';
-  return `<div class="com-transfer-banner pend">
-    <div class="ico">🤝</div>
-    <div class="txt">
-      <div class="t1">${esc2(deNombre)} debería transferirle a ${esc2(aNombre)}: ${fmtMoney(monto)}</div>
-      <div class="t2">Es lo que hace falta para que lo que cada quien tiene en su terminal cuadre con lo que le corresponde según las reglas de comisión${notaSinTerminal}.</div>
-    </div>
-  </div>`;
+  const notaCosm = ` Comisión de cosmetólogas de esta cabina (se paga aparte): ${fmtMoney(totalCosm)}.`;
+  if(Math.abs(neto) < 1){
+    banner.innerHTML = `<div class="com-transfer-banner ok"><div class="ico">✅</div><div class="txt"><div class="t1">Cuentas igualadas</div><div class="t2">Ninguno de los dos le debe nada al otro por la cabina de este periodo.${notaSueltas}${notaCosm}</div></div></div>`;
+  } else {
+    const deudor = neto > 0 ? docOtro : docAlejandra;
+    const acreedor = neto > 0 ? docAlejandra : docOtro;
+    banner.innerHTML = `<div class="com-transfer-banner pend">
+      <div class="ico">🤝</div>
+      <div class="txt">
+        <div class="t1">${esc2(deudor.nombre)} le transfiere a ${esc2(acreedor.nombre)}: ${fmtMoney(Math.abs(neto))}</div>
+        <div class="t2">${esc2(nombreCorto(docOtro))} cobró en su terminal cabina de la que ${fmtMoney(debeA)} corresponden a ${esc2(nombreCorto(docAlejandra))}; ${esc2(nombreCorto(docAlejandra))} cobró en la suya cabina de la que ${fmtMoney(debeB)} corresponden a ${esc2(nombreCorto(docOtro))}. Compensadas las dos deudas, queda esta transferencia.${notaSueltas}${notaCosm}</div>
+      </div>
+    </div>`;
+  }
+
+  // ── Cabina cobrada fuera de las terminales de los doctores ──
+  const porTerminal = {};
+  sueltas.forEach(r => {
+    const k = r.terminal || '(sin terminal asignada)';
+    const t = porTerminal[k] || (porTerminal[k] = { n:0, monto:0, comOtro:0, comAlejandra:0 });
+    t.n++; t.monto += r.monto; t.comOtro += r.comOtro; t.comAlejandra += r.comAlejandra;
+  });
+  const keys = Object.keys(porTerminal);
+  document.getElementById('com-pago-otros').innerHTML = keys.length
+    ? `<div class="tx-table-wrap"><table class="tx-table"><thead><tr><th>Terminal</th><th>Servicios</th><th>Cobrado</th><th>Le toca a ${esc2(nombreCorto(docOtro))}</th><th>Le toca a ${esc2(nombreCorto(docAlejandra))}</th></tr></thead><tbody>${
+        keys.map(k => { const t = porTerminal[k]; return `<tr><td>${esc2(k)}</td><td>${t.n}</td><td>${fmtMoney(t.monto)}</td><td>${fmtMoney(t.comOtro)}</td><td>${fmtMoney(t.comAlejandra)}</td></tr>`; }).join('')
+      }</tbody></table></div>`
+    : '<div class="empty-note">Toda la cabina de este periodo se cobró en terminales de los doctores.</div>';
+
+  // ── Detalle servicio por servicio ──
+  const LIMITE = 400;
+  const ordenadas = filas.slice().sort((x,y)=> x.fecha < y.fecha ? 1 : x.fecha > y.fecha ? -1 : 0);
+  const visibles = ordenadas.slice(0, LIMITE);
+  document.getElementById('com-pago-detalle-count').textContent = `(${filas.length} servicios${filas.length > LIMITE ? ` · mostrando los ${LIMITE} más recientes` : ''})`;
+  const quienDebe = r => {
+    if(!r.holder) return '<span style="color:var(--g4)">Pendiente de asignar</span>';
+    const esAlejandraHolder = r.holder.id === docAlejandra.id;
+    const monto = esAlejandraHolder ? r.comOtro : r.comAlejandra;
+    const acreedor = esAlejandraHolder ? docOtro : docAlejandra;
+    if(monto < 0.005) return '<span style="color:var(--g4)">—</span>';
+    return `${esc2(nombreCorto(r.holder))} → ${esc2(nombreCorto(acreedor))}: <b>${fmtMoney(monto)}</b>`;
+  };
+  document.getElementById('com-pago-detalle').innerHTML = visibles.length
+    ? `<table class="tx-table"><thead><tr><th>Fecha</th><th>Paciente</th><th>Servicio</th><th>Atendió</th><th>Dueño</th><th>Terminal</th><th>Valor</th><th>Com. ${esc2(nombreCorto(docOtro))}</th><th>Com. ${esc2(nombreCorto(docAlejandra))}</th><th>Quién debe</th></tr></thead><tbody>${
+        visibles.map(r => `<tr>
+          <td>${fmtFechaCorta(r.fecha)}</td>
+          <td>${esc2(r.pacienteNombre)}</td>
+          <td>${esc2(r.servicio)}</td>
+          <td>${esc2(r.atiendeNombre)}</td>
+          <td>${r.duenoNombre ? esc2(r.duenoNombre) : '—'}</td>
+          <td>${esc2(r.terminal || '(sin terminal)')}</td>
+          <td>${fmtMoney(r.monto)}</td>
+          <td>${fmtMoney(r.comOtro)}</td>
+          <td>${fmtMoney(r.comAlejandra)}</td>
+          <td>${quienDebe(r)}</td>
+        </tr>`).join('')
+      }</tbody></table>`
+    : '<div class="empty-note">No hay servicios de cabina en este periodo.</div>';
 }
 
 document.querySelectorAll('#app-screen-comisiones .prm-tab-btn').forEach(btn=>{
