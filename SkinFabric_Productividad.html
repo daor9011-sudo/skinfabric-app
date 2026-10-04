@@ -239,6 +239,13 @@ main.appmain{padding:22px 26px 40px;max-width:1250px;margin:0 auto}
 .excl-link{font-size:12px;color:var(--g6);cursor:pointer;display:flex;align-items:center;gap:5px;padding:5px 10px;border-radius:20px;border:1px solid var(--g2);user-select:none}
 .excl-link.active{background:var(--teal-soft);border-color:rgba(42,191,191,.5);color:#0B6E6E;font-weight:700}
 .tx-table-wrap{overflow-x:auto}
+.com-filtros{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 10px}
+.com-filtros label{font-size:10px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:var(--g6);display:flex;flex-direction:column;gap:3px}
+.com-filtros select,.com-filtros input{padding:7px 10px;font-size:12.5px;border:1.5px solid var(--g2);border-radius:7px;background:#fff;color:var(--navy);font-family:inherit;outline:none;min-width:150px}
+.com-filtros select:focus,.com-filtros input:focus{border-color:var(--teal)}
+.com-filtros .btn-sm{align-self:flex-end}
+.com-filtros-res{font-size:11.5px;color:var(--g6);margin:0 0 8px}
+.com-filtros-res b{color:var(--navy)}
 .tx-table{width:100%;border-collapse:collapse;font-size:12.5px}
 .tx-table thead tr{background:linear-gradient(135deg,var(--navy),#132a4d)}
 .tx-table th{text-align:left;padding:10px 12px;color:rgba(255,255,255,.92);font-size:10px;letter-spacing:1px;text-transform:uppercase;border-bottom:2px solid var(--teal);font-weight:700;white-space:nowrap}
@@ -641,13 +648,18 @@ main.appmain{padding:22px 26px 40px;max-width:1250px;margin:0 auto}
 .com-periodo-bar .sep{font-size:11px;color:var(--g6)}
 
 .rubro-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:16px}
-.rubro{border:1.5px solid var(--g2);border-radius:12px;padding:16px}
-.rubro.cabina{border-color:#D2B4DE;background:#FBF7FD}
-.rubro h3{margin:0 0 2px;font-family:var(--font-d);font-size:14px}
-.rubro .sub{font-size:11px;color:var(--g6);margin-bottom:12px}
-.rubro .fila{display:flex;justify-content:space-between;gap:8px;font-size:12.5px;padding:5px 0;border-top:1px solid var(--g1)}
+.rubro{--rb:var(--navy2);--rb-soft:#EAF1FB;border:2px solid var(--rb);border-radius:14px;padding:0;background:var(--rb-soft);overflow:hidden;box-shadow:0 3px 10px rgba(11,42,77,.14)}
+.rubro.cabina{--rb:#7B3F9E;--rb-soft:#F6ECFB;box-shadow:0 3px 10px rgba(123,63,158,.20)}
+.rubro-head{background:var(--rb);color:#fff;padding:12px 16px}
+.rubro h3{margin:0 0 2px;font-family:var(--font-d);font-size:15px;color:#fff}
+.rubro .sub{font-size:11px;color:rgba(255,255,255,.82);margin:0}
+.rubro-body{padding:12px 16px 14px}
+.rubro .fila{display:flex;justify-content:space-between;gap:8px;font-size:12.5px;padding:6px 0;border-top:1px solid rgba(11,22,40,.10)}
 .rubro .fila:first-of-type{border-top:none}
-.rubro .fila b{font-family:var(--font-d);font-variant-numeric:tabular-nums}
+.rubro .fila b{font-family:var(--font-d);font-variant-numeric:tabular-nums;white-space:nowrap}
+.rubro .fila.tot{padding:2px 0 9px;margin-bottom:3px;border-bottom:2px solid var(--rb);align-items:baseline}
+.rubro .fila.tot span{font-size:11px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:var(--rb)}
+.rubro .fila.tot b{font-size:24px;color:var(--rb)}
 .rubro .nota{margin-top:10px;padding-top:8px;border-top:1px dashed var(--g2);font-size:10.5px;line-height:1.4;color:var(--g6)}
 @media (max-width:700px){.rubro-grid{grid-template-columns:1fr}}
 
@@ -663,9 +675,9 @@ main.appmain{padding:22px 26px 40px;max-width:1250px;margin:0 auto}
 .persona .fila:first-of-type{border-top:none}
 .persona .fila span{white-space:nowrap}
 .persona .fila b{font-family:var(--font-d);white-space:nowrap;font-variant-numeric:tabular-nums}
-.persona .total-block{margin-top:9px;padding-top:9px;border-top:1.5px solid var(--g2)}
+.persona .total-block{margin-top:9px;padding-top:9px;border-top:1.5px solid var(--g2);text-align:right}
 .persona .total-label{font-size:10px;font-weight:800;letter-spacing:.3px;text-transform:uppercase;color:var(--g6)}
-.persona .total-value{font-family:var(--font-d);font-size:19px;font-weight:700;color:var(--teal);margin-top:2px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.persona .total-value{font-family:var(--font-d);font-size:19px;text-align:right;font-weight:700;color:var(--teal);margin-top:2px;font-variant-numeric:tabular-nums;white-space:nowrap}
 .persona .cosm-fila{padding:6px 0;border-top:1px solid var(--g1)}
 .persona .cosm-fila:first-of-type{border-top:none}
 .persona .cf-label{font-size:10.5px;color:var(--g6);display:flex;justify-content:space-between}
@@ -1134,11 +1146,18 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
         <div class="sec-title">Por rubro — producción real (quién la atendió)</div>
         <div class="rubro-grid" id="com-rubro-grid"></div>
 
-        <div class="sec-title">Resumen por persona — comisión final</div>
+        <div class="sec-title">Resumen por persona</div>
         <div class="persona-grid" id="com-persona-grid"></div>
         <div id="com-persona-detalle"></div>
 
         <div class="sec-title">Detalle de servicios <span style="font-weight:600;text-transform:none;letter-spacing:0;font-size:10.5px" id="com-detalle-count"></span></div>
+        <div class="com-filtros">
+          <label>Atendió<select id="com-f-atiende"><option value="">Todos</option></select></label>
+          <label>Dueño del paciente<select id="com-f-dueno"><option value="">Todos</option></select></label>
+          <label>Paciente o servicio<input type="search" id="com-f-q" placeholder="Buscar..." autocomplete="off"/></label>
+          <button class="btn-sm btn-outline" id="com-f-limpiar" type="button">Limpiar</button>
+        </div>
+        <div class="com-filtros-res" id="com-f-res"></div>
         <div class="tx-table-wrap" id="com-detalle-wrap"><div class="empty-note">Cargando...</div></div>
       </div>
 
@@ -1596,7 +1615,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.10.04-9';
+const APP_VERSION = 'v2026.10.04-10';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 const SUPABASE_URL = 'https://omjugldgnixuwqnnziyz.supabase.co';
@@ -2471,15 +2490,10 @@ function comCalcularFila(row, docAlejandra, docOtro){
   return { ...row, esCabina, comCosmAtiende, comCosmDueno, comAlejandra, comOtro, regla, distAlejandra, distOtro, reglaDist, pctCosmAtiende: R.cosm_atiende_pct, pctCosmDueno: R.cosm_duena_pct };
 }
 
-// Cuánto de un servicio se pagó en efectivo. Si el servicio ya trae su propio 1er/2do pago se usa tal cual;
-// si no (registros anteriores), se reparte el pago de la consulta proporcionalmente (1er pago → medio_pago, 2do → medio_pago_2).
+// Efectivo de un servicio, igual que el pivot: si el medio de pago de la consulta es Efectivo, el servicio completo
+// cuenta como efectivo (aunque el 2do pago sea con tarjeta); en cualquier otro caso no cuenta como efectivo.
 function comEfectivoServicio(c, cs, monto){
-  const esEf = m => /efectivo/i.test(m || '');
-  const c1 = Number(c.monto || 0), c2 = Number(c.monto_2 || 0), cTot = c1 + c2;
-  let p1, p2;
-  if(cs && cs.monto_1 != null){ p1 = Number(cs.monto_1 || 0); p2 = Number(cs.monto_2 || 0); }
-  else { p1 = cTot > 0 ? monto * (c1 / cTot) : monto; p2 = monto - p1; }
-  return Math.min(Math.max((esEf(c.medio_pago) ? p1 : 0) + (esEf(c.medio_pago_2) ? p2 : 0), 0), monto);
+  return /efectivo/i.test(c.medio_pago || '') ? Math.max(monto, 0) : 0;
 }
 
 async function cargarComisiones(){
@@ -2555,8 +2569,8 @@ function renderComisionesResumen(docAlejandra, docOtro){
   const serviciosDuenaCosm = rows.filter(r => r.duenoRol === 'cosmetologo').length;
 
   document.getElementById('com-kpis').innerHTML = `
-    <div class="kpi-card"><div class="ico">💰</div><div class="kpi-label">Ingreso total</div><div class="kpi-val">${fmtMoney(ingresoTotal)}</div></div>
-    <div class="kpi-card"><div class="ico">🧴</div><div class="kpi-label">Comisión cosmetólogas</div><div class="kpi-val">${fmtMoney(comCosmTotal)}</div></div>
+    <div class="kpi-card"><div class="ico">💰</div><div class="kpi-label">Ingreso total</div><div class="kpi-val">${fmtMoney0(ingresoTotal)}</div></div>
+    <div class="kpi-card"><div class="ico">🧴</div><div class="kpi-label">Comisión cosmetólogas</div><div class="kpi-val">${fmtMoney0(comCosmTotal)}</div></div>
     <div class="kpi-card"><div class="ico">👤</div><div class="kpi-label">Servicios con dueña cosmetóloga</div><div class="kpi-val">${serviciosDuenaCosm}</div></div>
     <div class="kpi-card"><div class="ico">🧾</div><div class="kpi-label">Servicios en el periodo</div><div class="kpi-val">${rows.length}</div></div>
   `;
@@ -2583,27 +2597,31 @@ function renderComisionesResumen(docAlejandra, docOtro){
   const filasConsultas = doctores.map(d => {
     const n = noCabina.filter(r => r.atiendeNombre === d.nombre).length;
     const monto = sumarPor(noCabina, d.nombre);
-    return monto > 0 || n > 0 ? `<div class="fila"><span>Producción ${esc2(d.nombre)}</span><b>${fmtMoney(monto)}</b></div>` : '';
+    return monto > 0 || n > 0 ? `<div class="fila"><span>Producción ${esc2(d.nombre)}</span><b>${fmtMoney0(monto)}</b></div>` : '';
   }).join('');
 
   const cabinaCosm = cosmetologas.map(c => ({ nombre:c.nombre, monto: sumarPor(cabina, c.nombre) }));
   const cabinaCosmTotal = cabinaCosm.reduce((a,c)=> a + c.monto, 0);
   const filasCabina = cabinaCosm.filter(c => c.monto > 0).map(c =>
-    `<div class="fila"><span>Producción ${esc2(c.nombre)}</span><b>${fmtMoney(c.monto)}</b></div>`
+    `<div class="fila"><span>Producción ${esc2(c.nombre)}</span><b>${fmtMoney0(c.monto)}</b></div>`
   ).join('');
 
   document.getElementById('com-rubro-grid').innerHTML = `
     <div class="rubro">
-      <h3>🩺 Consultas y Procedimientos</h3>
-      <div class="sub">${noCabina.length} servicios · incluye procedimientos de cabina atendidos directo por el/la doctor(a)</div>
-      <div class="fila"><span>Ingreso total</span><b>${fmtMoney(ingresoNoCabina)}</b></div>
+      <div class="rubro-head"><h3>🩺 Consultas y Procedimientos</h3>
+      <div class="sub">${noCabina.length} servicios · incluye procedimientos de cabina atendidos directo por el/la doctor(a)</div></div>
+      <div class="rubro-body">
+      <div class="fila tot"><span>Ingreso total</span><b>${fmtMoney0(ingresoNoCabina)}</b></div>
       ${filasConsultas || '<div class="fila"><span>Sin datos en este periodo</span><b>—</b></div>'}
+      </div>
     </div>
     <div class="rubro cabina">
-      <h3>🛁 Cabina</h3>
-      <div class="sub">${cabina.length} servicios · atendidos por una cosmetóloga · producción por cosmetóloga</div>
-      <div class="fila"><span>Ingreso total</span><b>${fmtMoney(ingresoCabina)}</b></div>
+      <div class="rubro-head"><h3>🛁 Cabina</h3>
+      <div class="sub">${cabina.length} servicios · atendidos por una cosmetóloga · producción por cosmetóloga</div></div>
+      <div class="rubro-body">
+      <div class="fila tot"><span>Ingreso total</span><b>${fmtMoney0(ingresoCabina)}</b></div>
       ${filasCabina || '<div class="fila"><span>Sin datos en este periodo</span><b>—</b></div>'}
+      </div>
     </div>
   `;
 
@@ -2626,20 +2644,20 @@ function renderComisionesResumen(docAlejandra, docOtro){
         <td>${esc2(r.pacienteNombre)}</td>
         <td>${esc2(r.servicio)}</td>
         <td>${r.duenoNombre ? esc2(r.duenoNombre) : '<span style="color:var(--g4)">— sin dueño —</span>'}</td>
-        <td class="num">${fmtMoney(r.monto)}</td>
+        <td class="num">${fmtMoney0(r.monto)}</td>
         <td>${reglaChip(r.regla)}</td>
-        <td class="num"><b>${fmtMoney(valDe(r))}</b></td>
+        <td class="num"><b>${fmtMoney0(valDe(r))}</b></td>
       </tr>`).join('');
     return `<div class="com-det-panel" id="${panelId}">
       <div class="com-det-head">
-        <div><h4>${esc2(titulo)}</h4><div class="sub">${conComision.length} servicio${conComision.length===1?'':'s'} que le generaron comisión en este periodo</div></div>
+        <div><h4>${esc2(titulo)}</h4><div class="sub">${conComision.length} servicio${conComision.length===1?'':'s'} que le generaron productividad en este periodo</div></div>
         <button class="cerrar" type="button" data-cerrar>✕ Cerrar</button>
       </div>
       <div class="com-det-wrap"><table class="com-det">
-        <thead><tr><th>Fecha</th><th>Paciente</th><th>Procedimiento</th><th>Dueño del paciente</th><th class="num">Valor pagado</th><th>Regla</th><th class="num">Comisión ${esc2(nombreCorto)}</th></tr></thead>
+        <thead><tr><th>Fecha</th><th>Paciente</th><th>Procedimiento</th><th>Dueño del paciente</th><th class="num">Valor pagado</th><th>Regla</th><th class="num">Productividad ${esc2(nombreCorto)}</th></tr></thead>
         <tbody>${filas || '<tr><td colspan="7" style="text-align:center;color:var(--g6);padding:22px">Sin servicios en este periodo.</td></tr>'}</tbody>
       </table></div>
-      <div class="com-det-foot"><span>Valor pagado: <b>${fmtMoney(sumaValor)}</b></span><span>Comisión de ${esc2(nombreCorto)}: <b>${fmtMoney(sumaCom)}</b></span></div>
+      <div class="com-det-foot"><span>Valor pagado: <b>${fmtMoney0(sumaValor)}</b></span><span>Productividad de ${esc2(nombreCorto)}: <b>${fmtMoney0(sumaCom)}</b></span></div>
     </div>`;
   };
   let panelesHtml = '';
@@ -2659,9 +2677,9 @@ function renderComisionesResumen(docAlejandra, docOtro){
     personaHtml += `<div class="persona ${i===0?'doc1':'doc2'}">
       <div class="nombre">${esc2(d.nombre)}</div>
       <div class="rol">Doctor${d.nombre.toLowerCase().startsWith('dra')?'a':''} · dueño/a de ${nServicios} servicios</div>
-      <div class="fila acordeon" data-panel="${panelConsultasId}" title="Ver el detalle"><span>Consultas y Proc. <span class="chev">▾</span></span><b>${fmtMoney(comConsultas)}</b></div>
-      <div class="fila acordeon" data-panel="${panelCabinaId}" title="Ver el detalle"><span>Cabina <span class="chev">▾</span></span><b>${fmtMoney(comCabina)}</b></div>
-      <div class="total-block"><div class="total-label">Comisión total</div><div class="total-value">${fmtMoney(total)}</div></div>
+      <div class="fila acordeon" data-panel="${panelConsultasId}" title="Ver el detalle"><span>Consultas y Proc. <span class="chev">▾</span></span><b>${fmtMoney0(comConsultas)}</b></div>
+      <div class="fila acordeon" data-panel="${panelCabinaId}" title="Ver el detalle"><span>Cabina <span class="chev">▾</span></span><b>${fmtMoney0(comCabina)}</b></div>
+      <div class="total-block"><div class="total-label">Productividad total</div><div class="total-value">${fmtMoney0(total)}</div></div>
     </div>`;
   });
   cosmetologas.forEach(c => {
@@ -2677,19 +2695,67 @@ function renderComisionesResumen(docAlejandra, docOtro){
     personaHtml += `<div class="persona cosm">
       <div class="nombre">${esc2(c.nombre)}</div>
       <div class="rol">Cosmetóloga · 100% su comisión es de cabina</div>
-      <div class="cosm-fila"><div class="cf-label"><span>Px clínica</span><span class="cf-pct">${pctLbl(clinicaRows, 'pctCosmAtiende')}</span></div><div class="cf-calc"><span class="cf-base">${fmtMoney(montoClinica)}</span><span class="cf-arrow">→</span><b class="cf-com">${fmtMoney(comClinica)}</b></div></div>
-      <div class="cosm-fila"><div class="cf-label"><span>Px propios</span><span class="cf-pct">${pctLbl(propiosRows, 'pctCosmDueno')}</span></div><div class="cf-calc"><span class="cf-base">${fmtMoney(montoPropios)}</span><span class="cf-arrow">→</span><b class="cf-com">${fmtMoney(comPropios)}</b></div></div>
-      <div class="total-block"><div class="total-label">Comisión total</div><div class="total-value">${fmtMoney(total)}</div></div>
+      <div class="cosm-fila"><div class="cf-label"><span>Px clínica</span><span class="cf-pct">${pctLbl(clinicaRows, 'pctCosmAtiende')}</span></div><div class="cf-calc"><span class="cf-base">${fmtMoney0(montoClinica)}</span><span class="cf-arrow">→</span><b class="cf-com">${fmtMoney0(comClinica)}</b></div></div>
+      <div class="cosm-fila"><div class="cf-label"><span>Px propios</span><span class="cf-pct">${pctLbl(propiosRows, 'pctCosmDueno')}</span></div><div class="cf-calc"><span class="cf-base">${fmtMoney0(montoPropios)}</span><span class="cf-arrow">→</span><b class="cf-com">${fmtMoney0(comPropios)}</b></div></div>
+      <div class="total-block"><div class="total-label">Comisión total</div><div class="total-value">${fmtMoney0(total)}</div></div>
     </div>`;
   });
   document.getElementById('com-persona-grid').innerHTML = personaHtml || '<div class="empty-note">Sin personal con comisión configurada.</div>';
   document.getElementById('com-persona-detalle').innerHTML = panelesHtml;
 
-  // ── Detalle ──
-  const nombreOtro = docOtro?.nombre || 'Doctor';
-  const nombreAlejandra = docAlejandra?.nombre || 'Dra. Alejandra';
-  const detalle = rows.slice().sort((a,b)=> (a.fecha < b.fecha ? 1 : -1)).slice(0, 400);
-  document.getElementById('com-detalle-count').textContent = `(${rows.length} servicios en el periodo${rows.length>400 ? ', mostrando los 400 más recientes':''})`;
+  // ── Detalle (con filtros por quién atendió / dueño del paciente / texto) ──
+  comDetalleOpciones(rows);
+  comDetallePintar(docAlejandra, docOtro);
+}
+
+const COM_FILTRO = { atiende:'', dueno:'', q:'' };
+let COM_DET_DOCS = { docAlejandra:null, docOtro:null };
+const comNorm = t => String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+function comReglaChip(regla){
+  if(regla.startsWith('100%')) return `<span class="chip chip-100">${esc2(regla)}</span>`;
+  if(/^\d+(\.\d+)?\/\d+/.test(regla) && !regla.startsWith('50/50')) return `<span class="chip chip-7030">${esc2(regla)}</span>`;
+  if(regla.startsWith('50/50') || /^\d+(\.\d+)?% Dra\./.test(regla)) return `<span class="chip chip-5050">${esc2(regla)}</span>`;
+  return `<span class="chip">${esc2(regla)}</span>`;
+}
+// Llena los selects con el personal que aparece en el periodo (doctores y cosmetólogas agrupados) y conserva la selección.
+function comDetalleOpciones(rows){
+  const grupos = (clave, rolClave) => {
+    const m = new Map();
+    rows.forEach(r => { if(r[clave]) m.set(r[clave], r[rolClave] || ''); });
+    const por = rol => [...m.entries()].filter(([,x]) => (x === 'cosmetologo') === (rol === 'cosmetologo')).map(([n]) => n).sort((a,b)=> a.localeCompare(b));
+    return { doctores: por('doctor'), cosmetologas: por('cosmetologo') };
+  };
+  const llenar = (id, g, actual) => {
+    const sel = document.getElementById(id);
+    const op = n => `<option value="${esc2(n)}">${esc2(n)}</option>`;
+    sel.innerHTML = '<option value="">Todos</option>'
+      + (g.doctores.length ? `<optgroup label="Doctores">${g.doctores.map(op).join('')}</optgroup>` : '')
+      + (g.cosmetologas.length ? `<optgroup label="Cosmetólogas">${g.cosmetologas.map(op).join('')}</optgroup>` : '');
+    sel.value = [...g.doctores, ...g.cosmetologas].includes(actual) ? actual : '';
+    return sel.value;
+  };
+  COM_FILTRO.atiende = llenar('com-f-atiende', grupos('atiendeNombre', 'atiendeRol'), COM_FILTRO.atiende);
+  COM_FILTRO.dueno = llenar('com-f-dueno', grupos('duenoNombre', 'duenoRol'), COM_FILTRO.dueno);
+  document.getElementById('com-f-q').value = COM_FILTRO.q;
+}
+function comDetallePintar(docAlejandra, docOtro){
+  if(docAlejandra !== undefined){ COM_DET_DOCS = { docAlejandra, docOtro }; }
+  const { docAlejandra:dA, docOtro:dO } = COM_DET_DOCS;
+  const nombreOtro = dO?.nombre || 'Doctor';
+  const nombreAlejandra = dA?.nombre || 'Dra. Alejandra';
+  const q = comNorm(COM_FILTRO.q).trim();
+  const filtradas = COM_SERVICE_ROWS.filter(r =>
+    (!COM_FILTRO.atiende || r.atiendeNombre === COM_FILTRO.atiende) &&
+    (!COM_FILTRO.dueno || r.duenoNombre === COM_FILTRO.dueno) &&
+    (!q || comNorm(r.pacienteNombre).includes(q) || comNorm(r.servicio).includes(q)));
+  const detalle = filtradas.slice().sort((a,b)=> (a.fecha < b.fecha ? 1 : -1)).slice(0, 400);
+  const hayFiltro = !!(COM_FILTRO.atiende || COM_FILTRO.dueno || q);
+  const total = COM_SERVICE_ROWS.length;
+  document.getElementById('com-detalle-count').textContent = `(${total} servicios en el periodo${filtradas.length > 400 ? ', mostrando los 400 más recientes' : ''})`;
+  const sum = f => filtradas.reduce((a,r)=> a + f(r), 0);
+  document.getElementById('com-f-res').innerHTML = hayFiltro
+    ? `Mostrando <b>${filtradas.length}</b> de ${total} servicios · Monto <b>${fmtMoney0(sum(r => r.monto))}</b> · ${esc2(nombreOtro)} <b>${fmtMoney0(sum(r => r.comOtro))}</b> · ${esc2(nombreAlejandra)} <b>${fmtMoney0(sum(r => r.comAlejandra))}</b> · Cosmetólogas <b>${fmtMoney0(sum(r => r.comCosmAtiende + r.comCosmDueno))}</b>`
+    : '';
   const filasHtml = detalle.map(r => `
     <tr class="${r.duenoRol==='cosmetologo' ? 'duenacosm' : ''}">
       <td>${fmtFechaCorta(r.fecha)}</td>
@@ -2697,18 +2763,26 @@ function renderComisionesResumen(docAlejandra, docOtro){
       <td>${r.duenoNombre ? esc2(r.duenoNombre) : '<span style="color:var(--g4)">— sin dueño —</span>'}</td>
       <td>${esc2(r.servicio)}</td>
       <td>${esc2(r.atiendeNombre)}</td>
-      <td>${reglaChip(r.regla)}</td>
-      <td>${fmtMoney(r.monto)}</td>
-      <td>${fmtMoney(r.comOtro)}</td>
-      <td>${fmtMoney(r.comAlejandra)}</td>
-      <td>${fmtMoney(r.comCosmAtiende + r.comCosmDueno)}</td>
+      <td>${comReglaChip(r.regla)}</td>
+      <td>${fmtMoney0(r.monto)}</td>
+      <td>${fmtMoney0(r.comOtro)}</td>
+      <td>${fmtMoney0(r.comAlejandra)}</td>
+      <td>${fmtMoney0(r.comCosmAtiende + r.comCosmDueno)}</td>
     </tr>`).join('');
   document.getElementById('com-detalle-wrap').innerHTML = `
     <table class="tx-table">
       <thead><tr><th>Fecha</th><th>Paciente</th><th>Dueño Px</th><th>Servicio</th><th>Atendió</th><th>Regla aplicada</th><th>Monto</th><th>Com. ${esc2(nombreOtro)}</th><th>Com. ${esc2(nombreAlejandra)}</th><th>Com. cosmetóloga</th></tr></thead>
-      <tbody>${filasHtml || '<tr><td colspan="10" class="empty-note">Sin servicios en este periodo.</td></tr>'}</tbody>
+      <tbody>${filasHtml || `<tr><td colspan="10" class="empty-note">${hayFiltro ? 'Ningún servicio coincide con los filtros.' : 'Sin servicios en este periodo.'}</td></tr>`}</tbody>
     </table>`;
 }
+document.getElementById('com-f-atiende').addEventListener('change', e => { COM_FILTRO.atiende = e.target.value; comDetallePintar(); });
+document.getElementById('com-f-dueno').addEventListener('change', e => { COM_FILTRO.dueno = e.target.value; comDetallePintar(); });
+document.getElementById('com-f-q').addEventListener('input', e => { COM_FILTRO.q = e.target.value; comDetallePintar(); });
+document.getElementById('com-f-limpiar').addEventListener('click', () => {
+  COM_FILTRO.atiende = ''; COM_FILTRO.dueno = ''; COM_FILTRO.q = '';
+  document.getElementById('com-f-atiende').value = ''; document.getElementById('com-f-dueno').value = ''; document.getElementById('com-f-q').value = '';
+  comDetallePintar();
+});
 
 // Paneles de detalle de "Resumen por persona": listeners delegados sobre contenedores fijos del HTML
 // (su contenido se vuelve a pintar en cada render). Solo un panel abierto a la vez.
@@ -2814,44 +2888,44 @@ function renderComisionesPago(docAlejandra, docOtro){
   aviso.innerHTML = ''; cont.style.display = '';
   const FULL = { c: M.docC.nombre, a: M.docA.nombre };
   const NM = { c: M.docC.nombre.split(' ').slice(0,2).join(' '), a: M.docA.nombre.split(' ').slice(0,2).join(' ') };
-  const pc = (a, b) => b > 0 ? (a / b * 100).toFixed(1) + '%' : '—';
-  const fms = n => (n > 0.004 ? '+' : n < -0.004 ? '−' : '') + fmtMoney(Math.abs(n));
+  const pc = (a, b) => b > 0 ? Math.round(a / b * 100) + '%' : '—';
+  const fms = n => (n > 0.004 ? '+' : n < -0.004 ? '−' : '') + fmtMoney0(Math.abs(n));
   const flecha = M.deudor === 'c' ? '→' : '←';
 
   // KPIs: productividad, lo que le corresponde a cada doctor y lo que hay que transferir
   document.getElementById('cpd-kpis').innerHTML = `
-    <div class="cpd-kpi"><div class="l">Productividad de cabinas</div><div class="v">${fmtMoney(M.P)}</div><div class="s">${M.N} servicios de cosmetólogas</div>
+    <div class="cpd-kpi"><div class="l">Productividad de cabinas</div><div class="v">${fmtMoney0(M.P)}</div><div class="s">${M.N} servicios de cosmetólogas</div>
       <div class="bar"><i style="width:${M.Ec / M.P * 100}%;background:var(--navy3)"></i><i style="width:${M.Ea / M.P * 100}%;background:var(--teal)"></i></div></div>
-    <div class="cpd-kpi e"><div class="l"><span class="cpd-dot e"></span>Cobrado en efectivo</div><div class="v">${fmtMoney(M.Ef)}</div><div class="s">${pc(M.Ef, M.P)} de la productividad · ${M.nEf} servicio${M.nEf === 1 ? '' : 's'}</div>
+    <div class="cpd-kpi e"><div class="l"><span class="cpd-dot e"></span>Cobrado en efectivo</div><div class="v">${fmtMoney0(M.Ef)}</div><div class="s">${pc(M.Ef, M.P)} de la productividad · ${M.nEf} servicio${M.nEf === 1 ? '' : 's'}</div>
       <div class="bar"><i style="width:${M.Ef / M.P * 100}%;background:var(--g4)"></i></div>
-      <div class="s2">Se distribuye como indican las tarjetas: ${esc2(NM.c)} <b>${fmtMoney(M.efC)}</b> · ${esc2(NM.a)} <b>${fmtMoney(M.efA)}</b></div></div>
-    <div class="cpd-kpi c"><div class="l"><span class="cpd-dot c"></span>Corresponde a ${esc2(NM.c)}</div><div class="v">${fmtMoney(M.Ec)}</div><div class="s">${pc(M.Ec, M.P)} de la productividad</div></div>
-    <div class="cpd-kpi a"><div class="l"><span class="cpd-dot a"></span>Corresponde a ${esc2(NM.a)}</div><div class="v">${fmtMoney(M.Ea)}</div><div class="s">${pc(M.Ea, M.P)} de la productividad</div></div>
-    <div class="cpd-kpi t"><span class="arr">${M.transf < 0.005 ? '=' : flecha}</span><div class="l">Por transferir</div><div class="v">${fmtMoney(M.transf)}</div><div class="s">${M.transf < 0.005 ? 'Cuentas a mano' : `${esc2(NM[M.deudor])} → ${esc2(NM[M.acreedor])}`}</div></div>`;
+      <div class="s2">Se distribuye como indican las tarjetas: ${esc2(NM.c)} <b>${fmtMoney0(M.efC)}</b> · ${esc2(NM.a)} <b>${fmtMoney0(M.efA)}</b></div></div>
+    <div class="cpd-kpi c"><div class="l"><span class="cpd-dot c"></span>Corresponde a ${esc2(NM.c)}</div><div class="v">${fmtMoney0(M.Ec)}</div><div class="s">${pc(M.Ec, M.P)} de la productividad</div></div>
+    <div class="cpd-kpi a"><div class="l"><span class="cpd-dot a"></span>Corresponde a ${esc2(NM.a)}</div><div class="v">${fmtMoney0(M.Ea)}</div><div class="s">${pc(M.Ea, M.P)} de la productividad</div></div>
+    <div class="cpd-kpi t"><span class="arr">${M.transf < 0.005 ? '=' : flecha}</span><div class="l">Por transferir</div><div class="v">${fmtMoney0(M.transf)}</div><div class="s">${M.transf < 0.005 ? 'Cuentas a mano' : `${esc2(NM[M.deudor])} → ${esc2(NM[M.acreedor])}`}</div></div>`;
 
   // Conciliación: una tarjeta por doctor con el mismo orden (corresponde, terminal, efectivo, saldo)
   const card = k => {
     const s = M.saldo[k], cls = s < -0.004 ? 'deb' : s > 0.004 ? 'fav' : 'cero';
     const tag = { deb:'Debe transferir', fav:'A su favor', cero:'Cuadrado' }[cls];
     const tengo = M.term[k] + M.ef[k] + M.ot[k], tope = Math.max(M.corr[k], tengo) || 1;
-    const otras = M.ot[k] > 0.005 ? `<div class="r min"><span class="n">+</span><span class="t"><b>Cobrado en otras terminales</b><small>Su parte; se asume en su poder</small></span><span class="m">${fmtMoney(M.ot[k])}</span></div>` : '';
+    const otras = M.ot[k] > 0.005 ? `<div class="r min"><span class="n">+</span><span class="t"><b>Cobrado en otras terminales</b><small>Su parte; se asume en su poder</small></span><span class="m">${fmtMoney0(M.ot[k])}</span></div>` : '';
     return `<div class="cpd-dc ${k}"><div class="h"><span><span class="cpd-dot ${k}"></span> ${esc2(FULL[k])}</span><span class="cpd-st ${cls}">${tag}</span></div>
-      <div class="r"><span class="n">1</span><span class="t"><b>Valor correspondiente por cabinas</b><small>Según las reglas de equipo y dueño</small></span><span class="m">${fmtMoney(M.corr[k])}</span></div>
-      <div class="r"><span class="n">2</span><span class="t"><b>Cobrado en su terminal</b><small>${M.nT[k]} servicio${M.nT[k] === 1 ? '' : 's'} con tarjeta</small></span><span class="m">${fmtMoney(M.term[k])}</span></div>
-      <div class="r min"><span class="n">+</span><span class="t"><b>Efectivo que le toca</b><small>Se asume en su poder</small></span><span class="m">${fmtMoney(M.ef[k])}</span></div>${otras}
+      <div class="r"><span class="n">1</span><span class="t"><b>Valor correspondiente por cabinas</b><small>Según las reglas de equipo y dueño</small></span><span class="m">${fmtMoney0(M.corr[k])}</span></div>
+      <div class="r"><span class="n">2</span><span class="t"><b>Cobrado en su terminal</b><small>${M.nT[k]} servicio${M.nT[k] === 1 ? '' : 's'} con tarjeta</small></span><span class="m">${fmtMoney0(M.term[k])}</span></div>
+      <div class="r min"><span class="n">+</span><span class="t"><b>Efectivo que le toca</b><small>Se asume en su poder</small></span><span class="m">${fmtMoney0(M.ef[k])}</span></div>${otras}
       <div class="sal ${cls}"><span class="t">3 · Saldo<small>${cls === 'deb' ? 'Tiene de más: debe pasarlo' : cls === 'fav' ? 'Le falta recibir' : 'No hay diferencia'}</small></span><span class="m">${fms(s)}</span></div>
       <div class="cov"><div class="b"><i class="t" style="width:${(M.term[k] + M.ot[k]) / tope * 100}%"></i><i class="e" style="width:${M.ef[k] / tope * 100}%"></i></div>
-        <div class="lg"><span>Tiene ${fmtMoney(tengo)}</span><span>Corresponde ${fmtMoney(M.corr[k])}</span></div></div></div>`;
+        <div class="lg"><span>Tiene ${fmtMoney0(tengo)}</span><span>Corresponde ${fmtMoney0(M.corr[k])}</span></div></div></div>`;
   };
   const mid = M.transf < 0.005
     ? `<div class="cpd-mid"><span class="bd">Cuentas a mano</span><span class="fl">=</span><span class="q">Ninguno le debe al otro por la cabina.</span></div>`
-    : `<div class="cpd-mid"><span class="bd">Por transferir</span><span class="fl">${flecha}</span><span class="m">${fmtMoney(M.transf)}</span><span class="q"><b>${esc2(NM[M.deudor])}</b> le transfiere a <b>${esc2(NM[M.acreedor])}</b></span></div>`;
+    : `<div class="cpd-mid"><span class="bd">Por transferir</span><span class="fl">${flecha}</span><span class="m">${fmtMoney0(M.transf)}</span><span class="q"><b>${esc2(NM[M.deudor])}</b> le transfiere a <b>${esc2(NM[M.acreedor])}</b></span></div>`;
   document.getElementById('cpd-cc').innerHTML = card('c') + mid + card('a');
   const cuadra = Math.abs(M.saldo.c + M.saldo.a) < 0.01 && Math.abs(M.Ec + M.Ea - M.P) < 0.01;
   document.getElementById('cpd-ok1').innerHTML = cuadra
     ? '<div class="cpd-ok">✓ Los saldos de los dos doctores suman cero: lo que le sobra a uno es lo que le falta al otro.</div>'
     : '<div class="cpd-warn">⚠ Los saldos no cuadran; revisa los datos del periodo.</div>';
-  document.getElementById('cpd-nota').innerHTML = `El efectivo no pasa por terminal: se asume que cada doctor tiene en su poder el efectivo que le corresponde, así que solo se compensa la diferencia de tarjeta. La comisión de las cosmetólogas (${fmtMoney(M.Cs)}) se paga aparte y no entra en este reparto.`;
+  document.getElementById('cpd-nota').innerHTML = `El efectivo no pasa por terminal: se asume que cada doctor tiene en su poder el efectivo que le corresponde, así que solo se compensa la diferencia de tarjeta. La comisión de las cosmetólogas (${fmtMoney0(M.Cs)}) se paga aparte y no entra en este reparto.`;
 
   comPagoPintarDetalle();
 }
@@ -2873,32 +2947,32 @@ function comPagoPintarDetalle(){
   const todas = M.filas.filter(tab.f).sort(orden);
   const LIM = 400, filas = todas.slice(0, LIM);
   document.getElementById('cpd-tabs').innerHTML = TABS.map(t => `<button type="button" class="${t.id === COM_PAGO_TAB ? 'on' : ''}" data-id="${t.id}">${esc2(t.et)}<em>${M.filas.filter(t.f).length}</em></button>`).join('');
-  const nota = r => (r.card > 0.005 && r.efectivo > 0.005) ? `<div class="cpd-nt">Pagó ${fmtMoney(r.monto)}: ${fmtMoney(r.card)} con tarjeta y ${fmtMoney(r.efectivo)} en efectivo</div>` : '';
+  const nota = r => (r.card > 0.005 && r.efectivo > 0.005) ? `<div class="cpd-nt">Pagó ${fmtMoney0(r.monto)}: ${fmtMoney0(r.card)} con tarjeta y ${fmtMoney0(r.efectivo)} en efectivo</div>` : '';
   const quienDebe = r => r.debe > 0.004 ? `<span class="cpd-quien ${r.t}">${esc2(nombres[r.t])}</span>` : '<span style="color:var(--g4)">—</span>';
-  const montoDebe = r => r.debe > 0.004 ? `<span class="cpd-monto">${fmtMoney(r.debe)}</span>` : '—';
+  const montoDebe = r => r.debe > 0.004 ? `<span class="cpd-monto">${fmtMoney0(r.debe)}</span>` : '—';
   const sum = (arr, f) => arr.reduce((a, r) => a + f(r), 0);
   const base = r => `<td class="cpd-fecha">${fmtFechaCorta(r.fecha)}</td><td class="pac">${esc2(r.pacienteNombre)}${nota(r)}</td><td>${esc2(r.servicio)}</td><td>${esc2(r.atiendeNombre || '—')}</td><td>${r.duenoNombre ? esc2(r.duenoNombre) : '<span style="color:var(--g4)">— sin dueño —</span>'}</td>`;
   const encab = x => `<tr><th>Fecha</th><th>Paciente</th><th>Servicio</th><th>Atendió</th><th>Dueño del paciente</th>${x}</tr>`;
   let head, body, pie;
   if(COM_PAGO_TAB === 'ef'){
     head = encab('<th class="num">Valor en efectivo</th><th class="num">Le toca a ' + esc2(nombres.c) + '</th><th class="num">Le toca a ' + esc2(nombres.a) + '</th>');
-    body = filas.map(r => { const k = r.efectivo / r.monto; return `<tr>${base(r)}<td class="num">${fmtMoney(r.efectivo)}</td><td class="num">${fmtMoney(r.ec * k)}</td><td class="num">${fmtMoney(r.ea * k)}</td></tr>`; }).join('');
-    pie = `<span>${todas.length} servicios en efectivo</span><span>Total <b>${fmtMoney(M.Ef)}</b> · ${esc2(nombres.c)} <b>${fmtMoney(M.efC)}</b> · ${esc2(nombres.a)} <b>${fmtMoney(M.efA)}</b></span>`;
+    body = filas.map(r => { const k = r.efectivo / r.monto; return `<tr>${base(r)}<td class="num">${fmtMoney0(r.efectivo)}</td><td class="num">${fmtMoney0(r.ec * k)}</td><td class="num">${fmtMoney0(r.ea * k)}</td></tr>`; }).join('');
+    pie = `<span>${todas.length} servicios en efectivo</span><span>Total <b>${fmtMoney0(M.Ef)}</b> · ${esc2(nombres.c)} <b>${fmtMoney0(M.efC)}</b> · ${esc2(nombres.a)} <b>${fmtMoney0(M.efA)}</b></span>`;
   } else if(COM_PAGO_TAB === 'todos'){
     const chips = r => [
       r.card > 0.005 ? `<span class="cpd-chip ${r.t === 'c' || r.t === 'a' ? r.t : 'e'}">${r.t === 'c' || r.t === 'a' ? esc2(nombres[r.t]) : esc2(r.terminal || 'Sin terminal')}</span>` : '',
       r.efectivo > 0.005 ? '<span class="cpd-chip e">Efectivo</span>' : ''].join(' ');
     head = encab('<th>Cobrado en</th><th class="num">Valor cobrado</th><th>Quién debe</th><th class="num">Monto por pagar</th>');
-    body = filas.map(r => `<tr class="${r.debe > 0.004 ? '' : 'sin'}">${base(r)}<td>${chips(r)}</td><td class="num">${fmtMoney(r.monto)}</td><td>${quienDebe(r)}</td><td class="num">${montoDebe(r)}</td></tr>`).join('');
-    pie = `<span>${todas.length} servicios${todas.length > LIM ? ` · mostrando los ${LIM} más recientes` : ''}</span><span>Productividad <b>${fmtMoney(M.P)}</b></span>`;
+    body = filas.map(r => `<tr class="${r.debe > 0.004 ? '' : 'sin'}">${base(r)}<td>${chips(r)}</td><td class="num">${fmtMoney0(r.monto)}</td><td>${quienDebe(r)}</td><td class="num">${montoDebe(r)}</td></tr>`).join('');
+    pie = `<span>${todas.length} servicios${todas.length > LIM ? ` · mostrando los ${LIM} más recientes` : ''}</span><span>Productividad <b>${fmtMoney0(M.P)}</b></span>`;
   } else {
     head = encab('<th class="num">Valor cobrado (tarjeta)</th><th>Quién debe</th><th class="num">Monto por pagar</th>');
-    body = filas.map(r => `<tr class="${r.debe > 0.004 ? '' : 'sin'}">${base(r)}<td class="num">${fmtMoney(r.card)}</td><td>${quienDebe(r)}</td><td class="num">${montoDebe(r)}</td></tr>`).join('');
+    body = filas.map(r => `<tr class="${r.debe > 0.004 ? '' : 'sin'}">${base(r)}<td class="num">${fmtMoney0(r.card)}</td><td>${quienDebe(r)}</td><td class="num">${montoDebe(r)}</td></tr>`).join('');
     if(COM_PAGO_TAB === 'debe'){
       const dc = sum(todas.filter(r => r.t === 'c'), r => r.debe), da = sum(todas.filter(r => r.t === 'a'), r => r.debe);
-      pie = `<span>Debe ${esc2(nombres.c)} <b>${fmtMoney(dc)}</b> · Debe ${esc2(nombres.a)} <b>${fmtMoney(da)}</b></span><span>${M.transf < 0.005 ? 'Cuentas a mano' : `Transferencia: ${esc2(nombres[M.deudor])} → ${esc2(nombres[M.acreedor])} <b>${fmtMoney(M.transf)}</b>`}</span>`;
+      pie = `<span>Debe ${esc2(nombres.c)} <b>${fmtMoney0(dc)}</b> · Debe ${esc2(nombres.a)} <b>${fmtMoney0(da)}</b></span><span>${M.transf < 0.005 ? 'Cuentas a mano' : `Transferencia: ${esc2(nombres[M.deudor])} → ${esc2(nombres[M.acreedor])} <b>${fmtMoney0(M.transf)}</b>`}</span>`;
     } else {
-      pie = `<span>${todas.length} servicios con tarjeta en esta terminal${todas.length > LIM ? ` · mostrando los ${LIM} más recientes` : ''}</span><span>Cobrado <b>${fmtMoney(sum(todas, r => r.card))}</b> · Debe al otro doctor <b>${fmtMoney(sum(todas, r => r.debe))}</b></span>`;
+      pie = `<span>${todas.length} servicios con tarjeta en esta terminal${todas.length > LIM ? ` · mostrando los ${LIM} más recientes` : ''}</span><span>Cobrado <b>${fmtMoney0(sum(todas, r => r.card))}</b> · Debe al otro doctor <b>${fmtMoney0(sum(todas, r => r.debe))}</b></span>`;
     }
   }
   const vacio = `<tr><td colspan="9" style="text-align:center;color:var(--g6);padding:22px">No hay servicios en esta vista para el periodo.</td></tr>`;
@@ -2955,6 +3029,7 @@ document.querySelector('[data-screen2="comisiones"]').addEventListener('click', 
 // Módulo: Registro
 // ============================================================
 const CATALOGOS = { tiposServicio:[], equipos:[], terminales:[], mediosPago:[], procedencias:[], personal:[] };
+function fmtMoney0(v){ return '$' + (Math.round(Number(v||0)) + 0).toLocaleString('es-MX',{maximumFractionDigits:0}); }
 function fmtMoney(v){ return '$' + Number(v||0).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2}); }
 const PAGO_ICON = { Efectivo:'💵', Tarjeta:'💳', 'Tarjeta Crédito':'💳', 'Tarjeta Débito':'💳', Transferencia:'🏦', Cortesía:'🎁', AMEX:'💳', Amex:'💳' };
 function iconoPago(medio){ return medio ? (PAGO_ICON[medio] || '💰') + ' ' : ''; }
