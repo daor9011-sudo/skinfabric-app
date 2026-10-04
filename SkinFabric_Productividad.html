@@ -94,6 +94,7 @@ body{font-family:var(--font-b);min-height:100vh;color:var(--navy);background:#ee
 .s3-role-chip{font-family:var(--font-b);background:rgba(42,191,191,.2);color:var(--teal);font-weight:800;letter-spacing:.5px;padding:4px 11px;border-radius:6px;font-size:10px;box-shadow:inset 0 0 0 1px rgba(42,191,191,.35);display:inline-flex;align-items:center;gap:4px}
 .s3-logout,.s3-config{font-family:var(--font-b);background:none;border:1px solid rgba(255,255,255,.25);color:#fff;padding:5px 12px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:5px}
 #app-user-name{font-family:var(--font-b);display:inline-flex;align-items:center}
+#btn-refresh{display:none}
 .s3-logout:hover,.s3-config:hover{border-color:var(--teal);color:var(--teal)}
 .s3-navrow{background:linear-gradient(#fbfcfe,#f4f6fb);border-bottom:1px solid var(--g2);padding:14px 26px;display:flex;justify-content:center}
 .s3-segment{display:flex;background:var(--g1);border-radius:12px;padding:4px;gap:4px;box-shadow:inset 0 1px 3px rgba(11,22,40,.08);flex-wrap:wrap}
@@ -913,14 +914,15 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
   /* Los campos a 16px evitan que iPhone haga zoom al tocarlos */
   input:not([type=checkbox]):not([type=radio]):not([type=range]),select,textarea{font-size:16px!important}
   /* Header: logo + título en una fila, usuario y botones en otra */
-  .s3-strip{grid-template-columns:auto auto;justify-content:center;justify-items:center;align-items:center;text-align:center;gap:8px 10px;padding:10px 12px 11px;min-height:0}
-  .s3-brand-left{justify-self:end}.s3-brand-left img{height:26px}
-  .s3-brand-center{justify-self:start;text-align:left}
+  .s3-strip{grid-template-columns:auto minmax(0,1fr);justify-content:stretch;justify-items:stretch;align-items:center;text-align:left;gap:6px 10px;padding:10px 14px 11px;min-height:0}
+  .s3-brand-left{justify-self:start}.s3-brand-left img{height:26px}
+  .s3-brand-center{justify-self:center;text-align:center}
   .s3-brand-title{font-size:15px;letter-spacing:.2px}
   .s3-brand-sub{display:none}
-  .s3-right{grid-column:1 / -1;justify-self:center;justify-content:center;align-items:center;flex-wrap:nowrap;gap:8px;width:100%;min-width:0}
+  .s3-right{grid-column:1 / -1;justify-self:stretch;justify-content:center;align-items:center;flex-wrap:nowrap;gap:8px;width:100%;min-width:0}
   .s3-strip>*{min-width:0}
   #app-user-name{min-width:0;flex:0 1 auto;max-width:44vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px}
+  #btn-refresh{display:inline-flex}
   /* Botones solo con icono (cuadrados, mismo tamaño) para que siempre quepan en cualquier celular */
   .s3-config .lbl,.s3-logout .lbl{display:none}
   .s3-logout,.s3-config{width:36px;height:34px;padding:0;font-size:15px;line-height:1;justify-content:center;white-space:nowrap;flex:none}
@@ -1859,7 +1861,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.10.04-21';
+const APP_VERSION = 'v2026.10.04-23';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 const SUPABASE_URL = 'https://omjugldgnixuwqnnziyz.supabase.co';
