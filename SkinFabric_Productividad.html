@@ -913,18 +913,34 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
   /* Los campos a 16px evitan que iPhone haga zoom al tocarlos */
   input:not([type=checkbox]):not([type=radio]):not([type=range]),select,textarea{font-size:16px!important}
   /* Header: logo + título en una fila, usuario y botones en otra */
-  .s3-strip{grid-template-columns:auto minmax(0,1fr);justify-items:stretch;text-align:left;gap:6px 10px;padding:10px 14px;min-height:0}
-  .s3-brand-left{justify-self:start}.s3-brand-left img{height:26px}
+  .s3-strip{grid-template-columns:auto auto;justify-content:center;justify-items:center;align-items:center;text-align:center;gap:8px 10px;padding:10px 12px 11px;min-height:0}
+  .s3-brand-left{justify-self:end}.s3-brand-left img{height:26px}
   .s3-brand-center{justify-self:start;text-align:left}
   .s3-brand-title{font-size:15px;letter-spacing:.2px}
   .s3-brand-sub{display:none}
-  .s3-right{grid-column:1 / -1;justify-self:stretch;justify-content:space-between;flex-wrap:nowrap;gap:6px;width:100%;min-width:0}
+  .s3-right{grid-column:1 / -1;justify-self:center;justify-content:center;align-items:center;flex-wrap:nowrap;gap:8px;width:100%;min-width:0}
   .s3-strip>*{min-width:0}
-  #app-user-name{min-width:0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px}
-  .s3-logout,.s3-config{padding:6px 9px;font-size:10.5px;white-space:nowrap;flex:none}
+  #app-user-name{min-width:0;flex:0 1 auto;max-width:44vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px}
+  /* Botones solo con icono (cuadrados, mismo tamaño) para que siempre quepan en cualquier celular */
+  .s3-config .lbl,.s3-logout .lbl{display:none}
+  .s3-logout,.s3-config{width:36px;height:34px;padding:0;font-size:15px;line-height:1;justify-content:center;white-space:nowrap;flex:none}
   .s3-role-chip{padding:3px 8px;flex:none}
   /* Menú: una sola fila deslizable que se queda fija arriba */
-  @media (max-width:420px){.s3-config .lbl,.s3-logout .lbl{display:none}.s3-config,.s3-logout{padding:6px 11px;font-size:13px}}
+  /* PRM: umbral de días y botón Aplicar alineados */
+  #crm-inactivos-umbral{width:100%!important}
+  #crm-inactivos-aplicar{grid-column:1 / -1;display:flex;justify-content:center;align-items:center;min-height:38px}
+  /* Comisiones: cabecera centrada y filtros de periodo en cuadrícula ordenada */
+  .com-hero{margin:-14px -13px 14px;padding:14px 12px 0}
+  .com-hero-top{justify-content:center;gap:10px 12px}
+  .com-hero-top>div:nth-child(2){min-width:0;flex:0 1 auto}
+  .com-hero h1{font-size:26px}
+  .com-hero p{font-size:11.5px;line-height:1.35}
+  .com-per{margin-left:0;width:100%;display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px 10px;align-items:center;padding:10px 12px}
+  .com-per span{font-size:11px;font-weight:700;letter-spacing:.3px;text-transform:uppercase}
+  .com-per input{width:100%;min-width:0;min-height:38px;box-sizing:border-box;text-align:left}
+  .com-per button{grid-column:1 / -1;padding:10px 12px;font-size:12.5px}
+  .com-hero-tabs{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:12px}
+  .com-hero-tabs .prm-tab-btn{padding:10px 6px;font-size:12px;text-align:center;white-space:nowrap}
   .s3-navrow{padding:7px 8px;justify-content:flex-start;position:sticky;top:0;z-index:60;box-shadow:0 6px 14px -8px rgba(11,22,40,.3)}
   .s3-segment{flex-wrap:nowrap;overflow-x:auto;width:100%;scrollbar-width:none;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity}
   .s3-segment::-webkit-scrollbar{display:none}
@@ -1356,8 +1372,8 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
           <div><h1>Comisiones</h1><p>Producción y reparto del equipo · <b id="com-hero-per">—</b></p></div>
           <div class="com-per">
             <span>Mes</span><input type="month" id="com-mes"/>
-            <span>o rango</span><input type="date" id="com-desde"/>
-            <span>a</span><input type="date" id="com-hasta"/>
+            <span>Desde</span><input type="date" id="com-desde"/>
+            <span>Hasta</span><input type="date" id="com-hasta"/>
             <button type="button" id="com-btn-todo">Ver todo</button>
           </div>
         </div>
@@ -1843,7 +1859,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.10.04-20';
+const APP_VERSION = 'v2026.10.04-21';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 const SUPABASE_URL = 'https://omjugldgnixuwqnnziyz.supabase.co';
