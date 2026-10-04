@@ -1176,7 +1176,11 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
           <option value="90">Últimos 90 días</option>
           <option value="anio">Este año</option>
           <option value="todo">Todo</option>
+          <option value="mes">📅 Un mes…</option>
+          <option value="rango">📅 Rango de fechas…</option>
         </select>
+        <input type="month" id="dash-mes" style="display:none" title="Mes"/>
+        <span id="dash-rango-wrap" style="display:none;align-items:center;gap:6px;font-size:12px;color:var(--g6)">Del <input type="date" id="dash-desde"/> al <input type="date" id="dash-hasta"/></span>
         <select id="dash-doctor"><option value="">Todos los doctores</option></select>
         <select id="dash-tipo"><option value="">Todos los tipos</option></select>
       </div>
@@ -1756,7 +1760,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.10.04-16';
+const APP_VERSION = 'v2026.10.04-17';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 const SUPABASE_URL = 'https://omjugldgnixuwqnnziyz.supabase.co';
@@ -4805,6 +4809,34 @@ function rangoFechaDashboard(rango){
   }
 }
 
+// Periodo del Dashboard: atajos (30/90 días, año, todo), un mes específico o un rango de fechas libre.
+function dashPeriodo(){
+  const rango = document.getElementById('dash-rango').value;
+  const f = iso => { const x = iso.split('-'); return `${x[2]}/${x[1]}/${x[0]}`; };
+  if(rango === 'mes'){
+    const mes = document.getElementById('dash-mes').value;
+    if(/^\d{4}-\d{2}$/.test(mes)){
+      const [y, m] = mes.split('-').map(Number);
+      const ultimo = new Date(y, m, 0).getDate();
+      const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+      return { desde: mes + '-01', hasta: mes + '-' + String(ultimo).padStart(2, '0'), texto: MESES[m - 1] + ' ' + y };
+    }
+    return { desde: null, hasta: null, texto: 'Todo' };
+  }
+  if(rango === 'rango'){
+    const d = document.getElementById('dash-desde').value || null, h = document.getElementById('dash-hasta').value || null;
+    return { desde: d, hasta: h, texto: (d ? f(d) : 'inicio') + ' – ' + (h ? f(h) : 'hoy') };
+  }
+  return { desde: rangoFechaDashboard(rango), hasta: null, texto: document.getElementById('dash-rango').selectedOptions[0]?.textContent || '' };
+}
+function dashActualizarControlesPeriodo(){
+  const rango = document.getElementById('dash-rango').value;
+  const mes = document.getElementById('dash-mes');
+  mes.style.display = rango === 'mes' ? '' : 'none';
+  document.getElementById('dash-rango-wrap').style.display = rango === 'rango' ? 'inline-flex' : 'none';
+  if(rango === 'mes' && !mes.value) mes.value = isoLocal(new Date()).slice(0, 7);
+}
+
 let dashReqId = 0;
 let DASH_ALL = [];        // todas las consultas del periodo (sin filtro de doctor) — base de la productividad
 let DASH_GASTOS = [];     // gastos del periodo (solo si el usuario tiene permiso de Gastos)
@@ -4836,10 +4868,9 @@ function dashFilasServicio(consultas){
 
 async function cargarDashboard(){
   const miReqId = ++dashReqId;
-  const rango = document.getElementById('dash-rango').value;
   const doctorId = document.getElementById('dash-doctor').value;
   const tipoId = document.getElementById('dash-tipo').value;
-  const desde = rangoFechaDashboard(rango);
+  const { desde, hasta } = dashPeriodo();
   const verGasto = dashVerGasto();
 
   // El panel de Productividad necesita saber si quien atendió cada servicio es doctor/a o
@@ -4854,11 +4885,13 @@ async function cargarDashboard(){
     .order('fecha', { ascending:true })
     .limit(5000);
   if(desde) q = q.gte('fecha', desde);
+  if(hasta) q = q.lte('fecha', hasta);
 
   let qg = null;
   if(verGasto){
     qg = sb.from('gastos').select('fecha,categoria,monto,creado_por').order('fecha', { ascending:true }).limit(5000);
     if(desde) qg = qg.gte('fecha', desde);
+    if(hasta) qg = qg.lte('fecha', hasta);
   }
 
   const [{ data, error }, gres] = await Promise.all([q, qg || Promise.resolve({ data:[], error:null })]);
@@ -5236,7 +5269,7 @@ function renderDashFin(ingresoLegacy){
     if(chartIngGas){ chartIngGas.destroy(); chartIngGas = null; }
     return;
   }
-  const rangoTxt = document.getElementById('dash-rango').selectedOptions[0]?.textContent || '';
+  const rangoTxt = dashPeriodo().texto;
   const fd = dashFinDatos(ingresoLegacy);
   DASH_FIN_SERIE = fd.porFecha;
 
@@ -5366,7 +5399,7 @@ function actualizarPanelProductividad(porDoctorMap){
   panel.classList.toggle('con-filtro-doctor', !!doctorFiltro);
   if(doctorFiltro) return;
 
-  const rangoTxt = document.getElementById('dash-rango').selectedOptions[0]?.textContent || '';
+  const rangoTxt = dashPeriodo().texto;
   const elPeriodo = document.getElementById('dash-prod-periodo');
   const elPeriodo2 = document.getElementById('dash-prod-periodo2');
   if(elPeriodo) elPeriodo.textContent = rangoTxt;
@@ -5566,8 +5599,11 @@ function renderChartServicio(){
   });
 }
 
-['dash-rango','dash-doctor','dash-tipo'].forEach(id=>{
-  document.getElementById(id).addEventListener('change', cargarDashboard);
+['dash-rango','dash-doctor','dash-tipo','dash-mes','dash-desde','dash-hasta'].forEach(id=>{
+  document.getElementById(id).addEventListener('change', ()=>{
+    if(id === 'dash-rango') dashActualizarControlesPeriodo();
+    cargarDashboard();
+  });
 });
 document.querySelector('.s3-segment button[data-screen2="dash"]').addEventListener('click', function(){
   if(this.classList.contains('locked')) return;
