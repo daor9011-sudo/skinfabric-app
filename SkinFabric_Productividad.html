@@ -1087,6 +1087,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
     <div class="s3-right">
       <span class="s3-role-chip" id="app-role-chip">—</span>
       <span id="app-user-name">—</span>
+      <button class="s3-config" id="btn-refresh" type="button" title="Actualizar" aria-label="Actualizar">↻<span class="lbl"> Actualizar</span></button>
       <button class="s3-config" id="btn-config-header" type="button" title="Configuración" aria-label="Configuración" style="display:none">⚙️<span class="lbl"> Configuración</span></button>
       <button class="s3-logout" id="btn-logout" type="button" title="Cerrar sesión" aria-label="Cerrar sesión">⏻<span class="lbl"> Cerrar sesión</span></button>
     </div>
@@ -1842,7 +1843,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.10.04-19';
+const APP_VERSION = 'v2026.10.04-20';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 const SUPABASE_URL = 'https://omjugldgnixuwqnnziyz.supabase.co';
@@ -2039,6 +2040,29 @@ function refrescarPantallaActivaPorRealtime(){
     case 'app-screen-comisiones': cargarComisiones(); break;
   }
 }
+
+// ── Al volver a la app (celular): reconecta el tiempo real y refresca la pantalla ──
+// iPhone/Android cortan la conexión en vivo cuando la app pasa a segundo plano o se bloquea la pantalla; sin esto
+// había que salirse y volver a entrar para ver datos nuevos.
+let APP_OCULTA_DESDE = 0;
+function reanudarApp(){
+  if(!MI_PERFIL) return;
+  iniciarRealtime();                                   // vuelve a abrir el canal (si quedó muerto)
+  if(Date.now() - APP_OCULTA_DESDE > 5000) refrescarPantallaActivaPorRealtime();
+}
+document.addEventListener('visibilitychange', ()=>{ if(document.hidden) APP_OCULTA_DESDE = Date.now(); else reanudarApp(); });
+window.addEventListener('pageshow', e=>{ if(e.persisted) { APP_OCULTA_DESDE = 0; reanudarApp(); } });
+window.addEventListener('online', ()=>{ APP_OCULTA_DESDE = 0; reanudarApp(); });
+// Botón ↻ del header: actualiza catálogos y la pantalla abierta
+document.getElementById('btn-refresh').addEventListener('click', async function(){
+  const btn = this;
+  if(!MI_PERFIL || btn.disabled) return;
+  btn.disabled = true; btn.style.opacity = '.55';
+  try{ await cargarCatalogos(); }catch(e){ console.error('[SkinFabric] Error recargando catálogos:', e); }
+  iniciarRealtime();
+  refrescarPantallaActivaPorRealtime();
+  setTimeout(()=>{ btn.disabled = false; btn.style.opacity = ''; toast('Datos actualizados'); }, 700);
+});
 
 document.querySelectorAll('.s3-segment button[data-screen2]').forEach(btn=>{
   btn.addEventListener('click', ()=>{
