@@ -708,60 +708,59 @@ table.com-det thead th.num{text-align:right}
 .chip-5050{background:#F5F0FC;color:#7D3C98}
 
 /* ── Pago entre doctores (Distribución del dinero de cabinas) ── */
-#com-pago-panel{--cpd-teal-d:#16908f;--cpd-navy-soft:rgba(34,72,138,.09);--cpd-amber:#B9770E;--cpd-amber-bg:#FFF7E6;--cpd-amber-bd:#F0D18A;--cpd-k:#d9a441;--cpd-rojo:#b4532a}
+#com-pago-panel{--cpd-teal-d:#16908f;--cpd-navy-soft:rgba(34,72,138,.09);--cpd-amber:#B9770E;--cpd-amber-bg:#FFF7E6;--cpd-amber-bd:#F0D18A;--cpd-red:#d23f3f;--cpd-red-soft:#fdeeee;--cpd-green:#2f8f5b;--cpd-green-soft:#e9f6ef}
 .cpd-sec{font-family:var(--font-d);font-size:15.5px;margin:0 0 2px;letter-spacing:-.1px}
+.cpd-sec2{font-family:var(--font-d);font-size:15px;margin:22px 0 10px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.cpd-sec2 small{font-family:var(--font-b);font-size:11.5px;color:var(--g6);font-weight:500}
 .cpd-sub{font-size:12px;color:var(--g6);margin:0 0 14px;line-height:1.5}
-.cpd-pasos{position:relative;padding-left:44px}
-.cpd-pasos::before{content:'';position:absolute;left:15px;top:14px;bottom:14px;width:2px;background:var(--g2)}
-.cpd-paso{position:relative;margin-bottom:18px}
-.cpd-paso>.cpd-n{position:absolute;left:-44px;top:0;width:32px;height:32px;border-radius:50%;background:var(--navy);color:#fff;font-family:var(--font-d);font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 4px #fff}
-.cpd-paso.cpd-aparte>.cpd-n{background:var(--cpd-k)}
-.cpd-paso h3{margin:0;font-family:var(--font-d);font-size:15px}
-.cpd-paso .cpd-p{font-size:12px;color:var(--g6);margin:2px 0 9px;line-height:1.5}
-.cpd-paso .cpd-p b{color:var(--navy)}
-.cpd-pills{display:flex;gap:8px;flex-wrap:wrap}
-.cpd-pill{flex:1;min-width:170px;border:1px solid var(--g2);border-radius:10px;padding:9px 12px;background:#fff}
-.cpd-pill .cpd-e{display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--g6)}
-.cpd-pill .cpd-v{font-family:var(--font-d);font-size:15px;font-weight:700;margin-top:3px;font-variant-numeric:tabular-nums}
-.cpd-pill .cpd-v small{font-family:var(--font-b);font-size:11px;color:var(--g4);font-weight:500;margin-left:4px}
-.cpd-pill.cpd-total{background:var(--g1);border-color:var(--g1)}
+.cpd-kpis{display:grid;grid-template-columns:1.1fr 1fr 1fr 1fr;gap:12px}
+@media(max-width:900px){.cpd-kpis{grid-template-columns:1fr 1fr}}@media(max-width:520px){.cpd-kpis{grid-template-columns:1fr}}
+.cpd-kpi{border:1px solid var(--g2);border-radius:12px;padding:12px 14px;background:#fff;position:relative;overflow:hidden}
+.cpd-kpi .l{font-size:10px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--g6);display:flex;align-items:center;gap:7px;white-space:nowrap}
+.cpd-kpi .v{font-family:var(--font-d);font-size:23px;font-weight:800;margin-top:4px;letter-spacing:-.4px;font-variant-numeric:tabular-nums}
+.cpd-kpi .s{font-size:11.5px;color:var(--g6);margin-top:2px}
+.cpd-kpi.c{border-top:3px solid var(--navy3)}.cpd-kpi.a{border-top:3px solid var(--teal)}
+.cpd-kpi .bar{height:5px;border-radius:9px;background:var(--g1);margin-top:9px;overflow:hidden;display:flex}.cpd-kpi .bar i{display:block;height:100%}
+.cpd-kpi.t{background:var(--navy);border-color:var(--navy);color:#fff}.cpd-kpi.t .l,.cpd-kpi.t .s{color:#9fb3d6}.cpd-kpi.t .v{color:#fff}
+.cpd-kpi.t .arr{position:absolute;right:12px;top:10px;font-size:20px;color:var(--teal)}
 .cpd-dot{width:9px;height:9px;border-radius:50%;flex:none;display:inline-block}
-.cpd-dot.c{background:var(--navy3)} .cpd-dot.a{background:var(--teal)} .cpd-dot.k{background:var(--cpd-k)} .cpd-dot.e{background:var(--g4)} .cpd-dot.o{background:#8a6cc2}
-.cpd-bar{display:flex;height:10px;border-radius:99px;overflow:hidden;background:var(--g1);gap:2px;margin:10px 0 2px}
-.cpd-bar i{display:block;height:100%}
-.cpd-bar i.c{background:var(--navy3)} .cpd-bar i.a{background:var(--teal)} .cpd-bar i.k{background:var(--cpd-k)} .cpd-bar i.e{background:#cdd6e6} .cpd-bar i.o{background:#8a6cc2}
-.cpd-ok{font-size:11px;color:var(--cpd-teal-d);font-weight:700;margin-top:6px}
-.cpd-warn{font-size:11px;color:var(--cpd-rojo);font-weight:700;margin-top:6px}
-.cpd-flujo{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:stretch;margin-top:4px}
-@media(max-width:860px){.cpd-flujo{grid-template-columns:1fr}}
-.cpd-term{border:1px solid var(--g2);border-radius:12px;overflow:hidden;background:#fff}
-.cpd-term .cpd-h{padding:10px 14px;font-weight:700;font-size:12.5px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--g2)}
-.cpd-term.c .cpd-h{background:var(--cpd-navy-soft);color:var(--navy3)} .cpd-term.a .cpd-h{background:var(--teal-soft);color:var(--cpd-teal-d)}
-.cpd-term .cpd-h small{font-weight:600;opacity:.75}
-.cpd-term .cpd-r{display:flex;justify-content:space-between;gap:8px;padding:7px 14px;border-bottom:1px solid var(--g1);font-size:12.5px}
-.cpd-term .cpd-r b{font-family:var(--font-d);font-size:13px;font-variant-numeric:tabular-nums}
-.cpd-term .cpd-r.k{color:var(--g6)}
-.cpd-term .cpd-r.ajeno{background:var(--cpd-amber-bg);box-shadow:inset 3px 0 0 var(--cpd-amber-bd)}
-.cpd-term .cpd-r.tot{background:#fafbfe;border-bottom:none}
-.cpd-centro{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-width:160px;text-align:center}
-.cpd-centro .cpd-fl{font-size:22px;color:var(--cpd-teal-d);line-height:1}
-.cpd-centro .cpd-m{font-family:var(--font-d);font-size:18px;font-weight:800;font-variant-numeric:tabular-nums}
-.cpd-centro .cpd-q{font-size:11.5px;color:var(--g6);line-height:1.4}
-.cpd-centro .cpd-q b{color:var(--navy)}
-.cpd-centro .cpd-badge{font-size:10px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--cpd-teal-d);background:var(--teal-soft);padding:3px 9px;border-radius:99px}
-.cpd-res{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;border:1.5px solid var(--teal);background:var(--teal-soft);border-radius:10px;padding:10px 14px;margin-top:10px}
-.cpd-res .cpd-tx{font-size:13px;font-weight:600}
-.cpd-res .cpd-m{font-family:var(--font-d);font-size:18px;font-weight:800;font-variant-numeric:tabular-nums}
-.cpd-res.cero{border-color:var(--g2);background:var(--g1)}
+.cpd-dot.c{background:var(--navy3)}.cpd-dot.a{background:var(--teal)}
+.cpd-cc{display:grid;grid-template-columns:1fr auto 1fr;gap:14px;align-items:stretch}
+@media(max-width:860px){.cpd-cc{grid-template-columns:1fr}}
+.cpd-dc{border:1px solid var(--g2);border-radius:14px;overflow:hidden;background:#fff}
+.cpd-dc .h{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:11px 15px;border-bottom:1px solid var(--g2);font-weight:700}
+.cpd-dc.c .h{background:var(--cpd-navy-soft);color:var(--navy3)}.cpd-dc.a .h{background:var(--teal-soft);color:var(--cpd-teal-d)}
+.cpd-st{font-size:10.5px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;padding:3px 9px;border-radius:99px}
+.cpd-st.deb{background:var(--cpd-red-soft);color:var(--cpd-red)}.cpd-st.fav{background:var(--cpd-green-soft);color:var(--cpd-green)}.cpd-st.cero{background:var(--g1);color:var(--g6)}
+.cpd-dc .r{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 15px;border-bottom:1px solid var(--g1)}
+.cpd-dc .r .n{font-size:11px;color:var(--g4);font-weight:800;width:16px}
+.cpd-dc .r .t{flex:1;font-size:13px}.cpd-dc .r .t b{font-weight:600}.cpd-dc .r .t small{display:block;font-size:11px;color:var(--g6)}
+.cpd-dc .r .m{font-family:var(--font-d);font-weight:700;font-size:15px;font-variant-numeric:tabular-nums}
+.cpd-dc .r.min .m{color:var(--g6)}
+.cpd-dc .sal{display:flex;justify-content:space-between;align-items:center;padding:13px 15px;background:#fafbfe}
+.cpd-dc .sal .t{font-weight:800;font-size:12.5px}.cpd-dc .sal .t small{display:block;font-weight:500;color:var(--g6);font-size:11px}
+.cpd-dc .sal .m{font-family:var(--font-d);font-weight:800;font-size:22px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.cpd-dc .sal.deb .m{color:var(--cpd-red)}.cpd-dc .sal.fav .m{color:var(--cpd-green)}
+.cpd-dc .cov{padding:0 15px 13px;background:#fafbfe}.cpd-dc .cov .b{height:7px;border-radius:9px;background:var(--g2);overflow:hidden;display:flex}
+.cpd-dc .cov i{display:block;height:100%}.cpd-dc.c .cov i.t{background:var(--navy3)}.cpd-dc.a .cov i.t{background:var(--teal)}.cpd-dc .cov i.e{background:var(--g4)}
+.cpd-dc .cov .lg{display:flex;justify-content:space-between;font-size:10.5px;color:var(--g6);margin-top:5px}
+.cpd-mid{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;min-width:170px;text-align:center}
+.cpd-mid .bd{font-size:10px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--cpd-teal-d);background:var(--teal-soft);padding:4px 11px;border-radius:99px}
+.cpd-mid .fl{font-size:26px;line-height:1;color:var(--cpd-teal-d)}
+.cpd-mid .m{font-family:var(--font-d);font-size:24px;font-weight:800;font-variant-numeric:tabular-nums}
+.cpd-mid .q{font-size:11.5px;color:var(--g6);line-height:1.4}.cpd-mid .q b{color:var(--navy)}
+.cpd-ok{font-size:11.5px;color:var(--cpd-teal-d);font-weight:700;margin-top:8px}
+.cpd-warn{font-size:11.5px;color:#b4532a;font-weight:700;margin-top:8px}
+.cpd-nota{font-size:11.5px;color:var(--g6);line-height:1.5;margin-top:10px}
 .cpd-tabs{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
 .cpd-tabs button{font:inherit;font-size:12px;font-weight:700;padding:6px 12px;border-radius:99px;border:1px solid var(--g2);background:#fff;color:var(--g6);cursor:pointer}
 .cpd-tabs button.on{background:var(--navy);color:#fff;border-color:var(--navy)}
 .cpd-tabs button em{font-style:normal;opacity:.65;font-weight:600;margin-left:3px}
-.cpd-wrap{border:1px solid var(--g2);border-radius:12px 12px 0 0;overflow:auto;max-height:400px}
-table.cpd-tx{min-width:720px;width:100%;border-collapse:collapse;font-size:12.5px}
-table.cpd-tx thead th{position:sticky;top:0;z-index:1;text-align:left;font-size:10px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:var(--g6);padding:9px 14px;background:#fafbfe;border-bottom:1.5px solid var(--g2);white-space:nowrap}
+.cpd-wrap{border:1px solid var(--g2);border-radius:12px 12px 0 0;overflow:auto;max-height:420px}
+table.cpd-tx{min-width:940px;width:100%;border-collapse:collapse;font-size:12.5px}
+table.cpd-tx thead th{position:sticky;top:0;z-index:1;text-align:left;font-size:10px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:var(--g6);padding:9px 12px;background:#fafbfe;border-bottom:1.5px solid var(--g2);white-space:nowrap}
 table.cpd-tx th.num,table.cpd-tx td.num{text-align:right}
-table.cpd-tx td{padding:8px 14px;border-bottom:1px solid var(--g1);vertical-align:middle}
+table.cpd-tx td{padding:8px 12px;border-bottom:1px solid var(--g1);vertical-align:middle}
 table.cpd-tx td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
 table.cpd-tx td.pac{font-weight:600}
 table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g6)}
@@ -771,10 +770,10 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 .cpd-quien.a,.cpd-chip.a{background:var(--teal-soft);color:var(--cpd-teal-d)}
 .cpd-chip.e{background:var(--cpd-amber-bg);color:var(--cpd-amber);border:1px solid var(--cpd-amber-bd)}
 .cpd-monto{font-family:var(--font-d);font-weight:700;font-size:13px}
-.cpd-nota{font-size:10.5px;color:var(--g6);margin-top:2px;font-weight:400}
+.cpd-nt{font-size:10.5px;color:var(--g6);margin-top:2px;font-weight:400}
 .cpd-pie{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:10px 14px;background:#fafbfe;border:1px solid var(--g2);border-top:none;border-radius:0 0 12px 12px;font-size:12px;color:var(--g6)}
 .cpd-pie b{color:var(--navy);font-family:var(--font-d);font-variant-numeric:tabular-nums}
-.cpd-sep{height:1px;background:var(--g2);margin:20px 0}
+.cpd-sep{height:1px;background:var(--g2);margin:22px 0 4px}
 </style>
 </head>
 <body>
@@ -1145,31 +1144,14 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
         <div id="cpd-aviso"></div>
         <div id="cpd-contenido">
           <h2 class="cpd-sec">Distribución del dinero de cabinas</h2>
-          <p class="cpd-sub">Tres preguntas, en orden: cuánto se produjo y a quién le toca, dónde se cobró y quién le paga a quién. Reparte el 100% de la producción de cabina entre los doctores con las reglas de equipo y dueño del paciente (editables en Configuración); las cosmetólogas se pagan aparte. Usa el mismo periodo que Resumen.</p>
-          <div class="cpd-pasos">
-            <div class="cpd-paso"><span class="cpd-n">1</span>
-              <h3>¿Cuánto se produjo y a quién le corresponde?</h3>
-              <div class="cpd-p" id="cpd-p1"></div>
-              <div class="cpd-pills" id="cpd-pl1"></div>
-              <div class="cpd-bar" id="cpd-bar1"></div></div>
-            <div class="cpd-paso"><span class="cpd-n">2</span>
-              <h3>¿Dónde se cobró?</h3>
-              <div class="cpd-p">Lo que entró en cada terminal y lo que se pagó en efectivo.</div>
-              <div class="cpd-pills" id="cpd-pl2"></div>
-              <div class="cpd-bar" id="cpd-bar2"></div>
-              <div id="cpd-ok1"></div></div>
-            <div class="cpd-paso"><span class="cpd-n">3</span>
-              <h3>¿Quién le paga a quién?</h3>
-              <div class="cpd-p">Solo tarjeta. Cada terminal se separa por de quién es el dinero; lo resaltado es dinero del otro doctor.</div>
-              <div class="cpd-flujo" id="cpd-flujo"></div>
-              <div class="cpd-res" id="cpd-res"></div></div>
-            <div class="cpd-paso cpd-aparte"><span class="cpd-n">+</span>
-              <h3>Efectivo (aparte)</h3>
-              <div class="cpd-p">No pasa por terminal, así que queda fuera del cruce. Esto le corresponde a cada quien:</div>
-              <div class="cpd-pills" id="cpd-pl3"></div></div>
-          </div>
+          <p class="cpd-sub">Qué se produjo en cabinas, qué le corresponde a cada doctor (reglas de equipo y dueño del paciente, editables en Configuración) y quién le transfiere a quién. Mismo periodo que Resumen.</p>
+          <div class="cpd-kpis" id="cpd-kpis"></div>
+          <h3 class="cpd-sec2">Conciliación por doctor <small>Lo que le corresponde contra lo que ya tiene en su poder</small></h3>
+          <div class="cpd-cc" id="cpd-cc"></div>
+          <div id="cpd-ok1"></div>
+          <p class="cpd-nota" id="cpd-nota"></p>
           <div class="cpd-sep"></div>
-          <h2 class="cpd-sec">Detalle servicio por servicio</h2>
+          <h3 class="cpd-sec2">Detalle servicio por servicio <small>Lo que se debe, por terminal, efectivo y todos</small></h3>
           <div class="cpd-tabs" id="cpd-tabs"></div>
           <div class="cpd-wrap"><table class="cpd-tx"><thead id="cpd-head"></thead><tbody id="cpd-body"></tbody></table></div>
           <div class="cpd-pie" id="cpd-pie"></div>
@@ -1612,7 +1594,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.10.04-4';
+const APP_VERSION = 'v2026.10.04-5';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 const SUPABASE_URL = 'https://omjugldgnixuwqnnziyz.supabase.co';
@@ -2799,10 +2781,15 @@ function comPagoCalcular(docAlejandra, docOtro){
     efC: sum(efF, r => r.ec * r.efectivo / r.monto), efA: sum(efF, r => r.ea * r.efectivo / r.monto),
     mx: { ec:{ c:cell('c','ecT'), a:cell('a','ecT') }, ea:{ c:cell('c','eaT'), a:cell('a','eaT') } },
   };
-  m.aEnC = m.mx.ea.c;   // dinero de la doctora (docAlejandra) que entró en la terminal del otro doctor
-  m.cEnA = m.mx.ec.a;   // dinero del otro doctor que entró en la terminal de la doctora
-  m.neto = m.aEnC - m.cEnA;
-  m.deudor = m.neto >= 0 ? 'c' : 'a'; m.acreedor = m.deudor === 'c' ? 'a' : 'c'; m.transf = Math.abs(m.neto);
+  // Tarjeta cobrada en terminales que no son de ningún doctor: se asume en poder de quien le corresponde (igual que el efectivo).
+  const oF = filas.filter(r => r.t === 'o');
+  m.ot = { c: sum(oF, r => r.ec * r.card / r.monto), a: sum(oF, r => r.ea * r.card / r.monto) };
+  m.corr = { c: m.Ec, a: m.Ea }; m.term = { c: m.Tc, a: m.Ta }; m.ef = { c: m.efC, a: m.efA };
+  m.nT = { c: m.nTc, a: m.nTa };
+  // Saldo = lo que le corresponde − lo que ya tiene (su terminal + el efectivo suyo + lo suyo en otras terminales).
+  // Positivo = a su favor; negativo = tiene de más y debe transferirlo al otro doctor. Los dos saldos siempre suman cero.
+  m.saldo = { c: m.Ec - m.Tc - m.efC - m.ot.c, a: m.Ea - m.Ta - m.efA - m.ot.a };
+  m.deudor = m.saldo.c < 0 ? 'c' : 'a'; m.acreedor = m.deudor === 'c' ? 'a' : 'c'; m.transf = Math.abs(m.saldo[m.deudor]);
   return m;
 }
 
@@ -2812,61 +2799,49 @@ function renderComisionesPago(docAlejandra, docOtro){
     aviso.innerHTML = '<div class="empty-note">No se encontraron los 2 doctores de la clínica — revisa el catálogo de personal.</div>';
     cont.style.display = 'none'; COM_PAGO_MODELO = null; return;
   }
-  aviso.innerHTML = ''; cont.style.display = '';
   const M = COM_PAGO_MODELO = comPagoCalcular(docAlejandra, docOtro);
-  const corto = d => d.nombre.split(' ').slice(0,2).join(' ');
-  const art = d => /^dra/i.test(d.nombre) ? 'la' : 'el';
-  const nombres = { c: corto(M.docC), a: corto(M.docA) };
-  const pct = (a, b) => b > 0 ? (a / b * 100).toFixed(1) + '%' : '—';
-  const pill = (k, e, v, extra, cls) => `<div class="cpd-pill ${cls || ''}"><div class="cpd-e">${k ? `<span class="cpd-dot ${k}"></span>` : ''}${esc2(e)}</div><div class="cpd-v">${fmtMoney(v)}${extra ? `<small>${esc2(extra)}</small>` : ''}</div></div>`;
-  const seg = arr => arr.filter(x => x[1] > 0.005).map(([k, v]) => `<i class="${k}" style="width:${(v / M.P * 100).toFixed(2)}%" title="${fmtMoney(v)}"></i>`).join('');
-  const sv = n => `${n} serv.`;
-
   if(M.N === 0){
-    document.getElementById('cpd-p1').innerHTML = 'No hay servicios de cabina atendidos por cosmetólogas en este periodo.';
-    ['cpd-pl1','cpd-bar1','cpd-pl2','cpd-bar2','cpd-ok1','cpd-flujo','cpd-pl3','cpd-tabs','cpd-head','cpd-body','cpd-pie'].forEach(id => document.getElementById(id).innerHTML = '');
-    const r0 = document.getElementById('cpd-res'); r0.className = 'cpd-res cero'; r0.innerHTML = '<span class="cpd-tx">Sin movimientos de cabina.</span>';
-    return;
+    aviso.innerHTML = '<div class="empty-note">No hay servicios de cabina atendidos por cosmetólogas en este periodo.</div>';
+    cont.style.display = 'none'; return;
   }
+  aviso.innerHTML = ''; cont.style.display = '';
+  const FULL = { c: M.docC.nombre, a: M.docA.nombre };
+  const NM = { c: M.docC.nombre.split(' ').slice(0,2).join(' '), a: M.docA.nombre.split(' ').slice(0,2).join(' ') };
+  const pc = (a, b) => b > 0 ? (a / b * 100).toFixed(1) + '%' : '—';
+  const fms = n => (n > 0.004 ? '+' : n < -0.004 ? '−' : '') + fmtMoney(Math.abs(n));
+  const flecha = M.deudor === 'c' ? '→' : '←';
 
-  // 1. A quién le corresponde
-  document.getElementById('cpd-p1').innerHTML = `Productividad de cabinas (venta total de las cosmetólogas): <b>${fmtMoney(M.P)}</b> · ${M.N} servicios. Se reparte entre los doctores con las reglas de equipo y dueño del paciente. La comisión de las cosmetólogas (<b>${fmtMoney(M.Cs)}</b>) se paga aparte y no entra en este reparto.`;
-  document.getElementById('cpd-pl1').innerHTML =
-    pill('c', M.docC.nombre, M.Ec, pct(M.Ec, M.P)) + pill('a', M.docA.nombre, M.Ea, pct(M.Ea, M.P));
-  document.getElementById('cpd-bar1').innerHTML = seg([['c', M.Ec], ['a', M.Ea]]);
+  // KPIs: productividad, lo que le corresponde a cada doctor y lo que hay que transferir
+  document.getElementById('cpd-kpis').innerHTML = `
+    <div class="cpd-kpi"><div class="l">Productividad de cabinas</div><div class="v">${fmtMoney(M.P)}</div><div class="s">${M.N} servicios de cosmetólogas</div>
+      <div class="bar"><i style="width:${M.Ec / M.P * 100}%;background:var(--navy3)"></i><i style="width:${M.Ea / M.P * 100}%;background:var(--teal)"></i></div></div>
+    <div class="cpd-kpi c"><div class="l"><span class="cpd-dot c"></span>Corresponde a ${esc2(NM.c)}</div><div class="v">${fmtMoney(M.Ec)}</div><div class="s">${pc(M.Ec, M.P)} de la productividad</div></div>
+    <div class="cpd-kpi a"><div class="l"><span class="cpd-dot a"></span>Corresponde a ${esc2(NM.a)}</div><div class="v">${fmtMoney(M.Ea)}</div><div class="s">${pc(M.Ea, M.P)} de la productividad</div></div>
+    <div class="cpd-kpi t"><span class="arr">${M.transf < 0.005 ? '=' : flecha}</span><div class="l">Por transferir</div><div class="v">${fmtMoney(M.transf)}</div><div class="s">${M.transf < 0.005 ? 'Cuentas a mano' : `${esc2(NM[M.deudor])} → ${esc2(NM[M.acreedor])}`}</div></div>`;
 
-  // 2. Dónde se cobró
-  document.getElementById('cpd-pl2').innerHTML =
-    pill('c', `Terminal de ${nombres.c}`, M.Tc, sv(M.nTc)) + pill('a', `Terminal de ${nombres.a}`, M.Ta, sv(M.nTa)) +
-    (M.nTo ? pill('o', 'Otras terminales', M.To, sv(M.nTo)) : '') + pill('e', 'Efectivo', M.Ef, sv(M.nEf));
-  document.getElementById('cpd-bar2').innerHTML = seg([['c', M.Tc], ['a', M.Ta], ['o', M.To], ['e', M.Ef]]);
-  const cuadra = Math.abs((M.Ec + M.Ea) - M.P) < 0.01 && Math.abs((M.Tc + M.Ta + M.To + M.Ef) - M.P) < 0.01;
+  // Conciliación: una tarjeta por doctor con el mismo orden (corresponde, terminal, efectivo, saldo)
+  const card = k => {
+    const s = M.saldo[k], cls = s < -0.004 ? 'deb' : s > 0.004 ? 'fav' : 'cero';
+    const tag = { deb:'Debe transferir', fav:'A su favor', cero:'Cuadrado' }[cls];
+    const tengo = M.term[k] + M.ef[k] + M.ot[k], tope = Math.max(M.corr[k], tengo) || 1;
+    const otras = M.ot[k] > 0.005 ? `<div class="r min"><span class="n">+</span><span class="t"><b>Cobrado en otras terminales</b><small>Su parte; se asume en su poder</small></span><span class="m">${fmtMoney(M.ot[k])}</span></div>` : '';
+    return `<div class="cpd-dc ${k}"><div class="h"><span><span class="cpd-dot ${k}"></span> ${esc2(FULL[k])}</span><span class="cpd-st ${cls}">${tag}</span></div>
+      <div class="r"><span class="n">1</span><span class="t"><b>Valor correspondiente por cabinas</b><small>Según las reglas de equipo y dueño</small></span><span class="m">${fmtMoney(M.corr[k])}</span></div>
+      <div class="r"><span class="n">2</span><span class="t"><b>Cobrado en su terminal</b><small>${M.nT[k]} servicio${M.nT[k] === 1 ? '' : 's'} con tarjeta</small></span><span class="m">${fmtMoney(M.term[k])}</span></div>
+      <div class="r min"><span class="n">+</span><span class="t"><b>Efectivo que le toca</b><small>Se asume en su poder</small></span><span class="m">${fmtMoney(M.ef[k])}</span></div>${otras}
+      <div class="sal ${cls}"><span class="t">3 · Saldo<small>${cls === 'deb' ? 'Tiene de más: debe pasarlo' : cls === 'fav' ? 'Le falta recibir' : 'No hay diferencia'}</small></span><span class="m">${fms(s)}</span></div>
+      <div class="cov"><div class="b"><i class="t" style="width:${(M.term[k] + M.ot[k]) / tope * 100}%"></i><i class="e" style="width:${M.ef[k] / tope * 100}%"></i></div>
+        <div class="lg"><span>Tiene ${fmtMoney(tengo)}</span><span>Corresponde ${fmtMoney(M.corr[k])}</span></div></div></div>`;
+  };
+  const mid = M.transf < 0.005
+    ? `<div class="cpd-mid"><span class="bd">Cuentas a mano</span><span class="fl">=</span><span class="q">Ninguno le debe al otro por la cabina.</span></div>`
+    : `<div class="cpd-mid"><span class="bd">Por transferir</span><span class="fl">${flecha}</span><span class="m">${fmtMoney(M.transf)}</span><span class="q"><b>${esc2(NM[M.deudor])}</b> le transfiere a <b>${esc2(NM[M.acreedor])}</b></span></div>`;
+  document.getElementById('cpd-cc').innerHTML = card('c') + mid + card('a');
+  const cuadra = Math.abs(M.saldo.c + M.saldo.a) < 0.01 && Math.abs(M.Ec + M.Ea - M.P) < 0.01;
   document.getElementById('cpd-ok1').innerHTML = cuadra
-    ? '<div class="cpd-ok">✓ Los dos pasos reparten el mismo total: la productividad.</div>'
-    : '<div class="cpd-warn">⚠ Los dos pasos no suman lo mismo; revisa los datos del periodo.</div>';
-
-  // 3. Cruce de terminales
-  const term = (k, titulo, nServ, entro, suyoC, suyoA) => `
-    <div class="cpd-term ${k}"><div class="cpd-h"><span>${esc2(titulo)}</span><small>${nServ} servicio${nServ === 1 ? '' : 's'}</small></div>
-      <div class="cpd-r"><span>Entró con tarjeta</span><b>${fmtMoney(entro)}</b></div>
-      <div class="cpd-r ${k === 'a' ? 'ajeno' : ''}"><span>Es de ${esc2(nombres.c)}</span><b>${fmtMoney(suyoC)}</b></div>
-      <div class="cpd-r tot ${k === 'c' ? 'ajeno' : ''}"><span>Es de ${esc2(nombres.a)}</span><b>${fmtMoney(suyoA)}</b></div>
-      </div>`;
-  const quien = `<b>${esc2(nombres[M.deudor])}</b> le transfiere a <b>${esc2(nombres[M.acreedor])}</b>`;
-  const centro = M.transf < 0.005
-    ? `<div class="cpd-centro"><span class="cpd-badge">Cuentas a mano</span><span class="cpd-fl">=</span><span class="cpd-q">Ninguno le debe al otro por la cabina cobrada con tarjeta.</span></div>`
-    : `<div class="cpd-centro"><span class="cpd-badge">Por transferir</span><span class="cpd-fl">${M.deudor === 'c' ? '→' : '←'}</span><span class="cpd-m">${fmtMoney(M.transf)}</span><span class="cpd-q">${quien}</span></div>`;
-  document.getElementById('cpd-flujo').innerHTML =
-    term('c', `Terminal de ${M.docC.nombre}`, M.nTc, M.Tc, M.mx.ec.c, M.mx.ea.c) + centro +
-    term('a', `Terminal de ${M.docA.nombre}`, M.nTa, M.Ta, M.mx.ec.a, M.mx.ea.a);
-  const res = document.getElementById('cpd-res');
-  res.className = 'cpd-res' + (M.transf < 0.005 ? ' cero' : '');
-  const nota = M.nTo ? ` <span style="font-weight:400;color:var(--g6)">· aparte quedan ${fmtMoney(M.To)} con tarjeta fuera de terminales de doctores</span>` : '';
-  res.innerHTML = `<span class="cpd-tx">${esc2(M.docA.nombre)} tiene <b>${fmtMoney(M.aEnC)}</b> en la terminal de ${esc2(nombres.c)} − ${esc2(nombres.c)} tiene <b>${fmtMoney(M.cEnA)}</b> en la de ${art(M.docA)} ${esc2(nombres.a)}${nota}</span><span class="cpd-m">${fmtMoney(M.transf)}</span>`;
-
-  // Efectivo
-  document.getElementById('cpd-pl3').innerHTML =
-    pill('c', M.docC.nombre, M.efC) + pill('a', M.docA.nombre, M.efA) + pill('', 'Total en efectivo', M.Ef, sv(M.nEf), 'cpd-total');
+    ? '<div class="cpd-ok">✓ Los saldos de los dos doctores suman cero: lo que le sobra a uno es lo que le falta al otro.</div>'
+    : '<div class="cpd-warn">⚠ Los saldos no cuadran; revisa los datos del periodo.</div>';
+  document.getElementById('cpd-nota').innerHTML = `El efectivo no pasa por terminal: se asume que cada doctor tiene en su poder el efectivo que le corresponde, así que solo se compensa la diferencia de tarjeta. La comisión de las cosmetólogas (${fmtMoney(M.Cs)}) se paga aparte y no entra en este reparto.`;
 
   comPagoPintarDetalle();
 }
@@ -2888,25 +2863,26 @@ function comPagoPintarDetalle(){
   const todas = M.filas.filter(tab.f).sort(orden);
   const LIM = 400, filas = todas.slice(0, LIM);
   document.getElementById('cpd-tabs').innerHTML = TABS.map(t => `<button type="button" class="${t.id === COM_PAGO_TAB ? 'on' : ''}" data-id="${t.id}">${esc2(t.et)}<em>${M.filas.filter(t.f).length}</em></button>`).join('');
-  const nota = r => (r.card > 0.005 && r.efectivo > 0.005) ? `<div class="cpd-nota">Pagó ${fmtMoney(r.monto)}: ${fmtMoney(r.card)} con tarjeta y ${fmtMoney(r.efectivo)} en efectivo</div>` : '';
+  const nota = r => (r.card > 0.005 && r.efectivo > 0.005) ? `<div class="cpd-nt">Pagó ${fmtMoney(r.monto)}: ${fmtMoney(r.card)} con tarjeta y ${fmtMoney(r.efectivo)} en efectivo</div>` : '';
   const quienDebe = r => r.debe > 0.004 ? `<span class="cpd-quien ${r.t}">${esc2(nombres[r.t])}</span>` : '<span style="color:var(--g4)">—</span>';
   const montoDebe = r => r.debe > 0.004 ? `<span class="cpd-monto">${fmtMoney(r.debe)}</span>` : '—';
   const sum = (arr, f) => arr.reduce((a, r) => a + f(r), 0);
-  const base = r => `<td class="cpd-fecha">${fmtFechaCorta(r.fecha)}</td><td class="pac">${esc2(r.pacienteNombre)}${nota(r)}</td><td>${esc2(r.servicio)}</td>`;
+  const base = r => `<td class="cpd-fecha">${fmtFechaCorta(r.fecha)}</td><td class="pac">${esc2(r.pacienteNombre)}${nota(r)}</td><td>${esc2(r.servicio)}</td><td>${esc2(r.atiendeNombre || '—')}</td><td>${r.duenoNombre ? esc2(r.duenoNombre) : '<span style="color:var(--g4)">— sin dueño —</span>'}</td>`;
+  const encab = x => `<tr><th>Fecha</th><th>Paciente</th><th>Servicio</th><th>Atendió</th><th>Dueño del paciente</th>${x}</tr>`;
   let head, body, pie;
   if(COM_PAGO_TAB === 'ef'){
-    head = '<tr><th>Fecha</th><th>Paciente</th><th>Servicio</th><th class="num">Valor en efectivo</th><th class="num">Le toca a ' + esc2(nombres.c) + '</th><th class="num">Le toca a ' + esc2(nombres.a) + '</th></tr>';
+    head = encab('<th class="num">Valor en efectivo</th><th class="num">Le toca a ' + esc2(nombres.c) + '</th><th class="num">Le toca a ' + esc2(nombres.a) + '</th>');
     body = filas.map(r => { const k = r.efectivo / r.monto; return `<tr>${base(r)}<td class="num">${fmtMoney(r.efectivo)}</td><td class="num">${fmtMoney(r.ec * k)}</td><td class="num">${fmtMoney(r.ea * k)}</td></tr>`; }).join('');
     pie = `<span>${todas.length} servicios en efectivo</span><span>Total <b>${fmtMoney(M.Ef)}</b> · ${esc2(nombres.c)} <b>${fmtMoney(M.efC)}</b> · ${esc2(nombres.a)} <b>${fmtMoney(M.efA)}</b></span>`;
   } else if(COM_PAGO_TAB === 'todos'){
     const chips = r => [
       r.card > 0.005 ? `<span class="cpd-chip ${r.t === 'c' || r.t === 'a' ? r.t : 'e'}">${r.t === 'c' || r.t === 'a' ? esc2(nombres[r.t]) : esc2(r.terminal || 'Sin terminal')}</span>` : '',
       r.efectivo > 0.005 ? '<span class="cpd-chip e">Efectivo</span>' : ''].join(' ');
-    head = '<tr><th>Fecha</th><th>Paciente</th><th>Servicio</th><th>Cobrado en</th><th class="num">Valor cobrado</th><th>Quién debe</th><th class="num">Monto por pagar</th></tr>';
+    head = encab('<th>Cobrado en</th><th class="num">Valor cobrado</th><th>Quién debe</th><th class="num">Monto por pagar</th>');
     body = filas.map(r => `<tr class="${r.debe > 0.004 ? '' : 'sin'}">${base(r)}<td>${chips(r)}</td><td class="num">${fmtMoney(r.monto)}</td><td>${quienDebe(r)}</td><td class="num">${montoDebe(r)}</td></tr>`).join('');
     pie = `<span>${todas.length} servicios${todas.length > LIM ? ` · mostrando los ${LIM} más recientes` : ''}</span><span>Productividad <b>${fmtMoney(M.P)}</b></span>`;
   } else {
-    head = '<tr><th>Fecha</th><th>Paciente</th><th>Servicio</th><th class="num">Valor cobrado</th><th>Quién debe</th><th class="num">Monto por pagar</th></tr>';
+    head = encab('<th class="num">Valor cobrado (tarjeta)</th><th>Quién debe</th><th class="num">Monto por pagar</th>');
     body = filas.map(r => `<tr class="${r.debe > 0.004 ? '' : 'sin'}">${base(r)}<td class="num">${fmtMoney(r.card)}</td><td>${quienDebe(r)}</td><td class="num">${montoDebe(r)}</td></tr>`).join('');
     if(COM_PAGO_TAB === 'debe'){
       const dc = sum(todas.filter(r => r.t === 'c'), r => r.debe), da = sum(todas.filter(r => r.t === 'a'), r => r.debe);
@@ -2915,7 +2891,7 @@ function comPagoPintarDetalle(){
       pie = `<span>${todas.length} servicios con tarjeta en esta terminal${todas.length > LIM ? ` · mostrando los ${LIM} más recientes` : ''}</span><span>Cobrado <b>${fmtMoney(sum(todas, r => r.card))}</b> · Debe al otro doctor <b>${fmtMoney(sum(todas, r => r.debe))}</b></span>`;
     }
   }
-  const vacio = `<tr><td colspan="7" style="text-align:center;color:var(--g6);padding:22px">No hay servicios en esta vista para el periodo.</td></tr>`;
+  const vacio = `<tr><td colspan="9" style="text-align:center;color:var(--g6);padding:22px">No hay servicios en esta vista para el periodo.</td></tr>`;
   document.getElementById('cpd-head').innerHTML = head;
   document.getElementById('cpd-body').innerHTML = body || vacio;
   document.getElementById('cpd-pie').innerHTML = pie;
