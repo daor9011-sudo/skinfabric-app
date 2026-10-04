@@ -23,7 +23,7 @@ html,body{max-width:100%;overflow-x:clip}
 body{font-family:var(--font-b);min-height:100vh;color:var(--navy);background:#eef1f7}
 
 /* ══════════ MARCA DE VERSIÓN (huella discreta, esquina inferior) ══════════ */
-#app-version-tag{position:fixed;bottom:6px;right:10px;font-family:var(--font-b);font-size:9.5px;font-weight:400;color:#fff;mix-blend-mode:difference;letter-spacing:.3px;z-index:9999;pointer-events:none;user-select:none}
+#app-version-tag{position:fixed;bottom:6px;right:10px;font-family:var(--font-b);font-size:9.5px;font-weight:400;color:#fff;transition:color .2s;letter-spacing:.3px;z-index:9999;pointer-events:none;user-select:none}
 
 /* ══════════ LOADING PANEL ══════════ */
 #loading-panel{position:fixed;inset:0;background:radial-gradient(circle at 20% 10%,#183660 0%,#0B1628 55%,#080f1c 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;z-index:999;transition:opacity .25s ease}
@@ -1169,8 +1169,8 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
       <button type="button" data-screen2="cierre">🧾 Cierre</button>
       <button type="button" data-screen2="dash">📊 Dashboard</button>
       <button type="button" data-screen2="comisiones" id="nav-btn-comisiones" style="display:none">💰 Comisiones</button>
-      <button type="button" data-screen2="prm">💬 PRM/CRM</button>
       <button type="button" data-screen2="gastos" id="nav-btn-gastos" style="display:none">💸 Gastos</button>
+      <button type="button" data-screen2="prm">💬 PRM/CRM</button>
     </div>
   </div>
 
@@ -1914,9 +1914,36 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.10.04-25';
+const APP_VERSION = 'v2026.10.04-27';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
+// La marca de versión cambia de color según lo que tenga debajo: blanca sobre fondo oscuro, gris sobre fondo claro
+(function(){
+  const tag = document.getElementById('app-version-tag');
+  let pend = false;
+  function lum(c){ const m = c.match(/rgba?\(([^)]+)\)/); if(!m) return null; const p = m[1].split(',').map(x=>parseFloat(x)); if(p.length > 3 && p[3] < 0.5) return null; return (0.299*p[0] + 0.587*p[1] + 0.114*p[2]) / 255; }
+  function fondoBajo(x, y){
+    let el = document.elementFromPoint(x, y);
+    while(el){
+      const cs = getComputedStyle(el);
+      const g = cs.backgroundImage;
+      if(g && g !== 'none' && /gradient/.test(g)){ const l = lum(g); if(l !== null) return l; }
+      const l2 = lum(cs.backgroundColor); if(l2 !== null) return l2;
+      el = el.parentElement;
+    }
+    return 1;
+  }
+  function pintar(){
+    pend = false;
+    const r = tag.getBoundingClientRect(); if(!r.width) return;
+    const oscuro = fondoBajo(r.left + r.width/2, r.top + r.height/2) < 0.5;
+    tag.style.color = oscuro ? '#ffffff' : '#8a93a6';
+  }
+  function pedir(){ if(!pend){ pend = true; requestAnimationFrame(pintar); } }
+  ['scroll','resize','click','touchend','keyup'].forEach(e=>window.addEventListener(e, pedir, true));
+  setInterval(pedir, 600);
+  pedir();
+})();
 const SUPABASE_URL = 'https://omjugldgnixuwqnnziyz.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9tanVnbGRnbml4dXdxbm56aXl6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODczNTY2NDUsImV4cCI6MjEwMjkzMjY0NX0.1nwsZtmR3SlnJTiK45XFReHWOY4Ur8hJUoz64Vkudw4';
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
