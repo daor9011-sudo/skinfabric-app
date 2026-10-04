@@ -95,6 +95,8 @@ body{font-family:var(--font-b);min-height:100vh;color:var(--navy);background:#ee
 .s3-logout,.s3-config{font-family:var(--font-b);background:none;border:1px solid rgba(255,255,255,.25);color:#fff;padding:5px 12px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:5px}
 #app-user-name{font-family:var(--font-b);display:inline-flex;align-items:center}
 #btn-refresh{display:none}
+.s3-userwrap,.com-seg,.com-arr,.com-todo-note,.com-per .mb{display:none}
+.com-per i{font-style:normal}
 .s3-logout:hover,.s3-config:hover{border-color:var(--teal);color:var(--teal)}
 .s3-navrow{background:linear-gradient(#fbfcfe,#f4f6fb);border-bottom:1px solid var(--g2);padding:14px 26px;display:flex;justify-content:center}
 .s3-segment{display:flex;background:var(--g1);border-radius:12px;padding:4px;gap:4px;box-shadow:inset 0 1px 3px rgba(11,22,40,.08);flex-wrap:wrap}
@@ -919,7 +921,25 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
   .s3-brand-center{justify-self:center;text-align:center}
   .s3-brand-title{font-size:15px;letter-spacing:.2px}
   .s3-brand-sub{display:none}
-  .s3-right{grid-column:1 / -1;justify-self:stretch;justify-content:center;align-items:center;flex-wrap:nowrap;gap:8px;width:100%;min-width:0}
+  .s3-right{grid-column:1 / -1;justify-self:stretch;justify-content:center;align-items:center;flex-wrap:nowrap;gap:8px;width:100%;min-width:0;position:relative}
+  .s3-right>.s3-role-chip,.s3-right>#app-user-name,.s3-right>#btn-refresh,.s3-right>#btn-config-header,.s3-right>#btn-logout{display:none!important}
+  .s3-strip{z-index:70}
+  .s3-userwrap{display:flex;justify-content:center;max-width:100%;min-width:0}
+  .s3-pill{display:inline-flex;align-items:center;gap:9px;max-width:100%;min-width:0;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:5px 11px 5px 5px;color:#fff;font:600 13px var(--font-b);cursor:pointer}
+  .s3-pill .av{width:26px;height:26px;border-radius:50%;flex:none;background:linear-gradient(135deg,var(--teal),#1c9a9a);display:grid;place-items:center;font:800 10px var(--font-d);color:#06303a}
+  .s3-pill .nm{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .s3-pill .rol{flex:none;background:rgba(42,191,191,.2);color:var(--teal);font-weight:800;font-size:9.5px;letter-spacing:.6px;text-transform:uppercase;padding:3px 8px;border-radius:6px;box-shadow:inset 0 0 0 1px rgba(42,191,191,.35)}
+  .s3-pill .chev{width:14px;height:14px;flex:none;opacity:.75;transition:transform .2s}
+  .s3-pill[aria-expanded=true] .chev{transform:rotate(180deg)}
+  .s3-userwrap{position:relative}
+  .s3-menu{position:absolute;top:calc(100% + 10px);left:50%;width:min(250px,calc(100vw - 28px));background:#fff;color:var(--navy);border-radius:14px;padding:6px;box-shadow:0 18px 40px rgba(11,22,40,.4);opacity:0;visibility:hidden;pointer-events:none;transform:translate(-50%,-6px);transition:opacity .18s,transform .18s,visibility .18s;z-index:90}
+  .s3-menu.open{opacity:1;visibility:visible;pointer-events:auto;transform:translate(-50%,0)}
+  .s3-menu::before{content:'';position:absolute;top:-6px;left:50%;margin-left:-6px;width:12px;height:12px;background:#fff;transform:rotate(45deg);border-radius:2px}
+  .s3-menu .mi{display:flex;align-items:center;gap:12px;width:100%;border:0;background:none;padding:13px 12px;border-radius:10px;font:600 14.5px var(--font-b);color:var(--navy);cursor:pointer;text-align:left;position:relative}
+  .s3-menu .mi:active{background:var(--g1)}
+  .s3-menu .mi svg{width:18px;height:18px;flex:none;color:var(--navy2)}
+  .s3-menu .mi.out,.s3-menu .mi.out svg{color:#B8481F}
+  .s3-menu .sep{height:1px;background:var(--g2);margin:4px 8px}
   .s3-strip>*{min-width:0}
   #app-user-name{min-width:0;flex:0 1 auto;max-width:44vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px}
   #btn-refresh{display:inline-flex}
@@ -933,14 +953,30 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
   #crm-inactivos-aplicar{grid-column:1 / -1;display:flex;justify-content:center;align-items:center;min-height:38px}
   /* Comisiones: cabecera centrada y filtros de periodo en cuadrícula ordenada */
   .com-hero{margin:-14px -13px 14px;padding:14px 12px 0}
-  .com-hero-top{justify-content:center;gap:10px 12px}
-  .com-hero-top>div:nth-child(2){min-width:0;flex:0 1 auto}
-  .com-hero h1{font-size:26px}
+  .com-hero-top{flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:6px}
+  .com-hero-ico{width:40px;height:40px;font-size:20px;border-radius:12px}
+  .com-hero-top>div:nth-child(2){min-width:0;text-align:center}
+  .com-hero h1{font-size:25px}
   .com-hero p{font-size:11.5px;line-height:1.35}
-  .com-per{margin-left:0;width:100%;display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px 10px;align-items:center;padding:10px 12px}
-  .com-per span{font-size:11px;font-weight:700;letter-spacing:.3px;text-transform:uppercase}
-  .com-per input{width:100%;min-width:0;min-height:38px;box-sizing:border-box;text-align:left}
-  .com-per button{grid-column:1 / -1;padding:10px 12px;font-size:12.5px}
+  /* Periodo (v24): selector Mes / Rango / Todo con campos delgados; solo se ve lo que se usa */
+  .com-per{margin-left:0;width:100%;display:grid;grid-template-columns:36px minmax(0,1fr) minmax(0,1fr) 36px;gap:6px 8px;align-items:end;padding:8px}
+  .com-per .dk{display:none}.com-per .mb{display:inline}
+  .com-per>span{display:none;font-size:9px;font-weight:800;letter-spacing:.7px;text-transform:uppercase;color:rgba(255,255,255,.65);margin:0 2px -2px}
+  .com-per input{display:none;width:100%;min-width:0;height:36px;min-height:36px;box-sizing:border-box;text-align:center;padding:0 8px;border-radius:9px}
+  .com-per #com-btn-todo{display:none}
+  .com-per .com-seg{display:grid;grid-column:1 / -1;grid-row:1;grid-template-columns:repeat(3,1fr);gap:3px;background:rgba(0,0,0,.22);border-radius:9px;padding:3px}
+  .com-per .com-seg button{height:30px;padding:0;border:0;border-radius:7px;background:none;color:rgba(255,255,255,.78);font:700 12.5px var(--font-b);cursor:pointer}
+  .com-per .com-seg button.on{background:#fff;color:var(--navy);box-shadow:0 2px 6px rgba(0,0,0,.2)}
+  .com-per .com-arr{height:36px;padding:0;border:0;border-radius:9px;background:rgba(255,255,255,.14);color:#fff;font:700 20px/1 var(--font-b);cursor:pointer}
+  .com-per .com-arr:active{background:rgba(255,255,255,.3)}
+  .com-per[data-modo=mes] #com-prev{display:block;grid-area:2 / 1}
+  .com-per[data-modo=mes] #com-mes{display:block;grid-area:2 / 2 / 3 / 4}
+  .com-per[data-modo=mes] #com-next{display:block;grid-area:2 / 4}
+  .com-per[data-modo=rango] .cl-d{display:block;grid-area:2 / 1 / 3 / 3}
+  .com-per[data-modo=rango] .cl-h{display:block;grid-area:2 / 3 / 3 / 5}
+  .com-per[data-modo=rango] #com-desde{display:block;grid-area:3 / 1 / 4 / 3}
+  .com-per[data-modo=rango] #com-hasta{display:block;grid-area:3 / 3 / 4 / 5}
+  .com-per[data-modo=todo] .com-todo-note{display:block;grid-area:2 / 1 / 3 / 5;text-align:center;font-size:12.5px;font-weight:600;color:rgba(255,255,255,.85);background:rgba(255,255,255,.1);border-radius:9px;padding:9px 10px}
   .com-hero-tabs{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:12px}
   .com-hero-tabs .prm-tab-btn{padding:10px 6px;font-size:12px;text-align:center;white-space:nowrap}
   .s3-navrow{padding:7px 8px;justify-content:flex-start;position:sticky;top:0;z-index:60;box-shadow:0 6px 14px -8px rgba(11,22,40,.3)}
@@ -1108,6 +1144,16 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
       <button class="s3-config" id="btn-refresh" type="button" title="Actualizar" aria-label="Actualizar">↻<span class="lbl"> Actualizar</span></button>
       <button class="s3-config" id="btn-config-header" type="button" title="Configuración" aria-label="Configuración" style="display:none">⚙️<span class="lbl"> Configuración</span></button>
       <button class="s3-logout" id="btn-logout" type="button" title="Cerrar sesión" aria-label="Cerrar sesión">⏻<span class="lbl"> Cerrar sesión</span></button>
+      <!-- Solo móvil: nombre + rol como botón que abre el menú de acciones -->
+      <div class="s3-userwrap">
+        <button class="s3-pill" id="user-pill" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="user-menu"><span class="av" id="user-pill-av">—</span><span class="nm" id="user-pill-name">—</span><span class="rol" id="user-pill-rol">—</span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+        <div class="s3-menu" id="user-menu" role="menu">
+          <button type="button" class="mi" id="um-refresh" role="menuitem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v5h-5"/></svg>Actualizar datos</button>
+          <button type="button" class="mi" id="um-config" role="menuitem" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>Configuración</button>
+          <div class="sep"></div>
+          <button type="button" class="mi out" id="um-logout" role="menuitem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v10"/><path d="M18.4 6.6a9 9 0 1 1-12.8 0"/></svg>Cerrar sesión</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -1372,11 +1418,13 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
         <div class="com-hero-top">
           <div class="com-hero-ico">💰</div>
           <div><h1>Comisiones</h1><p>Producción y reparto del equipo · <b id="com-hero-per">—</b></p></div>
-          <div class="com-per">
-            <span>Mes</span><input type="month" id="com-mes"/>
-            <span>Desde</span><input type="date" id="com-desde"/>
-            <span>Hasta</span><input type="date" id="com-hasta"/>
+          <div class="com-per" id="com-per" data-modo="mes">
+            <div class="com-seg" role="tablist" aria-label="Periodo"><button type="button" data-m="mes" class="on">Mes</button><button type="button" data-m="rango">Rango</button><button type="button" data-m="todo">Todo</button></div>
+            <span class="cl-m">Mes</span><button type="button" class="com-arr" id="com-prev" aria-label="Mes anterior">‹</button><input type="month" id="com-mes"/><button type="button" class="com-arr" id="com-next" aria-label="Mes siguiente">›</button>
+            <span class="cl-d"><i class="dk">o rango</i><i class="mb">Desde</i></span><input type="date" id="com-desde"/>
+            <span class="cl-h"><i class="dk">a</i><i class="mb">Hasta</i></span><input type="date" id="com-hasta"/>
             <button type="button" id="com-btn-todo">Ver todo</button>
+            <div class="com-todo-note">Todo el historial · sin filtro de fechas</div>
           </div>
         </div>
         <div class="com-hero-tabs">
@@ -1861,7 +1909,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.10.04-23';
+const APP_VERSION = 'v2026.10.04-24';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 const SUPABASE_URL = 'https://omjugldgnixuwqnnziyz.supabase.co';
@@ -2004,6 +2052,12 @@ function entrarAlShell(perfil){
   document.getElementById('app-view').classList.add('act');
   document.getElementById('app-role-chip').textContent = '★ ' + (ROLE_LABELS[perfil.rol] || (perfil.rol.charAt(0).toUpperCase() + perfil.rol.slice(1)));
   document.getElementById('app-user-name').innerHTML = '👤 ' + esc2(perfil.nombre);
+  (function(){
+    const palabras = String(perfil.nombre||'').split(/\s+/).filter(w=>w && !/^(dr|dra|cosm|lic)\.?$/i.test(w));
+    document.getElementById('user-pill-av').textContent = ((palabras[0]||'?').charAt(0) + (palabras[1]||'').charAt(0)).toUpperCase();
+    document.getElementById('user-pill-name').textContent = perfil.nombre || '';
+    document.getElementById('user-pill-rol').textContent = '★ ' + (ROLE_LABELS[perfil.rol] || perfil.rol);
+  })();
 
   const showDash = perfil.permisos?.puede_ver_dashboard === true;
   const showGastos = perfil.permisos?.puede_ver_gastos === true;
@@ -2013,6 +2067,7 @@ function entrarAlShell(perfil){
   document.getElementById('nav-btn-gastos').style.display = showGastos ? '' : 'none';
   document.getElementById('nav-btn-comisiones').style.display = showComisiones ? '' : 'none';
   document.getElementById('btn-config-header').style.display = showConfig ? 'inline-flex' : 'none';
+  document.getElementById('um-config').style.display = showConfig ? 'flex' : 'none';
   window.MI_ROL_ADMIN = perfil.rol === 'admin';
   window.MI_PUEDE_ELIMINAR_PAPELERA = perfil.rol === 'admin' && perfil.permisos?.puede_eliminar_papelera !== false;
   window.MI_PUEDE_EXPORTAR = perfil.permisos?.puede_exportar !== false;
@@ -2092,6 +2147,18 @@ document.querySelectorAll('.s3-segment button[data-screen2]').forEach(btn=>{
     try{ const seg = btn.parentElement; if(seg && seg.scrollWidth > seg.clientWidth) seg.scrollTo({ left: Math.max(0, btn.offsetLeft - (seg.clientWidth - btn.offsetWidth) / 2), behavior:'smooth' }); }catch(e){}
   });
 });
+// Menú de usuario (solo móvil): reutiliza los mismos botones de siempre
+(function(){
+  const pill = document.getElementById('user-pill'), menu = document.getElementById('user-menu');
+  const abrir = o => { menu.classList.toggle('open', o); pill.setAttribute('aria-expanded', o ? 'true' : 'false'); };
+  pill.addEventListener('click', e=>{ e.stopPropagation(); abrir(!menu.classList.contains('open')); });
+  document.addEventListener('click', e=>{ if(menu.classList.contains('open') && !e.target.closest('#user-menu')) abrir(false); });
+  document.addEventListener('keydown', e=>{ if(e.key === 'Escape') abrir(false); });
+  window.addEventListener('resize', ()=>abrir(false));
+  [['um-refresh','btn-refresh'],['um-config','btn-config-header'],['um-logout','btn-logout']].forEach(([m,b])=>{
+    document.getElementById(m).addEventListener('click', ()=>{ abrir(false); document.getElementById(b).click(); });
+  });
+})();
 document.getElementById('btn-config-header').addEventListener('click', ()=>{
   document.querySelectorAll('.s3-segment button').forEach(b=>b.classList.remove('navact'));
   document.querySelectorAll('.screen2').forEach(s=>s.classList.remove('act'));
@@ -3298,8 +3365,36 @@ document.getElementById('com-btn-todo').addEventListener('click', ()=>{
   document.getElementById('com-mes').value = '';
   document.getElementById('com-desde').value = '';
   document.getElementById('com-hasta').value = '';
+  comSetModo('todo');
   cargarComisiones();
 });
+// Selector Mes / Rango / Todo y flechas de mes (solo se ven en móvil; usan los mismos campos de siempre)
+function comSetModo(m){
+  document.getElementById('com-per').dataset.modo = m;
+  document.querySelectorAll('#com-per .com-seg button').forEach(b=>b.classList.toggle('on', b.dataset.m === m));
+}
+document.getElementById('com-mes').addEventListener('change', function(){ comSetModo(this.value ? 'mes' : 'todo'); });
+document.getElementById('com-desde').addEventListener('change', ()=>comSetModo('rango'));
+document.getElementById('com-hasta').addEventListener('change', ()=>comSetModo('rango'));
+document.querySelectorAll('#com-per .com-seg button').forEach(b=>b.addEventListener('click', ()=>{
+  const m = b.dataset.m, mes = document.getElementById('com-mes');
+  if(m === 'mes'){
+    if(!mes.value){ mes.value = mesActualISO(); mes.dispatchEvent(new Event('change')); }
+    comSetModo('mes');
+  } else if(m === 'rango'){
+    mes.value = '';           // las fechas quedan como estaban y se pueden ajustar
+    comSetModo('rango'); comActualizarSubtitulo();
+  } else document.getElementById('com-btn-todo').click();
+}));
+function comMoverMes(d){
+  const mes = document.getElementById('com-mes');
+  let [y, m] = (mes.value || mesActualISO()).split('-').map(Number);
+  m += d; if(m > 12){ m = 1; y++; } if(m < 1){ m = 12; y--; }
+  mes.value = y + '-' + String(m).padStart(2,'0');
+  mes.dispatchEvent(new Event('change'));
+}
+document.getElementById('com-prev').addEventListener('click', ()=>comMoverMes(-1));
+document.getElementById('com-next').addEventListener('click', ()=>comMoverMes(1));
 document.querySelector('[data-screen2="comisiones"]').addEventListener('click', ()=> cargarComisiones());
 
 // Las comisiones se liquidan mes a mes, así que al abrir esta pantalla por primera vez se parte
