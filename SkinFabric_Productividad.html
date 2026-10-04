@@ -1615,7 +1615,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.10.04-10';
+const APP_VERSION = 'v2026.10.04-11';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 const SUPABASE_URL = 'https://omjugldgnixuwqnnziyz.supabase.co';
@@ -2490,10 +2490,15 @@ function comCalcularFila(row, docAlejandra, docOtro){
   return { ...row, esCabina, comCosmAtiende, comCosmDueno, comAlejandra, comOtro, regla, distAlejandra, distOtro, reglaDist, pctCosmAtiende: R.cosm_atiende_pct, pctCosmDueno: R.cosm_duena_pct };
 }
 
-// Efectivo de un servicio, igual que el pivot: si el medio de pago de la consulta es Efectivo, el servicio completo
-// cuenta como efectivo (aunque el 2do pago sea con tarjeta); en cualquier otro caso no cuenta como efectivo.
+// Cuánto de un servicio se pagó en efectivo. Si el servicio ya trae su propio 1er/2do pago se usa tal cual;
+// si no (registros anteriores), se reparte el pago de la consulta proporcionalmente (1er pago → medio_pago, 2do → medio_pago_2).
 function comEfectivoServicio(c, cs, monto){
-  return /efectivo/i.test(c.medio_pago || '') ? Math.max(monto, 0) : 0;
+  const esEf = m => /efectivo/i.test(m || '');
+  const c1 = Number(c.monto || 0), c2 = Number(c.monto_2 || 0), cTot = c1 + c2;
+  let p1, p2;
+  if(cs && cs.monto_1 != null){ p1 = Number(cs.monto_1 || 0); p2 = Number(cs.monto_2 || 0); }
+  else { p1 = cTot > 0 ? monto * (c1 / cTot) : monto; p2 = monto - p1; }
+  return Math.min(Math.max((esEf(c.medio_pago) ? p1 : 0) + (esEf(c.medio_pago_2) ? p2 : 0), 0), monto);
 }
 
 async function cargarComisiones(){
