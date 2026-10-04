@@ -1579,7 +1579,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.10.04-1';
+const APP_VERSION = 'v2026.10.04-2';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 const SUPABASE_URL = 'https://omjugldgnixuwqnnziyz.supabase.co';
@@ -3651,7 +3651,7 @@ async function cargarHistorial(){
   // movimiento, se perdían calladamente los primeros días del mes y el total salía de menos).
   // 5000 cubre con margen holgado el volumen actual de la clínica incluso filtrando "Ver todo".
   let q = sb.from('consultas')
-    .select('id,fecha,monto,medio_pago,monto_2,medio_pago_2,factura,num_factura,no_vino,notas,paciente_id,doctor_id,terminal_id,pacientes!inner(nombre,telefono,dueno_id,procedencia_id,catalogo_procedencia(nombre),dueno:personal!dueno_id(nombre)),doctor:personal!doctor_id(nombre),catalogo_terminales(nombre),consulta_servicios(tipo_servicio_id,monto,monto_1,monto_2,atendido_por,catalogo_tipos_servicio(nombre),atendido:personal(nombre))')
+    .select('id,fecha,monto,medio_pago,monto_2,medio_pago_2,factura,num_factura,no_vino,notas,paciente_id,doctor_id,terminal_id,pacientes!inner(nombre,telefono,dueno_id,procedencia_id,catalogo_procedencia(nombre),dueno:personal!dueno_id(nombre,rol)),doctor:personal!doctor_id(nombre,rol),catalogo_terminales(nombre),consulta_servicios(tipo_servicio_id,monto,monto_1,monto_2,atendido_por,catalogo_tipos_servicio(nombre),atendido:personal(nombre,rol))')
     .eq('deleted', false)
     .order('fecha', { ascending:false })
     .order('created_at', { ascending:false })
@@ -4099,6 +4099,31 @@ document.getElementById('export-btn-cancelar').addEventListener('click', ()=> do
 // cambio no tienen monto_1/monto_2 (quedan NULL): para esas se usa la aproximación de antes —
 // el pago completo de la consulta en la primera fila — y la columna "Reparto de pago" lo marca
 // como "Aproximado" para que no se confunda con el desglose real.
+// Para el Excel: de quién es el equipo del servicio y qué regla/% de comisión le aplica.
+// Equipo: solo aplica a servicios de cabina (equipo dedicado de la Dra. o del Dr., o compartido).
+// Regla: sale de comCalcularFila (la misma del módulo Comisiones), más el % de cosmetóloga si lo hay.
+function comInfoExcel(r, cs, monto){
+  const servicio = cs.catalogo_tipos_servicio?.nombre || '';
+  const { docAlejandra, docOtro } = comResolverDoctores();
+  const esCabina = COM_SERVICIOS_CABINA.includes(servicio);
+  let equipo = 'No aplica (fuera de cabina)';
+  if(esCabina){
+    if(COM_SERVICIOS_EQUIPO_DEDICADO_ALEJANDRA.includes(servicio)) equipo = docAlejandra?.nombre || 'Dra. Alejandra';
+    else if(COM_SERVICIOS_EQUIPO_DEDICADO_CARLOS.includes(servicio)) equipo = docOtro?.nombre || 'Dr. Carlos';
+    else equipo = 'Compartido';
+  }
+  const atiendeId = cs.atendido_por || r.doctor_id || null;
+  const atiendeRol = cs.atendido_por ? (cs.atendido?.rol || null) : (r.doctor?.rol || null);
+  const f = comCalcularFila({
+    monto: monto > 0 ? monto : 0, servicio,
+    duenoId: r.pacientes?.dueno_id || null, duenoRol: r.pacientes?.dueno?.rol || null,
+    atiendeId, atiendeRol,
+  }, docAlejandra, docOtro);
+  let regla = f.regla;
+  if(f.comCosmAtiende > 0) regla += ' + 3% cosmetóloga que atendió';
+  if(f.comCosmDueno > 0) regla += ' + 5% cosmetóloga dueña';
+  return { equipo, regla };
+}
 function exportarExcel(filas){
   const datos = [];
   filas.forEach(r=>{
@@ -4120,6 +4145,8 @@ function exportarExcel(filas){
         pago1 = '';
         pago2 = '';
       }
+      // Equipo y regla de comisión de ESTE servicio, con el mismo motor del módulo Comisiones.
+      const info = cs ? comInfoExcel(r, cs, montoRow) : { equipo: '', regla: '' };
       datos.push({
         'Fecha': r.fecha,
         'Paciente': r.pacientes?.nombre || '',
@@ -4127,6 +4154,8 @@ function exportarExcel(filas){
         'Dueño del paciente': r.pacientes?.dueno?.nombre || '',
         'Teléfono': r.pacientes?.telefono || '',
         'Servicio': cs?.catalogo_tipos_servicio?.nombre || '',
+        'Equipo': info.equipo,
+        'Regla de comisión': info.regla,
         'Atendió': cs?.atendido?.nombre || r.doctor?.nombre || '',
         'Monto del servicio': montoRow,
         '1er pago de este servicio': pago1,
@@ -4170,7 +4199,7 @@ document.getElementById('export-btn-confirmar').addEventListener('click', async 
         if(!desde && !hasta){ toast('Elige al menos una fecha.'); btn.disabled = false; btn.textContent = '↓ Exportar a Excel'; return; }
       }
       let q = sb.from('consultas')
-        .select('fecha,monto,medio_pago,monto_2,medio_pago_2,factura,num_factura,no_vino,notas,pacientes(nombre,telefono,procedencia_id,catalogo_procedencia(nombre),dueno:personal!dueno_id(nombre)),doctor:personal!doctor_id(nombre),catalogo_terminales(nombre),consulta_servicios(tipo_servicio_id,monto,monto_1,monto_2,atendido_por,catalogo_tipos_servicio(nombre),atendido:personal(nombre))')
+        .select('fecha,monto,medio_pago,monto_2,medio_pago_2,factura,num_factura,no_vino,notas,doctor_id,pacientes(nombre,telefono,dueno_id,procedencia_id,catalogo_procedencia(nombre),dueno:personal!dueno_id(nombre,rol)),doctor:personal!doctor_id(nombre,rol),catalogo_terminales(nombre),consulta_servicios(tipo_servicio_id,monto,monto_1,monto_2,atendido_por,catalogo_tipos_servicio(nombre),atendido:personal(nombre,rol))')
         .eq('deleted', false)
         .order('fecha', { ascending:false });
       if(desde) q = q.gte('fecha', desde);
