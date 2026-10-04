@@ -505,6 +505,61 @@ main.appmain{padding:22px 26px 40px;max-width:1250px;margin:0 auto}
 @media (max-width:560px){.kpi-grid{grid-template-columns:1fr}.periodo-bar select{margin-left:0!important}}
 
 .kpi-grid.cols4{grid-template-columns:repeat(4,1fr)}
+/* ══════════ DASHBOARD · gasto y margen (tarjetas con tendencia) ══════════ */
+.kpi-grid.cols3{grid-template-columns:repeat(3,1fr)}
+.fin-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:10px}
+.fin-card{background:#fff;border:1.5px solid var(--g2);border-radius:11px;padding:12px 14px;display:flex;align-items:center;gap:10px;min-width:0}
+.fin-card .bd{flex:1;min-width:0}
+.fin-card .kpi-val{font-size:22px;line-height:1.15;white-space:nowrap;font-variant-numeric:tabular-nums}
+.fin-card .fin-sub{font-size:10.5px;color:var(--g6);margin-top:2px}
+.fin-card .fin-sub b{font-weight:800}
+.fin-card .sp{width:92px;height:40px;flex:none}
+.fin-card .sp svg{width:100%;height:100%;display:block;overflow:visible}
+.fin-card .cap{font-size:8.5px;color:var(--g6);text-align:right;margin-top:2px}
+.fin-card.i .kpi-val,.fin-card.i .sp{color:#3B5B94}
+.fin-card.g .kpi-val{color:#B8481F}.fin-card.g .sp{color:#E0703F}.fin-card.g .fin-sub b{color:#B8481F}
+.fin-card.m .kpi-val,.fin-card.m .sp{color:#0B1628}.fin-card.m .fin-sub{color:#0B1628}
+.fin-sec{background:#fff;border-radius:11px;padding:14px 16px 16px;border:1px solid var(--g2);margin-bottom:10px;min-width:0}
+.fin-2col{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.fin-doc{border:1.5px solid var(--g2);border-radius:10px;padding:11px 14px;min-width:0}
+.fin-doc .fd-h{display:flex;align-items:center;gap:8px}
+.fin-doc .fd-dot{width:10px;height:10px;border-radius:50%;flex:none}
+.fin-doc .fd-n{font-family:var(--font-d);font-size:12.5px;font-weight:800;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fin-doc .fd-m{font-family:var(--font-d);font-size:18px;font-weight:800;color:#0B1628;font-variant-numeric:tabular-nums;white-space:nowrap}
+.fin-pill{font-family:var(--font-d);font-size:10.5px;font-weight:800;padding:2px 9px;border-radius:999px;background:#0B1628;color:#fff;white-space:nowrap}
+.fin-pill.neg{background:#fff;color:#0B1628;box-shadow:inset 0 0 0 1.5px #0B1628}
+.fin-bar{display:flex;height:11px;border-radius:6px;overflow:hidden;background:#0B1628;margin-top:9px}
+.fin-bar i{display:block;height:100%;background:#E0703F}
+.fin-bar.neg{background:#E0703F}
+.fin-bar-l{display:flex;justify-content:space-between;gap:8px;font-size:10px;color:var(--g6);margin-top:4px;flex-wrap:wrap}
+.fin-bar-l b{color:#0B1628;font-family:var(--font-d)}
+.fin-bar-l .gx,.fin-bar-l .gx b{color:#B8481F}
+.gx-bars{display:grid;gap:0}
+.gx-row{display:grid;grid-template-columns:118px minmax(0,1fr) auto 48px;gap:8px;align-items:center;padding:4px 0;font-size:11.5px}
+.gx-row .tr{height:10px;border-radius:6px;background:var(--g1);overflow:hidden}
+.gx-row .tr i{display:block;height:100%;border-radius:6px;background:#E0703F}
+.gx-row b{font-family:var(--font-d);font-size:12px;color:#B8481F;text-align:right;white-space:nowrap}
+.gx-row small{color:var(--g6);font-size:10px;text-align:right}
+.gx-tbl{width:100%;border-collapse:collapse;font-size:11.5px}
+.gx-tbl th{padding:7px 8px;font-size:9px;letter-spacing:.5px;text-transform:uppercase;color:#fff;background:var(--navy);text-align:right;white-space:nowrap}
+.gx-tbl th:first-child{text-align:left}
+.gx-tbl th.hb{background:#2F6FD0}.gx-tbl th.ha{background:#1C9A9A}
+.gx-tbl td{padding:6px 8px;border-bottom:1px solid var(--g1);text-align:right;font-family:var(--font-d);font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+.gx-tbl td:first-child{text-align:left;font-family:var(--font-b);font-weight:500}
+.gx-tbl td.cb{background:#DCEBFB;color:#173F82;font-weight:800}.gx-tbl td.ca{background:#D9F4F4;color:#0B6B6B;font-weight:800}
+.gx-tbl tfoot td{background:var(--g1);border-top:2px solid var(--navy);font-weight:800}
+.gx-wrap{overflow-x:auto}
+.fin-sep{height:1px;background:var(--g2);margin:14px 0 2px}
+.fin-sep-t{font-size:9.5px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--g6);margin:10px 0 12px;text-align:center}
+.metric-row.gas .tug .fill{background:#E0703F}
+.metric-row.mar .tug .fill{background:#0B1628}
+.metric-row.gas .tug-vals .val,.metric-row.gas .tug-vals .val.win{color:#B8481F}
+.metric-row.mar .tug-vals .val,.metric-row.mar .tug-vals .val.win{color:#0B1628}
+#dash-productividad.con-filtro-doctor .solo-todos{display:none!important}
+.chart-toggle.sm{margin-left:auto}
+@media (max-width:820px){.fin-grid{grid-template-columns:1fr}.fin-2col{grid-template-columns:1fr}.kpi-grid.cols3{grid-template-columns:1fr 1fr}}
+@media (max-width:560px){.kpi-grid.cols3{grid-template-columns:1fr}.gx-row{grid-template-columns:92px minmax(0,1fr) auto}.gx-row small{display:none}.fin-card .sp{width:78px}.fin-sec{padding:12px 12px 13px}.fin-doc .fd-h{flex-wrap:wrap}.fin-doc .fd-n{flex:1 1 100%;white-space:normal}.fin-doc .fd-m{margin-left:auto}}
+
 .chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
 .chart-grid.wide{grid-template-columns:1.3fr 1fr}
 .fac2{padding:9px 12px;background:linear-gradient(135deg,var(--g1),#eef3fb);border-radius:9px;border:1px solid var(--g2);height:100%}
@@ -531,12 +586,12 @@ main.appmain{padding:22px 26px 40px;max-width:1250px;margin:0 auto}
 .doc-side.right .doc-chip{flex-direction:row-reverse}
 .doc-avatar{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--font-d);font-size:10.5px;font-weight:800;color:#fff;flex:none}
 .doc-avatar.a{background:#22a8a8}
-.doc-avatar.b{background:var(--navy2)}
+.doc-avatar.b{background:#2F6FD0}
 .doc-name{display:block;font-size:11.5px;font-weight:700;color:var(--navy);line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:170px}
 .doc-total-label{font-size:8.5px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--g6)}
 .doc-total{font-family:var(--font-d);font-size:18px;font-weight:800;font-variant-numeric:tabular-nums}
 .doc-total.a{color:#22a8a8}
-.doc-total.b{color:var(--navy2)}
+.doc-total.b{color:#2F6FD0}
 .vs-badge{font-family:var(--font-d);font-size:11px;font-weight:800;color:var(--g4);width:26px;height:26px;border-radius:50%;border:1.5px solid var(--g2);display:flex;align-items:center;justify-content:center;background:var(--g1);flex:none}
 
 .metric-row{margin-bottom:12px}
@@ -547,7 +602,7 @@ main.appmain{padding:22px 26px 40px;max-width:1250px;margin:0 auto}
 .tug .side.left{display:flex;justify-content:flex-end}
 .tug .fill{height:100%;border-radius:5px}
 .tug .fill.a{background:#22a8a8}
-.tug .fill.b{background:var(--navy2)}
+.tug .fill.b{background:#2F6FD0}
 .tug .mid{background:var(--g2);height:100%}
 .tug-vals{display:grid;grid-template-columns:1fr 2px 1fr;margin-top:3px}
 .tug-vals .val{font-size:10.5px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--navy)}
@@ -555,7 +610,7 @@ main.appmain{padding:22px 26px 40px;max-width:1250px;margin:0 auto}
 .tug-vals .val.right{text-align:left;padding-left:2px}
 .tug-vals .val.win{font-weight:800}
 .tug-vals .val.a.win{color:#22a8a8}
-.tug-vals .val.b.win{color:var(--navy2)}
+.tug-vals .val.b.win{color:#2F6FD0}
 
 .cat-card{background:#fff;border-radius:11px;padding:14px 16px 14px;border:1px solid var(--g2);position:relative;overflow:hidden;margin-bottom:10px}
 .cat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#22a8a8,var(--navy2) 50%,var(--purple))}
@@ -1125,14 +1180,25 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
         <select id="dash-doctor"><option value="">Todos los doctores</option></select>
         <select id="dash-tipo"><option value="">Todos los tipos</option></select>
       </div>
-      <div class="kpi-grid cols4">
-        <div class="kpi-card"><div class="ico">💰</div><div class="kpi-label">Ingreso total</div><div class="kpi-val" id="dash-kpi-total">$0.00</div></div>
+      <div class="fin-grid" id="dash-fin" style="display:none">
+        <div class="fin-card i"><div class="bd"><div class="kpi-label" id="fin-ing-l">Ingreso total</div><div class="kpi-val" id="fin-ing-v">$0</div><div class="fin-sub" id="fin-ing-s"></div></div><div><div class="sp" id="fin-ing-sp"></div><div class="cap">ingreso diario</div></div></div>
+        <div class="fin-card g"><div class="bd"><div class="kpi-label">Gasto total</div><div class="kpi-val" id="fin-gas-v">$0</div><div class="fin-sub" id="fin-gas-s"></div></div><div><div class="sp" id="fin-gas-sp"></div><div class="cap">gasto diario</div></div></div>
+        <div class="fin-card m"><div class="bd"><div class="kpi-label">Margen bruto</div><div class="kpi-val" id="fin-mar-v">$0</div><div class="fin-sub" id="fin-mar-s"></div></div><div><div class="sp" id="fin-mar-sp"></div><div class="cap">margen acumulado</div></div></div>
+      </div>
+      <div class="kpi-grid cols4" id="dash-kpi-grid">
+        <div class="kpi-card" id="dash-kpi-ing-card"><div class="ico">💰</div><div class="kpi-label">Ingreso total</div><div class="kpi-val" id="dash-kpi-total">$0.00</div></div>
         <div class="kpi-card"><div class="ico">👥</div><div class="kpi-label">Pacientes</div><div class="kpi-val" id="dash-kpi-pacientes">0</div></div>
         <div class="kpi-card"><div class="ico">🎟️</div><div class="kpi-label">Ticket prom.</div><div class="kpi-val" id="dash-kpi-ticket">$0.00</div></div>
         <div class="kpi-card"><div class="ico">🏆</div><div class="kpi-label">Doctor top</div><div class="kpi-val" id="dash-kpi-doctor-top" style="font-size:13px">—</div></div>
       </div>
+      <div class="fin-sec" id="dash-resdoc" style="display:none">
+        <div class="prod-head"><div class="prod-title">🩺 Resultado por doctor</div><div class="prod-period" id="dash-resdoc-periodo">Últimos 30 días</div></div>
+        <div class="prod-sub">Productividad (ingreso asignado a cada doctor) − gasto registrado a su nombre</div>
+        <div class="fin-2col" id="dash-resdoc-body"></div>
+      </div>
+
       <div id="dash-productividad" style="display:none">
-        <div class="prod-card" id="dash-prod-cara-a-cara">
+        <div class="prod-card solo-todos" id="dash-prod-cara-a-cara">
           <div class="prod-head">
             <div class="prod-title">⚖️ Productividad — cara a cara</div>
             <div class="prod-period" id="dash-prod-periodo">Últimos 30 días</div>
@@ -1141,7 +1207,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
           <div id="dash-prod-scoreboard"></div>
         </div>
 
-        <div class="cat-card">
+        <div class="cat-card solo-todos">
           <div class="prod-head">
             <div class="prod-title" style="font-size:13px">🧾 Ingresos por categoría</div>
             <div class="prod-period" id="dash-prod-periodo2">Últimos 30 días</div>
@@ -1151,19 +1217,25 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
           <div class="cat-tiles" id="dash-cat-tiles"></div>
         </div>
 
-        <div class="fac2" style="margin-bottom:10px">
+        <div class="fin-sec" id="dash-gasto" style="display:none">
+          <div class="prod-head"><div class="prod-title" style="font-size:13px">💸 Gasto</div><div class="prod-period" id="dash-gasto-periodo">Últimos 30 días</div></div>
+          <div class="prod-sub" id="dash-gasto-sub">Global y por doctor</div>
+          <div class="fin-2col"><div><div class="chart-title"><span id="dash-gasto-t1">Global</span></div><div class="gx-bars" id="dash-gasto-bars"></div></div><div id="dash-gasto-tbl-col"><div class="chart-title"><span>Por doctor</span></div><div class="gx-wrap" id="dash-gasto-tbl"></div></div></div>
+        </div>
+
+        <div class="fac2 solo-todos" style="margin-bottom:10px">
           <div class="chart-title"><span>📈 Tendencia por categoría</span></div>
           <div style="height:190px"><canvas id="chartTendCat"></canvas></div>
         </div>
 
-        <div class="fac2" style="margin-bottom:10px">
+        <div class="fac2 solo-todos" style="margin-bottom:10px">
           <div class="chart-title"><span>🧴 Productividad por cosmetóloga</span></div>
           <div id="chartCosmeto-wrap" style="height:150px;position:relative">
             <canvas id="chartCosmeto"></canvas>
             <div id="chartCosmeto-empty" class="chart-empty-msg" style="display:none">Sin datos de cosmetólogas en este periodo.</div>
           </div>
         </div>
-        <div class="fac2">
+        <div class="fac2 solo-todos">
           <div class="chart-title"><span>🛠️ Productividad por servicio</span></div>
           <div id="chartServicio-wrap" style="height:220px;position:relative">
             <canvas id="chartServicio"></canvas>
@@ -1172,6 +1244,13 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
         </div>
       </div>
 
+      <div class="fac2" id="dash-ig-card" style="display:none;margin-bottom:10px">
+        <div class="chart-title"><span>⚖️ Ingreso vs gasto</span>
+          <span class="chart-toggle"><button id="dash-ig-dia" class="on" type="button">Día</button><button id="dash-ig-mes" class="off" type="button">Mes</button></span>
+        </div>
+        <div style="height:220px"><canvas id="chartIngGas"></canvas></div>
+        <div style="display:flex;gap:14px;flex-wrap:wrap;font-size:10px;color:var(--g6);margin-top:6px"><span><i style="display:inline-block;width:9px;height:9px;border-radius:2px;background:#3B5B94;margin-right:4px"></i>Ingreso</span><span><i style="display:inline-block;width:9px;height:9px;border-radius:2px;background:#E0703F;margin-right:4px"></i>Gasto</span><span><i style="display:inline-block;width:14px;height:0;border-top:2px dashed #0B1628;margin-right:4px;vertical-align:3px"></i>Margen acumulado</span></div>
+      </div>
       <div class="chart-grid wide">
         <div class="fac2">
           <div class="chart-title"><span>📈 Tendencia de ingresos</span>
@@ -1677,7 +1756,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.10.04-15';
+const APP_VERSION = 'v2026.10.04-16';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 const SUPABASE_URL = 'https://omjugldgnixuwqnnziyz.supabase.co';
@@ -4727,33 +4806,82 @@ function rangoFechaDashboard(rango){
 }
 
 let dashReqId = 0;
+let DASH_ALL = [];        // todas las consultas del periodo (sin filtro de doctor) — base de la productividad
+let DASH_GASTOS = [];     // gastos del periodo (solo si el usuario tiene permiso de Gastos)
+let DASH_PROD = [];       // servicios con la productividad ya calculada por el motor de Comisiones
+let DASH_FIN_OK = false;  // true cuando hay datos de gasto confiables
+const dashVerGasto = () => MI_PERFIL?.permisos?.puede_ver_gastos === true;
+const fmtMoneyS = v => (v < 0 ? '−' : '') + fmtMoney0(Math.abs(v));
+const fmtPct2 = v => (v < 0 ? '−' : '') + Math.abs(v).toFixed(2) + '%';
+
+// Servicios de las consultas, listos para el motor de Comisiones (misma lectura que cargarComisiones).
+function dashFilasServicio(consultas){
+  const out = [];
+  consultas.forEach(c=>{
+    const duenoId = c.pacientes?.dueno_id || null;
+    const duenoRol = c.pacientes?.dueno?.rol || null;
+    (c.consulta_servicios || []).forEach(cs=>{
+      const monto = Number(cs.monto || 0);
+      if(monto <= 0) return;
+      out.push({
+        fecha: c.fecha, monto, duenoId, duenoRol,
+        servicio: cs.catalogo_tipos_servicio?.nombre || '—',
+        atiendeId: cs.atendido_por || c.doctor_id || null,
+        atiendeRol: cs.atendido_por ? (cs.atendido?.rol || null) : (c.doctor?.rol || null),
+      });
+    });
+  });
+  return out;
+}
+
 async function cargarDashboard(){
   const miReqId = ++dashReqId;
   const rango = document.getElementById('dash-rango').value;
   const doctorId = document.getElementById('dash-doctor').value;
   const tipoId = document.getElementById('dash-tipo').value;
   const desde = rangoFechaDashboard(rango);
+  const verGasto = dashVerGasto();
 
   // El panel de Productividad necesita saber si quien atendió cada servicio es doctor/a o
   // cosmetólogo/a (para separar "Consultas/Procedimientos" de "Cosmetólogas"), por eso el join
-  // con personal ahora también trae el rol.
+  // con personal ahora también trae el rol. Se traen TODAS las consultas del periodo (el filtro de
+  // doctor se aplica abajo en memoria) porque la productividad de un doctor depende de cabina y de
+  // pacientes de otros doctores.
   let q = sb.from('consultas')
-    .select('fecha,monto,monto_2,medio_pago,medio_pago_2,paciente_id,doctor_id,doctor:personal!doctor_id(nombre),consulta_servicios(tipo_servicio_id,monto,atendido_por,catalogo_tipos_servicio(nombre),atendido:personal(nombre,rol))')
+    .select('fecha,monto,monto_2,medio_pago,medio_pago_2,paciente_id,doctor_id,doctor:personal!doctor_id(nombre,rol),pacientes(dueno_id,dueno:personal!dueno_id(nombre,rol)),consulta_servicios(tipo_servicio_id,monto,atendido_por,catalogo_tipos_servicio(nombre),atendido:personal(nombre,rol))')
     .eq('deleted', false)
     .eq('no_vino', false)
     .order('fecha', { ascending:true })
     .limit(5000);
   if(desde) q = q.gte('fecha', desde);
-  if(doctorId) q = q.eq('doctor_id', doctorId);
 
-  const { data, error } = await q;
+  let qg = null;
+  if(verGasto){
+    qg = sb.from('gastos').select('fecha,categoria,monto,creado_por').order('fecha', { ascending:true }).limit(5000);
+    if(desde) qg = qg.gte('fecha', desde);
+  }
+
+  const [{ data, error }, gres] = await Promise.all([q, qg || Promise.resolve({ data:[], error:null })]);
   if(miReqId !== dashReqId) return; // el usuario ya cambió los filtros mientras esto cargaba: descartar resultado obsoleto
   if(error){
     console.error('[SkinFabric] Error cargando dashboard:', error);
     toast('No se pudo cargar el dashboard.');
     return;
   }
-  let rows = data || [];
+  DASH_ALL = data || [];
+  DASH_FIN_OK = false; DASH_GASTOS = []; DASH_PROD = [];
+  if(verGasto){
+    if(gres.error){ console.error('[SkinFabric] Error cargando gastos del dashboard:', gres.error); }
+    else {
+      DASH_GASTOS = gres.data || [];
+      await comCargarReglas();
+      if(miReqId !== dashReqId) return;
+      const { docAlejandra, docOtro } = comResolverDoctores();
+      DASH_PROD = dashFilasServicio(DASH_ALL).map(r => comCalcularFila(r, docAlejandra, docOtro));
+      DASH_FIN_OK = true;
+    }
+  }
+  let rows = doctorId ? DASH_ALL.filter(r => r.doctor_id === doctorId) : DASH_ALL;
   if(tipoId) rows = rows.filter(r => (r.consulta_servicios||[]).some(cs => cs.tipo_servicio_id === tipoId));
   DASH_ROWS = rows;
   renderDashboard();
@@ -4796,6 +4924,7 @@ function renderDashboard(){
   renderChartDoc(porDoctorMap);
   renderChartPago();
   actualizarPanelProductividad(porDoctorMap);
+  renderDashFin(ingresoTotal);
 }
 
 function agruparPorFecha(rows, modo){
@@ -4824,15 +4953,23 @@ function renderChartTend(){
     }
   });
 }
-document.getElementById('dash-tend-dia').addEventListener('click', ()=>{ DASH_TEND_MODO = 'dia'; actualizarTendToggle(); renderChartTend(); renderChartTendCatSiVisible(); });
-document.getElementById('dash-tend-mes').addEventListener('click', ()=>{ DASH_TEND_MODO = 'mes'; actualizarTendToggle(); renderChartTend(); renderChartTendCatSiVisible(); });
+function dashSetModo(m){
+  DASH_TEND_MODO = m;
+  actualizarTendToggle();
+  renderChartTend();
+  renderChartTendCatSiVisible();
+  renderChartIngGas();
+}
+['dash-tend-dia','dash-ig-dia'].forEach(id=> document.getElementById(id).addEventListener('click', ()=> dashSetModo('dia')));
+['dash-tend-mes','dash-ig-mes'].forEach(id=> document.getElementById(id).addEventListener('click', ()=> dashSetModo('mes')));
 function actualizarTendToggle(){
-  const btnDia = document.getElementById('dash-tend-dia');
-  const btnMes = document.getElementById('dash-tend-mes');
-  btnDia.classList.toggle('on', DASH_TEND_MODO === 'dia');
-  btnDia.classList.toggle('off', DASH_TEND_MODO !== 'dia');
-  btnMes.classList.toggle('on', DASH_TEND_MODO === 'mes');
-  btnMes.classList.toggle('off', DASH_TEND_MODO !== 'mes');
+  [['dash-tend-dia','dash-ig-dia','dia'],['dash-tend-mes','dash-ig-mes','mes']].forEach(([a,b,m])=>{
+    [a,b].forEach(id=>{
+      const el = document.getElementById(id);
+      el.classList.toggle('on', DASH_TEND_MODO === m);
+      el.classList.toggle('off', DASH_TEND_MODO !== m);
+    });
+  });
 }
 
 // Los nombres completos (ej. "Dra. Alejandra Guerrero Martínez") no caben en una sola línea del eje Y
@@ -4986,7 +5123,8 @@ function agruparPorFechaCategoria(rows, modo){
   };
 }
 
-function tugRow(label, valA, valB, fmt){
+function tugRow(label, valA, valB, fmt, clsA, clsB){
+  clsA = clsA || 'a'; clsB = clsB || 'b';
   const max = Math.max(valA, valB, 1);
   const wA = Math.max(6, Math.round(valA / max * 100));
   const wB = Math.max(6, Math.round(valB / max * 100));
@@ -4994,13 +5132,33 @@ function tugRow(label, valA, valB, fmt){
   return `<div class="metric-row">
     <div class="metric-label">${esc2(label)}</div>
     <div class="tug">
-      <div class="side left"><div class="fill a" style="width:${wA}%"></div></div>
+      <div class="side left"><div class="fill ${clsA}" style="width:${wA}%"></div></div>
       <div class="mid"></div>
-      <div class="side right"><div class="fill b" style="width:${wB}%"></div></div>
+      <div class="side right"><div class="fill ${clsB}" style="width:${wB}%"></div></div>
     </div>
     <div class="tug-vals">
-      <div class="val left a${winA ? ' win' : ''}">${fmt(valA)}</div><div></div>
-      <div class="val right b${winB ? ' win' : ''}">${fmt(valB)}</div>
+      <div class="val left ${clsA}${winA ? ' win' : ''}">${fmt(valA)}</div><div></div>
+      <div class="val right ${clsB}${winB ? ' win' : ''}">${fmt(valB)}</div>
+    </div>
+  </div>`;
+}
+
+// Fila del cara a cara para gasto (naranja) y margen (negro). Usa el valor absoluto para el largo de la barra;
+// el signo se ve en el texto, así un margen negativo no rompe el ancho.
+function tugRowFin(label, valA, valB, fmt, variante){
+  const max = Math.max(Math.abs(valA), Math.abs(valB), 1);
+  const wA = Math.max(3, Math.round(Math.abs(valA) / max * 100));
+  const wB = Math.max(3, Math.round(Math.abs(valB) / max * 100));
+  return `<div class="metric-row ${variante}">
+    <div class="metric-label">${esc2(label)}</div>
+    <div class="tug">
+      <div class="side left"><div class="fill" style="width:${wA}%"></div></div>
+      <div class="mid"></div>
+      <div class="side right"><div class="fill" style="width:${wB}%"></div></div>
+    </div>
+    <div class="tug-vals">
+      <div class="val left">${fmt(valA, 'A')}</div><div></div>
+      <div class="val right">${fmt(valB, 'B')}</div>
     </div>
   </div>`;
 }
@@ -5012,12 +5170,201 @@ function inicialesPersona(nombre){
   return ini || '·';
 }
 
+// ============================================================
+// Gasto y margen bruto en el Dashboard (solo con permiso de Gastos y sin filtro de tipo de servicio).
+//  · Global: ingreso = ingreso total del Dashboard; gasto = todos los gastos del periodo; margen = ingreso − gasto.
+//  · Por doctor: ingreso = PRODUCTIVIDAD (la misma de Comisiones, suma exacta al total); gasto = gastos registrados
+//    a su nombre (creado_por). Con un doctor filtrado, la tarjeta de ingreso pasa a mostrar su productividad.
+// ============================================================
+const DASH_COL_ALE = '#2ABFBF', DASH_COL_OTRO = '#2F6FD0';
+function dashFinActivo(){ return dashVerGasto() && DASH_FIN_OK && !document.getElementById('dash-tipo').value; }
+function dashGastoDe(doctorId){
+  return DASH_GASTOS.filter(g => !doctorId || g.creado_por === doctorId).reduce((a,g)=> a + Number(g.monto || 0), 0);
+}
+function dashProdDe(doc, docAle){
+  if(!doc) return 0;
+  const esAle = docAle && doc.id === docAle.id;
+  return DASH_PROD.reduce((a,r)=> a + (esAle ? r.comAlejandra : r.comOtro), 0);
+}
+function dashFinDatos(ingresoLegacy){
+  const doctorId = document.getElementById('dash-doctor').value;
+  const { docAlejandra, docOtro } = comResolverDoctores();
+  const porFecha = {};
+  const add = (f, i, g) => { const m = porFecha[f] || (porFecha[f] = [0,0]); m[0] += i; m[1] += g; };
+  DASH_GASTOS.forEach(g => { if(!doctorId || g.creado_por === doctorId) add(g.fecha, 0, Number(g.monto || 0)); });
+  let ing, label, sub;
+  const esDocConocido = doctorId && (doctorId === docAlejandra?.id || doctorId === docOtro?.id);
+  if(esDocConocido){
+    const esAle = doctorId === docAlejandra.id;
+    DASH_PROD.forEach(r => add(r.fecha, esAle ? r.comAlejandra : r.comOtro, 0));
+    ing = DASH_PROD.reduce((a,r)=> a + (esAle ? r.comAlejandra : r.comOtro), 0);
+    label = 'Productividad'; sub = 'ingreso asignado al doctor';
+  } else {
+    DASH_ROWS.forEach(r => add(r.fecha, Number(r.monto || 0) + Number(r.monto_2 || 0), 0));
+    ing = ingresoLegacy; label = 'Ingreso total'; sub = DASH_ROWS.length + ' consultas';
+  }
+  const gas = dashGastoDe(doctorId || null);
+  return { ing, gas, mar: ing - gas, label, sub, porFecha };
+}
+
+// Mini-gráfica (SVG, color por currentColor)
+function dashSpark(vals){
+  if(vals.length < 2) return '';
+  const W = 92, H = 40, p = 3;
+  const mn = Math.min(...vals), mx = Math.max(...vals), r = (mx - mn) || 1;
+  const pts = vals.map((v,i)=> [p + i * (W - 2*p) / (vals.length - 1), H - p - (v - mn) / r * (H - 2*p)]);
+  const d = pts.map((q,i)=> (i ? 'L' : 'M') + q[0].toFixed(1) + ' ' + q[1].toFixed(1)).join(' ');
+  const l = pts[pts.length - 1];
+  return `<svg viewBox="0 0 ${W} ${H}"><path d="${d} L${l[0].toFixed(1)} ${H} L${p} ${H}Z" fill="currentColor" opacity=".10"/><path d="${d}" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"/><circle cx="${l[0].toFixed(1)}" cy="${l[1].toFixed(1)}" r="2.4" fill="currentColor"/></svg>`;
+}
+
+let DASH_FIN_SERIE = null;
+function renderDashFin(ingresoLegacy){
+  const on = dashFinActivo();
+  const doctorId = document.getElementById('dash-doctor').value;
+  const $ = id => document.getElementById(id);
+  $('dash-fin').style.display = on ? '' : 'none';
+  $('dash-kpi-ing-card').style.display = on ? 'none' : '';
+  const grid = $('dash-kpi-grid');
+  grid.classList.toggle('cols4', !on);
+  grid.classList.toggle('cols3', on);
+  $('dash-ig-card').style.display = on ? '' : 'none';
+  $('dash-gasto').style.display = on ? '' : 'none';
+  $('dash-resdoc').style.display = 'none';
+  DASH_FIN_SERIE = null;
+  if(!on){
+    if(chartIngGas){ chartIngGas.destroy(); chartIngGas = null; }
+    return;
+  }
+  const rangoTxt = document.getElementById('dash-rango').selectedOptions[0]?.textContent || '';
+  const fd = dashFinDatos(ingresoLegacy);
+  DASH_FIN_SERIE = fd.porFecha;
+
+  $('fin-ing-l').textContent = fd.label;
+  $('fin-ing-v').textContent = fmtMoney0(fd.ing);
+  $('fin-ing-s').textContent = fd.sub;
+  $('fin-gas-v').textContent = fmtMoney0(fd.gas);
+  $('fin-gas-s').innerHTML = fd.ing > 0 ? `<b>${(fd.gas / fd.ing * 100).toFixed(2)}%</b> ${fd.label === 'Productividad' ? 'de su productividad' : 'del ingreso'}` : 'sin ingreso en el periodo';
+  $('fin-mar-v').textContent = fmtMoneyS(fd.mar);
+  $('fin-mar-s').innerHTML = fd.ing > 0 ? `<b>${fmtPct2(fd.mar / fd.ing * 100)}</b> de margen` : '—';
+
+  const fechas = Object.keys(fd.porFecha).sort();
+  let acc = 0;
+  const sIng = fechas.map(f => fd.porFecha[f][0]);
+  const sGas = fechas.map(f => fd.porFecha[f][1]);
+  const sMar = fechas.map(f => (acc += fd.porFecha[f][0] - fd.porFecha[f][1]));
+  $('fin-ing-sp').innerHTML = dashSpark(sIng);
+  $('fin-gas-sp').innerHTML = dashSpark(sGas);
+  $('fin-mar-sp').innerHTML = dashSpark(sMar);
+
+  // Resultado por doctor (solo sin filtro de doctor y con los 2 doctores identificados)
+  const { docAlejandra, docOtro } = comResolverDoctores();
+  if(!doctorId && docAlejandra && docOtro){
+    const tarjeta = (doc, color) => {
+      const prod = dashProdDe(doc, docAlejandra), gas = dashGastoDe(doc.id), mar = prod - gas;
+      const g = prod > 0 ? gas / prod * 100 : 0, neg = mar < 0;
+      return `<div class="fin-doc">
+        <div class="fd-h"><span class="fd-dot" style="background:${color}"></span><span class="fd-n">${esc2(doc.nombre)}</span><span class="fd-m">${fmtMoneyS(mar)}</span><span class="fin-pill${neg ? ' neg' : ''}">${prod > 0 ? fmtPct2(mar / prod * 100) : '—'}</span></div>
+        <div class="fin-bar${neg ? ' neg' : ''}"><i style="width:${Math.min(g, 100)}%"></i></div>
+        <div class="fin-bar-l"><span>Productividad <b>${fmtMoney0(prod)}</b></span><span class="gx">Gasto <b>${fmtMoney0(gas)}</b></span></div>
+      </div>`;
+    };
+    $('dash-resdoc-body').innerHTML = tarjeta(docOtro, DASH_COL_OTRO) + tarjeta(docAlejandra, DASH_COL_ALE);
+    $('dash-resdoc-periodo').textContent = rangoTxt;
+    $('dash-resdoc').style.display = '';
+  }
+  renderDashGasto(rangoTxt);
+  renderChartIngGas();
+}
+
+// Filas "Con gasto y margen" del cara a cara (A y B en el orden en que ya se dibuja el marcador)
+function dashFinCaraACara(dA, dB, cA, cB){
+  if(!dashFinActivo()) return '';
+  const { docAlejandra } = comResolverDoctores();
+  const prodA = dashProdDe(dA, docAlejandra), prodB = dashProdDe(dB, docAlejandra);
+  const gasA = dashGastoDe(dA.id), gasB = dashGastoDe(dB.id);
+  const marA = prodA - gasA, marB = prodB - gasB;
+  const pctA = prodA > 0 ? marA / prodA * 100 : 0, pctB = prodB > 0 ? marB / prodB * 100 : 0;
+  return `<div class="fin-sep"></div><div class="fin-sep-t">Con gasto y margen</div>
+    ${tugRow('Productividad total', prodA, prodB, v => fmtMoney0(v), cA, cB)}
+    ${tugRowFin('Gasto asociado', gasA, gasB, v => fmtMoney0(v), 'gas')}
+    ${tugRowFin('Margen bruto', marA, marB, (v, lado) => fmtMoneyS(v) + ' · ' + fmtPct2(lado === 'A' ? pctA : pctB), 'mar')}`;
+}
+
+// Tarjeta de Gasto: categorías (global o del doctor filtrado) + tabla por doctor
+function renderDashGasto(rangoTxt){
+  const doctorId = document.getElementById('dash-doctor').value;
+  const { docAlejandra, docOtro } = comResolverDoctores();
+  const lista = DASH_GASTOS.filter(g => !doctorId || g.creado_por === doctorId);
+  const total = lista.reduce((a,g)=> a + Number(g.monto || 0), 0);
+  const porCat = {}; lista.forEach(g => { porCat[g.categoria] = (porCat[g.categoria] || 0) + Number(g.monto || 0); });
+  const nombreCat = id => gastoCategoriaInfo(id).label.replace(/^\S+\s/, '');
+  const cats = Object.keys(porCat).filter(c => porCat[c] > 0).sort((a,b)=> porCat[b] - porCat[a]);
+  const mx = Math.max(...cats.map(c => porCat[c]), 1);
+  const docNom = doctorId ? ((CATALOGOS.personal || []).find(p => p.id === doctorId)?.nombre || '') : '';
+  document.getElementById('dash-gasto-periodo').textContent = rangoTxt;
+  document.getElementById('dash-gasto-sub').textContent = doctorId ? ('Gasto registrado a nombre de ' + docNom) : 'Global y por doctor';
+  document.getElementById('dash-gasto-t1').textContent = (doctorId ? 'Del doctor' : 'Global') + ' · ' + fmtMoney0(total);
+  document.getElementById('dash-gasto-bars').innerHTML = cats.length
+    ? cats.map(c => `<div class="gx-row"><span>${esc2(nombreCat(c))}</span><div class="tr"><i style="width:${porCat[c] / mx * 100}%"></i></div><b>${fmtMoney0(porCat[c])}</b><small>${(porCat[c] / total * 100).toFixed(2)}%</small></div>`).join('')
+    : '<div class="empty-note">Sin gastos en este periodo.</div>';
+
+  const colTbl = document.getElementById('dash-gasto-tbl-col');
+  if(doctorId || !docAlejandra || !docOtro){ colTbl.style.display = 'none'; return; }
+  colTbl.style.display = '';
+  const gDoc = (id, c) => DASH_GASTOS.filter(g => g.creado_por === id && g.categoria === c).reduce((a,g)=> a + Number(g.monto || 0), 0);
+  const filas = cats.map(c => { const o = gDoc(docOtro.id, c), a = gDoc(docAlejandra.id, c); return `<tr><td>${esc2(nombreCat(c))}</td><td class="cb">${o ? fmtMoney0(o) : '—'}</td><td class="ca">${a ? fmtMoney0(a) : '—'}</td><td>${fmtMoney0(porCat[c])}</td></tr>`; }).join('');
+  document.getElementById('dash-gasto-tbl').innerHTML = `<table class="gx-tbl"><thead><tr><th>Categoría</th><th class="hb">${esc2(docOtro.nombre.split(' ').slice(0,2).join(' '))}</th><th class="ha">${esc2(docAlejandra.nombre.split(' ').slice(0,2).join(' '))}</th><th>Total</th></tr></thead><tbody>${filas}</tbody><tfoot><tr><td>Total</td><td>${fmtMoney0(dashGastoDe(docOtro.id))}</td><td>${fmtMoney0(dashGastoDe(docAlejandra.id))}</td><td style="color:#B8481F">${fmtMoney0(total)}</td></tr></tfoot></table>`;
+}
+
+// Ingreso vs gasto: barras por día/mes + línea de margen acumulado
+let chartIngGas = null;
+function renderChartIngGas(){
+  const canvas = document.getElementById('chartIngGas');
+  if(!canvas || typeof Chart === 'undefined') return;
+  if(chartIngGas){ chartIngGas.destroy(); chartIngGas = null; }
+  if(!DASH_FIN_SERIE) return;
+  const modo = DASH_TEND_MODO;
+  const m = {};
+  Object.keys(DASH_FIN_SERIE).forEach(f => {
+    const k = modo === 'dia' ? f : f.slice(0, 7);
+    const x = m[k] || (m[k] = [0, 0]);
+    x[0] += DASH_FIN_SERIE[f][0]; x[1] += DASH_FIN_SERIE[f][1];
+  });
+  const keys = Object.keys(m).sort();
+  let acc = 0;
+  const kfmt = v => (v < 0 ? '−' : '') + '$' + Math.abs(Number(v) / 1000).toLocaleString('es-MX') + 'k';
+  chartIngGas = new Chart(canvas.getContext('2d'), {
+    data: {
+      labels: keys.map(k => modo === 'dia' ? fmtFechaCorta(k) : k),
+      datasets: [
+        { type:'bar', label:'Ingreso', data: keys.map(k => m[k][0]), backgroundColor:'#3B5B94', borderRadius:3, order:2 },
+        { type:'bar', label:'Gasto', data: keys.map(k => Math.round(m[k][1])), backgroundColor:'#E0703F', borderRadius:3, order:2 },
+        { type:'line', label:'Margen acumulado', data: keys.map(k => { acc += m[k][0] - m[k][1]; return Math.round(acc); }), borderColor:'#0B1628', backgroundColor:'#0B1628', borderWidth:2, borderDash:[5,3], pointRadius:0, tension:.25, yAxisID:'y2', order:1 },
+      ]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false, animation:false,
+      interaction:{ mode:'index', intersect:false },
+      plugins:{ legend:{ display:false }, datalabels:{ display:false }, tooltip:{ callbacks:{ label: c => c.dataset.label + ': ' + fmtMoneyS(c.parsed.y) } } },
+      scales:{
+        y:{ ticks:{ callback:kfmt } },
+        y2:{ position:'right', grid:{ display:false }, ticks:{ color:'#0B1628', callback:kfmt } },
+        x:{ grid:{ display:false }, ticks:{ maxRotation:0, autoSkip:true, maxTicksLimit: modo === 'dia' ? 12 : 6 } }
+      }
+    }
+  });
+}
+
 function actualizarPanelProductividad(porDoctorMap){
   const panel = document.getElementById('dash-productividad');
   if(!panel) return;
   const doctorFiltro = document.getElementById('dash-doctor').value;
-  if(doctorFiltro){ panel.style.display = 'none'; return; }
+  // Con un doctor filtrado se ocultan las comparativas (clase solo-todos) pero el panel sigue visible
+  // porque ahí vive la tarjeta de Gasto.
   panel.style.display = '';
+  panel.classList.toggle('con-filtro-doctor', !!doctorFiltro);
+  if(doctorFiltro) return;
 
   const rangoTxt = document.getElementById('dash-rango').selectedOptions[0]?.textContent || '';
   const elPeriodo = document.getElementById('dash-prod-periodo');
@@ -5044,23 +5391,28 @@ function actualizarPanelProductividad(porDoctorMap){
     const ingA = porDoctorMap[dA.nombre] || 0, ingB = porDoctorMap[dB.nombre] || 0;
     const ticketA = stA.consultas ? stA.sumaTotal / stA.consultas : 0;
     const ticketB = stB.consultas ? stB.sumaTotal / stB.consultas : 0;
+    // Color por identidad (igual que en Comisiones): la Dra. Alejandra siempre turquesa, el otro doctor azul.
+    const { docAlejandra: dAle } = comResolverDoctores();
+    const cA = (dAle && dA.id === dAle.id) ? 'a' : 'b';
+    const cB = cA === 'a' ? 'b' : 'a';
     document.getElementById('dash-prod-scoreboard').innerHTML = `
       <div class="scoreboard">
         <div class="doc-side">
-          <div class="doc-chip"><div class="doc-avatar a">${esc2(inicialesPersona(dA.nombre))}</div><div><div class="doc-name">${esc2(dA.nombre)}</div></div></div>
+          <div class="doc-chip"><div class="doc-avatar ${cA}">${esc2(inicialesPersona(dA.nombre))}</div><div><div class="doc-name">${esc2(dA.nombre)}</div></div></div>
           <div class="doc-total-label">Ingresos del periodo</div>
-          <div class="doc-total a">${fmtMoney(ingA)}</div>
+          <div class="doc-total ${cA}">${fmtMoney(ingA)}</div>
         </div>
         <div class="vs-badge">vs</div>
         <div class="doc-side right">
-          <div class="doc-chip"><div class="doc-avatar b">${esc2(inicialesPersona(dB.nombre))}</div><div><div class="doc-name">${esc2(dB.nombre)}</div></div></div>
+          <div class="doc-chip"><div class="doc-avatar ${cB}">${esc2(inicialesPersona(dB.nombre))}</div><div><div class="doc-name">${esc2(dB.nombre)}</div></div></div>
           <div class="doc-total-label">Ingresos del periodo</div>
-          <div class="doc-total b">${fmtMoney(ingB)}</div>
+          <div class="doc-total ${cB}">${fmtMoney(ingB)}</div>
         </div>
       </div>
-      ${tugRow('Consultas atendidas', stA.consultas, stB.consultas, v => String(v))}
-      ${tugRow('Ticket promedio', ticketA, ticketB, fmtMoney)}
-      ${tugRow('Pacientes de primera vez', stA.primeraVez, stB.primeraVez, v => String(v))}
+      ${tugRow('Consultas atendidas', stA.consultas, stB.consultas, v => String(v), cA, cB)}
+      ${tugRow('Ticket promedio', ticketA, ticketB, fmtMoney, cA, cB)}
+      ${tugRow('Pacientes de primera vez', stA.primeraVez, stB.primeraVez, v => String(v), cA, cB)}
+      ${dashFinCaraACara(dA, dB, cA, cB)}
     `;
   } else if(cardCara){
     // La comparación "cara a cara" solo tiene sentido con exactamente 2 doctores activos.
@@ -5105,7 +5457,7 @@ function actualizarPanelProductividad(porDoctorMap){
 
 function renderChartTendCatSiVisible(){
   const panel = document.getElementById('dash-productividad');
-  if(panel && panel.style.display !== 'none') renderChartTendCat();
+  if(panel && panel.style.display !== 'none' && !panel.classList.contains('con-filtro-doctor')) renderChartTendCat();
 }
 
 let chartTendCat = null;
