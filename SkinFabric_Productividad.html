@@ -22,7 +22,7 @@
 body{font-family:var(--font-b);min-height:100vh;color:var(--navy);background:#eef1f7}
 
 /* ══════════ MARCA DE VERSIÓN (huella discreta, esquina inferior) ══════════ */
-#app-version-tag{position:fixed;bottom:6px;right:10px;font-family:var(--font-b);font-size:9.5px;font-weight:700;color:#fff;mix-blend-mode:difference;letter-spacing:.3px;z-index:9999;pointer-events:none;user-select:none}
+#app-version-tag{position:fixed;bottom:6px;right:10px;font-family:var(--font-b);font-size:9.5px;font-weight:400;color:#fff;mix-blend-mode:difference;letter-spacing:.3px;z-index:9999;pointer-events:none;user-select:none}
 
 /* ══════════ LOADING PANEL ══════════ */
 #loading-panel{position:fixed;inset:0;background:radial-gradient(circle at 20% 10%,#183660 0%,#0B1628 55%,#080f1c 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;z-index:999;transition:opacity .25s ease}
@@ -648,36 +648,38 @@ main.appmain{padding:22px 26px 40px;max-width:1250px;margin:0 auto}
 .com-periodo-bar .sep{font-size:11px;color:var(--g6)}
 
 .rubro-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:16px}
-.rubro{--rb:var(--navy2);--rb-soft:#EAF1FB;border:2px solid var(--rb);border-radius:14px;padding:0;background:var(--rb-soft);overflow:hidden;box-shadow:0 3px 10px rgba(11,42,77,.14)}
-.rubro.cabina{--rb:#7B3F9E;--rb-soft:#F6ECFB;box-shadow:0 3px 10px rgba(123,63,158,.20)}
-.rubro-head{background:var(--rb);color:#fff;padding:12px 16px}
-.rubro h3{margin:0 0 2px;font-family:var(--font-d);font-size:15px;color:#fff}
-.rubro .sub{font-size:11px;color:rgba(255,255,255,.82);margin:0}
-.rubro-body{padding:12px 16px 14px}
-.rubro .fila{display:flex;justify-content:space-between;gap:8px;font-size:12.5px;padding:6px 0;border-top:1px solid rgba(11,22,40,.10)}
-.rubro .fila:first-of-type{border-top:none}
-.rubro .fila b{font-family:var(--font-d);font-variant-numeric:tabular-nums;white-space:nowrap}
-.rubro .fila.tot{padding:2px 0 9px;margin-bottom:3px;border-bottom:2px solid var(--rb);align-items:baseline}
-.rubro .fila.tot span{font-size:11px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:var(--rb)}
-.rubro .fila.tot b{font-size:24px;color:var(--rb)}
-.rubro .nota{margin-top:10px;padding-top:8px;border-top:1px dashed var(--g2);font-size:10.5px;line-height:1.4;color:var(--g6)}
+.rubro{--rb:#1B3A6B;position:relative;overflow:hidden;background:#fff;border:1.5px solid var(--g2);border-radius:14px;padding:16px 18px 16px 26px;box-shadow:0 4px 14px rgba(11,22,40,.10)}
+.rubro::before{content:'';position:absolute;left:0;top:0;bottom:0;width:10px;background:var(--rb)}
+.rubro.cabina{--rb:#9B4DBF}
+.rubro h3{margin:0;font-family:var(--font-d);font-size:15px;font-weight:800;color:var(--navy)}
+.rubro .sub{font-size:11px;color:var(--g6);margin:2px 0 10px}
+.rubro .lab{font-size:10px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;color:var(--g6);margin-bottom:3px}
+.rubro .big{font-family:var(--font-d);font-size:42px;font-weight:800;line-height:1;color:var(--rb);font-variant-numeric:tabular-nums;white-space:nowrap}
+.rubro .bar{display:flex;height:11px;border-radius:6px;overflow:hidden;margin:12px 0 10px;background:var(--g2)}
+.rubro .bar i{display:block;height:100%}
+.rubro .pr{display:flex;align-items:center;gap:8px;font-size:12.5px;padding:4px 0}
+.rubro .pr .dot{width:11px;height:11px;border-radius:3px;flex:none}
+.rubro .pr .nm{flex:1;font-weight:600;min-width:0}
+.rubro .pr b{font-family:var(--font-d);font-size:13.5px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.rubro .pr small{color:var(--g6);font-size:11px;min-width:48px;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.rubro .vacio{font-size:12px;color:var(--g6);padding:4px 0}
 @media (max-width:700px){.rubro-grid{grid-template-columns:1fr}}
 
 .persona-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:16px}
-.persona{border:1px solid var(--g2);border-radius:12px;padding:14px;position:relative;overflow:hidden;background:#fff;min-width:0}
-.persona::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
-.persona.doc1::before{background:var(--teal)}
-.persona.doc2::before{background:var(--navy2)}
-.persona.cosm::before{background:#C8820A}
+.persona{--c:#1B3A6B;border:1.5px solid var(--g2);border-radius:14px;padding:14px 14px 14px 22px;position:relative;overflow:hidden;background:#fff;min-width:0;box-shadow:0 4px 14px rgba(11,22,40,.10)}
+.persona::before{content:'';position:absolute;top:0;left:0;bottom:0;width:9px;background:var(--c)}
+.persona.doc1{--c:#1B3A6B}
+.persona.doc2{--c:#2ABFBF}
+.persona.cosm{--c:#C8820A}
 .persona .nombre{font-weight:700;font-size:13px}
 .persona .rol{font-size:10.5px;color:var(--g6);margin-bottom:10px}
 .persona .fila{display:flex;justify-content:space-between;gap:8px;font-size:12px;padding:4px 0;border-top:1px solid var(--g1)}
 .persona .fila:first-of-type{border-top:none}
 .persona .fila span{white-space:nowrap}
 .persona .fila b{font-family:var(--font-d);white-space:nowrap;font-variant-numeric:tabular-nums}
-.persona .total-block{margin-top:9px;padding-top:9px;border-top:1.5px solid var(--g2);text-align:right}
+.persona .total-block{margin-top:9px;padding-top:8px;border-top:2px solid var(--c);text-align:right}
 .persona .total-label{font-size:10px;font-weight:800;letter-spacing:.3px;text-transform:uppercase;color:var(--g6)}
-.persona .total-value{font-family:var(--font-d);font-size:19px;text-align:right;font-weight:700;color:var(--teal);margin-top:2px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.persona .total-value{font-family:var(--font-d);font-size:28px;font-weight:800;line-height:1.1;text-align:right;color:var(--c);margin-top:2px;font-variant-numeric:tabular-nums;white-space:nowrap}
 .persona .cosm-fila{padding:6px 0;border-top:1px solid var(--g1)}
 .persona .cosm-fila:first-of-type{border-top:none}
 .persona .cf-label{font-size:10.5px;color:var(--g6);display:flex;justify-content:space-between}
@@ -1615,7 +1617,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.10.04-11';
+const APP_VERSION = 'v2026.10.04-13';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 const SUPABASE_URL = 'https://omjugldgnixuwqnnziyz.supabase.co';
@@ -2599,36 +2601,33 @@ function renderComisionesResumen(docAlejandra, docOtro){
   const doctores = (CATALOGOS.personal || []).filter(p => p.rol === 'doctor');
   const cosmetologas = (CATALOGOS.personal || []).filter(p => p.rol === 'cosmetologo');
 
-  const filasConsultas = doctores.map(d => {
-    const n = noCabina.filter(r => r.atiendeNombre === d.nombre).length;
-    const monto = sumarPor(noCabina, d.nombre);
-    return monto > 0 || n > 0 ? `<div class="fila"><span>Producción ${esc2(d.nombre)}</span><b>${fmtMoney0(monto)}</b></div>` : '';
-  }).join('');
-
   const cabinaCosm = cosmetologas.map(c => ({ nombre:c.nombre, monto: sumarPor(cabina, c.nombre) }));
   const cabinaCosmTotal = cabinaCosm.reduce((a,c)=> a + c.monto, 0);
-  const filasCabina = cabinaCosm.filter(c => c.monto > 0).map(c =>
-    `<div class="fila"><span>Producción ${esc2(c.nombre)}</span><b>${fmtMoney0(c.monto)}</b></div>`
-  ).join('');
+
+  // Barra de reparto: cada persona con su color y su % del ingreso del rubro
+  const COL_DOC = { dot: ['#1B3A6B', '#2ABFBF', '#7B8FB3'], cosm: ['#C8820A', '#9B4DBF', '#5B2475', '#2ABFBF', '#7B8FB3'] };
+  const reparto = (items, total, colores) => {
+    const lista = items.filter(x => x.monto > 0);
+    if(!lista.length) return '<div class="vacio">Sin datos en este periodo</div>';
+    const pct = m => (total > 0 ? m / total * 100 : 0).toFixed(2);
+    return `<div class="bar">${lista.map((x,i)=> `<i style="width:${total > 0 ? x.monto / total * 100 : 0}%;background:${colores[i % colores.length]}"></i>`).join('')}</div>`
+      + lista.map((x,i)=> `<div class="pr"><span class="dot" style="background:${colores[i % colores.length]}"></span><span class="nm">${esc2(x.nombre)}</span><b>${fmtMoney0(x.monto)}</b><small>${pct(x.monto)}%</small></div>`).join('');
+  };
+  const itemsConsultas = doctores.map(d => ({ nombre:d.nombre, monto: sumarPor(noCabina, d.nombre) }));
 
   document.getElementById('com-rubro-grid').innerHTML = `
     <div class="rubro">
-      <div class="rubro-head"><h3>🩺 Consultas y Procedimientos</h3>
-      <div class="sub">${noCabina.length} servicios · incluye procedimientos de cabina atendidos directo por el/la doctor(a)</div></div>
-      <div class="rubro-body">
-      <div class="fila tot"><span>Ingreso total</span><b>${fmtMoney0(ingresoNoCabina)}</b></div>
-      ${filasConsultas || '<div class="fila"><span>Sin datos en este periodo</span><b>—</b></div>'}
-      </div>
+      <h3>🩺 Consultas y Procedimientos</h3>
+      <div class="sub">${noCabina.length} servicios · incluye procedimientos de cabina atendidos directo por el/la doctor(a)</div>
+      <div class="lab">Ingreso total</div><div class="big">${fmtMoney0(ingresoNoCabina)}</div>
+      ${reparto(itemsConsultas, ingresoNoCabina, COL_DOC.dot)}
     </div>
     <div class="rubro cabina">
-      <div class="rubro-head"><h3>🛁 Cabina</h3>
-      <div class="sub">${cabina.length} servicios · atendidos por una cosmetóloga · producción por cosmetóloga</div></div>
-      <div class="rubro-body">
-      <div class="fila tot"><span>Ingreso total</span><b>${fmtMoney0(ingresoCabina)}</b></div>
-      ${filasCabina || '<div class="fila"><span>Sin datos en este periodo</span><b>—</b></div>'}
-      </div>
-    </div>
-  `;
+      <h3>🛁 Cabina</h3>
+      <div class="sub">${cabina.length} servicios · atendidos por una cosmetóloga · producción por cosmetóloga</div>
+      <div class="lab">Ingreso total</div><div class="big">${fmtMoney0(ingresoCabina)}</div>
+      ${reparto(cabinaCosm, ingresoCabina, COL_DOC.cosm)}
+    </div>`;
 
   // ── Resumen por persona: comisión FINAL ya aplicadas las reglas ──
   // Cada fila "Consultas y Proc." / "Cabina" abre un panel de ancho completo (debajo de la cuadrícula)
@@ -2679,7 +2678,7 @@ function renderComisionesResumen(docAlejandra, docOtro){
     const nombreCorto = d.nombre.split(' ').slice(0,2).join(' ');
     panelesHtml += panelDetalleHtml(panelConsultasId, `${d.nombre} — Consultas y Procedimientos`, nombreCorto, noCabina, valDe);
     panelesHtml += panelDetalleHtml(panelCabinaId, `${d.nombre} — Cabina`, nombreCorto, cabina, valDe);
-    personaHtml += `<div class="persona ${i===0?'doc1':'doc2'}">
+    personaHtml += `<div class="persona ${esAlejandra?'doc2':'doc1'}">
       <div class="nombre">${esc2(d.nombre)}</div>
       <div class="rol">Doctor${d.nombre.toLowerCase().startsWith('dra')?'a':''} · dueño/a de ${nServicios} servicios</div>
       <div class="fila acordeon" data-panel="${panelConsultasId}" title="Ver el detalle"><span>Consultas y Proc. <span class="chev">▾</span></span><b>${fmtMoney0(comConsultas)}</b></div>
@@ -2893,7 +2892,7 @@ function renderComisionesPago(docAlejandra, docOtro){
   aviso.innerHTML = ''; cont.style.display = '';
   const FULL = { c: M.docC.nombre, a: M.docA.nombre };
   const NM = { c: M.docC.nombre.split(' ').slice(0,2).join(' '), a: M.docA.nombre.split(' ').slice(0,2).join(' ') };
-  const pc = (a, b) => b > 0 ? Math.round(a / b * 100) + '%' : '—';
+  const pc = (a, b) => b > 0 ? (a / b * 100).toFixed(2) + '%' : '—';
   const fms = n => (n > 0.004 ? '+' : n < -0.004 ? '−' : '') + fmtMoney0(Math.abs(n));
   const flecha = M.deudor === 'c' ? '→' : '←';
 
