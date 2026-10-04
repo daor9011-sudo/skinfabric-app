@@ -556,6 +556,33 @@ main.appmain{padding:22px 26px 40px;max-width:1250px;margin:0 auto}
 
 .config-section{background:#fff;border:1px solid var(--g2);border-radius:12px;padding:16px 18px;margin-bottom:16px}
 .config-title{font-size:13px;font-weight:800;margin-bottom:12px;display:flex;align-items:center;gap:8px;color:var(--navy)}
+/* ── Configuración: Reglas de comisión ── */
+.cfgr-intro{font-size:12px;color:var(--g6);line-height:1.5;margin:0 0 12px}
+.cfgr-vers{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.cfgr-v{font:inherit;font-size:12px;font-weight:700;padding:7px 12px;border-radius:10px;border:1.5px solid var(--g2);background:#fff;color:var(--g6);cursor:pointer;text-align:left;line-height:1.3}
+.cfgr-v.on{border-color:var(--navy);background:var(--navy);color:#fff}
+.cfgr-v small{display:block;font-weight:600;opacity:.8;font-size:10.5px}
+.cfgr-v.nueva{border-style:dashed;color:var(--teal)}
+.cfgr-box{border:1px solid var(--g2);border-radius:12px;padding:14px 16px;margin-bottom:12px;background:#fafbfe}
+.cfgr-box h4{margin:0 0 4px;font-size:12.5px;color:var(--navy)}
+.cfgr-box .cfgr-h{font-size:11.5px;color:var(--g6);margin:0 0 10px;line-height:1.45}
+.cfgr-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.cfgr-f label{display:block;font-size:11px;font-weight:700;color:var(--navy);margin-bottom:4px}
+.cfgr-f .cfgr-in{display:flex;align-items:center;gap:6px}
+.cfgr-f input{width:84px;padding:7px 9px;border:1.5px solid var(--g2);border-radius:8px;font:inherit;font-size:13px;font-weight:700;text-align:right}
+.cfgr-f .cfgr-s{font-size:11px;color:var(--g6);margin-top:4px;line-height:1.4}
+.cfgr-tbl{width:100%;border-collapse:collapse;font-size:12.5px}
+.cfgr-tbl th{text-align:left;font-size:10px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:var(--g6);padding:6px 8px;border-bottom:1.5px solid var(--g2)}
+.cfgr-tbl td{padding:6px 8px;border-bottom:1px solid var(--g1)}
+.cfgr-tbl tr.off td:first-child{color:var(--g4)}
+.cfgr-tbl select{font:inherit;font-size:12px;padding:5px 8px;border:1.5px solid var(--g2);border-radius:8px;background:#fff}
+.cfgr-tbl select:disabled{opacity:.4}
+.cfgr-wrap{max-height:340px;overflow:auto;border:1px solid var(--g2);border-radius:10px;background:#fff}
+.cfgr-res{font-size:12px;color:var(--navy);line-height:1.7;margin:0;padding-left:18px}
+.cfgr-warn{font-size:11.5px;color:#9A6010;background:#FFF7E6;border:1px solid #F0D18A;border-radius:8px;padding:8px 10px;margin-top:10px;line-height:1.45}
+.cfgr-err{font-size:11.5px;color:#b4532a;font-weight:700;margin-top:8px}
+.cfgr-acc{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+
 
 /* ══════════ MÓDULO DE GASTOS ══════════ */
 .sec-title{font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--g6);margin:18px 0 10px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
@@ -1118,7 +1145,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
         <div id="cpd-aviso"></div>
         <div id="cpd-contenido">
           <h2 class="cpd-sec">Distribución del dinero de cabinas</h2>
-          <p class="cpd-sub">Tres preguntas, en orden: cuánto se produjo y a quién le toca, dónde se cobró y quién le paga a quién. Usa las mismas reglas de comisión de la pestaña Resumen y el mismo periodo.</p>
+          <p class="cpd-sub">Tres preguntas, en orden: cuánto se produjo y a quién le toca, dónde se cobró y quién le paga a quién. Reparte el 100% de la producción de cabina entre los doctores con las reglas de equipo y dueño del paciente (editables en Configuración); las cosmetólogas se pagan aparte. Usa el mismo periodo que Resumen.</p>
           <div class="cpd-pasos">
             <div class="cpd-paso"><span class="cpd-n">1</span>
               <h3>¿Cuánto se produjo y a quién le corresponde?</h3>
@@ -1338,6 +1365,12 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
           <div class="form-group"><label>Nombre</label><input type="text" id="cfg-terminal-nombre" placeholder="Ej. Terminal 2"/></div>
         </div>
         <button class="btn-sm btn-outline" id="cfg-btn-agregar-terminal" type="button" style="margin-top:10px">+ Agregar terminal</button>
+      </div>
+
+      <div class="config-section" id="cfgr-section" style="display:none">
+        <div class="config-title"><span>💰 Reglas de comisión</span></div>
+        <p class="cfgr-intro">Estas reglas calculan todas las comisiones (Comisiones, Pago entre doctores y el Excel). Cada versión rige desde su fecha hasta que empiece la siguiente; los servicios anteriores conservan la versión que tenían.</p>
+        <div id="cfgr-body"></div>
       </div>
 
       <div class="config-section">
@@ -1579,7 +1612,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.10.04-2';
+const APP_VERSION = 'v2026.10.04-4';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 const SUPABASE_URL = 'https://omjugldgnixuwqnnziyz.supabase.co';
@@ -2300,16 +2333,59 @@ poblarSelectGastoCategoria();
 // del negocio): qué servicios usan equipo de cabina, y cuáles de esos usan un equipo DEDICADO
 // a un solo doctor en vez del equipo compartido. Si en el futuro cambia el catálogo de servicios
 // o se agregan equipos dedicados nuevos, esta lista es lo único que hay que tocar.
-const COM_SERVICIOS_CABINA = [
-  'Dermapen PDRN salmón','Tricopat','Dermapen pelo','Láser luz pulsada','Láser CO2','CO2 flash',
-  'Facial limpieza profunda','Facial hidratación','Hydrafacial delux','Hydrafacial platinum','Hydrafacial signature',
-  'IPL skin reset','Facial and body reset','Peelings','Facial efecto princesa','Depilación','Facial 3 en 1',
-];
-// Equipo dedicado a cada doctor/a (el resto de la cabina es equipo compartido entre ambos).
-// Confirmado con la tabla de "dueño de equipo" de la clínica: Depilación (Magic Smooth) y
-// Facial 3 en 1 (geneo) son de la Dra. Alejandra; Láser luz pulsada (M2) es del Dr. Carlos.
-const COM_SERVICIOS_EQUIPO_DEDICADO_ALEJANDRA = ['Depilación','Facial 3 en 1'];
-const COM_SERVICIOS_EQUIPO_DEDICADO_CARLOS = ['Láser luz pulsada'];
+// Reglas de comisión: viven en la tabla comision_reglas (una fila por "versión", cada una con su fecha
+// de inicio) y se editan en Configuración → Reglas de comisión. Cada servicio usa la versión que regía
+// en SU fecha, así que cambiar una regla hoy no mueve los meses anteriores. Esta copia es solo el
+// respaldo por si la tabla no se pudo leer (son exactamente las reglas con las que se arrancó).
+const COM_FECHA_BASE = '2000-01-01';
+const COM_REGLAS_DEFAULT = {
+  cosm_atiende_pct: 3,          // % para la cosmetóloga que atiende (si no es la dueña)
+  cosm_duena_pct: 5,            // % para la cosmetóloga dueña del paciente (solo cabina)
+  equipo_duena_pct: 70,         // dueño doctor + equipo dedicado del OTRO doctor: % para el dueño (el resto, al dueño del equipo)
+  reparto_alejandra_pct: 50,    // cosmetóloga dueña / sin dueño: % para la Dra. Alejandra (el resto, al otro doctor)
+  servicios_cabina: [
+    'Dermapen PDRN salmón','Tricopat','Dermapen pelo','Láser luz pulsada','Láser CO2','CO2 flash',
+    'Facial limpieza profunda','Facial hidratación','Hydrafacial delux','Hydrafacial platinum','Hydrafacial signature',
+    'IPL skin reset','Facial and body reset','Peelings','Facial efecto princesa','Depilación','Facial 3 en 1',
+  ],
+  // Equipo dedicado a cada doctor/a (el resto de la cabina es equipo compartido entre ambos).
+  equipo_alejandra: ['Depilación','Facial 3 en 1'],
+  equipo_otro: ['Láser luz pulsada'],
+};
+function comNormalizarConfig(c){
+  const d = COM_REGLAS_DEFAULT, n = (v, f) => (v === null || v === undefined || v === '' || isNaN(Number(v))) ? f : Number(v);
+  const arr = (v, f) => Array.isArray(v) ? v.slice() : f.slice();
+  return {
+    cosm_atiende_pct: n(c?.cosm_atiende_pct, d.cosm_atiende_pct),
+    cosm_duena_pct: n(c?.cosm_duena_pct, d.cosm_duena_pct),
+    equipo_duena_pct: n(c?.equipo_duena_pct, d.equipo_duena_pct),
+    reparto_alejandra_pct: n(c?.reparto_alejandra_pct, d.reparto_alejandra_pct),
+    servicios_cabina: arr(c?.servicios_cabina, d.servicios_cabina),
+    equipo_alejandra: arr(c?.equipo_alejandra, d.equipo_alejandra),
+    equipo_otro: arr(c?.equipo_otro, d.equipo_otro),
+  };
+}
+let COM_REGLAS = [{ id: null, vigente_desde: COM_FECHA_BASE, config: comNormalizarConfig(COM_REGLAS_DEFAULT) }];  // orden ascendente
+let COM_REGLAS_OK = false;
+async function comCargarReglas(forzar){
+  if(COM_REGLAS_OK && !forzar) return COM_REGLAS;
+  const { data, error } = await sb.from('comision_reglas').select('id,vigente_desde,config,created_at').order('vigente_desde', { ascending:true });
+  if(error || !data || !data.length){
+    if(error) console.error('[SkinFabric] Error cargando comision_reglas (se usan las reglas de respaldo):', error);
+    return COM_REGLAS;
+  }
+  COM_REGLAS = data.map(v => ({ id: v.id, vigente_desde: v.vigente_desde, config: comNormalizarConfig(v.config) }));
+  COM_REGLAS_OK = true;
+  return COM_REGLAS;
+}
+// Versión que rige en una fecha (YYYY-MM-DD): la de mayor vigente_desde que no sea posterior a esa fecha.
+function comReglasPara(fecha){
+  const f = (fecha || '').slice(0, 10);
+  let v = COM_REGLAS[0];
+  for(const x of COM_REGLAS){ if(!f || x.vigente_desde <= f) v = x; else break; }
+  return v;
+}
+const fmtPct = n => String(Math.round(n * 100) / 100);
 
 let COM_SERVICE_ROWS = [];
 let comReqId = 0;
@@ -2323,27 +2399,32 @@ function comResolverDoctores(){
   return { docAlejandra, docOtro };
 }
 
-// El motor de reglas — aplica las 4 reglas de comisión confirmadas a un servicio individual.
+// El motor de reglas — aplica las 4 reglas de comisión a un servicio individual. Los porcentajes y las listas
+// de servicios salen de la versión de reglas que regía en la fecha del servicio (ver comReglasPara).
+// Los números de abajo son los valores con los que se arrancó.
 // Devuelve cuánto le toca a cada doctor y, si aplica, a la cosmetóloga que atendió y/o a la que
 // es dueña del paciente. Esto es un espejo exacto, fila por fila, de las reglas ya validadas:
 //  1) Dueño doctor + equipo compartido (o sin equipo de cabina) → 100% para el dueño.
-//  2) Dueño doctor + equipo dedicado del OTRO doctor → 70% dueño / 30% dueño del equipo.
-//  3) Cosmetóloga que atiende (y no es la dueña) → 3% para ella.
+//  2) Dueño doctor + equipo dedicado del OTRO doctor → 70% dueño / 30% dueño del equipo (por defecto).
+//  3) Cosmetóloga que atiende (y no es la dueña) → 3% para ella (por defecto).
 //  4) Dueño del paciente es cosmetóloga → ella se lleva 5%, y el resto se reparte 50/50 entre
 //     los 2 doctores (sin importar equipo ni quién atendió). Un paciente SIN dueño asignado se
 //     trata igual (50/50), caso que aún no nos han confirmado pero es el default más razonable.
 function comCalcularFila(row, docAlejandra, docOtro){
+  const R = comReglasPara(row.fecha).config;
   const monto = row.monto;
-  const esCabina = COM_SERVICIOS_CABINA.includes(row.servicio);
-  const equipoDedicadoAlejandra = COM_SERVICIOS_EQUIPO_DEDICADO_ALEJANDRA.includes(row.servicio);
-  const equipoDedicadoCarlos = COM_SERVICIOS_EQUIPO_DEDICADO_CARLOS.includes(row.servicio);
+  const esCabina = R.servicios_cabina.includes(row.servicio);
+  const equipoDedicadoAlejandra = R.equipo_alejandra.includes(row.servicio);
+  const equipoDedicadoCarlos = R.equipo_otro.includes(row.servicio);
+  const pAt = R.cosm_atiende_pct / 100, pDu = R.cosm_duena_pct / 100, pEq = R.equipo_duena_pct / 100, pAl = R.reparto_alejandra_pct / 100;
+  const txtReparto = (a) => (a === 50 ? '50/50' : `${fmtPct(a)}% Dra. / ${fmtPct(100 - a)}% Dr.`);
 
-  const comCosmAtiende = (row.atiendeRol === 'cosmetologo' && row.atiendeId && row.atiendeId !== row.duenoId) ? monto * 0.03 : 0;
-  // El 5% de "dueña del paciente" solo existe dentro de cabina — es la comisión por el trabajo
+  const comCosmAtiende = (row.atiendeRol === 'cosmetologo' && row.atiendeId && row.atiendeId !== row.duenoId) ? monto * pAt : 0;
+  // El % de "dueña del paciente" solo existe dentro de cabina — es la comisión por el trabajo
   // de la cosmetóloga, no por simplemente figurar como dueña del paciente en el sistema. Si ese
   // mismo paciente ve a un doctor para una consulta o procedimiento (fuera de cabina), ella no
   // comisiona nada ahí: confirmado explícitamente para no repetir el error de antes.
-  const comCosmDueno = (row.duenoRol === 'cosmetologo' && esCabina) ? monto * 0.05 : 0;
+  const comCosmDueno = (row.duenoRol === 'cosmetologo' && esCabina) ? monto * pDu : 0;
   const resto = monto - comCosmAtiende - comCosmDueno;
 
   const duenoEsOtro = docOtro && row.duenoId === docOtro.id;
@@ -2353,32 +2434,63 @@ function comCalcularFila(row, docAlejandra, docOtro){
 
   let comAlejandra = 0, comOtro = 0, regla = '—';
   if(row.duenoRol === 'cosmetologo' && esCabina){
-    comAlejandra = resto * 0.5; comOtro = resto * 0.5;
-    regla = '50/50 · dueña cosmetóloga';
+    comAlejandra = resto * pAl; comOtro = resto * (1 - pAl);
+    regla = txtReparto(R.reparto_alejandra_pct) + ' · dueña cosmetóloga';
   } else if(row.duenoRol === 'cosmetologo' && !esCabina){
     // Fuera de cabina la dueña cosmetóloga no tiene nada que ver — el 100% es para el doctor
     // que de verdad atendió esa consulta (no se reparte entre los 2 doctores, porque aquí no
     // hay ningún conflicto de equipo que justifique partirlo).
     if(atiendeEsOtro){ comOtro = resto; regla = '100% · doctor que atendió (fuera de cabina)'; }
     else if(atiendeEsAlejandra){ comAlejandra = resto; regla = '100% · doctora que atendió (fuera de cabina)'; }
-    else { comAlejandra = resto * 0.5; comOtro = resto * 0.5; regla = '50/50 · sin doctor identificado'; }
+    else { comAlejandra = resto * pAl; comOtro = resto * (1 - pAl); regla = txtReparto(R.reparto_alejandra_pct) + ' · sin doctor identificado'; }
   } else if(!row.duenoId){
-    comAlejandra = resto * 0.5; comOtro = resto * 0.5;
-    regla = '50/50 · sin dueño asignado';
+    comAlejandra = resto * pAl; comOtro = resto * (1 - pAl);
+    regla = txtReparto(R.reparto_alejandra_pct) + ' · sin dueño asignado';
   } else if(row.duenoRol === 'doctor'){
     if(esCabina && equipoDedicadoAlejandra && duenoEsOtro){
-      comOtro = resto * 0.70; comAlejandra = resto * 0.30;
-      regla = '70/30 · equipo de ' + (docAlejandra?.nombre || 'Dra. Alejandra');
+      comOtro = resto * pEq; comAlejandra = resto * (1 - pEq);
+      regla = `${fmtPct(R.equipo_duena_pct)}/${fmtPct(100 - R.equipo_duena_pct)} · equipo de ` + (docAlejandra?.nombre || 'Dra. Alejandra');
     } else if(esCabina && equipoDedicadoCarlos && duenoEsAlejandra){
-      comAlejandra = resto * 0.70; comOtro = resto * 0.30;
-      regla = '70/30 · equipo de ' + (docOtro?.nombre || 'Dr. Carlos');
+      comAlejandra = resto * pEq; comOtro = resto * (1 - pEq);
+      regla = `${fmtPct(R.equipo_duena_pct)}/${fmtPct(100 - R.equipo_duena_pct)} · equipo de ` + (docOtro?.nombre || 'Dr. Carlos');
     } else if(duenoEsOtro){
       comOtro = resto; regla = '100% · dueño';
     } else if(duenoEsAlejandra){
       comAlejandra = resto; regla = '100% · dueña';
     }
   }
-  return { ...row, esCabina, comCosmAtiende, comCosmDueno, comAlejandra, comOtro, regla };
+  // Distribución del dinero de cabina entre los 2 doctores (pestaña "Pago entre doctores" y columnas del Excel):
+  // reparte el 100% de lo producido, SIN descontar a las cosmetólogas (su comisión se paga aparte).
+  //  · Equipo dedicado de un doctor: si el paciente es de ese mismo doctor, 100% para él; si es del otro doctor,
+  //    el dueño se queda con el % de "equipo del otro" (70) y el resto es del dueño del equipo; si el dueño es cosmetóloga
+  //    (o no hay), 100% para el dueño del equipo.
+  //  · Equipo compartido: el doctor dueño se queda con el 100%; si el dueño es cosmetóloga o no hay, se reparte con el % de reparto (50/50).
+  let distAlejandra = comAlejandra, distOtro = comOtro, reglaDist = regla;
+  if(esCabina){
+    const tEq = `${fmtPct(R.equipo_duena_pct)}/${fmtPct(100 - R.equipo_duena_pct)}`;
+    distAlejandra = 0; distOtro = 0;
+    if(equipoDedicadoAlejandra){
+      if(duenoEsOtro){ distOtro = monto * pEq; distAlejandra = monto * (1 - pEq); reglaDist = tEq + ' · equipo de ' + (docAlejandra?.nombre || 'Dra. Alejandra'); }
+      else { distAlejandra = monto; reglaDist = '100% · equipo de ' + (docAlejandra?.nombre || 'Dra. Alejandra'); }
+    } else if(equipoDedicadoCarlos){
+      if(duenoEsAlejandra){ distAlejandra = monto * pEq; distOtro = monto * (1 - pEq); reglaDist = tEq + ' · equipo de ' + (docOtro?.nombre || 'Dr. Carlos'); }
+      else { distOtro = monto; reglaDist = '100% · equipo de ' + (docOtro?.nombre || 'Dr. Carlos'); }
+    } else if(duenoEsOtro){ distOtro = monto; reglaDist = '100% · dueño (equipo compartido)'; }
+    else if(duenoEsAlejandra){ distAlejandra = monto; reglaDist = '100% · dueña (equipo compartido)'; }
+    else { distAlejandra = monto * pAl; distOtro = monto * (1 - pAl); reglaDist = txtReparto(R.reparto_alejandra_pct) + ' · equipo compartido, sin doctor dueño'; }
+  }
+  return { ...row, esCabina, comCosmAtiende, comCosmDueno, comAlejandra, comOtro, regla, distAlejandra, distOtro, reglaDist, pctCosmAtiende: R.cosm_atiende_pct, pctCosmDueno: R.cosm_duena_pct };
+}
+
+// Cuánto de un servicio se pagó en efectivo. Si el servicio ya trae su propio 1er/2do pago se usa tal cual;
+// si no (registros anteriores), se reparte el pago de la consulta proporcionalmente (1er pago → medio_pago, 2do → medio_pago_2).
+function comEfectivoServicio(c, cs, monto){
+  const esEf = m => /efectivo/i.test(m || '');
+  const c1 = Number(c.monto || 0), c2 = Number(c.monto_2 || 0), cTot = c1 + c2;
+  let p1, p2;
+  if(cs && cs.monto_1 != null){ p1 = Number(cs.monto_1 || 0); p2 = Number(cs.monto_2 || 0); }
+  else { p1 = cTot > 0 ? monto * (c1 / cTot) : monto; p2 = monto - p1; }
+  return Math.min(Math.max((esEf(c.medio_pago) ? p1 : 0) + (esEf(c.medio_pago_2) ? p2 : 0), 0), monto);
 }
 
 async function cargarComisiones(){
@@ -2413,8 +2525,6 @@ async function cargarComisiones(){
     // Cuánto de cada servicio se pagó en efectivo (para el saldo entre doctores). Si el servicio ya trae su
     // propio 1er/2do pago se usa tal cual; si no (registros anteriores), se reparte el pago de la consulta
     // proporcionalmente al monto del servicio (1er pago → medio_pago, 2do pago → medio_pago_2).
-    const esEfectivo = m => /efectivo/i.test(m || '');
-    const c1 = Number(c.monto || 0), c2 = Number(c.monto_2 || 0), cTot = c1 + c2;
 
     const duenoId = c.pacientes?.dueno_id || null;
     const duenoRol = c.pacientes?.dueno?.rol || null;
@@ -2426,12 +2536,8 @@ async function cargarComisiones(){
       const atiendeId = cs.atendido_por || c.doctor_id || null;
       const atiendeRol = cs.atendido_por ? (cs.atendido?.rol || null) : (c.doctor?.rol || null);
       const atiendeNombre = cs.atendido_por ? (cs.atendido?.nombre || '—') : (c.doctor?.nombre || '—');
-      let p1, p2;
-      if(cs.monto_1 != null){ p1 = Number(cs.monto_1 || 0); p2 = Number(cs.monto_2 || 0); }
-      else { p1 = cTot > 0 ? monto * (c1 / cTot) : monto; p2 = monto - p1; }
-      const efectivo = (esEfectivo(c.medio_pago) ? p1 : 0) + (esEfectivo(c.medio_pago_2) ? p2 : 0);
       serviceRows.push({
-        efectivo: Math.min(Math.max(efectivo, 0), monto),
+        efectivo: comEfectivoServicio(c, cs, monto),
         fecha: c.fecha,
         pacienteNombre: c.pacientes?.nombre || '—',
         duenoId, duenoRol, duenoNombre,
@@ -2444,6 +2550,8 @@ async function cargarComisiones(){
     });
   });
 
+  await comCargarReglas();
+  if(miReqId !== comReqId) return;
   const { docAlejandra, docOtro } = comResolverDoctores();
   COM_SERVICE_ROWS = serviceRows.map(r => comCalcularFila(r, docAlejandra, docOtro));
 
@@ -2516,8 +2624,8 @@ function renderComisionesResumen(docAlejandra, docOtro){
   // (valDe(r) > 0), para que la suma de la columna "Comisión" coincida exactamente con la cifra de la fila.
   const reglaChip = regla => {
     if(regla.startsWith('100%')) return `<span class="chip chip-100">${esc2(regla)}</span>`;
-    if(regla.startsWith('70/30')) return `<span class="chip chip-7030">${esc2(regla)}</span>`;
-    if(regla.startsWith('50/50')) return `<span class="chip chip-5050">${esc2(regla)}</span>`;
+    if(/^\d+(\.\d+)?\/\d+/.test(regla) && !regla.startsWith('50/50')) return `<span class="chip chip-7030">${esc2(regla)}</span>`;
+    if(regla.startsWith('50/50') || /^\d+(\.\d+)?% Dra\./.test(regla)) return `<span class="chip chip-5050">${esc2(regla)}</span>`;
     return `<span class="chip">${esc2(regla)}</span>`;
   };
   const panelDetalleHtml = (panelId, titulo, nombreCorto, lista, valDe) => {
@@ -2575,11 +2683,13 @@ function renderComisionesResumen(docAlejandra, docOtro){
     const montoPropios = propiosRows.reduce((a,r)=> a + r.monto, 0);
     const comPropios = propiosRows.reduce((a,r)=> a + r.comCosmDueno, 0);
     const total = comClinica + comPropios;
+    // Si en el periodo hubo más de una versión de reglas con % distintos, se avisa en vez de mostrar uno solo.
+    const pctLbl = (lista, key) => { const u = [...new Set(lista.map(r => r[key]))]; return u.length === 1 ? fmtPct(u[0]) + '%' : u.length ? 'varía' : fmtPct(comReglasPara(new Date().toISOString().slice(0,10)).config[key === 'pctCosmAtiende' ? 'cosm_atiende_pct' : 'cosm_duena_pct']) + '%'; };
     personaHtml += `<div class="persona cosm">
       <div class="nombre">${esc2(c.nombre)}</div>
       <div class="rol">Cosmetóloga · 100% su comisión es de cabina</div>
-      <div class="cosm-fila"><div class="cf-label"><span>Px clínica</span><span class="cf-pct">3%</span></div><div class="cf-calc"><span class="cf-base">${fmtMoney(montoClinica)}</span><span class="cf-arrow">→</span><b class="cf-com">${fmtMoney(comClinica)}</b></div></div>
-      <div class="cosm-fila"><div class="cf-label"><span>Px propios</span><span class="cf-pct">5%</span></div><div class="cf-calc"><span class="cf-base">${fmtMoney(montoPropios)}</span><span class="cf-arrow">→</span><b class="cf-com">${fmtMoney(comPropios)}</b></div></div>
+      <div class="cosm-fila"><div class="cf-label"><span>Px clínica</span><span class="cf-pct">${pctLbl(clinicaRows, 'pctCosmAtiende')}</span></div><div class="cf-calc"><span class="cf-base">${fmtMoney(montoClinica)}</span><span class="cf-arrow">→</span><b class="cf-com">${fmtMoney(comClinica)}</b></div></div>
+      <div class="cosm-fila"><div class="cf-label"><span>Px propios</span><span class="cf-pct">${pctLbl(propiosRows, 'pctCosmDueno')}</span></div><div class="cf-calc"><span class="cf-base">${fmtMoney(montoPropios)}</span><span class="cf-arrow">→</span><b class="cf-com">${fmtMoney(comPropios)}</b></div></div>
       <div class="total-block"><div class="total-label">Comisión total</div><div class="total-value">${fmtMoney(total)}</div></div>
     </div>`;
   });
@@ -2639,6 +2749,7 @@ document.getElementById('com-persona-detalle').addEventListener('click', (e) => 
 // ── Pago entre doctores: "Distribución del dinero de cabinas" ──
 // Usa EXACTAMENTE las mismas filas y reglas que el Resumen (COM_SERVICE_ROWS, ya con comCalcularFila aplicado),
 // así que lo que aquí se le asigna a cada doctor es la misma cifra de la tarjeta "Cabina" del Resumen.
+// Reparto: r.distOtro / r.distAlejandra (100% de lo producido, sin descontar cosmetólogas; ver comCalcularFila).
 // Alcance: producción de cabina de cosmetólogas (esCabina && atiende una cosmetóloga). Cada servicio se parte en
 // lo pagado en efectivo (sin terminal, r.efectivo) y lo pagado con tarjeta, que entró a la terminal de la consulta.
 // El cruce solo mira lo de tarjeta en terminales de doctor: el dinero de un doctor que quedó en la terminal del
@@ -2666,10 +2777,10 @@ function comPagoCalcular(docAlejandra, docOtro){
     const holder = comDoctorDeTerminal(r.terminal, docAlejandra, docOtro);
     const t = !holder || card <= 0.005 ? (card > 0.005 ? 'o' : null) : (holder.id === docOtro.id ? 'c' : 'a');
     // c = docOtro (el primero, tarjeta azul), a = docAlejandra (la segunda, tarjeta turquesa)
-    const ec = r.comOtro, ea = r.comAlejandra, cos = r.comCosmAtiende + r.comCosmDueno;
+    const ec = r.distOtro, ea = r.distAlejandra, cos = r.comCosmAtiende + r.comCosmDueno;   // reparto de cabina entre doctores (cosmetólogas aparte)
     return {
       ...r, efectivo, card, t, ec, ea, cos,
-      ecT: ec * fc, eaT: ea * fc, cosT: cos * fc,
+      ecT: ec * fc, eaT: ea * fc,
       // si una terminal de doctor cobró con tarjeta, ese doctor le debe al otro lo que a este le toca de ese servicio
       debe: (t === 'c' ? ea : t === 'a' ? ec : 0) * fc,
     };
@@ -2680,13 +2791,13 @@ function comPagoCalcular(docAlejandra, docOtro){
   const m = {
     filas, docC: docOtro, docA: docAlejandra,
     P: sum(filas, r => r.monto), N: filas.length,
-    Ec: sum(filas, r => r.ec), Ea: sum(filas, r => r.ea), Cs: sum(filas, r => r.cos),
+    Ec: sum(filas, r => r.ec), Ea: sum(filas, r => r.ea), Cs: sum(filas, r => r.cos),   // Cs: comisión de cosmetólogas, solo informativa
     Tc: sum(filas.filter(r => r.t === 'c'), r => r.card), Ta: sum(filas.filter(r => r.t === 'a'), r => r.card),
     To: sum(filas.filter(r => r.t === 'o'), r => r.card), Ef: sum(filas, r => r.efectivo),
     nTc: filas.filter(r => r.t === 'c').length, nTa: filas.filter(r => r.t === 'a').length,
     nTo: filas.filter(r => r.t === 'o').length, nEf: efF.length,
-    efC: sum(efF, r => r.ec * r.efectivo / r.monto), efA: sum(efF, r => r.ea * r.efectivo / r.monto), efK: sum(efF, r => r.cos * r.efectivo / r.monto),
-    mx: { ec:{ c:cell('c','ecT'), a:cell('a','ecT') }, ea:{ c:cell('c','eaT'), a:cell('a','eaT') }, cs:{ c:cell('c','cosT'), a:cell('a','cosT') } },
+    efC: sum(efF, r => r.ec * r.efectivo / r.monto), efA: sum(efF, r => r.ea * r.efectivo / r.monto),
+    mx: { ec:{ c:cell('c','ecT'), a:cell('a','ecT') }, ea:{ c:cell('c','eaT'), a:cell('a','eaT') } },
   };
   m.aEnC = m.mx.ea.c;   // dinero de la doctora (docAlejandra) que entró en la terminal del otro doctor
   m.cEnA = m.mx.ec.a;   // dinero del otro doctor que entró en la terminal de la doctora
@@ -2719,35 +2830,35 @@ function renderComisionesPago(docAlejandra, docOtro){
   }
 
   // 1. A quién le corresponde
-  document.getElementById('cpd-p1').innerHTML = `Productividad de cabinas (venta total de las cosmetólogas): <b>${fmtMoney(M.P)}</b> · ${M.N} servicios. Se reparte con las reglas de distribución:`;
+  document.getElementById('cpd-p1').innerHTML = `Productividad de cabinas (venta total de las cosmetólogas): <b>${fmtMoney(M.P)}</b> · ${M.N} servicios. Se reparte entre los doctores con las reglas de equipo y dueño del paciente. La comisión de las cosmetólogas (<b>${fmtMoney(M.Cs)}</b>) se paga aparte y no entra en este reparto.`;
   document.getElementById('cpd-pl1').innerHTML =
-    pill('c', M.docC.nombre, M.Ec, pct(M.Ec, M.P)) + pill('a', M.docA.nombre, M.Ea, pct(M.Ea, M.P)) + pill('k', 'Cosmetólogas', M.Cs, pct(M.Cs, M.P));
-  document.getElementById('cpd-bar1').innerHTML = seg([['c', M.Ec], ['a', M.Ea], ['k', M.Cs]]);
+    pill('c', M.docC.nombre, M.Ec, pct(M.Ec, M.P)) + pill('a', M.docA.nombre, M.Ea, pct(M.Ea, M.P));
+  document.getElementById('cpd-bar1').innerHTML = seg([['c', M.Ec], ['a', M.Ea]]);
 
   // 2. Dónde se cobró
   document.getElementById('cpd-pl2').innerHTML =
     pill('c', `Terminal de ${nombres.c}`, M.Tc, sv(M.nTc)) + pill('a', `Terminal de ${nombres.a}`, M.Ta, sv(M.nTa)) +
     (M.nTo ? pill('o', 'Otras terminales', M.To, sv(M.nTo)) : '') + pill('e', 'Efectivo', M.Ef, sv(M.nEf));
   document.getElementById('cpd-bar2').innerHTML = seg([['c', M.Tc], ['a', M.Ta], ['o', M.To], ['e', M.Ef]]);
-  const cuadra = Math.abs((M.Ec + M.Ea + M.Cs) - M.P) < 0.01 && Math.abs((M.Tc + M.Ta + M.To + M.Ef) - M.P) < 0.01;
+  const cuadra = Math.abs((M.Ec + M.Ea) - M.P) < 0.01 && Math.abs((M.Tc + M.Ta + M.To + M.Ef) - M.P) < 0.01;
   document.getElementById('cpd-ok1').innerHTML = cuadra
     ? '<div class="cpd-ok">✓ Los dos pasos reparten el mismo total: la productividad.</div>'
     : '<div class="cpd-warn">⚠ Los dos pasos no suman lo mismo; revisa los datos del periodo.</div>';
 
   // 3. Cruce de terminales
-  const term = (k, titulo, nServ, entro, suyoC, suyoA, cs) => `
+  const term = (k, titulo, nServ, entro, suyoC, suyoA) => `
     <div class="cpd-term ${k}"><div class="cpd-h"><span>${esc2(titulo)}</span><small>${nServ} servicio${nServ === 1 ? '' : 's'}</small></div>
       <div class="cpd-r"><span>Entró con tarjeta</span><b>${fmtMoney(entro)}</b></div>
       <div class="cpd-r ${k === 'a' ? 'ajeno' : ''}"><span>Es de ${esc2(nombres.c)}</span><b>${fmtMoney(suyoC)}</b></div>
-      <div class="cpd-r ${k === 'c' ? 'ajeno' : ''}"><span>Es de ${esc2(nombres.a)}</span><b>${fmtMoney(suyoA)}</b></div>
-      <div class="cpd-r k tot"><span>Cosmetólogas (aparte)</span><b>${fmtMoney(cs)}</b></div></div>`;
+      <div class="cpd-r tot ${k === 'c' ? 'ajeno' : ''}"><span>Es de ${esc2(nombres.a)}</span><b>${fmtMoney(suyoA)}</b></div>
+      </div>`;
   const quien = `<b>${esc2(nombres[M.deudor])}</b> le transfiere a <b>${esc2(nombres[M.acreedor])}</b>`;
   const centro = M.transf < 0.005
     ? `<div class="cpd-centro"><span class="cpd-badge">Cuentas a mano</span><span class="cpd-fl">=</span><span class="cpd-q">Ninguno le debe al otro por la cabina cobrada con tarjeta.</span></div>`
     : `<div class="cpd-centro"><span class="cpd-badge">Por transferir</span><span class="cpd-fl">${M.deudor === 'c' ? '→' : '←'}</span><span class="cpd-m">${fmtMoney(M.transf)}</span><span class="cpd-q">${quien}</span></div>`;
   document.getElementById('cpd-flujo').innerHTML =
-    term('c', `Terminal de ${M.docC.nombre}`, M.nTc, M.Tc, M.mx.ec.c, M.mx.ea.c, M.mx.cs.c) + centro +
-    term('a', `Terminal de ${M.docA.nombre}`, M.nTa, M.Ta, M.mx.ec.a, M.mx.ea.a, M.mx.cs.a);
+    term('c', `Terminal de ${M.docC.nombre}`, M.nTc, M.Tc, M.mx.ec.c, M.mx.ea.c) + centro +
+    term('a', `Terminal de ${M.docA.nombre}`, M.nTa, M.Ta, M.mx.ec.a, M.mx.ea.a);
   const res = document.getElementById('cpd-res');
   res.className = 'cpd-res' + (M.transf < 0.005 ? ' cero' : '');
   const nota = M.nTo ? ` <span style="font-weight:400;color:var(--g6)">· aparte quedan ${fmtMoney(M.To)} con tarjeta fuera de terminales de doctores</span>` : '';
@@ -2755,7 +2866,7 @@ function renderComisionesPago(docAlejandra, docOtro){
 
   // Efectivo
   document.getElementById('cpd-pl3').innerHTML =
-    pill('c', M.docC.nombre, M.efC) + pill('a', M.docA.nombre, M.efA) + pill('k', 'Cosmetólogas', M.efK) + pill('', 'Total en efectivo', M.Ef, sv(M.nEf), 'cpd-total');
+    pill('c', M.docC.nombre, M.efC) + pill('a', M.docA.nombre, M.efA) + pill('', 'Total en efectivo', M.Ef, sv(M.nEf), 'cpd-total');
 
   comPagoPintarDetalle();
 }
@@ -2784,9 +2895,9 @@ function comPagoPintarDetalle(){
   const base = r => `<td class="cpd-fecha">${fmtFechaCorta(r.fecha)}</td><td class="pac">${esc2(r.pacienteNombre)}${nota(r)}</td><td>${esc2(r.servicio)}</td>`;
   let head, body, pie;
   if(COM_PAGO_TAB === 'ef'){
-    head = '<tr><th>Fecha</th><th>Paciente</th><th>Servicio</th><th class="num">Valor en efectivo</th><th class="num">Le toca a ' + esc2(nombres.c) + '</th><th class="num">Le toca a ' + esc2(nombres.a) + '</th><th class="num">Cosmetólogas</th></tr>';
-    body = filas.map(r => { const k = r.efectivo / r.monto; return `<tr>${base(r)}<td class="num">${fmtMoney(r.efectivo)}</td><td class="num">${fmtMoney(r.ec * k)}</td><td class="num">${fmtMoney(r.ea * k)}</td><td class="num">${fmtMoney(r.cos * k)}</td></tr>`; }).join('');
-    pie = `<span>${todas.length} servicios en efectivo</span><span>Total <b>${fmtMoney(M.Ef)}</b> · ${esc2(nombres.c)} <b>${fmtMoney(M.efC)}</b> · ${esc2(nombres.a)} <b>${fmtMoney(M.efA)}</b> · Cosmetólogas <b>${fmtMoney(M.efK)}</b></span>`;
+    head = '<tr><th>Fecha</th><th>Paciente</th><th>Servicio</th><th class="num">Valor en efectivo</th><th class="num">Le toca a ' + esc2(nombres.c) + '</th><th class="num">Le toca a ' + esc2(nombres.a) + '</th></tr>';
+    body = filas.map(r => { const k = r.efectivo / r.monto; return `<tr>${base(r)}<td class="num">${fmtMoney(r.efectivo)}</td><td class="num">${fmtMoney(r.ec * k)}</td><td class="num">${fmtMoney(r.ea * k)}</td></tr>`; }).join('');
+    pie = `<span>${todas.length} servicios en efectivo</span><span>Total <b>${fmtMoney(M.Ef)}</b> · ${esc2(nombres.c)} <b>${fmtMoney(M.efC)}</b> · ${esc2(nombres.a)} <b>${fmtMoney(M.efA)}</b></span>`;
   } else if(COM_PAGO_TAB === 'todos'){
     const chips = r => [
       r.card > 0.005 ? `<span class="cpd-chip ${r.t === 'c' || r.t === 'a' ? r.t : 'e'}">${r.t === 'c' || r.t === 'a' ? esc2(nombres[r.t]) : esc2(r.terminal || 'Sin terminal')}</span>` : '',
@@ -4105,27 +4216,46 @@ document.getElementById('export-btn-cancelar').addEventListener('click', ()=> do
 function comInfoExcel(r, cs, monto){
   const servicio = cs.catalogo_tipos_servicio?.nombre || '';
   const { docAlejandra, docOtro } = comResolverDoctores();
-  const esCabina = COM_SERVICIOS_CABINA.includes(servicio);
+  const R = comReglasPara(r.fecha).config;
+  const esCabina = R.servicios_cabina.includes(servicio);
   let equipo = 'No aplica (fuera de cabina)';
   if(esCabina){
-    if(COM_SERVICIOS_EQUIPO_DEDICADO_ALEJANDRA.includes(servicio)) equipo = docAlejandra?.nombre || 'Dra. Alejandra';
-    else if(COM_SERVICIOS_EQUIPO_DEDICADO_CARLOS.includes(servicio)) equipo = docOtro?.nombre || 'Dr. Carlos';
+    if(R.equipo_alejandra.includes(servicio)) equipo = docAlejandra?.nombre || 'Dra. Alejandra';
+    else if(R.equipo_otro.includes(servicio)) equipo = docOtro?.nombre || 'Dr. Carlos';
     else equipo = 'Compartido';
   }
   const atiendeId = cs.atendido_por || r.doctor_id || null;
   const atiendeRol = cs.atendido_por ? (cs.atendido?.rol || null) : (r.doctor?.rol || null);
   const f = comCalcularFila({
-    monto: monto > 0 ? monto : 0, servicio,
+    fecha: r.fecha, monto: monto > 0 ? monto : 0, servicio,
     duenoId: r.pacientes?.dueno_id || null, duenoRol: r.pacientes?.dueno?.rol || null,
     atiendeId, atiendeRol,
   }, docAlejandra, docOtro);
   let regla = f.regla;
-  if(f.comCosmAtiende > 0) regla += ' + 3% cosmetóloga que atendió';
-  if(f.comCosmDueno > 0) regla += ' + 5% cosmetóloga dueña';
-  return { equipo, regla };
+  if(f.comCosmAtiende > 0) regla += ` + ${fmtPct(f.pctCosmAtiende)}% cosmetóloga que atendió`;
+  if(f.comCosmDueno > 0) regla += ` + ${fmtPct(f.pctCosmDueno)}% cosmetóloga dueña`;
+  // Producción de cabina de cosmetólogas ("Cabinas"): es la que se reparte entre los doctores.
+  const cabina = esCabina && atiendeRol === 'cosmetologo';
+  const efectivo = comEfectivoServicio(r, cs, monto > 0 ? monto : 0);
+  const tarjeta = (monto > 0 ? monto : 0) - efectivo;
+  const k = monto > 0 ? efectivo / monto : 0;
+  const redondea = n => Math.round(n * 100) / 100;
+  return {
+    equipo, regla, tipo: cabina ? 'Cabinas' : 'Consultas y procedimientos',
+    reglaDist: cabina ? f.reglaDist : '',
+    dOtro: cabina ? redondea(f.distOtro) : '', dAlej: cabina ? redondea(f.distAlejandra) : '',
+    efOtro: cabina ? redondea(f.distOtro * k) : '', efAlej: cabina ? redondea(f.distAlejandra * k) : '',
+    taOtro: cabina ? redondea(f.distOtro * (1 - k)) : '', taAlej: cabina ? redondea(f.distAlejandra * (1 - k)) : '',
+    comCosm: cabina ? redondea(f.comCosmAtiende + f.comCosmDueno) : '',
+    efectivo: redondea(efectivo), tarjeta: redondea(tarjeta),
+  };
 }
 function exportarExcel(filas){
   const datos = [];
+  // Encabezados con el nombre corto de cada doctor (p. ej. "Corresponde Dr. Carlos"); el primero es el doctor que no es la Dra. Alejandra.
+  const { docAlejandra: _dA, docOtro: _dO } = comResolverDoctores();
+  const cortoDoc = (d, f) => d ? d.nombre.split(' ').slice(0, 2).join(' ') : f;
+  const nOtro = cortoDoc(_dO, 'Dr. Carlos'), nAlej = cortoDoc(_dA, 'Dra. Alejandra');
   filas.forEach(r=>{
     const servicios = (r.consulta_servicios && r.consulta_servicios.length) ? r.consulta_servicios : [null];
     servicios.forEach((cs, i) => {
@@ -4146,7 +4276,7 @@ function exportarExcel(filas){
         pago2 = '';
       }
       // Equipo y regla de comisión de ESTE servicio, con el mismo motor del módulo Comisiones.
-      const info = cs ? comInfoExcel(r, cs, montoRow) : { equipo: '', regla: '' };
+      const info = cs ? comInfoExcel(r, cs, montoRow) : {};
       datos.push({
         'Fecha': r.fecha,
         'Paciente': r.pacientes?.nombre || '',
@@ -4154,8 +4284,13 @@ function exportarExcel(filas){
         'Dueño del paciente': r.pacientes?.dueno?.nombre || '',
         'Teléfono': r.pacientes?.telefono || '',
         'Servicio': cs?.catalogo_tipos_servicio?.nombre || '',
-        'Equipo': info.equipo,
-        'Regla de comisión': info.regla,
+        'Tipo': info.tipo || '',
+        'Equipo': info.equipo || '',
+        'Regla de comisión': info.regla || '',
+        'Regla de reparto de cabina': info.reglaDist || '',
+        ['Corresponde ' + nOtro]: info.dOtro ?? '',
+        ['Corresponde ' + nAlej]: info.dAlej ?? '',
+        'Comisión cosmetólogas': info.comCosm ?? '',
         'Atendió': cs?.atendido?.nombre || r.doctor?.nombre || '',
         'Monto del servicio': montoRow,
         '1er pago de este servicio': pago1,
@@ -4166,6 +4301,13 @@ function exportarExcel(filas){
         'N° Factura': r.num_factura || '',
         'No vino': r.no_vino ? 'Sí' : 'No',
         'Terminal': r.catalogo_terminales?.nombre || '',
+        'Monto en efectivo': info.efectivo ?? '',
+        'Monto con tarjeta u otro medio': info.tarjeta ?? '',
+        'Terminal (solo tarjeta)': (info.tarjeta > 0.005) ? (r.catalogo_terminales?.nombre || '') : '',
+        ['Efectivo · ' + nOtro]: info.efOtro ?? '',
+        ['Efectivo · ' + nAlej]: info.efAlej ?? '',
+        ['Tarjeta · ' + nOtro]: info.taOtro ?? '',
+        ['Tarjeta · ' + nAlej]: info.taAlej ?? '',
         'Notas': i===0 ? (r.notas || '') : '',
       });
     });
@@ -4211,6 +4353,7 @@ document.getElementById('export-btn-confirmar').addEventListener('click', async 
     }
     if(rango === 'filtros' && !incluirNoVino) filas = filas.filter(f=>!f.no_vino);
     if(!filas.length){ toast('No hay registros para exportar con esos criterios.'); return; }
+    await comCargarReglas();
     exportarExcel(filas);
     document.getElementById('modal-exportar').classList.remove('show');
   }catch(err){
@@ -5165,10 +5308,191 @@ function cargarConfiguracion(){
   cargarCatalogoSimple('catalogo_medios_pago', 'cfg-medios-tbody', 'orden');
   cargarCatalogoSimple('catalogo_procedencia', 'cfg-procedencia-tbody', 'orden');
   cargarCatalogoSimple('catalogo_terminales', 'cfg-terminal-tbody', 'nombre');
+  cargarReglasConfig();
   cargarHorario();
   cargarActividad();
 }
 document.getElementById('btn-config-header').addEventListener('click', cargarConfiguracion);
+// ── Reglas de comisión (editor) ──
+// Una fila de comision_reglas = una versión (vigente_desde + config). Se edita la versión elegida o se crea una nueva
+// con otra fecha de inicio (partiendo de una copia de la anterior). La versión base (2000-01-01) no cambia de fecha ni se borra.
+const CFGR = { selId: null, draft: null, fecha: '', esNueva: false };
+const cfgrHoy = () => new Date().toISOString().slice(0, 10);
+const cfgrFmtFecha = f => f === COM_FECHA_BASE ? 'el inicio' : f.split('-').reverse().join('/');
+const cfgrClonar = c => JSON.parse(JSON.stringify(c));
+
+async function cargarReglasConfig(){
+  const sec = document.getElementById('cfgr-section');
+  const puede = MI_PERFIL?.permisos?.puede_ver_comisiones === true && MI_PERFIL?.rol === 'admin';
+  sec.style.display = puede ? '' : 'none';
+  if(!puede) return;
+  await comCargarReglas(true);
+  if(!CFGR.selId || !COM_REGLAS.some(v => (v.id || 'base') === CFGR.selId)){
+    const vig = comReglasPara(cfgrHoy());
+    CFGR.selId = vig.id || 'base';
+  }
+  if(!CFGR.esNueva) cfgrSeleccionar(CFGR.selId);
+  else cfgrRender();
+}
+function cfgrSeleccionar(id){
+  const v = COM_REGLAS.find(x => (x.id || 'base') === id) || COM_REGLAS[0];
+  CFGR.selId = v.id || 'base'; CFGR.esNueva = false;
+  CFGR.draft = cfgrClonar(v.config); CFGR.fecha = v.vigente_desde;
+  cfgrRender();
+}
+function cfgrNueva(){
+  const ult = COM_REGLAS[COM_REGLAS.length - 1];
+  CFGR.esNueva = true; CFGR.selId = 'nueva';
+  CFGR.draft = cfgrClonar(ult.config);
+  CFGR.fecha = cfgrHoy() > ult.vigente_desde ? cfgrHoy() : ult.vigente_desde;
+  cfgrRender();
+}
+function cfgrNombresServicios(){
+  const nombres = (CATALOGOS.tiposServicio || []).map(t => t.nombre);
+  const d = CFGR.draft;
+  [...d.servicios_cabina, ...d.equipo_alejandra, ...d.equipo_otro].forEach(n => { if(!nombres.includes(n)) nombres.push(n); });
+  return nombres;
+}
+function cfgrRender(){
+  const body = document.getElementById('cfgr-body'); const d = CFGR.draft; if(!d) return;
+  const hoy = cfgrHoy(), vigId = comReglasPara(hoy).id || 'base';
+  const { docAlejandra, docOtro } = comResolverDoctores();
+  const nA = docAlejandra?.nombre || 'Dra. Alejandra', nO = docOtro?.nombre || 'Dr. Carlos';
+  const pills = COM_REGLAS.map(v => {
+    const id = v.id || 'base';
+    const tag = id === vigId ? 'Vigente hoy' : v.vigente_desde > hoy ? 'Futura' : 'Anterior';
+    return `<button type="button" class="cfgr-v ${CFGR.selId === id ? 'on' : ''}" data-id="${id}">Desde ${cfgrFmtFecha(v.vigente_desde)}<small>${tag}</small></button>`;
+  }).join('') + (CFGR.esNueva ? `<button type="button" class="cfgr-v on" data-id="nueva">Nueva versión<small>Sin guardar</small></button>` : `<button type="button" class="cfgr-v nueva" data-act="nueva">+ Nueva versión</button>`);
+  const esBase = !CFGR.esNueva && CFGR.fecha === COM_FECHA_BASE;
+  const campo = (k, et, ayuda) => `<div class="cfgr-f"><label for="cfgr-${k}">${et}</label><div class="cfgr-in"><input type="number" min="0" max="100" step="0.5" id="cfgr-${k}" data-k="${k}" value="${d[k]}"/><span>%</span></div><div class="cfgr-s" id="cfgr-s-${k}">${ayuda}</div></div>`;
+  const filas = cfgrNombresServicios().map((n, i) => {
+    const cab = d.servicios_cabina.includes(n);
+    const eq = d.equipo_alejandra.includes(n) ? 'a' : d.equipo_otro.includes(n) ? 'o' : 'c';
+    return `<tr class="${cab ? '' : 'off'}" data-serv="${esc2(n)}"><td>${esc2(n)}</td><td><input type="checkbox" class="cfgr-cab" ${cab ? 'checked' : ''} aria-label="${esc2(n)} es de cabina"/></td>
+      <td><select class="cfgr-eq" ${cab ? '' : 'disabled'} aria-label="Equipo de ${esc2(n)}"><option value="c" ${eq==='c'?'selected':''}>Compartido</option><option value="a" ${eq==='a'?'selected':''}>${esc2(nA)}</option><option value="o" ${eq==='o'?'selected':''}>${esc2(nO)}</option></select></td></tr>`;
+  }).join('');
+  body.innerHTML = `
+    <div class="cfgr-vers">${pills}</div>
+    <div class="cfgr-box"><h4>¿Desde cuándo rige?</h4>
+      <p class="cfgr-h">${esBase ? 'Esta es la versión inicial: rige para todo lo anterior a la siguiente versión.' : 'Aplica a los servicios con fecha igual o posterior a esta, hasta que empiece la siguiente versión.'}</p>
+      <div class="cfgr-f"><label for="cfgr-fecha">Fecha de inicio</label><input type="date" id="cfgr-fecha" style="width:auto;text-align:left" value="${esBase ? '' : CFGR.fecha}" ${esBase ? 'disabled' : ''}/></div></div>
+    <div class="cfgr-box"><h4>Porcentajes</h4>
+      <p class="cfgr-h">Los de cosmetóloga se descuentan primero; con lo que queda se reparten los doctores.</p>
+      <div class="cfgr-grid">
+        ${campo('cosm_atiende_pct', 'Cosmetóloga que atiende', 'Si no es la dueña del paciente. Aplica a cualquier servicio que atienda.')}
+        ${campo('cosm_duena_pct', 'Cosmetóloga dueña del paciente', 'Solo en servicios de cabina.')}
+        ${campo('equipo_duena_pct', 'Dueño doctor con equipo del otro', 'Parte del dueño cuando el servicio usa el equipo dedicado del otro doctor; el resto es del dueño del equipo.')}
+        ${campo('reparto_alejandra_pct', `Reparto para ${esc2(nA)}`, `Cuando la dueña es cosmetóloga o no hay dueño: este % es de ${esc2(nA)} y el resto de ${esc2(nO)}.`)}
+      </div></div>
+    <div class="cfgr-box"><h4>Servicios de cabina y equipo</h4>
+      <p class="cfgr-h">Marca los servicios que cuentan como cabina y de quién es el equipo. Compartido = el dueño del paciente se queda con todo.</p>
+      <div class="cfgr-wrap"><table class="cfgr-tbl"><thead><tr><th>Servicio</th><th>Cabina</th><th>Equipo</th></tr></thead><tbody>${filas}</tbody></table></div></div>
+    <div class="cfgr-box"><h4>Así quedan las reglas</h4><ul class="cfgr-res" id="cfgr-resumen"></ul></div>
+    <div id="cfgr-aviso"></div>
+    <div class="cfgr-acc">
+      <button type="button" class="appbtn appbtn-p" id="cfgr-guardar">${CFGR.esNueva ? 'Crear versión' : 'Guardar cambios'}</button>
+      ${CFGR.esNueva ? '<button type="button" class="btn-sm btn-outline" id="cfgr-cancelar">Cancelar</button>' : ''}
+      ${!CFGR.esNueva && !esBase ? '<button type="button" class="btn-sm btn-del" id="cfgr-eliminar">Eliminar esta versión</button>' : ''}
+    </div>`;
+  cfgrResumen();
+}
+function cfgrResumen(){
+  const d = CFGR.draft, { docAlejandra, docOtro } = comResolverDoctores();
+  const nA = docAlejandra?.nombre || 'Dra. Alejandra', nO = docOtro?.nombre || 'Dr. Carlos';
+  const lista = a => a.length ? a.join(', ') : 'ninguno';
+  const li = [
+    `Cosmetóloga que atiende (y no es la dueña): <b>${fmtPct(d.cosm_atiende_pct)}%</b>.`,
+    `Cosmetóloga dueña del paciente: <b>${fmtPct(d.cosm_duena_pct)}%</b> en cabina; el resto se reparte <b>${fmtPct(d.reparto_alejandra_pct)}%</b> ${esc2(nA)} / <b>${fmtPct(100 - d.reparto_alejandra_pct)}%</b> ${esc2(nO)}.`,
+    `Dueño doctor: <b>100%</b> (después de la cosmetóloga que atiende); sin dueño asignado se reparte igual que arriba.`,
+    `Equipo de ${esc2(nA)} (${esc2(lista(d.equipo_alejandra))}) con dueño ${esc2(nO)}: <b>${fmtPct(d.equipo_duena_pct)}%</b> dueño / <b>${fmtPct(100 - d.equipo_duena_pct)}%</b> ${esc2(nA)}.`,
+    `Equipo de ${esc2(nO)} (${esc2(lista(d.equipo_otro))}) con dueña ${esc2(nA)}: <b>${fmtPct(d.equipo_duena_pct)}%</b> dueña / <b>${fmtPct(100 - d.equipo_duena_pct)}%</b> ${esc2(nO)}.`,
+    `Cabina: ${d.servicios_cabina.length} servicios.`,
+  ];
+  document.getElementById('cfgr-resumen').innerHTML = li.map(x => `<li>${x}</li>`).join('');
+}
+function cfgrValidar(){
+  const d = CFGR.draft;
+  for(const k of ['cosm_atiende_pct','cosm_duena_pct','equipo_duena_pct','reparto_alejandra_pct']){
+    if(typeof d[k] !== 'number' || isNaN(d[k]) || d[k] < 0 || d[k] > 100) return 'Los porcentajes deben estar entre 0 y 100.';
+  }
+  if(d.cosm_atiende_pct + d.cosm_duena_pct >= 100) return 'Los porcentajes de cosmetóloga no pueden sumar 100% o más.';
+  if(CFGR.esNueva || CFGR.fecha !== COM_FECHA_BASE){
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(CFGR.fecha)) return 'Elige la fecha desde la que rige.';
+    if(CFGR.fecha <= COM_FECHA_BASE) return 'La fecha de inicio debe ser posterior a la versión inicial.';
+    const otra = COM_REGLAS.find(v => v.vigente_desde === CFGR.fecha && (CFGR.esNueva || (v.id || 'base') !== CFGR.selId));
+    if(otra) return 'Ya existe una versión que empieza en esa fecha.';
+  }
+  return null;
+}
+async function cfgrGuardar(){
+  const err = cfgrValidar();
+  const av = document.getElementById('cfgr-aviso');
+  if(err){ av.innerHTML = `<div class="cfgr-err">${esc2(err)}</div>`; return; }
+  const btn = document.getElementById('cfgr-guardar'); btn.disabled = true;
+  const payload = { config: comNormalizarConfig(CFGR.draft), updated_at: new Date().toISOString() };
+  let res;
+  if(CFGR.esNueva){
+    res = await sb.from('comision_reglas').insert({ ...payload, vigente_desde: CFGR.fecha, creado_por: MI_PERFIL?.id || null }).select('id').single();
+  } else {
+    const v = COM_REGLAS.find(x => (x.id || 'base') === CFGR.selId);
+    if(!v?.id){ btn.disabled = false; av.innerHTML = '<div class="cfgr-err">La versión inicial aún no está en la base de datos; recarga e intenta de nuevo.</div>'; return; }
+    const upd = { ...payload }; if(CFGR.fecha !== COM_FECHA_BASE) upd.vigente_desde = CFGR.fecha;
+    res = await sb.from('comision_reglas').update(upd).eq('id', v.id).select('id').single();
+  }
+  btn.disabled = false;
+  if(res.error){
+    console.error('[SkinFabric] Error guardando reglas de comisión:', res.error);
+    av.innerHTML = '<div class="cfgr-err">No se pudo guardar. Revisa que tengas permiso de Comisiones y que no exista otra versión con esa fecha.</div>';
+    return;
+  }
+  toast('✓ Reglas guardadas');
+  const id = res.data?.id || CFGR.selId;
+  CFGR.esNueva = false; CFGR.selId = id;
+  await comCargarReglas(true);
+  cfgrSeleccionar(id);
+  av.innerHTML = '';
+}
+document.getElementById('cfgr-body').addEventListener('click', (e) => {
+  const v = e.target.closest('.cfgr-v');
+  if(v){
+    if(v.dataset.act === 'nueva') cfgrNueva();
+    else if(v.dataset.id !== 'nueva') cfgrSeleccionar(v.dataset.id);
+    return;
+  }
+  if(e.target.closest('#cfgr-guardar')) return cfgrGuardar();
+  if(e.target.closest('#cfgr-cancelar')){ CFGR.esNueva = false; cfgrSeleccionar(comReglasPara(cfgrHoy()).id || 'base'); return; }
+  if(e.target.closest('#cfgr-eliminar')){
+    const v2 = COM_REGLAS.find(x => (x.id || 'base') === CFGR.selId); if(!v2?.id) return;
+    mostrarConfirm({ titulo:'¿Eliminar esta versión?', mensaje:`Los servicios desde el ${cfgrFmtFecha(v2.vigente_desde)} volverán a calcularse con la versión anterior.`, textoConfirmar:'Eliminar', icono:'🗑️', danger:true }, async () => {
+      const { error } = await sb.from('comision_reglas').delete().eq('id', v2.id);
+      if(error){ console.error('[SkinFabric] Error eliminando versión de reglas:', error); toast('No se pudo eliminar.'); return; }
+      toast('✓ Versión eliminada');
+      CFGR.selId = null; await cargarReglasConfig();
+    });
+  }
+});
+document.getElementById('cfgr-body').addEventListener('input', (e) => {
+  const d = CFGR.draft; if(!d) return;
+  const t = e.target;
+  if(t.dataset && t.dataset.k){ d[t.dataset.k] = t.value === '' ? NaN : Number(t.value); cfgrResumen(); }
+  else if(t.id === 'cfgr-fecha'){ CFGR.fecha = t.value; }
+});
+document.getElementById('cfgr-body').addEventListener('change', (e) => {
+  const d = CFGR.draft; if(!d) return;
+  const tr = e.target.closest('tr[data-serv]'); if(!tr) return;
+  const n = tr.dataset.serv;
+  const quitar = a => { const i = a.indexOf(n); if(i >= 0) a.splice(i, 1); };
+  const cab = tr.querySelector('.cfgr-cab').checked, eq = tr.querySelector('.cfgr-eq').value;
+  quitar(d.servicios_cabina); quitar(d.equipo_alejandra); quitar(d.equipo_otro);
+  if(cab){
+    d.servicios_cabina.push(n);
+    if(eq === 'a') d.equipo_alejandra.push(n); else if(eq === 'o') d.equipo_otro.push(n);
+  }
+  tr.classList.toggle('off', !cab); tr.querySelector('.cfgr-eq').disabled = !cab;
+  if(!cab) tr.querySelector('.cfgr-eq').value = 'c';
+  cfgrResumen();
+});
+
 
 // ── Helpers genéricos de catálogo ──
 async function catalogoActualizar(tabla, id, payload){
