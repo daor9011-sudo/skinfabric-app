@@ -95,6 +95,10 @@ body{font-family:var(--font-b);min-height:100vh;color:var(--navy);background:#ee
 .s3-logout,.s3-config{font-family:var(--font-b);background:none;border:1px solid rgba(255,255,255,.25);color:#fff;padding:5px 12px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:5px}
 #app-user-name{font-family:var(--font-b);display:inline-flex;align-items:center}
 #btn-refresh{display:none}
+.dash-hero{display:contents}
+.dash-hero-top,#dash-seg,#dash-rec,#dash-prev,#dash-next,.dash-todo-note,#dash-filtros .mb,.dash-lbl{display:none}
+.dash-docs,.dash-f{display:contents}
+#dash-filtros i{font-style:normal}
 .s3-userwrap,.com-seg,.com-arr,.com-todo-note,.com-per .mb{display:none}
 .com-per i{font-style:normal}
 .s3-logout:hover,.s3-config:hover{border-color:var(--teal);color:var(--teal)}
@@ -954,6 +958,42 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
   /* PRM: umbral de días y botón Aplicar alineados */
   #crm-inactivos-umbral{width:100%!important}
   #crm-inactivos-aplicar{grid-column:1 / -1;display:flex;justify-content:center;align-items:center;min-height:38px}
+  /* Dashboard (v28): encabezado centrado + periodo Recientes / Mes / Rango / Todo, igual que Comisiones */
+  #app-screen-dash>.tab-title{display:none}
+  .dash-hero{display:block;margin:-14px -13px 14px;padding:16px 12px 12px;color:#fff;border-radius:16px 16px 0 0;background:radial-gradient(120% 160% at 100% 0%,#2a5fb0 0%,rgba(42,95,176,0) 55%),linear-gradient(135deg,#0B1628 0%,#1B3A6B 100%)}
+  .dash-hero-top{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;margin-bottom:12px}
+  .dash-hero-top>div:nth-child(2){min-width:0;text-align:center}
+  .dash-hero h1{font:800 25px/1 var(--font-d);letter-spacing:-.5px;color:#fff;margin:0}
+  .dash-hero p{font-size:11.5px;line-height:1.35;color:rgba(255,255,255,.72);margin:3px 0 0}.dash-hero p b{color:#fff}
+  #dash-filtros{display:grid;grid-template-columns:36px minmax(0,1fr) minmax(0,1fr) 36px;gap:6px 8px;align-items:end;margin:0;padding:8px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:12px}
+  #dash-filtros[data-modo=mes]{grid-template-columns:minmax(0,1fr) 34px minmax(0,190px) 34px minmax(0,1fr)}
+  #dash-filtros>*{min-width:0}
+  #dash-filtros #dash-rango{display:none!important}
+  #dash-filtros #dash-seg{display:grid;grid-column:1 / -1;grid-row:1;grid-template-columns:repeat(4,1fr);gap:3px;background:rgba(0,0,0,.22);border-radius:9px;padding:3px;width:auto}
+  #dash-seg button{height:28px;padding:0;border:0;border-radius:7px;background:none;color:rgba(255,255,255,.78);font:700 12.5px var(--font-b);cursor:pointer}
+  #dash-seg button.on{background:#fff;color:var(--navy);box-shadow:0 2px 6px rgba(0,0,0,.2)}
+  #dash-filtros select,#dash-filtros input{height:34px;min-height:34px;box-sizing:border-box;width:100%;padding:0 10px;border:0;border-radius:9px;background-color:rgba(255,255,255,.96);color:var(--navy);font-weight:600;line-height:34px;text-align:left}
+  #dash-filtros select{-webkit-appearance:none;appearance:none;padding-right:28px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%235b6577' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 11px center}
+  #dash-filtros input[type=month],#dash-filtros input[type=date]{-webkit-appearance:none;appearance:none;text-align:center;padding:0 8px}
+  #dash-filtros input::-webkit-date-and-time-value{text-align:center;min-height:0;margin:0}
+  #dash-filtros .com-arr{height:34px;padding:0;border:0;border-radius:9px;background:rgba(255,255,255,.14);color:#fff;font:700 20px/1 var(--font-b);cursor:pointer}
+  #dash-filtros .com-arr:active{background:rgba(255,255,255,.3)}
+  #dash-filtros #dash-prev,#dash-filtros #dash-next,#dash-filtros #dash-mes,#dash-filtros #dash-rec,#dash-filtros #dash-rango-wrap{display:none!important}
+  #dash-filtros[data-modo=rec] #dash-rec{display:block!important;grid-area:2 / 1 / 3 / -1}
+  #dash-filtros[data-modo=mes] #dash-prev{display:block!important;grid-area:2 / 2}
+  #dash-filtros[data-modo=mes] #dash-mes{display:block!important;grid-area:2 / 3}
+  #dash-filtros[data-modo=mes] #dash-next{display:block!important;grid-area:2 / 4}
+  #dash-filtros[data-modo=rango] #dash-rango-wrap{display:contents!important}
+  #dash-filtros[data-modo=rango] .dl{display:block;font-size:9px;font-weight:800;letter-spacing:.7px;text-transform:uppercase;color:rgba(255,255,255,.65);margin:0 2px -2px}
+  #dash-filtros .dl .dk{display:none}#dash-filtros .dl .mb{display:inline}
+  #dash-filtros[data-modo=rango] .dl-d{grid-area:2 / 1 / 3 / 3}
+  #dash-filtros[data-modo=rango] .dl-h{grid-area:2 / 3 / 3 / 5}
+  #dash-filtros[data-modo=rango] #dash-desde{grid-area:3 / 1 / 4 / 3}
+  #dash-filtros[data-modo=rango] #dash-hasta{grid-area:3 / 3 / 4 / 5}
+  #dash-filtros[data-modo=todo] .dash-todo-note{display:block;grid-area:2 / 1 / 3 / -1;text-align:center;font-size:12.5px;font-weight:600;color:rgba(255,255,255,.85);background:rgba(255,255,255,.1);border-radius:9px;padding:9px 10px}
+  #dash-filtros .dash-docs{display:grid;grid-column:1 / -1;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;border-top:1px solid rgba(255,255,255,.14);margin-top:4px;padding-top:8px}
+  #dash-filtros .dash-f{display:block;min-width:0}
+  #dash-filtros .dash-lbl{display:block;font-size:9px;font-weight:800;letter-spacing:.7px;text-transform:uppercase;color:rgba(255,255,255,.65);margin:0 2px 4px}
   /* Comisiones: cabecera centrada y filtros de periodo en cuadrícula ordenada */
   .com-hero{margin:-14px -13px 14px;padding:14px 12px 0}
   .com-hero-top{flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:6px}
@@ -1321,8 +1361,11 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
       <div class="subpanel" id="cierre-por-pago-panel"><div id="cierre-por-pago"></div></div>
     </div>
     <div class="card screen2" id="app-screen-dash">
-      <div class="tab-title"><span>📊 Dashboard de Indicadores</span></div>
-      <div class="filter-bar">
+      <div class="tab-title" id="dash-title-desk"><span>📊 Dashboard de Indicadores</span></div>
+      <div class="dash-hero" id="dash-hero">
+        <div class="dash-hero-top"><div class="com-hero-ico">📊</div><div><h1>Dashboard</h1><p>Indicadores de la clínica · <b id="dash-hero-per">Últimos 30 días</b></p></div></div>
+      <div class="filter-bar" id="dash-filtros" data-modo="rec">
+        <div class="com-seg" id="dash-seg" role="tablist" aria-label="Periodo"><button type="button" data-m="rec" class="on">Recientes</button><button type="button" data-m="mes">Mes</button><button type="button" data-m="rango">Rango</button><button type="button" data-m="todo">Todo</button></div>
         <select id="dash-rango">
           <option value="30" selected>Últimos 30 días</option>
           <option value="90">Últimos 90 días</option>
@@ -1331,10 +1374,17 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
           <option value="mes">📅 Un mes…</option>
           <option value="rango">📅 Rango de fechas…</option>
         </select>
+        <select id="dash-rec" aria-label="Periodo reciente"><option value="30">Últimos 30 días</option><option value="90">Últimos 90 días</option><option value="anio">Este año</option></select>
+        <button type="button" class="com-arr" id="dash-prev" aria-label="Mes anterior">‹</button>
         <input type="month" id="dash-mes" style="display:none" title="Mes"/>
-        <span id="dash-rango-wrap" style="display:none;align-items:center;gap:6px;font-size:12px;color:var(--g6)">Del <input type="date" id="dash-desde"/> al <input type="date" id="dash-hasta"/></span>
-        <select id="dash-doctor"><option value="">Todos los doctores</option></select>
-        <select id="dash-tipo"><option value="">Todos los tipos</option></select>
+        <button type="button" class="com-arr" id="dash-next" aria-label="Mes siguiente">›</button>
+        <span id="dash-rango-wrap" style="display:none;align-items:center;gap:6px;font-size:12px;color:var(--g6)"><span class="dl dl-d"><i class="dk">Del</i><i class="mb">Desde</i></span> <input type="date" id="dash-desde"/> <span class="dl dl-h"><i class="dk">al</i><i class="mb">Hasta</i></span> <input type="date" id="dash-hasta"/></span>
+        <div class="com-todo-note dash-todo-note">Todo el historial · sin filtro de fechas</div>
+        <div class="dash-docs">
+          <div class="dash-f"><span class="dash-lbl">Doctor</span><select id="dash-doctor"><option value="">Todos los doctores</option></select></div>
+          <div class="dash-f"><span class="dash-lbl">Tipo</span><select id="dash-tipo"><option value="">Todos los tipos</option></select></div>
+        </div>
+      </div>
       </div>
       <div class="fin-grid" id="dash-fin" style="display:none">
         <div class="fin-card i"><div class="bd"><div class="kpi-label" id="fin-ing-l">Ingreso total</div><div class="kpi-val" id="fin-ing-v">$0</div><div class="fin-sub" id="fin-ing-s"></div></div><div><div class="sp" id="fin-ing-sp"></div><div class="cap">ingreso diario</div></div></div>
@@ -1914,7 +1964,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.10.04-27';
+const APP_VERSION = 'v2026.10.05-28';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 // La marca de versión cambia de color según lo que tenga debajo: blanca sobre fondo oscuro, gris sobre fondo claro
@@ -5858,6 +5908,50 @@ function renderChartServicio(){
     cargarDashboard();
   });
 });
+
+// Periodo del Dashboard en móvil: Recientes / Mes / Rango / Todo (usa los mismos campos de siempre)
+(function(){
+  const $ = id => document.getElementById(id);
+  const caja = $('dash-filtros');
+  function modoActual(){ const v = $('dash-rango').value; return v === 'mes' ? 'mes' : v === 'rango' ? 'rango' : v === 'todo' ? 'todo' : 'rec'; }
+  function sincronizar(){
+    const m = modoActual();
+    caja.dataset.modo = m;
+    if(m === 'rec') $('dash-rec').value = $('dash-rango').value;
+    document.querySelectorAll('#dash-seg button').forEach(b=>b.classList.toggle('on', b.dataset.m === m));
+    try{ $('dash-hero-per').textContent = m === 'todo' ? 'Todo el historial' : (dashPeriodo().texto || ''); }catch(e){}
+  }
+  function aplicar(valor){ const r = $('dash-rango'); r.value = valor; r.dispatchEvent(new Event('change')); }
+  document.querySelectorAll('#dash-seg button').forEach(b=>b.addEventListener('click', ()=>{
+    const m = b.dataset.m;
+    if(m === 'rango' && !$('dash-desde').value && !$('dash-hasta').value){
+      const hoy = isoLocal(new Date()); $('dash-desde').value = hoy.slice(0, 8) + '01'; $('dash-hasta').value = hoy;
+    }
+    aplicar(m === 'rec' ? $('dash-rec').value : m);
+  }));
+  $('dash-rec').addEventListener('change', ()=>aplicar($('dash-rec').value));
+  function moverMes(d){
+    const mes = $('dash-mes');
+    let [y, m] = (mes.value || isoLocal(new Date()).slice(0, 7)).split('-').map(Number);
+    m += d; if(m > 12){ m = 1; y++; } if(m < 1){ m = 12; y--; }
+    mes.value = y + '-' + String(m).padStart(2, '0');
+    mes.dispatchEvent(new Event('change'));
+  }
+  $('dash-prev').addEventListener('click', ()=>moverMes(-1));
+  $('dash-next').addEventListener('click', ()=>moverMes(1));
+  ['dash-rango','dash-mes','dash-desde','dash-hasta'].forEach(id=>$(id).addEventListener('change', sincronizar));
+  sincronizar();
+  // En móvil las etiquetas "Doctor" y "Tipo" ya van arriba del campo, así que la primera opción se acorta a "Todos"
+  const mq = window.matchMedia('(max-width:640px)');
+  function etiquetas(){
+    [['dash-doctor','Todos los doctores'],['dash-tipo','Todos los tipos']].forEach(([id, largo])=>{
+      const o = $(id).options[0]; if(o && o.value === '') o.textContent = mq.matches ? 'Todos' : largo;
+    });
+  }
+  ['dash-doctor','dash-tipo'].forEach(id=>new MutationObserver(etiquetas).observe($(id), { childList:true }));
+  (mq.addEventListener ? mq.addEventListener('change', etiquetas) : mq.addListener(etiquetas));
+  etiquetas();
+})();
 document.querySelector('.s3-segment button[data-screen2="dash"]').addEventListener('click', function(){
   if(this.classList.contains('locked')) return;
   cargarDashboard();
