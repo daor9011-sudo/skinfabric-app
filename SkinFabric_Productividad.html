@@ -95,9 +95,6 @@ body{font-family:var(--font-b);min-height:100vh;color:var(--navy);background:#ee
 .s3-logout,.s3-config{font-family:var(--font-b);background:none;border:1px solid rgba(255,255,255,.25);color:#fff;padding:5px 12px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:5px}
 #app-user-name{font-family:var(--font-b);display:inline-flex;align-items:center}
 #btn-refresh{display:none}
-.dash-hero{display:contents}
-.dash-hero-top,#dash-seg,#dash-rec,#dash-prev,#dash-next,.dash-todo-note,#dash-filtros .mb,.dash-lbl{display:none}
-.dash-docs,.dash-f{display:contents}
 #dash-filtros i{font-style:normal}
 .s3-userwrap,.com-seg,.com-arr,.com-todo-note,.com-per .mb{display:none}
 .com-per i{font-style:normal}
@@ -913,6 +910,43 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 .cpd-pie b{color:var(--navy);font-family:var(--font-d);font-variant-numeric:tabular-nums}
 .cpd-sep{height:1px;background:var(--g2);margin:22px 0 4px}
 
+/* Dashboard (v29): mismo formato en escritorio y móvil — encabezado centrado + periodo Recientes / Mes / Rango / Todo */
+#app-screen-dash>.tab-title{display:none}
+.dash-hero{display:block;margin:-20px -22px 18px;padding:24px 22px 20px;color:#fff;background:radial-gradient(120% 160% at 100% 0%,#2a5fb0 0%,rgba(42,95,176,0) 55%),linear-gradient(135deg,#0B1628 0%,#1B3A6B 100%)}
+.dash-hero-top{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;margin-bottom:12px}
+.dash-hero-top>div:nth-child(2){min-width:0;text-align:center}
+.dash-hero h1{font:800 32px/1 var(--font-d);letter-spacing:-.5px;color:#fff;margin:0}
+.dash-hero p{font-size:11.5px;line-height:1.35;color:rgba(255,255,255,.72);margin:3px 0 0}.dash-hero p b{color:#fff}
+#dash-filtros{max-width:640px;margin:0 auto;display:grid;grid-template-columns:36px minmax(0,1fr) minmax(0,1fr) 36px;gap:6px 8px;align-items:end;padding:8px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:12px}
+#dash-filtros[data-modo=mes]{grid-template-columns:minmax(0,1fr) 34px minmax(0,190px) 34px minmax(0,1fr)}
+#dash-filtros>*{min-width:0}
+#dash-filtros #dash-rango{display:none!important}
+#dash-filtros #dash-seg{display:grid;grid-column:1 / -1;grid-row:1;grid-template-columns:repeat(4,1fr);gap:3px;background:rgba(0,0,0,.22);border-radius:9px;padding:3px;width:auto}
+#dash-seg button{height:28px;padding:0;border:0;border-radius:7px;background:none;color:rgba(255,255,255,.78);font:700 12.5px var(--font-b);cursor:pointer}
+#dash-seg button.on{background:#fff;color:var(--navy);box-shadow:0 2px 6px rgba(0,0,0,.2)}
+#dash-filtros select,#dash-filtros input{font-size:14px;height:34px;min-height:34px;box-sizing:border-box;width:100%;padding:0 10px;border:0;border-radius:9px;background-color:rgba(255,255,255,.96);color:var(--navy);font-weight:600;line-height:34px;text-align:left}
+#dash-filtros select{-webkit-appearance:none;appearance:none;padding-right:28px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%235b6577' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 11px center}
+#dash-filtros input[type=month],#dash-filtros input[type=date]{-webkit-appearance:none;appearance:none;text-align:center;padding:0 8px}
+#dash-filtros input::-webkit-date-and-time-value{text-align:center;min-height:0;margin:0}
+#dash-filtros .com-arr{height:34px;padding:0;border:0;border-radius:9px;background:rgba(255,255,255,.14);color:#fff;font:700 20px/1 var(--font-b);cursor:pointer}
+#dash-filtros .com-arr:active{background:rgba(255,255,255,.3)}
+#dash-filtros #dash-prev,#dash-filtros #dash-next,#dash-filtros #dash-mes,#dash-filtros #dash-rec,#dash-filtros #dash-rango-wrap{display:none!important}
+#dash-filtros[data-modo=rec] #dash-rec{display:block!important;grid-area:2 / 1 / 3 / -1}
+#dash-filtros[data-modo=mes] #dash-prev{display:block!important;grid-area:2 / 2}
+#dash-filtros[data-modo=mes] #dash-mes{display:block!important;grid-area:2 / 3}
+#dash-filtros[data-modo=mes] #dash-next{display:block!important;grid-area:2 / 4}
+#dash-filtros[data-modo=rango] #dash-rango-wrap{display:contents!important}
+#dash-filtros[data-modo=rango] .dl{display:block;font-size:9px;font-weight:800;letter-spacing:.7px;text-transform:uppercase;color:rgba(255,255,255,.65);margin:0 2px -2px}
+#dash-filtros .dl .dk{display:none}#dash-filtros .dl .mb{display:inline}
+#dash-filtros[data-modo=rango] .dl-d{grid-area:2 / 1 / 3 / 3}
+#dash-filtros[data-modo=rango] .dl-h{grid-area:2 / 3 / 3 / 5}
+#dash-filtros[data-modo=rango] #dash-desde{grid-area:3 / 1 / 4 / 3}
+#dash-filtros[data-modo=rango] #dash-hasta{grid-area:3 / 3 / 4 / 5}
+#dash-filtros[data-modo=todo] .dash-todo-note{display:block;grid-area:2 / 1 / 3 / -1;text-align:center;font-size:12.5px;font-weight:600;color:rgba(255,255,255,.85);background:rgba(255,255,255,.1);border-radius:9px;padding:9px 10px}
+#dash-filtros .dash-docs{display:grid;grid-column:1 / -1;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;border-top:1px solid rgba(255,255,255,.14);margin-top:4px;padding-top:8px}
+#dash-filtros .dash-f{display:block;min-width:0}
+#dash-filtros .dash-lbl{display:block;font-size:9px;font-weight:800;letter-spacing:.7px;text-transform:uppercase;color:rgba(255,255,255,.65);margin:0 2px 4px}
+
 /* ══════════ MÓVIL PRO (v18): header compacto, menú deslizable, tarjetas en 2 columnas ══════════ */
 @media (min-width:641px) and (max-width:820px){.kpi-grid.cols3{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media (max-width:640px){
@@ -958,42 +992,10 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
   /* PRM: umbral de días y botón Aplicar alineados */
   #crm-inactivos-umbral{width:100%!important}
   #crm-inactivos-aplicar{grid-column:1 / -1;display:flex;justify-content:center;align-items:center;min-height:38px}
-  /* Dashboard (v28): encabezado centrado + periodo Recientes / Mes / Rango / Todo, igual que Comisiones */
-  #app-screen-dash>.tab-title{display:none}
-  .dash-hero{display:block;margin:-14px -13px 14px;padding:16px 12px 12px;color:#fff;border-radius:16px 16px 0 0;background:radial-gradient(120% 160% at 100% 0%,#2a5fb0 0%,rgba(42,95,176,0) 55%),linear-gradient(135deg,#0B1628 0%,#1B3A6B 100%)}
-  .dash-hero-top{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;margin-bottom:12px}
-  .dash-hero-top>div:nth-child(2){min-width:0;text-align:center}
-  .dash-hero h1{font:800 25px/1 var(--font-d);letter-spacing:-.5px;color:#fff;margin:0}
-  .dash-hero p{font-size:11.5px;line-height:1.35;color:rgba(255,255,255,.72);margin:3px 0 0}.dash-hero p b{color:#fff}
-  #dash-filtros{display:grid;grid-template-columns:36px minmax(0,1fr) minmax(0,1fr) 36px;gap:6px 8px;align-items:end;margin:0;padding:8px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:12px}
-  #dash-filtros[data-modo=mes]{grid-template-columns:minmax(0,1fr) 34px minmax(0,190px) 34px minmax(0,1fr)}
-  #dash-filtros>*{min-width:0}
-  #dash-filtros #dash-rango{display:none!important}
-  #dash-filtros #dash-seg{display:grid;grid-column:1 / -1;grid-row:1;grid-template-columns:repeat(4,1fr);gap:3px;background:rgba(0,0,0,.22);border-radius:9px;padding:3px;width:auto}
-  #dash-seg button{height:28px;padding:0;border:0;border-radius:7px;background:none;color:rgba(255,255,255,.78);font:700 12.5px var(--font-b);cursor:pointer}
-  #dash-seg button.on{background:#fff;color:var(--navy);box-shadow:0 2px 6px rgba(0,0,0,.2)}
-  #dash-filtros select,#dash-filtros input{height:34px;min-height:34px;box-sizing:border-box;width:100%;padding:0 10px;border:0;border-radius:9px;background-color:rgba(255,255,255,.96);color:var(--navy);font-weight:600;line-height:34px;text-align:left}
-  #dash-filtros select{-webkit-appearance:none;appearance:none;padding-right:28px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%235b6577' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 11px center}
-  #dash-filtros input[type=month],#dash-filtros input[type=date]{-webkit-appearance:none;appearance:none;text-align:center;padding:0 8px}
-  #dash-filtros input::-webkit-date-and-time-value{text-align:center;min-height:0;margin:0}
-  #dash-filtros .com-arr{height:34px;padding:0;border:0;border-radius:9px;background:rgba(255,255,255,.14);color:#fff;font:700 20px/1 var(--font-b);cursor:pointer}
-  #dash-filtros .com-arr:active{background:rgba(255,255,255,.3)}
-  #dash-filtros #dash-prev,#dash-filtros #dash-next,#dash-filtros #dash-mes,#dash-filtros #dash-rec,#dash-filtros #dash-rango-wrap{display:none!important}
-  #dash-filtros[data-modo=rec] #dash-rec{display:block!important;grid-area:2 / 1 / 3 / -1}
-  #dash-filtros[data-modo=mes] #dash-prev{display:block!important;grid-area:2 / 2}
-  #dash-filtros[data-modo=mes] #dash-mes{display:block!important;grid-area:2 / 3}
-  #dash-filtros[data-modo=mes] #dash-next{display:block!important;grid-area:2 / 4}
-  #dash-filtros[data-modo=rango] #dash-rango-wrap{display:contents!important}
-  #dash-filtros[data-modo=rango] .dl{display:block;font-size:9px;font-weight:800;letter-spacing:.7px;text-transform:uppercase;color:rgba(255,255,255,.65);margin:0 2px -2px}
-  #dash-filtros .dl .dk{display:none}#dash-filtros .dl .mb{display:inline}
-  #dash-filtros[data-modo=rango] .dl-d{grid-area:2 / 1 / 3 / 3}
-  #dash-filtros[data-modo=rango] .dl-h{grid-area:2 / 3 / 3 / 5}
-  #dash-filtros[data-modo=rango] #dash-desde{grid-area:3 / 1 / 4 / 3}
-  #dash-filtros[data-modo=rango] #dash-hasta{grid-area:3 / 3 / 4 / 5}
-  #dash-filtros[data-modo=todo] .dash-todo-note{display:block;grid-area:2 / 1 / 3 / -1;text-align:center;font-size:12.5px;font-weight:600;color:rgba(255,255,255,.85);background:rgba(255,255,255,.1);border-radius:9px;padding:9px 10px}
-  #dash-filtros .dash-docs{display:grid;grid-column:1 / -1;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;border-top:1px solid rgba(255,255,255,.14);margin-top:4px;padding-top:8px}
-  #dash-filtros .dash-f{display:block;min-width:0}
-  #dash-filtros .dash-lbl{display:block;font-size:9px;font-weight:800;letter-spacing:.7px;text-transform:uppercase;color:rgba(255,255,255,.65);margin:0 2px 4px}
+  /* Dashboard: en móvil el hero y el panel ocupan todo el ancho */
+  .dash-hero{margin:-14px -13px 14px;padding:16px 12px 12px}
+  .dash-hero h1{font-size:25px}
+  #dash-filtros{max-width:none}
   /* Comisiones: cabecera centrada y filtros de periodo en cuadrícula ordenada */
   .com-hero{margin:-14px -13px 14px;padding:14px 12px 0}
   .com-hero-top{flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:6px}
@@ -1964,7 +1966,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.10.05-28';
+const APP_VERSION = 'v2026.10.05-29';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 // La marca de versión cambia de color según lo que tenga debajo: blanca sobre fondo oscuro, gris sobre fondo claro
