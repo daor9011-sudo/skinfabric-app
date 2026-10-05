@@ -912,12 +912,12 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 
 /* Dashboard (v29): mismo formato en escritorio y móvil — encabezado centrado + periodo Recientes / Mes / Rango / Todo */
 #app-screen-dash>.tab-title{display:none}
-.dash-hero{display:block;margin:-20px -22px 18px;padding:24px 22px 20px;color:#fff;background:radial-gradient(120% 160% at 100% 0%,#2a5fb0 0%,rgba(42,95,176,0) 55%),linear-gradient(135deg,#0B1628 0%,#1B3A6B 100%)}
-.dash-hero-top{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;margin-bottom:12px}
-.dash-hero-top>div:nth-child(2){min-width:0;text-align:center}
+.dash-hero{display:flex;align-items:center;flex-wrap:wrap;gap:14px 20px;position:relative;margin:-20px -22px 18px;padding:20px 22px;color:#fff;background:radial-gradient(120% 160% at 100% 0%,#2a5fb0 0%,rgba(42,95,176,0) 55%),linear-gradient(135deg,#0B1628 0%,#1B3A6B 100%)}
+.dash-hero-top{display:flex;flex-direction:row;align-items:center;text-align:left;gap:14px}
+.dash-hero-top>div:nth-child(2){min-width:0;text-align:left}
 .dash-hero h1{font:800 32px/1 var(--font-d);letter-spacing:-.5px;color:#fff;margin:0}
 .dash-hero p{font-size:11.5px;line-height:1.35;color:rgba(255,255,255,.72);margin:3px 0 0}.dash-hero p b{color:#fff}
-#dash-filtros{max-width:640px;margin:0 auto;display:grid;grid-template-columns:36px minmax(0,1fr) minmax(0,1fr) 36px;gap:6px 8px;align-items:end;padding:8px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:12px}
+#dash-filtros{width:min(100%,540px);margin:0 0 0 auto;display:grid;grid-template-columns:36px minmax(0,1fr) minmax(0,1fr) 36px;gap:6px 8px;align-items:end;padding:8px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:12px}
 #dash-filtros[data-modo=mes]{grid-template-columns:minmax(0,1fr) 34px minmax(0,190px) 34px minmax(0,1fr)}
 #dash-filtros>*{min-width:0}
 #dash-filtros #dash-rango{display:none!important}
@@ -993,9 +993,11 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
   #crm-inactivos-umbral{width:100%!important}
   #crm-inactivos-aplicar{grid-column:1 / -1;display:flex;justify-content:center;align-items:center;min-height:38px}
   /* Dashboard: en móvil el hero y el panel ocupan todo el ancho */
-  .dash-hero{margin:-14px -13px 14px;padding:16px 12px 12px}
+  .dash-hero{display:block;margin:-14px -13px 14px;padding:16px 12px 12px}
+  .dash-hero-top{flex-direction:column;align-items:center;text-align:center;gap:6px;margin-bottom:12px}
+  .dash-hero-top>div:nth-child(2){text-align:center}
   .dash-hero h1{font-size:25px}
-  #dash-filtros{max-width:none}
+  #dash-filtros{width:auto;margin:0}
   /* Comisiones: cabecera centrada y filtros de periodo en cuadrícula ordenada */
   .com-hero{margin:-14px -13px 14px;padding:14px 12px 0}
   .com-hero-top{flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:6px}
@@ -1966,7 +1968,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.10.05-29';
+const APP_VERSION = 'v2026.10.05-30';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 // La marca de versión cambia de color según lo que tenga debajo: blanca sobre fondo oscuro, gris sobre fondo claro
