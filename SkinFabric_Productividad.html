@@ -95,6 +95,30 @@ body{font-family:var(--font-b);min-height:100vh;color:var(--navy);background:#ee
 .s3-logout,.s3-config{font-family:var(--font-b);background:none;border:1px solid rgba(255,255,255,.25);color:#fff;padding:5px 12px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:5px}
 #app-user-name{font-family:var(--font-b);display:inline-flex;align-items:center}
 #btn-refresh{display:none}
+/* Campanita de registros tardíos (solo admin) */
+.bell-wrap{position:relative;display:inline-flex}
+.bell-btn{position:relative;width:36px;height:34px;padding:0;justify-content:center}
+.bell-btn svg{width:17px;height:17px}
+.bell-btn.on{border-color:#E0703F;color:#fff}
+.bell-btn.on svg{animation:bellring 1.6s ease-in-out 1}
+@keyframes bellring{0%,100%{transform:rotate(0)}10%{transform:rotate(14deg)}20%{transform:rotate(-12deg)}30%{transform:rotate(9deg)}40%{transform:rotate(-6deg)}50%{transform:rotate(0)}}
+@media (prefers-reduced-motion:reduce){.bell-btn.on svg{animation:none}}
+.bell-badge{position:absolute;top:-6px;right:-6px;min-width:17px;height:17px;padding:0 4px;border-radius:9px;background:#E0703F;color:#fff;font:800 10px/17px var(--font-b);text-align:center;box-shadow:0 0 0 2px var(--navy)}
+.bell-badge[hidden]{display:none}
+.bell-panel{position:fixed;z-index:300;width:min(380px,calc(100vw - 28px));max-height:min(460px,70vh);display:none;flex-direction:column;background:#fff;color:var(--navy);border-radius:14px;box-shadow:0 18px 40px rgba(11,22,40,.4);overflow:hidden;font-family:var(--font-b);text-align:left}
+.bell-panel.open{display:flex}
+.bell-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;border-bottom:1px solid var(--g2);font-size:13px}
+.bell-head button{border:0;background:none;color:var(--navy2);font:700 12px var(--font-b);cursor:pointer;padding:4px 6px;border-radius:6px}
+.bell-head button:hover{background:var(--g1)}
+.bell-list{overflow-y:auto;flex:1;min-height:0}
+.bell-it{padding:10px 14px;border-bottom:1px solid var(--g1);font-size:12.5px;line-height:1.45;color:var(--g6)}
+.bell-it b{color:var(--navy)}
+.bell-it.nuevo{background:#fff6f1;box-shadow:inset 3px 0 0 #E0703F}
+.bell-it .dd{color:#B8481F;font-weight:800;white-space:nowrap}
+.bell-it .ts{display:block;font-size:11px;opacity:.75}
+.bell-vacio{padding:22px 16px;text-align:center;font-size:12.5px;color:var(--g6)}
+.bell-foot{border:0;border-top:1px solid var(--g2);background:var(--g1);color:var(--navy2);font:700 12.5px var(--font-b);padding:11px;cursor:pointer}
+.bell-foot:hover{background:var(--g2)}
 #dash-filtros i{font-style:normal}
 .s3-userwrap,.com-seg,.com-arr,.com-todo-note,.com-per .mb{display:none}
 .com-per i{font-style:normal}
@@ -1285,6 +1309,14 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
     <div class="s3-right">
       <span class="s3-role-chip" id="app-role-chip">—</span>
       <span id="app-user-name">—</span>
+      <div class="bell-wrap" id="bell-wrap" style="display:none">
+        <button class="s3-config bell-btn" id="btn-bell" type="button" title="Registros tardíos" aria-label="Registros tardíos" aria-haspopup="true" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg><span class="bell-badge" id="bell-badge" hidden>0</span></button>
+        <div class="bell-panel" id="bell-panel" role="dialog" aria-label="Registros tardíos">
+          <div class="bell-head"><b>Registros tardíos</b><button type="button" id="bell-marcar">Marcar vistas</button></div>
+          <div class="bell-list" id="bell-list"></div>
+          <button type="button" class="bell-foot" id="bell-ver-todo">Ver actividad completa</button>
+        </div>
+      </div>
       <button class="s3-config" id="btn-refresh" type="button" title="Actualizar" aria-label="Actualizar">↻<span class="lbl"> Actualizar</span></button>
       <button class="s3-config" id="btn-config-header" type="button" title="Configuración" aria-label="Configuración" style="display:none">⚙️<span class="lbl"> Configuración</span></button>
       <button class="s3-logout" id="btn-logout" type="button" title="Cerrar sesión" aria-label="Cerrar sesión">⏻<span class="lbl"> Cerrar sesión</span></button>
@@ -2081,7 +2113,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.10.05-34';
+const APP_VERSION = 'v2026.10.05-35';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 // La marca de versión cambia de color según lo que tenga debajo: blanca sobre fondo oscuro, gris sobre fondo claro
@@ -2268,6 +2300,8 @@ function entrarAlShell(perfil){
   document.getElementById('btn-config-header').style.display = showConfig ? 'inline-flex' : 'none';
   document.getElementById('um-config').style.display = showConfig ? 'flex' : 'none';
   window.MI_ROL_ADMIN = perfil.rol === 'admin';
+  document.getElementById('bell-wrap').style.display = showConfig ? 'inline-flex' : 'none';
+  if(showConfig) cargarCampana();
   window.MI_PUEDE_ELIMINAR_PAPELERA = perfil.rol === 'admin' && perfil.permisos?.puede_eliminar_papelera !== false;
   window.MI_PUEDE_EXPORTAR = perfil.permisos?.puede_exportar !== false;
 
@@ -2290,6 +2324,7 @@ function iniciarRealtime(){
     .on('postgres_changes', { event: '*', schema: 'public', table: 'gestiones' }, programarRefrescoRealtime)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'gastos' }, programarRefrescoRealtime)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'farmacia_ventas' }, programarRefrescoRealtime)
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'audit_log' }, p => campanaNuevaFila(p.new))
     .subscribe();
 }
 function detenerRealtime(){
@@ -7388,6 +7423,84 @@ async function cargarActividad(){
     return `<div>${quien} — ${esc2(a.accion)}${a.tabla ? ' · '+esc2(a.tabla) : ''} · ${cuando}</div>`;
   }).join('');
 }
+
+// ── Campanita: registros tardíos (solo admin) ──
+const BELL_ACCIONES = ['registro_tardio','fecha_retroactiva'];
+let BELL_ITEMS = [];
+function bellKey(){ return 'sf_bell_seen_' + (MI_PERFIL?.id || ''); }
+function bellVisto(){ try{ return localStorage.getItem(bellKey()) || ''; }catch(e){ return ''; } }
+function bellGuardarVisto(ts){ try{ localStorage.setItem(bellKey(), ts); }catch(e){} }
+function bellNuevos(){ const v = bellVisto(); return BELL_ITEMS.filter(a => !v || a.created_at > v); }
+function bellRender(){
+  const n = bellNuevos().length;
+  const badge = document.getElementById('bell-badge'), btn = document.getElementById('btn-bell');
+  if(!badge || !btn) return;
+  badge.hidden = n === 0;
+  badge.textContent = n > 9 ? '9+' : String(n);
+  btn.classList.toggle('on', n > 0);
+  btn.setAttribute('aria-label', n ? `Registros tardíos: ${n} sin revisar` : 'Registros tardíos');
+  const v = bellVisto();
+  const list = document.getElementById('bell-list');
+  if(!BELL_ITEMS.length){
+    list.innerHTML = '<div class="bell-vacio">Sin registros tardíos. Aquí te avisaremos cuando alguien capture una consulta de un día anterior.</div>';
+    return;
+  }
+  list.innerHTML = BELL_ITEMS.map(a => {
+    const d = a.detalle || {};
+    const dias = Number(d.dias) || 0;
+    const que = a.accion === 'registro_tardio' ? 'registró consulta del' : `cambió una consulta (antes ${fmtFechaCorta(d.fecha_anterior)}) al`;
+    const pac = a._pac ? ' · ' + esc2(a._pac) : '';
+    const nuevo = !v || a.created_at > v;
+    return `<div class="bell-it${nuevo ? ' nuevo' : ''}"><b>${esc2(a.personal?.nombre || 'Sistema')}</b> ${que} <b>${fmtFechaCorta(d.fecha)}</b>${pac} · ${fmtMoney(d.monto)} · <span class="dd">${dias} ${dias === 1 ? 'día' : 'días'} de atraso</span><span class="ts">Capturado ${fmtFechaHora(a.created_at)}</span></div>`;
+  }).join('');
+}
+async function cargarCampana(){
+  if(!MI_PERFIL || MI_PERFIL.rol !== 'admin') return;
+  const { data, error } = await sb.from('audit_log').select('*, personal(nombre)').in('accion', BELL_ACCIONES).order('created_at', { ascending:false }).limit(30);
+  if(error){ console.error('[SkinFabric] Error cargando campanita:', error); return; }
+  BELL_ITEMS = data || [];
+  const ids = BELL_ITEMS.map(a => a.registro_id).filter(Boolean);
+  if(ids.length){
+    const { data: cs } = await sb.from('consultas').select('id,pacientes(nombre)').in('id', ids);
+    const m = {}; (cs || []).forEach(c => { m[c.id] = c.pacientes?.nombre || ''; });
+    BELL_ITEMS.forEach(a => { a._pac = m[a.registro_id] || ''; });
+  }
+  bellRender();
+}
+async function campanaNuevaFila(row){
+  if(!row || !BELL_ACCIONES.includes(row.accion) || MI_PERFIL?.rol !== 'admin') return;
+  await cargarCampana();
+  const a = BELL_ITEMS.find(x => x.id === row.id);
+  if(a){ const dias = Number(a.detalle?.dias) || 0; toast(`🔔 ${a.personal?.nombre || 'Alguien'} registró una consulta tardía (${dias} ${dias === 1 ? 'día' : 'días'})`); }
+  if(document.getElementById('app-screen-personal')?.classList.contains('act')) cargarActividad();
+}
+(function(){
+  const btn = document.getElementById('btn-bell'), panel = document.getElementById('bell-panel');
+  if(!btn || !panel) return;
+  const marcar = () => { if(BELL_ITEMS.length) bellGuardarVisto(BELL_ITEMS.reduce((m, x) => x.created_at > m ? x.created_at : m, '')); bellRender(); };
+  const abrir = o => {
+    const estaba = panel.classList.contains('open');
+    if(o){
+      const r = btn.getBoundingClientRect(), w = Math.min(380, window.innerWidth - 28);
+      panel.style.top = (r.bottom + 10) + 'px';
+      panel.style.left = Math.max(14, Math.min(window.innerWidth - w - 14, r.right - w / 2 - 18)) + 'px';
+    }
+    panel.classList.toggle('open', o);
+    btn.setAttribute('aria-expanded', o ? 'true' : 'false');
+    if(!o && estaba) marcar();   // al cerrar se consideran vistas
+  };
+  btn.addEventListener('click', e => { e.stopPropagation(); abrir(!panel.classList.contains('open')); });
+  document.addEventListener('click', e => { if(panel.classList.contains('open') && !e.target.closest('#bell-wrap')) abrir(false); });
+  document.addEventListener('keydown', e => { if(e.key === 'Escape') abrir(false); });
+  window.addEventListener('resize', () => abrir(false));
+  document.getElementById('bell-marcar').addEventListener('click', marcar);
+  document.getElementById('bell-ver-todo').addEventListener('click', () => {
+    abrir(false);
+    document.getElementById('btn-config-header').click();
+    cargarActividad();
+    setTimeout(() => document.getElementById('cfg-actividad-list')?.scrollIntoView({ behavior:'smooth', block:'center' }), 150);
+  });
+})();
 </script>
 </body>
 </html>
