@@ -633,6 +633,73 @@ main.appmain{padding:22px 26px 40px;max-width:1250px;margin:0 auto}
 .cat-tile .dot.cosmetologas{background:var(--purple)}
 .cat-tile .amt{font-family:var(--font-d);font-size:14px;font-weight:800;color:var(--navy);margin-top:4px;font-variant-numeric:tabular-nums}
 .cat-tile .pct{font-size:9.5px;color:var(--g6);font-weight:600}
+/* ══════════ DASHBOARD · Farmacia (venta de medicamentos y productos) ══════════ */
+.fm-rub{grid-template-columns:repeat(4,minmax(0,1fr))}
+.fm-rub.n2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.fm-rub .kpi-label{display:flex;align-items:center;gap:5px}
+.fm-rub .kpi-label u{display:inline-block;width:8px;height:8px;border-radius:50%;flex:none}
+.fm-rub .fin-card .kpi-val{color:#0B1628}
+.fm-rub .fin-card .sp{width:64px}
+@media (max-width:900px){.fm-rub,.fm-rub.n2{grid-template-columns:repeat(2,minmax(0,1fr))}.fm-rub .fin-card .sp,.fm-rub .fin-card .cap{display:none}.fm-rub .fin-card .kpi-val{font-size:18px}}
+.fm-sec .prod-head .fm-head-r{display:flex;align-items:center;gap:8px}
+.fm-f2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.fm-col{display:flex;flex-direction:column;gap:10px;min-width:0}
+.fm-pc{border:1.5px solid var(--g2);border-radius:10px;padding:11px 14px;min-width:0}
+.fm-pt{font-family:var(--font-d);font-weight:800;font-size:12.5px;margin-bottom:9px;color:var(--navy)}
+.fm-pt small{font-family:var(--font-b);font-weight:600;font-size:11px;color:var(--g6)}
+.fm-fbar{display:flex;height:12px;border-radius:7px;overflow:hidden;margin:4px 0 9px;background:var(--g1)}
+.fm-fbar i{display:block;height:100%}
+.fm-leg{display:flex;flex-direction:column;gap:4px;font-size:11.5px;color:var(--g6)}
+.fm-leg u{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:6px}
+.fm-leg b{color:var(--navy)}
+.fm-pl{display:flex;gap:14px;font-size:11.5px;font-weight:700;margin:-4px 0 10px}
+.fm-pl u{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:5px}
+.fm-tug{margin-bottom:12px}.fm-tug:last-child{margin-bottom:0}
+.fm-tl{font-size:10px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--g6);margin-bottom:4px}
+.fm-tb{display:flex;height:10px;border-radius:6px;overflow:hidden;background:var(--g1)}
+.fm-tb i{display:block}
+.fm-tv{display:flex;justify-content:space-between;margin-top:3px;font-family:var(--font-d);font-weight:800;font-size:13px}
+.fm-br{display:grid;grid-template-columns:104px minmax(0,1fr) 74px 52px;gap:8px;align-items:center;margin-bottom:8px;font-size:12px}
+.fm-br:last-child{margin-bottom:0}
+.fm-br .fm-bl{color:var(--navy);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fm-br .fm-bl.w{white-space:normal;line-height:1.2;font-size:11.5px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+#modal-farmacia .modal-box{display:flex;flex-direction:column;overflow:hidden}
+#modal-farmacia .modal-body{overflow-y:auto;flex:1;min-height:0}
+.fm-bt{height:8px;border-radius:5px;background:var(--g1);overflow:hidden}
+.fm-bt i{display:block;height:100%;border-radius:5px}
+.fm-br b{font-family:var(--font-d);font-weight:800;font-size:12.5px;text-align:right;font-variant-numeric:tabular-nums}
+.fm-br em{font-style:normal;font-size:10.5px;color:var(--g6);text-align:right}
+.fm-empty{padding:18px 8px;text-align:center;color:var(--g6);font-size:12.5px}
+@media (max-width:640px){.fm-f2{grid-template-columns:1fr}.fm-br em{display:none}.fm-br{grid-template-columns:104px minmax(0,1fr) 74px}}
+.seg-bar .seg.farmacia{background:#38a169}.cat-tile .dot.farmacia{background:#38a169}
+.cat-tiles.c4{grid-template-columns:repeat(4,1fr)}
+@media (max-width:820px){.cat-tiles.c4{grid-template-columns:1fr 1fr}}
+/* modal de carga */
+.fm-file{background:var(--g1);border-radius:10px;padding:10px 14px;font-size:13px;margin-bottom:12px;word-break:break-all}
+.fm-file span{color:var(--g6)}
+.fm-drop{border:2px dashed var(--g2);border-radius:12px;padding:26px 16px;text-align:center;color:var(--g6);font-size:13px;cursor:pointer;background:#fff}
+.fm-drop:hover,.fm-drop.over{border-color:var(--teal);background:#F2FBFB}
+.fm-drop b{color:var(--navy)}
+.fm-sheets{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.fm-sheet{border:1.5px solid var(--g2);border-radius:12px;padding:12px 14px;min-width:0}
+.fm-sheet.err{border-color:#F3A9A4;background:#FEF6F5}
+.fm-sheet select{width:100%;margin-bottom:6px}
+.fm-sn{font-size:11.5px;color:var(--g6);margin:2px 0}
+.fm-sv{font-size:13.5px}.fm-sv b{font-family:var(--font-d)}
+.fm-ok{font-size:12px;color:#0B6B6B;font-weight:700;margin-top:6px}
+.fm-bad{font-size:12px;color:#B8481F;font-weight:700;margin-top:6px}
+.fm-chk{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;font-size:12.5px;line-height:1.45}
+.fm-chk .w{background:#FFF6E5;border:1px solid #F0CD8A;border-radius:10px;padding:8px 12px;color:#5c3b00}
+.fm-chk .e{background:#FEF0EF;border:1px solid #F3A9A4;border-radius:10px;padding:8px 12px;color:#8a2b20}
+.fm-chk .i{background:var(--g1);border-radius:10px;padding:8px 12px;color:var(--g6)}
+.fm-pvwrap{overflow-x:auto;margin-bottom:10px}
+table.fm-pv{width:100%;border-collapse:collapse;font-size:12px}
+.fm-pv th{text-align:left;font-size:10px;letter-spacing:.5px;text-transform:uppercase;color:var(--g6);padding:6px 8px;border-bottom:1px solid var(--g2);white-space:nowrap}
+.fm-pv td{padding:6px 8px;border-bottom:1px solid var(--g1);white-space:nowrap;max-width:230px;overflow:hidden;text-overflow:ellipsis}
+.fm-pv .r{text-align:right}
+.fm-rep{font-size:12px;color:var(--g6)}.fm-rep b{color:var(--navy)}
+@media (max-width:640px){.fm-sheets{grid-template-columns:1fr}}
+
 
 .chart-empty-msg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--g6);font-size:11px;text-align:center;padding:0 14px}
 
@@ -1423,6 +1490,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
         <div class="fin-card g"><div class="bd"><div class="kpi-label">Gasto total</div><div class="kpi-val" id="fin-gas-v">$0</div><div class="fin-sub" id="fin-gas-s"></div></div><div><div class="sp" id="fin-gas-sp"></div><div class="cap">gasto diario</div></div></div>
         <div class="fin-card m"><div class="bd"><div class="kpi-label">Margen bruto</div><div class="kpi-val" id="fin-mar-v">$0</div><div class="fin-sub" id="fin-mar-s"></div></div><div><div class="sp" id="fin-mar-sp"></div><div class="cap">margen acumulado</div></div></div>
       </div>
+      <div class="fin-grid fm-rub" id="dash-rubros" style="display:none"></div>
       <div class="kpi-grid cols4" id="dash-kpi-grid">
         <div class="kpi-card" id="dash-kpi-ing-card"><div class="ico">💰</div><div class="kpi-label">Ingreso total</div><div class="kpi-val" id="dash-kpi-total">$0.00</div></div>
         <div class="kpi-card"><div class="ico">👥</div><div class="kpi-label">Pacientes</div><div class="kpi-val" id="dash-kpi-pacientes">0</div></div>
@@ -1434,6 +1502,8 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
         <div class="prod-sub">Productividad (ingreso asignado a cada doctor) − gasto registrado a su nombre</div>
         <div class="fin-2col" id="dash-resdoc-body"></div>
       </div>
+
+      <div class="fin-sec fm-sec" id="dash-farmacia" style="display:none"></div>
 
       <div id="dash-productividad" style="display:none">
         <div class="prod-card solo-todos" id="dash-prod-cara-a-cara">
@@ -1450,7 +1520,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
             <div class="prod-title" style="font-size:13px">🧾 Ingresos por categoría</div>
             <div class="prod-period" id="dash-prod-periodo2">Últimos 30 días</div>
           </div>
-          <div class="prod-sub">Todo el ingreso de la clínica: doctores y cosmetólogas</div>
+          <div class="prod-sub" id="dash-cat-sub">Todo el ingreso de la clínica: doctores y cosmetólogas</div>
           <div class="seg-bar" id="dash-cat-segbar"></div>
           <div class="cat-tiles" id="dash-cat-tiles"></div>
         </div>
@@ -1869,6 +1939,21 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 </div>
 
 <!-- ══════════ Modal: Editar gasto ══════════ -->
+<!-- ══════════ Modal: Cargar venta de farmacia (solo administrador) ══════════ -->
+<div class="modal-overlay" id="modal-farmacia">
+  <div class="modal-box" style="max-width:860px">
+    <div class="modal-head"><h3>⬆ Cargar venta de farmacia</h3><button class="modal-close" id="farm-btn-cerrar" type="button">✕</button></div>
+    <div class="modal-body" id="farm-body"></div>
+    <div class="modal-foot" style="justify-content:space-between">
+      <span id="farm-foot-info" style="font-size:12.5px;color:var(--g6)"></span>
+      <div style="display:flex;gap:10px">
+        <button class="appbtn appbtn-s" id="farm-btn-cancelar" type="button" style="background:var(--g1);color:var(--g6);box-shadow:none">Cancelar</button>
+        <button class="appbtn appbtn-p" id="farm-btn-ok" type="button" disabled>Cargar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="modal-editar-gasto">
   <div class="modal-box">
     <div class="modal-head"><h3>Editar gasto</h3><button class="modal-close" id="editg-btn-cerrar" type="button">✕</button></div>
@@ -1996,7 +2081,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.10.05-31';
+const APP_VERSION = 'v2026.10.05-33';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 // La marca de versión cambia de color según lo que tenga debajo: blanca sobre fondo oscuro, gris sobre fondo claro
@@ -2204,6 +2289,7 @@ function iniciarRealtime(){
     .on('postgres_changes', { event: '*', schema: 'public', table: 'pacientes' }, programarRefrescoRealtime)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'gestiones' }, programarRefrescoRealtime)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'gastos' }, programarRefrescoRealtime)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'farmacia_ventas' }, programarRefrescoRealtime)
     .subscribe();
 }
 function detenerRealtime(){
@@ -5229,7 +5315,15 @@ async function cargarDashboard(){
     if(hasta) qg = qg.lte('fecha', hasta);
   }
 
-  const [{ data, error }, gres] = await Promise.all([q, qg || Promise.resolve({ data:[], error:null })]);
+  // Farmacia: venta de medicamentos (misma regla de acceso que gastos)
+  let qf = null;
+  if(verGasto){
+    qf = sb.from('farmacia_ventas').select('fecha,doctor_id,paciente,medicamento,monto,medio_pago,facturado,num_factura').order('fecha', { ascending:true }).limit(5000);
+    if(desde) qf = qf.gte('fecha', desde);
+    if(hasta) qf = qf.lte('fecha', hasta);
+  }
+
+  const [{ data, error }, gres, fres] = await Promise.all([q, qg || Promise.resolve({ data:[], error:null }), qf || Promise.resolve({ data:[], error:null })]);
   if(miReqId !== dashReqId) return; // el usuario ya cambió los filtros mientras esto cargaba: descartar resultado obsoleto
   if(error){
     console.error('[SkinFabric] Error cargando dashboard:', error);
@@ -5237,8 +5331,10 @@ async function cargarDashboard(){
     return;
   }
   DASH_ALL = data || [];
-  DASH_FIN_OK = false; DASH_GASTOS = []; DASH_PROD = [];
+  DASH_FIN_OK = false; DASH_GASTOS = []; DASH_PROD = []; DASH_FARM = [];
   if(verGasto){
+    if(fres.error){ console.error('[SkinFabric] Error cargando farmacia del dashboard:', fres.error); }
+    else DASH_FARM = fres.data || [];
     if(gres.error){ console.error('[SkinFabric] Error cargando gastos del dashboard:', gres.error); }
     else {
       DASH_GASTOS = gres.data || [];
@@ -5275,8 +5371,8 @@ function renderDashboard(){
     } else if(r.monto){
       porDoctorMap[docNombre] = (porDoctorMap[docNombre] || 0) + Number(r.monto || 0);
     }
-    // El 2do pago no está ligado a un servicio en particular: se acredita al doctor principal de la consulta
-    if(r.monto_2) porDoctorMap[docNombre] = (porDoctorMap[docNombre] || 0) + Number(r.monto_2 || 0);
+    // El 2do pago solo se suma aparte en consultas SIN servicios: cuando hay servicios, su suma ya incluye monto + monto_2
+    if(r.monto_2 && !servicios.length) porDoctorMap[docNombre] = (porDoctorMap[docNombre] || 0) + Number(r.monto_2 || 0);
   });
   const consultasCount = DASH_ROWS.length;
   const ticketProm = consultasCount ? ingresoTotal / consultasCount : 0;
@@ -5295,8 +5391,9 @@ function renderDashboard(){
   renderDashFin(ingresoTotal);
 }
 
-function agruparPorFecha(rows, modo){
+function agruparPorFecha(rows, modo, extra){
   const map = {};
+  if(extra) Object.keys(extra).forEach(k => { map[k] = extra[k]; });
   rows.forEach(r=>{
     const key = modo === 'dia' ? r.fecha : r.fecha.slice(0, 7);
     const total = Number(r.monto || 0) + Number(r.monto_2 || 0);
@@ -5309,7 +5406,7 @@ function agruparPorFecha(rows, modo){
 function renderChartTend(){
   const canvas = document.getElementById('chartTend');
   if(!canvas || typeof Chart === 'undefined') return;
-  const { labels, values } = agruparPorFecha(DASH_ROWS, DASH_TEND_MODO);
+  const { labels, values } = agruparPorFecha(DASH_ROWS, DASH_TEND_MODO, dashFinActivo() ? dashFarmPorClave(DASH_TEND_MODO) : null);
   if(chartTend) chartTend.destroy();
   chartTend = new Chart(canvas.getContext('2d'), {
     type: 'line',
@@ -5465,18 +5562,20 @@ function clasificarMontoConsulta(r){
   } else if(r.monto){
     out.procedimientos += Number(r.monto || 0);
   }
-  if(r.monto_2){
+  // Con servicios, la suma de sus montos ya incluye el 2.º pago (monto + monto_2): solo se agrega aparte si no hay servicios
+  if(r.monto_2 && !servicios.length){
     if(out.consultas >= out.procedimientos && out.consultas > 0) out.consultas += Number(r.monto_2 || 0);
     else out.procedimientos += Number(r.monto_2 || 0);
   }
   return out;
 }
 
-function agruparPorFechaCategoria(rows, modo){
+function agruparPorFechaCategoria(rows, modo, extra){
   const map = {};
+  if(extra) Object.keys(extra).forEach(k => { map[k] = { consultas:0, procedimientos:0, cosmetologas:0, farmacia:extra[k] }; });
   rows.forEach(r=>{
     const key = modo === 'dia' ? r.fecha : r.fecha.slice(0, 7);
-    if(!map[key]) map[key] = { consultas:0, procedimientos:0, cosmetologas:0 };
+    if(!map[key]) map[key] = { consultas:0, procedimientos:0, cosmetologas:0, farmacia:0 };
     const c = clasificarMontoConsulta(r);
     map[key].consultas += c.consultas;
     map[key].procedimientos += c.procedimientos;
@@ -5488,6 +5587,7 @@ function agruparPorFechaCategoria(rows, modo){
     consultas: keys.map(k => map[k].consultas),
     procedimientos: keys.map(k => map[k].procedimientos),
     cosmetologas: keys.map(k => map[k].cosmetologas),
+    farmacia: keys.map(k => map[k].farmacia || 0),
   };
 }
 
@@ -5552,7 +5652,8 @@ function dashGastoDe(doctorId){
 function dashProdDe(doc, docAle){
   if(!doc) return 0;
   const esAle = docAle && doc.id === docAle.id;
-  return DASH_PROD.reduce((a,r)=> a + (esAle ? r.comAlejandra : r.comOtro), 0);
+  // + venta de farmacia de ese doctor (su gasto en farmacia ya está en su gasto)
+  return DASH_PROD.reduce((a,r)=> a + (esAle ? r.comAlejandra : r.comOtro), 0) + dashFarmDe(doc.id);
 }
 function dashFinDatos(ingresoLegacy){
   const doctorId = document.getElementById('dash-doctor').value;
@@ -5560,16 +5661,19 @@ function dashFinDatos(ingresoLegacy){
   const porFecha = {};
   const add = (f, i, g) => { const m = porFecha[f] || (porFecha[f] = [0,0]); m[0] += i; m[1] += g; };
   DASH_GASTOS.forEach(g => { if(!doctorId || g.creado_por === doctorId) add(g.fecha, 0, Number(g.monto || 0)); });
+  DASH_FARM.forEach(f => { if(!doctorId || f.doctor_id === doctorId) add(f.fecha, Number(f.monto || 0), 0); });
+  const farmTot = dashFarmDe(doctorId || null);
   let ing, label, sub;
   const esDocConocido = doctorId && (doctorId === docAlejandra?.id || doctorId === docOtro?.id);
   if(esDocConocido){
     const esAle = doctorId === docAlejandra.id;
     DASH_PROD.forEach(r => add(r.fecha, esAle ? r.comAlejandra : r.comOtro, 0));
-    ing = DASH_PROD.reduce((a,r)=> a + (esAle ? r.comAlejandra : r.comOtro), 0);
-    label = 'Productividad'; sub = 'ingreso asignado al doctor';
+    ing = DASH_PROD.reduce((a,r)=> a + (esAle ? r.comAlejandra : r.comOtro), 0) + farmTot;
+    label = 'Productividad'; sub = farmTot > 0 ? 'ingreso asignado al doctor + farmacia' : 'ingreso asignado al doctor';
   } else {
     DASH_ROWS.forEach(r => add(r.fecha, Number(r.monto || 0) + Number(r.monto_2 || 0), 0));
-    ing = ingresoLegacy; label = 'Ingreso total'; sub = DASH_ROWS.length + ' consultas';
+    ing = ingresoLegacy + farmTot; label = 'Ingreso total';
+    sub = farmTot > 0 ? 'Consultas y proc. + cabinas + farmacia' : DASH_ROWS.length + ' consultas';
   }
   const gas = dashGastoDe(doctorId || null);
   return { ing, gas, mar: ing - gas, label, sub, porFecha };
@@ -5586,6 +5690,374 @@ function dashSpark(vals){
   return `<svg viewBox="0 0 ${W} ${H}"><path d="${d} L${l[0].toFixed(1)} ${H} L${p} ${H}Z" fill="currentColor" opacity=".10"/><path d="${d}" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"/><circle cx="${l[0].toFixed(1)}" cy="${l[1].toFixed(1)}" r="2.4" fill="currentColor"/></svg>`;
 }
 
+// ============================================================
+// Farmacia: venta de medicamentos y productos (tabla farmacia_ventas).
+//  · La carga la hace el administrador desde el Excel (una hoja por doctor/a), con vista previa y validación.
+//  · Se ve en el Dashboard solo con permiso de Gastos y sin filtro de tipo de servicio (igual que gasto y margen).
+//  · Suma al Ingreso total; su margen sale de los gastos de la categoría "Farmacia".
+// ============================================================
+let DASH_FARM = [];
+const FARM_COL = '#38a169';
+
+function dashFarmFiltradas(){
+  const d = document.getElementById('dash-doctor').value;
+  return DASH_FARM.filter(f => !d || f.doctor_id === d);
+}
+function dashFarmDe(doctorId){
+  return DASH_FARM.filter(f => !doctorId || f.doctor_id === doctorId).reduce((a,f)=> a + Number(f.monto || 0), 0);
+}
+function dashFarmGastoDe(doctorId){
+  return DASH_GASTOS.filter(g => g.categoria === 'farmacia' && (!doctorId || g.creado_por === doctorId)).reduce((a,g)=> a + Number(g.monto || 0), 0);
+}
+// Venta de farmacia agrupada por día o mes (para las gráficas de tendencia)
+function dashFarmPorClave(modo){
+  const m = {};
+  dashFarmFiltradas().forEach(f => {
+    const k = modo === 'dia' ? f.fecha : f.fecha.slice(0, 7);
+    m[k] = (m[k] || 0) + Number(f.monto || 0);
+  });
+  return m;
+}
+function farmNombreCorto(n){ return (n || '').split(' ').slice(0, 2).join(' '); }
+
+// Nombre de producto "limpio" para el ranking de más vendidos (quita cantidades y variantes de escritura)
+function farmClaveProducto(s){
+  let t = String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase().replace(/[,;]/g, ' ');
+  t = t.replace(/^\s*\d+\s*PZAS?\s*/, '').replace(/\s+\d+\s*PZAS?\s*$/, '').replace(/(\d)\s*MG\b/g, '$1 MG').replace(/\s+/g, ' ').trim();
+  return t || '(SIN DESCRIPCION)';
+}
+function farmLimpiarProducto(s){
+  return String(s || '').replace(/^\s*\d+\s*PZAS?\s*/i, '').replace(/\s+\d+\s*PZAS?\s*$/i, '').replace(/[,;]\s*/g, ' ').replace(/\s+/g, ' ').trim() || '(sin descripción)';
+}
+function farmTitulo(k){
+  return k.toLowerCase().replace(/(^|[\s(])([a-zñáéíóú])/g, (m,a,b) => a + b.toUpperCase()).replace(/\b(Mg|Ml|Caps|Nr|Svr|Hd|Spf)\b/g, x => x === 'Mg' ? 'mg' : x === 'Ml' ? 'ml' : x === 'Caps' ? 'caps' : x.toUpperCase());
+}
+
+function renderDashRubros(){
+  const box = document.getElementById('dash-rubros');
+  const sec = document.getElementById('dash-farmacia');
+  if(!box || !sec) return;
+  const on = dashFinActivo();
+  if(!on){ box.style.display = 'none'; sec.style.display = 'none'; return; }
+  const doctorId = document.getElementById('dash-doctor').value;
+  const farm = dashFarmFiltradas();
+  const FV = farm.reduce((a,f)=> a + Number(f.monto || 0), 0);
+  const FG = dashFarmGastoDe(doctorId || null);
+  const MF = FV - FG;
+  // Consultas y procedimientos vs Cabinas (cosmetólogas), sobre los servicios del periodo
+  let CP = 0, CAB = 0;
+  const sCP = {}, sCAB = {}, sFV = {}, sFG = {};
+  DASH_ROWS.forEach(r => {
+    const sv = r.consulta_servicios || [];
+    if(!sv.length){ const m = Number(r.monto || 0) + Number(r.monto_2 || 0); CP += m; sCP[r.fecha] = (sCP[r.fecha] || 0) + m; return; }
+    sv.forEach(cs => {
+      const m = Number(cs.monto || 0); if(m <= 0) return;
+      if(cs.atendido?.rol === 'cosmetologo'){ CAB += m; sCAB[r.fecha] = (sCAB[r.fecha] || 0) + m; }
+      else { CP += m; sCP[r.fecha] = (sCP[r.fecha] || 0) + m; }
+    });
+  });
+  farm.forEach(f => { sFV[f.fecha] = (sFV[f.fecha] || 0) + Number(f.monto || 0); });
+  DASH_GASTOS.forEach(g => { if(g.categoria === 'farmacia' && (!doctorId || g.creado_por === doctorId)) sFG[g.fecha] = (sFG[g.fecha] || 0) + Number(g.monto || 0); });
+  const fechas = [...new Set([...Object.keys(DASH_FIN_SERIE || {}), ...Object.keys(sFV), ...Object.keys(sFG)])].sort();
+  const ser = m => fechas.map(f => m[f] || 0);
+  let acc = 0; const sMF = fechas.map(f => (acc += (sFV[f] || 0) - (sFG[f] || 0)));
+  const ing = (doctorId ? 0 : CP + CAB + FV);
+  const pc = v => ing > 0 ? '<b>' + Math.round(v / ing * 100) + '%</b> del ingreso' : '—';
+  const card = (cls, col, lab, val, sub, sp) =>
+    `<div class="fin-card ${cls}"><div class="bd"><div class="kpi-label"><u style="background:${col}"></u>${lab}</div><div class="kpi-val">${val}</div><div class="fin-sub">${sub}</div></div><div><div class="sp" style="color:${col}">${dashSpark(sp)}</div><div class="cap">diario</div></div></div>`;
+  const cardsFarm =
+    card('', FARM_COL, 'Farmacia', fmtMoney0(FV), doctorId ? farm.length + ' ventas' : pc(FV), ser(sFV)) +
+    card('m', FARM_COL, 'Margen de farmacia', FV > 0 ? fmtMoneyS(MF) : '—', FV > 0 ? '<b>' + fmtPct2(MF / FV * 100) + '</b> · gasto ' + fmtMoney0(FG) : 'sin ventas cargadas · gasto ' + fmtMoney0(FG), sMF);
+  if(doctorId){
+    box.className = 'fin-grid fm-rub n2';
+    box.innerHTML = cardsFarm;
+  } else {
+    box.className = 'fin-grid fm-rub';
+    box.innerHTML =
+      card('', '#1B3A6B', 'Consultas y proced.', fmtMoney0(CP), pc(CP), ser(sCP)) +
+      card('', '#7D3C98', 'Cabinas', fmtMoney0(CAB), pc(CAB), ser(sCAB)) + cardsFarm;
+  }
+  box.style.display = '';
+  renderDashFarmacia(farm, FV, FG, doctorId);
+}
+
+function renderDashFarmacia(farm, FV, FG, doctorId){
+  const sec = document.getElementById('dash-farmacia');
+  const esAdmin = MI_PERFIL?.rol === 'admin';
+  if(!farm.length && !esAdmin){ sec.style.display = 'none'; return; }
+  sec.style.display = '';
+  const btn = esAdmin ? '<button class="btn-sm btn-teal" id="farm-btn-abrir" type="button">⬆ Cargar Excel</button>' : '';
+  const head = `<div class="prod-head"><div class="prod-title">💊 Farmacia</div><div class="fm-head-r">${btn}<div class="prod-period">${esc2(dashPeriodo().texto)}</div></div></div>
+    <div class="prod-sub">Venta de medicamentos y productos · margen = venta − gasto de la categoría “Farmacia”</div>`;
+  if(!farm.length){ sec.innerHTML = head + '<div class="fm-empty">Sin ventas de farmacia en este periodo. Usa “Cargar Excel” para subir el mes.</div>'; return; }
+  const pct = (v, t) => t > 0 ? Math.round(v / t * 100) : 0;
+  // Facturación
+  const fact = { si:0, no:0, nd:0 };
+  farm.forEach(f => { fact[f.facturado === true ? 'si' : f.facturado === false ? 'no' : 'nd'] += Number(f.monto || 0); });
+  const FCOL = ['#3B5B94', '#B9C3D8', '#E3E7F0'], FLAB = ['Facturado', 'No facturado', 'Sin dato'];
+  const fv = [fact.si, fact.no, fact.nd];
+  const fbar = fv.map((v,i) => `<i style="width:${v / FV * 100}%;background:${FCOL[i]}"></i>`).join('');
+  const fleg = fv.map((v,i) => v > 0 || i < 2 ? `<span><u style="background:${FCOL[i]}"></u>${FLAB[i]} <b>${fmtMoney0(v)}</b> · ${pct(v, FV)}%</span>` : '').join('');
+  // Medios de pago
+  const med = {};
+  farm.forEach(f => { med[f.medio_pago] = (med[f.medio_pago] || 0) + Number(f.monto || 0); });
+  const medHtml = Object.entries(med).sort((a,b) => b[1] - a[1]).map(([k,v]) =>
+    `<div class="fm-br"><span class="fm-bl">${esc2(k === 'Amex' ? 'AMEX' : k)}</span><span class="fm-bt"><i style="width:${v / FV * 100}%;background:#3B5B94"></i></span><b>${fmtMoney0(v)}</b><em>${pct(v, FV)}%</em></div>`).join('');
+  // Más vendidos
+  const prod = {};
+  farm.forEach(f => {
+    const k = farmClaveProducto(f.medicamento);
+    const p = prod[k] || (prod[k] = { monto:0, n:0, txt:farmLimpiarProducto(f.medicamento) });
+    p.monto += Number(f.monto || 0); p.n++;
+  });
+  const top = Object.entries(prod).sort((a,b) => b[1].monto - a[1].monto).slice(0, 5);
+  const topMax = top.length ? top[0][1].monto : 1;
+  const topHtml = top.map(([k,p]) =>
+    `<div class="fm-br"><span class="fm-bl w" title="${esc2(p.txt)}">${esc2(farmTitulo(p.txt))}</span><span class="fm-bt"><i style="width:${p.monto / topMax * 100}%;background:#2F6FD0"></i></span><b>${fmtMoney0(p.monto)}</b><em>${p.n} ${p.n === 1 ? 'venta' : 'ventas'}</em></div>`).join('');
+  // Dr. vs Dra. (solo sin filtro de doctor y con los dos identificados)
+  let caraHtml = '';
+  const { docAlejandra, docOtro } = comResolverDoctores();
+  if(!doctorId && docAlejandra && docOtro){
+    const de = d => { const r = farm.filter(f => f.doctor_id === d.id); return { v: r.reduce((a,f)=> a + Number(f.monto || 0), 0), n: r.length, g: dashFarmGastoDe(d.id) }; };
+    const A = de(docOtro), B = de(docAlejandra);
+    const tug = (lab, a, b, fmt) => { const s = (a > 0 ? a : 0) + (b > 0 ? b : 0), pa = s > 0 ? Math.max(a, 0) / s * 100 : 50;
+      return `<div class="fm-tug"><div class="fm-tl">${lab}</div><div class="fm-tb"><i style="width:${pa}%;background:${DASH_COL_OTRO}"></i><i style="width:${100 - pa}%;background:${DASH_COL_ALE}"></i></div><div class="fm-tv"><b style="color:#173F82">${fmt(a)}</b><b style="color:#0B6B6B">${fmt(b)}</b></div></div>`; };
+    const tk = (x) => x.n ? x.v / x.n : 0;
+    caraHtml = `<div class="fm-pc"><div class="fm-pt">⚖️ ${esc2(farmNombreCorto(docOtro.nombre))} vs ${esc2(farmNombreCorto(docAlejandra.nombre))}</div>
+      <div class="fm-pl"><span style="color:#173F82"><u style="background:${DASH_COL_OTRO}"></u>${esc2(farmNombreCorto(docOtro.nombre))}</span><span style="color:#0B6B6B"><u style="background:${DASH_COL_ALE}"></u>${esc2(farmNombreCorto(docAlejandra.nombre))}</span></div>
+      ${tug('Venta de farmacia', A.v, B.v, fmtMoney0)}${tug('Ventas', A.n, B.n, v => String(v))}${tug('Ticket promedio', tk(A), tk(B), fmtMoney0)}${tug('Margen (venta − gasto)', A.v - A.g, B.v - B.g, fmtMoneyS)}</div>`;
+  }
+  sec.innerHTML = head + `<div class="fm-f2">
+    <div class="fm-col">
+      <div class="fm-pc"><div class="fm-pt">🧾 Facturación</div><div class="fm-fbar">${fbar}</div><div class="fm-leg">${fleg}</div></div>
+      ${caraHtml}
+    </div>
+    <div class="fm-col">
+      <div class="fm-pc"><div class="fm-pt">💳 Medios de pago</div>${medHtml}</div>
+      <div class="fm-pc"><div class="fm-pt">🏷️ Más vendidos</div>${topHtml}</div>
+    </div></div>`;
+}
+
+// ---------- Carga del Excel ----------
+let FARM_CARGA = null;
+const FARM_MEDIOS_OK = ['Efectivo', 'Tarjeta Crédito', 'Tarjeta Débito', 'Amex', 'Transferencia'];
+function farmNorm(s){ return String(s == null ? '' : s).normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase().replace(/\s+/g, ' ').trim(); }
+function farmMedio(s){
+  const n = farmNorm(s); if(!n) return null;
+  if(n.includes('AMEX') || n.includes('AMERICAN')) return 'Amex';
+  if(n.includes('TRANSF')) return 'Transferencia';
+  if(n.includes('EFECT')) return 'Efectivo';
+  if(n.includes('DEBIT')) return 'Tarjeta Débito';
+  if(n.includes('CREDIT')) return 'Tarjeta Crédito';
+  return null;
+}
+function farmFacturado(s){ const n = farmNorm(s); return n === 'SI' ? true : n === 'NO' ? false : null; }
+function farmFecha(v){
+  if(v == null || v === '') return null;
+  const p2 = n => String(n).padStart(2, '0');
+  if(v instanceof Date){ if(isNaN(v)) return null; const d = new Date(v.getTime() + 12 * 3600e3); return d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate()); }
+  if(typeof v === 'number'){ const c = XLSX.SSF.parse_date_code(v); return c ? c.y + '-' + p2(c.m) + '-' + p2(c.d) : null; }
+  const s = String(v).trim(); let m;
+  if((m = s.match(/^(\d{4})-(\d{2})-(\d{2})/))) return m[1] + '-' + m[2] + '-' + m[3];
+  if((m = s.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})$/))){ const y = m[3].length === 2 ? '20' + m[3] : m[3]; return y + '-' + p2(m[2]) + '-' + p2(m[1]); }
+  return null;
+}
+function farmMonto(v){
+  if(typeof v === 'number') return isFinite(v) ? v : null;
+  const n = parseFloat(String(v == null ? '' : v).replace(/[$,\s]/g, ''));
+  return isFinite(n) ? n : null;
+}
+function farmDetectarDoctor(nombreHoja){
+  const n = farmNorm(nombreHoja);
+  const docs = (CATALOGOS.personal || []).filter(p => p.rol === 'doctor');
+  const esDra = /\bDRA\b/.test(n), esDr = /\bDR\b/.test(n);
+  if(esDra) return (docs.find(d => /^DRA\b/.test(farmNorm(d.nombre))) || {}).id || '';
+  if(esDr) return (docs.find(d => /^DR\b/.test(farmNorm(d.nombre))) || {}).id || '';
+  return '';
+}
+function farmLeerHoja(nombre, ws){
+  const filas = XLSX.utils.sheet_to_json(ws, { header:1, raw:true, defval:null });
+  const H = { fecha:-1, paciente:-1, medicamento:-1, monto:-1, medio:-1, facturado:-1, factura:-1, nota:-1 };
+  let hi = -1;
+  for(let i = 0; i < Math.min(filas.length, 12) && hi < 0; i++){
+    if((filas[i] || []).some(c => /^FECHA/.test(farmNorm(c)))) hi = i;
+  }
+  const out = { nombre, filas:[], errores:[], sinPaciente:0, sinDescripcion:0, sinFacturado:0, mediosOriginales:{}, totalExcel:null, totalLeido:0, excluidas:[], periodo:null, doctorId:farmDetectarDoctor(nombre), maxCol:0 };
+  if(hi < 0){ out.errores.push('No encuentro la fila de encabezados (FECHA, Paciente, Medicamento, Costo, Medio de pago…).'); return out; }
+  const enc = filas[hi].map(c => farmNorm(c));
+  enc.forEach((c, j) => {
+    if(/^FECHA/.test(c)) H.fecha = j;
+    else if(/PACIENTE/.test(c)) H.paciente = j;
+    else if(/MEDICAMENTO|PRODUCTO/.test(c)) H.medicamento = j;
+    else if(/^(COSTO|MONTO|IMPORTE|PRECIO|TOTAL)/.test(c)) H.monto = j;
+    else if(/MEDIO/.test(c)) H.medio = j;
+    else if(/^FACTURADO/.test(c)) H.facturado = j;
+    else if(/FACTURA/.test(c)) H.factura = j;
+  });
+  const usados = new Set(Object.values(H)); 
+  enc.forEach((c, j) => { if(!usados.has(j) && H.nota < 0 && j > Math.max(H.fecha, H.monto, H.medio, H.facturado, H.factura)) H.nota = j; });
+  for(const k of ['fecha', 'medicamento', 'monto', 'medio']){
+    if(H[k] < 0) out.errores.push('Falta la columna “' + ({ fecha:'Fecha', medicamento:'Medicamento', monto:'Costo', medio:'Medio de Pago' })[k] + '”.');
+  }
+  if(out.errores.length) return out;
+  const todas = [];
+  for(let i = hi + 1; i < filas.length; i++){
+    const r = filas[i] || [];
+    if(r.every(c => c == null || String(c).trim() === '')) continue;
+    const f = farmFecha(r[H.fecha]);
+    const m = farmMonto(r[H.monto]);
+    const textoFila = r.map(c => farmNorm(c)).join(' ');
+    if(!f){
+      if(/\bTOTAL\b/.test(textoFila) && m != null) out.totalExcel = m;
+      else if(m != null && m !== 0) out.errores.push('Fila ' + (i + 1) + ': la fecha no es válida.');
+      continue;
+    }
+    if(m == null || m < 0){ out.errores.push('Fila ' + (i + 1) + ': el costo no es un número válido.'); continue; }
+    const medio = farmMedio(r[H.medio]);
+    if(!medio){ out.errores.push('Fila ' + (i + 1) + ': medio de pago “' + String(r[H.medio] == null ? '' : r[H.medio]).trim() + '” no reconocido.'); continue; }
+    const orig = String(r[H.medio]).trim();
+    out.mediosOriginales[orig] = medio;
+    const pac = H.paciente >= 0 && r[H.paciente] != null ? String(r[H.paciente]).trim() : '';
+    let med = r[H.medicamento] != null ? String(r[H.medicamento]).replace(/\s+/g, ' ').trim() : '';
+    if(!med){ med = '(sin descripción)'; out.sinDescripcion++; }
+    const fac = H.facturado >= 0 ? farmFacturado(r[H.facturado]) : null;
+    const nf = H.factura >= 0 && r[H.factura] != null ? String(r[H.factura]).trim() : '';
+    const nota = H.nota >= 0 && r[H.nota] != null ? String(r[H.nota]).trim() : '';
+    todas.push({ fecha:f, paciente:pac || null, medicamento:med, monto:m, medio_pago:medio, facturado:fac, num_factura:nf || null, nota:nota || null });
+  }
+  out.totalLeido = todas.reduce((a,x)=> a + x.monto, 0);
+  // Mes de la hoja = el mes con más ventas; lo que caiga en otro mes se deja fuera
+  const cuenta = {}; todas.forEach(x => { const k = x.fecha.slice(0, 7); cuenta[k] = (cuenta[k] || 0) + 1; });
+  out.periodo = Object.keys(cuenta).sort((a,b) => cuenta[b] - cuenta[a])[0] || null;
+  todas.forEach(x => (x.fecha.slice(0, 7) === out.periodo ? out.filas : out.excluidas).push(x));
+  out.sinPaciente = out.filas.filter(x => !x.paciente).length;
+  out.sinFacturado = out.filas.filter(x => x.facturado == null).length;
+  if(!out.filas.length) out.errores.push('La hoja no trae ventas.');
+  return out;
+}
+function farmSumaHoja(h){ return h.filas.reduce((a,x)=> a + x.monto, 0); }
+
+function farmAbrirModal(){
+  FARM_CARGA = null;
+  farmRenderModal();
+  document.getElementById('modal-farmacia').classList.add('show');
+}
+function farmCerrarModal(){ document.getElementById('modal-farmacia').classList.remove('show'); FARM_CARGA = null; }
+
+async function farmArchivoElegido(file){
+  if(!file) return;
+  if(typeof XLSX === 'undefined'){ toast('No se pudo leer el Excel (falta la librería). Revisa tu conexión.'); return; }
+  try{
+    const wb = XLSX.read(await file.arrayBuffer(), { type:'array', cellDates:true });
+    const hojas = wb.SheetNames.map(n => farmLeerHoja(n, wb.Sheets[n])).filter(h => h.filas.length || h.errores.length);
+    FARM_CARGA = { nombre:file.name, hojas };
+  }catch(e){
+    console.error('[SkinFabric] Error leyendo Excel de farmacia:', e);
+    FARM_CARGA = { nombre:file.name, hojas:[], fatal:'No pude leer el archivo. Verifica que sea un Excel (.xlsx).' };
+  }
+  farmRenderModal();
+}
+
+function farmRenderModal(){
+  const body = document.getElementById('farm-body');
+  const btn = document.getElementById('farm-btn-ok');
+  const info = document.getElementById('farm-foot-info');
+  const docs = (CATALOGOS.personal || []).filter(p => p.rol === 'doctor');
+  if(!FARM_CARGA){
+    body.innerHTML = `<label class="fm-drop" id="farm-drop" for="farm-file"><div style="font-size:26px">📄</div><div><b>Elige el Excel de farmacia</b> o arrástralo aquí</div><div style="font-size:11.5px;margin-top:4px">Una hoja por doctor/a · columnas: Fecha, Paciente, Medicamento, Costo, Medio de pago, Facturado, N° de factura</div></label><input type="file" id="farm-file" accept=".xlsx,.xls" style="display:none"/>`;
+    btn.disabled = true; btn.textContent = 'Cargar'; info.textContent = '';
+    return;
+  }
+  if(FARM_CARGA.fatal){
+    body.innerHTML = `<div class="fm-file">📄 <b>${esc2(FARM_CARGA.nombre)}</b></div><div class="fm-chk"><div class="e">${esc2(FARM_CARGA.fatal)}</div></div><button class="btn-sm btn-outline" id="farm-otro" type="button">Elegir otro archivo</button>`;
+    btn.disabled = true; info.textContent = ''; return;
+  }
+  const hs = FARM_CARGA.hojas;
+  // validaciones globales
+  const claves = {}; let hayError = false;
+  hs.forEach(h => { if(h.errores.length) hayError = true; if(!h.doctorId) hayError = true; const k = h.doctorId + '|' + h.periodo; claves[k] = (claves[k] || 0) + 1; });
+  const dup = Object.values(claves).some(n => n > 1); if(dup) hayError = true;
+  if(!hs.length) hayError = true;
+  const hojasHtml = hs.map((h, i) => {
+    const suma = farmSumaHoja(h);
+    const cuadra = h.totalExcel != null ? Math.abs(h.totalLeido - h.totalExcel) < 0.5 : null;
+    const opts = '<option value="">Elige doctor/a…</option>' + docs.map(d => `<option value="${esc2(d.id)}" ${d.id === h.doctorId ? 'selected' : ''}>${esc2(d.nombre)}</option>`).join('');
+    return `<div class="fm-sheet ${h.errores.length ? 'err' : ''}"><select class="farm-doc" data-i="${i}">${opts}</select>
+      <div class="fm-sn">Hoja “${esc2(h.nombre)}”${h.periodo ? ' · ' + esc2(h.periodo) : ''}</div>
+      <div class="fm-sv">${h.filas.length} ventas · <b>${fmtMoney0(suma)}</b></div>
+      ${cuadra === true ? '<div class="fm-ok">✓ Cuadra con el TOTAL del Excel</div>' : cuadra === false ? `<div class="fm-bad">✕ No cuadra: el Excel dice ${fmtMoney0(h.totalExcel)} y sumo ${fmtMoney0(h.totalLeido)}</div>` : '<div class="fm-sn">Sin renglón TOTAL para comparar</div>'}
+    </div>`;
+  }).join('');
+  const avisos = [];
+  hs.forEach(h => {
+    h.errores.slice(0, 6).forEach(e => avisos.push(`<div class="e"><b>${esc2(h.nombre)}:</b> ${esc2(e)}</div>`));
+    if(h.errores.length > 6) avisos.push(`<div class="e"><b>${esc2(h.nombre)}:</b> y ${h.errores.length - 6} errores más.</div>`);
+    if(h.excluidas.length) avisos.push(`<div class="w"><b>${h.excluidas.length} venta${h.excluidas.length === 1 ? '' : 's'} de otro mes quedan fuera</b> (${esc2(h.nombre)}: ${fmtMoney0(h.excluidas.reduce((a,x)=> a + x.monto, 0))}; fechas ${[...new Set(h.excluidas.map(x => x.fecha.split('-').reverse().join('/')))].join(', ')}).</div>`);
+    if(h.sinPaciente) avisos.push(`<div class="w"><b>${h.sinPaciente} venta${h.sinPaciente === 1 ? '' : 's'} sin nombre de paciente</b> (${esc2(h.nombre)}). Se cargan sin nombre.</div>`);
+    if(h.sinDescripcion) avisos.push(`<div class="w"><b>${h.sinDescripcion} venta${h.sinDescripcion === 1 ? '' : 's'} sin medicamento</b> (${esc2(h.nombre)}). Se cargan como “(sin descripción)”.</div>`);
+    if(h.sinFacturado) avisos.push(`<div class="i">${esc2(h.nombre)}: ${h.sinFacturado} ventas sin dato de facturación; se guardan como “Sin dato”.</div>`);
+    const mv = Object.entries(h.mediosOriginales).filter(([o, n]) => o !== n);
+    if(mv.length) avisos.push(`<div class="i">${esc2(h.nombre)}: medios de pago normalizados (${mv.slice(0, 4).map(([o, n]) => '“' + esc2(o) + '” → ' + esc2(n)).join(', ')}${mv.length > 4 ? '…' : ''}).</div>`);
+  });
+  if(hs.some(h => !h.doctorId)) avisos.unshift('<div class="e">Elige a qué doctor/a corresponde cada hoja.</div>');
+  if(dup) avisos.unshift('<div class="e">Dos hojas quedarían como el mismo doctor/a y mes. Revisa la selección.</div>');
+  const prev = hs.filter(h => h.filas.length).map(h => `<div class="fm-sn" style="margin-top:8px">Vista previa · ${esc2(h.nombre)}</div><div class="fm-pvwrap"><table class="fm-pv"><thead><tr><th>Fecha</th><th>Paciente</th><th>Medicamento</th><th class="r">Costo</th><th>Medio de pago</th><th>Facturado</th></tr></thead><tbody>${h.filas.slice(0, 5).map(x => `<tr><td>${x.fecha.slice(8)}/${x.fecha.slice(5, 7)}</td><td>${esc2(x.paciente || '—')}</td><td>${esc2(x.medicamento)}</td><td class="r">${fmtMoney0(x.monto)}</td><td>${esc2(x.medio_pago)}</td><td>${x.facturado === true ? 'Sí' + (x.num_factura ? ' · ' + esc2(x.num_factura) : '') : x.facturado === false ? 'No' : '—'}</td></tr>`).join('')}</tbody></table></div>`).join('');
+  const total = hs.reduce((a, h) => a + farmSumaHoja(h), 0), n = hs.reduce((a, h) => a + h.filas.length, 0);
+  body.innerHTML = `<div class="fm-file">📄 <b>${esc2(FARM_CARGA.nombre)}</b> <span>· ${hs.length} hoja${hs.length === 1 ? '' : 's'} con ventas</span> <button class="btn-sm btn-outline" id="farm-otro" type="button" style="margin-left:8px">Cambiar</button></div>
+    <div class="fm-sheets">${hojasHtml}</div><div class="fm-chk">${avisos.join('')}</div>${prev}
+    <div class="fm-rep">Si vuelves a cargar el mismo mes de un doctor/a, <b>reemplaza</b> lo anterior de ese doctor/a: no se duplica nada.</div>`;
+  btn.disabled = hayError; btn.textContent = hayError ? 'Cargar' : `Cargar ${n} ventas`;
+  info.innerHTML = hs.length ? `Total a cargar: <b>${n} ventas · ${fmtMoney0(total)}</b>` : '';
+}
+
+let FARM_GUARDANDO = false;
+async function farmConfirmarCarga(){
+  if(FARM_GUARDANDO || !FARM_CARGA || FARM_CARGA.fatal) return;
+  const hs = FARM_CARGA.hojas.filter(h => h.filas.length);
+  if(!hs.length || hs.some(h => !h.doctorId || h.errores.length)) return;
+  FARM_GUARDANDO = true;
+  const btn = document.getElementById('farm-btn-ok'); const txt = btn.textContent; btn.disabled = true; btn.textContent = 'Cargando…';
+  const lote = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : String(Date.now());
+  const archivo = FARM_CARGA.nombre.slice(0, 100) + '#' + lote;
+  try{
+    for(const h of hs){
+      const filas = h.filas.map(x => ({ ...x, periodo:h.periodo, doctor_id:h.doctorId, archivo }));
+      for(let i = 0; i < filas.length; i += 150){
+        const { error } = await sb.from('farmacia_ventas').insert(filas.slice(i, i + 150));
+        if(error) throw error;
+      }
+    }
+    for(const h of hs){
+      const { error } = await sb.from('farmacia_ventas').delete().eq('doctor_id', h.doctorId).eq('periodo', h.periodo).neq('archivo', archivo);
+      if(error) throw error;
+    }
+    const n = hs.reduce((a, h) => a + h.filas.length, 0);
+    farmCerrarModal();
+    toast('Farmacia cargada: ' + n + ' ventas.');
+    cargarDashboard();
+  }catch(e){
+    console.error('[SkinFabric] Error cargando farmacia:', e);
+    // se deshace lo que alcanzó a entrar de este archivo: lo anterior queda intacto
+    try{ await sb.from('farmacia_ventas').delete().eq('archivo', archivo); }catch(_){}
+    toast('No se pudo cargar la farmacia. No se cambió nada.');
+    btn.disabled = false; btn.textContent = txt;
+  }finally{ FARM_GUARDANDO = false; }
+}
+
+document.addEventListener('click', e => {
+  if(e.target.closest('#farm-btn-abrir')) farmAbrirModal();
+  else if(e.target.closest('#farm-btn-cerrar') || e.target.closest('#farm-btn-cancelar')) farmCerrarModal();
+  else if(e.target.closest('#farm-btn-ok')) farmConfirmarCarga();
+  else if(e.target.closest('#farm-otro')){ FARM_CARGA = null; farmRenderModal(); }
+});
+document.addEventListener('change', e => {
+  if(e.target.id === 'farm-file') farmArchivoElegido(e.target.files[0]);
+  else if(e.target.classList && e.target.classList.contains('farm-doc') && FARM_CARGA){ FARM_CARGA.hojas[+e.target.dataset.i].doctorId = e.target.value; farmRenderModal(); }
+});
+document.addEventListener('dragover', e => { const d = e.target.closest && e.target.closest('#farm-drop'); if(d){ e.preventDefault(); d.classList.add('over'); } });
+document.addEventListener('dragleave', e => { const d = e.target.closest && e.target.closest('#farm-drop'); if(d) d.classList.remove('over'); });
+document.addEventListener('drop', e => { const d = e.target.closest && e.target.closest('#farm-drop'); if(d){ e.preventDefault(); farmArchivoElegido(e.dataTransfer.files[0]); } });
+
 let DASH_FIN_SERIE = null;
 function renderDashFin(ingresoLegacy){
   const on = dashFinActivo();
@@ -5601,6 +6073,7 @@ function renderDashFin(ingresoLegacy){
   $('dash-resdoc').style.display = 'none';
   DASH_FIN_SERIE = null;
   if(!on){
+    renderDashRubros();
     if(chartIngGas){ chartIngGas.destroy(); chartIngGas = null; }
     return;
   }
@@ -5624,6 +6097,7 @@ function renderDashFin(ingresoLegacy){
   $('fin-ing-sp').innerHTML = dashSpark(sIng);
   $('fin-gas-sp').innerHTML = dashSpark(sGas);
   $('fin-mar-sp').innerHTML = dashSpark(sMar);
+  renderDashRubros();
 
   // Resultado por doctor (solo sin filtro de doctor y con los 2 doctores identificados)
   const { docAlejandra, docOtro } = comResolverDoctores();
@@ -5788,7 +6262,7 @@ function actualizarPanelProductividad(porDoctorMap){
   }
 
   // ---- Ingresos por categoría ----
-  const cat = { consultas:0, procedimientos:0, cosmetologas:0 };
+  const cat = { consultas:0, procedimientos:0, cosmetologas:0, farmacia:0 };
   const porCosmetologaMap = {};
   DASH_ROWS.forEach(r=>{
     const c = clasificarMontoConsulta(r);
@@ -5799,18 +6273,25 @@ function actualizarPanelProductividad(porDoctorMap){
       porCosmetologaMap[nombre] = (porCosmetologaMap[nombre] || 0) + val;
     });
   });
-  const catTotal = cat.consultas + cat.procedimientos + cat.cosmetologas;
+  // Farmacia entra como una categoría más cuando el Dashboard muestra finanzas (permiso de Gastos)
+  const hayFarm = dashFinActivo() && DASH_FARM.length > 0;
+  if(hayFarm) cat.farmacia = dashFarmDe(null);
+  const catKeys = hayFarm ? ['consultas','procedimientos','cosmetologas','farmacia'] : ['consultas','procedimientos','cosmetologas'];
+  const catTotal = catKeys.reduce((a,k)=> a + cat[k], 0);
   const pct = v => catTotal ? Math.round(v / catTotal * 100) : 0;
-  const CAT_LABELS = { consultas:'Consultas', procedimientos:'Procedimientos', cosmetologas:'Cosmetólogas' };
+  const CAT_LABELS = { consultas:'Consultas', procedimientos:'Procedimientos', cosmetologas:'Cosmetólogas', farmacia:'Farmacia' };
+  const catSub = document.getElementById('dash-cat-sub');
+  if(catSub) catSub.textContent = hayFarm ? 'Todo el ingreso de la clínica: doctores, cosmetólogas y farmacia' : 'Todo el ingreso de la clínica: doctores y cosmetólogas';
   const segbar = document.getElementById('dash-cat-segbar');
   if(segbar){
-    segbar.innerHTML = ['consultas','procedimientos','cosmetologas']
+    segbar.innerHTML = catKeys
       .filter(k => cat[k] > 0)
-      .map(k => `<div class="seg ${k}" style="width:${pct(cat[k])}%"></div>`).join('');
+      .map(k => `<div class="seg ${k}" style="width:${catTotal ? cat[k] / catTotal * 100 : 0}%"></div>`).join('');
   }
   const tiles = document.getElementById('dash-cat-tiles');
   if(tiles){
-    tiles.innerHTML = ['consultas','procedimientos','cosmetologas'].map(k => `
+    tiles.classList.toggle('c4', hayFarm);
+    tiles.innerHTML = catKeys.map(k => `
       <div class="cat-tile">
         <div class="name"><span class="dot ${k}"></span>${CAT_LABELS[k]}</div>
         <div class="amt">${fmtMoney(cat[k])}</div>
@@ -5832,7 +6313,7 @@ let chartTendCat = null;
 function renderChartTendCat(){
   const canvas = document.getElementById('chartTendCat');
   if(!canvas || typeof Chart === 'undefined') return;
-  const { labels, consultas, procedimientos, cosmetologas } = agruparPorFechaCategoria(DASH_ROWS, DASH_TEND_MODO);
+  const { labels, consultas, procedimientos, cosmetologas, farmacia } = agruparPorFechaCategoria(DASH_ROWS, DASH_TEND_MODO, dashFinActivo() ? dashFarmPorClave(DASH_TEND_MODO) : null);
   if(chartTendCat) chartTendCat.destroy();
   chartTendCat = new Chart(canvas.getContext('2d'), {
     type: 'line',
@@ -5842,6 +6323,7 @@ function renderChartTendCat(){
         { label:'Consultas', data:consultas, borderColor:'#22a8a8', backgroundColor:'#22a8a8', fill:false, tension:.3, pointRadius:0, borderWidth:2 },
         { label:'Procedimientos', data:procedimientos, borderColor:'#1B3A6B', backgroundColor:'#1B3A6B', fill:false, tension:.3, pointRadius:0, borderWidth:2 },
         { label:'Cosmetólogas', data:cosmetologas, borderColor:'#7D3C98', backgroundColor:'#7D3C98', fill:false, tension:.3, pointRadius:0, borderWidth:2 },
+        ...(farmacia.some(v => v > 0) ? [{ label:'Farmacia', data:farmacia, borderColor:FARM_COL, backgroundColor:FARM_COL, fill:false, tension:.3, pointRadius:0, borderWidth:2 }] : []),
       ]
     },
     options: {
