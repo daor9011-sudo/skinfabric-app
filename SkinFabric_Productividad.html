@@ -2081,7 +2081,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.10.05-33';
+const APP_VERSION = 'v2026.10.05-34';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 // La marca de versión cambia de color según lo que tenga debajo: blanca sobre fondo oscuro, gris sobre fondo claro
@@ -7355,7 +7355,7 @@ document.getElementById('cfg-btn-guardar-horario').addEventListener('click', asy
 async function cargarActividad(){
   const cont = document.getElementById('cfg-actividad-list');
   cont.textContent = 'Cargando...';
-  const { data, error } = await sb.from('audit_log').select('*, personal(nombre)').order('created_at', { ascending:false }).limit(20);
+  const { data, error } = await sb.from('audit_log').select('*, personal(nombre)').order('created_at', { ascending:false }).limit(50);
   if(error){
     console.error('[SkinFabric] Error cargando audit_log:', error);
     cont.innerHTML = '<div class="empty-note">No se pudo cargar la actividad reciente.</div>';
@@ -7366,7 +7366,27 @@ async function cargarActividad(){
     cont.innerHTML = '<div class="empty-note">Sin actividad registrada todavía. Aquí aparecerán las cuentas creadas, contraseñas restablecidas y eliminaciones definitivas.</div>';
     return;
   }
-  cont.innerHTML = lista.map(a => `<div>${esc2(a.personal?.nombre || 'Sistema')} — ${esc2(a.accion)}${a.tabla ? ' · '+esc2(a.tabla) : ''} · ${fmtFechaHora(a.created_at)}</div>`).join('');
+  // Pacientes de las consultas tardías (para mostrar a quién corresponde)
+  const idsC = lista.filter(a => a.tabla === 'consultas' && a.registro_id).map(a => a.registro_id);
+  const pacPorC = {};
+  if(idsC.length){
+    const { data: cs } = await sb.from('consultas').select('id,pacientes(nombre)').in('id', idsC);
+    (cs || []).forEach(c => { pacPorC[c.id] = c.pacientes?.nombre || ''; });
+  }
+  cont.innerHTML = lista.map(a => {
+    const quien = esc2(a.personal?.nombre || 'Sistema');
+    const cuando = fmtFechaHora(a.created_at);
+    const d = a.detalle || {};
+    if(a.accion === 'registro_tardio' || a.accion === 'fecha_retroactiva'){
+      const pac = pacPorC[a.registro_id] ? ' · ' + esc2(pacPorC[a.registro_id]) : '';
+      const que = a.accion === 'registro_tardio'
+        ? 'registró consulta tardía'
+        : `cambió la fecha de una consulta (antes ${fmtFechaCorta(d.fecha_anterior)})`;
+      const dias = Number(d.dias) || 0;
+      return `<div style="border-left:3px solid #E0703F;padding-left:8px;margin:2px 0"><b>${quien}</b> ${que} del <b>${fmtFechaCorta(d.fecha)}</b>${pac} · ${fmtMoney(d.monto)} · <span style="color:#B8481F;font-weight:700">${dias} ${dias === 1 ? 'día' : 'días'} de atraso</span> · ${cuando}</div>`;
+    }
+    return `<div>${quien} — ${esc2(a.accion)}${a.tabla ? ' · '+esc2(a.tabla) : ''} · ${cuando}</div>`;
+  }).join('');
 }
 </script>
 </body>
