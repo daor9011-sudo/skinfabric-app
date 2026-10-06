@@ -95,6 +95,21 @@ body{font-family:var(--font-b);min-height:100vh;color:var(--navy);background:#ee
 .s3-logout,.s3-config{font-family:var(--font-b);background:none;border:1px solid rgba(255,255,255,.25);color:#fff;padding:5px 12px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:5px}
 #app-user-name{font-family:var(--font-b);display:inline-flex;align-items:center}
 #btn-refresh{display:none}
+/* Cierre de mes (Comisiones) */
+.cc-bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:14px 0 4px;padding:11px 14px;border-radius:12px;border:1px solid var(--g2);background:var(--g1);font-size:12.5px;color:var(--g6);line-height:1.4}
+.cc-bar .cc-ico{font-size:17px;flex:none}
+.cc-bar .cc-tx{flex:1 1 220px;min-width:0}
+.cc-bar .cc-tx b{color:var(--navy)}
+.cc-bar .cc-tx small{display:block;font-size:11.5px;opacity:.85;margin-top:1px}
+.cc-bar.cerrado{background:#E7F6F6;border-color:#8FDADA;color:#0B6B6B}
+.cc-bar.cerrado .cc-tx b{color:#0B4F4F}
+.cc-bar.mezcla{background:#FFF6F1;border-color:#F2C4AE;color:#8A3B18}
+.cc-btn{font-family:var(--font-b);border:0;border-radius:9px;padding:9px 15px;font-size:12.5px;font-weight:800;cursor:pointer;flex:none;white-space:nowrap}
+.cc-btn.cerrar{background:var(--navy2);color:#fff}
+.cc-btn.cerrar:hover{background:var(--navy)}
+.cc-btn.reabrir{background:#fff;color:#B8481F;box-shadow:inset 0 0 0 1px #E8B9A2}
+.cc-btn.reabrir:hover{background:#FFF1EA}
+.cc-btn:disabled{opacity:.55;cursor:default}
 /* Campanita de registros tardíos (solo admin) */
 .bell-wrap{position:relative;display:inline-flex}
 .bell-btn{position:relative;width:36px;height:34px;padding:0;justify-content:center}
@@ -1622,6 +1637,8 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
         </div>
       </div>
 
+      <div class="cc-bar" id="com-cierre-bar" style="display:none"></div>
+
       <div class="subpanel active" id="com-resumen-panel">
         <div class="kpi-grid cols4" id="com-kpis"></div>
 
@@ -2113,7 +2130,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.10.05-35';
+const APP_VERSION = 'v2026.10.06-37';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 // La marca de versión cambia de color según lo que tenga debajo: blanca sobre fondo oscuro, gris sobre fondo claro
@@ -2480,6 +2497,11 @@ document.getElementById('prompt-modal-btn-cancelar').addEventListener('click', (
   promptModalCallback = null;
 });
 
+function msgMesCerrado(e){
+  const m = e && e.message;
+  if(m && m.includes('MES_CERRADO')){ const p = (m.match(/mes (\d{4}-\d{2})/) || [])[1]; return '🔒 ' + (p ? 'El mes ' + p : 'Ese mes') + ' está cerrado (comisiones liquidadas). El administrador debe reabrirlo para modificarlo.'; }
+  return null;
+}
 function toast(msg){
   const t = document.getElementById('toast2');
   t.textContent = msg; t.classList.add('show');
@@ -3084,6 +3106,103 @@ function comActualizarSubtitulo(){
   document.getElementById('com-hero-per').textContent = t;
 }
 
+
+// ── Cierre de mes de comisiones: congela los valores del mes (snapshot en comision_cierres) y la base bloquea
+//    crear/editar/eliminar consultas de ese mes hasta que un admin lo reabra ──
+let COM_CIERRES = {};   // periodo 'YYYY-MM' -> { id, cerrado_at, cerrado_por_nombre, filas, totales }
+const COM_MESES_NOM = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const comNombreMes = per => COM_MESES_NOM[+per.slice(5,7) - 1] + ' ' + per.slice(0,4);
+async function comCargarCierres(){
+  const { data, error } = await sb.from('comision_cierres').select('id,periodo,filas,totales,cerrado_at,cerrador:personal!cerrado_por(nombre)');
+  if(error){ console.error('[SkinFabric] Error cargando cierres de comisiones:', error); COM_CIERRES = {}; return; }
+  COM_CIERRES = {};
+  (data || []).forEach(c => { COM_CIERRES[c.periodo] = { id:c.id, cerrado_at:c.cerrado_at, cerrado_por_nombre:c.cerrador?.nombre || '—', filas:c.filas || [], totales:c.totales || {} }; });
+}
+function comPeriodoMesActivo(){
+  const per = document.getElementById('com-per');
+  const mes = document.getElementById('com-mes').value;
+  return (per && per.dataset.modo === 'mes' && /^\d{4}-\d{2}$/.test(mes)) ? mes : null;
+}
+function comRenderBarraCierre(){
+  const bar = document.getElementById('com-cierre-bar');
+  if(!bar) return;
+  const esAdmin = MI_PERFIL?.rol === 'admin';
+  const mes = comPeriodoMesActivo();
+  const cierresN = Object.keys(COM_CIERRES).length;
+  if(mes){
+    const c = COM_CIERRES[mes];
+    if(c){
+      bar.className = 'cc-bar cerrado';
+      bar.innerHTML = `<span class="cc-ico">🔒</span><div class="cc-tx"><b>${esc2(comNombreMes(mes))} cerrado y liquidado</b><small>Valores congelados el ${fmtFechaHora(c.cerrado_at)} por ${esc2(c.cerrado_por_nombre)}. No se pueden crear ni modificar consultas de este mes.</small></div>` +
+        (esAdmin ? '<button type="button" class="cc-btn reabrir" id="com-btn-reabrir">🔓 Reabrir mes</button>' : '');
+      bar.style.display = 'flex'; return;
+    }
+    const hoyMes = isoLocal(new Date()).slice(0,7);
+    const terminado = mes < hoyMes;
+    bar.className = 'cc-bar';
+    bar.innerHTML = `<span class="cc-ico">🔓</span><div class="cc-tx"><b>${esc2(comNombreMes(mes))} abierto</b><small>${terminado ? 'Los valores se calculan en vivo. Al cerrarlo se congelan y queda bloqueado.' : 'Los valores se calculan en vivo. Podrás cerrarlo cuando termine el mes.'}</small></div>` +
+      ((esAdmin && terminado) ? '<button type="button" class="cc-btn cerrar" id="com-btn-cerrar">🔒 Cerrar mes y liquidar</button>' : '');
+    bar.style.display = (esAdmin || terminado) ? 'flex' : 'none'; return;
+  }
+  // Rango / Todo: aviso si incluye meses cerrados
+  const desde = document.getElementById('com-desde').value, hasta = document.getElementById('com-hasta').value;
+  const incl = Object.keys(COM_CIERRES).filter(per => {
+    const ini = per + '-01', fin = per + '-31';
+    return (!hasta || ini <= hasta) && (!desde || fin >= desde);
+  }).sort();
+  if(!incl.length){ bar.style.display = 'none'; return; }
+  bar.className = 'cc-bar cerrado';
+  bar.innerHTML = `<span class="cc-ico">🔒</span><div class="cc-tx"><b>Incluye ${incl.length} ${incl.length === 1 ? 'mes cerrado' : 'meses cerrados'}</b><small>${incl.map(comNombreMes).map(esc2).join(', ')} — se muestran con los valores congelados al cierre.</small></div>`;
+  bar.style.display = 'flex';
+}
+function comTotalesFilas(rows){
+  const sum = f => rows.reduce((a, r) => a + (Number(r[f]) || 0), 0);
+  return { servicios: rows.length, ingreso: sum('monto'), com_cosm: sum('comCosmAtiende') + sum('comCosmDueno'), com_alejandra: sum('comAlejandra'), com_otro: sum('comOtro') };
+}
+async function comCerrarMes(){
+  const mes = comPeriodoMesActivo();
+  if(!mes || MI_PERFIL?.rol !== 'admin' || COM_CIERRES[mes]) return;
+  if(mes >= isoLocal(new Date()).slice(0,7)){ toast('Solo puedes cerrar un mes que ya terminó.'); return; }
+  const btn = document.getElementById('com-btn-cerrar');
+  if(btn){ btn.disabled = true; btn.textContent = 'Calculando...'; }
+  await cargarComisiones();                       // asegura que los valores están al día antes de congelar
+  if(comPeriodoMesActivo() !== mes){ return; }
+  const rows = COM_SERVICE_ROWS;
+  if(!rows.length){ toast('Ese mes no tiene servicios para cerrar.'); comRenderBarraCierre(); return; }
+  const T = comTotalesFilas(rows);
+  const ok = await confirmarAsync({
+    icono:'🔒', titulo:`¿Cerrar ${comNombreMes(mes)}?`, textoConfirmar:'Cerrar y liquidar',
+    mensaje:`Se congelarán <b>${T.servicios} servicios</b> por <b>${fmtMoney(T.ingreso)}</b> con sus comisiones y reglas actuales.<br><br>Después nadie podrá <b>crear, editar ni eliminar consultas</b> de ${esc2(comNombreMes(mes))}. Solo un administrador podrá reabrirlo, y quedará registrado.`
+  });
+  if(!ok){ comRenderBarraCierre(); return; }
+  const { error } = await sb.from('comision_cierres').insert({ periodo: mes, filas: rows, reglas: COM_REGLAS, totales: T });
+  if(error){
+    console.error('[SkinFabric] Error cerrando mes:', error);
+    toast(error.code === '23505' ? 'Ese mes ya estaba cerrado.' : 'No se pudo cerrar el mes. Intenta de nuevo.');
+    cargarComisiones(); return;
+  }
+  toast(`🔒 ${comNombreMes(mes)} cerrado y liquidado.`);
+  cargarComisiones();
+  if(typeof cargarActividad === 'function' && document.getElementById('app-screen-personal')?.classList.contains('act')) cargarActividad();
+}
+async function comReabrirMes(){
+  const mes = comPeriodoMesActivo(); const c = mes && COM_CIERRES[mes];
+  if(!c || MI_PERFIL?.rol !== 'admin') return;
+  const ok = await confirmarAsync({
+    icono:'🔓', danger:true, titulo:`¿Reabrir ${comNombreMes(mes)}?`, textoConfirmar:'Reabrir mes',
+    mensaje:`Los valores dejarán de estar congelados y volverán a calcularse en vivo. Se podrán crear, editar y eliminar consultas de ${esc2(comNombreMes(mes))}.<br><br>Esta acción queda registrada en tu actividad.`
+  });
+  if(!ok) return;
+  const { error } = await sb.from('comision_cierres').delete().eq('id', c.id);
+  if(error){ console.error('[SkinFabric] Error reabriendo mes:', error); toast('No se pudo reabrir el mes.'); return; }
+  toast(`🔓 ${comNombreMes(mes)} reabierto.`);
+  cargarComisiones();
+}
+document.getElementById('com-cierre-bar').addEventListener('click', e => {
+  if(e.target.closest('#com-btn-cerrar')) comCerrarMes();
+  else if(e.target.closest('#com-btn-reabrir')) comReabrirMes();
+});
+
 async function cargarComisiones(){
   comActualizarSubtitulo();
   const miReqId = ++comReqId;
@@ -3145,7 +3264,16 @@ async function cargarComisiones(){
   await comCargarReglas();
   if(miReqId !== comReqId) return;
   const { docAlejandra, docOtro } = comResolverDoctores();
-  COM_SERVICE_ROWS = serviceRows.map(r => comCalcularFila(r, docAlejandra, docOtro));
+  await comCargarCierres();
+  if(miReqId !== comReqId) return;
+  // Meses cerrados: se usan SOLO los valores congelados al cierre (no lo que haya hoy en la base)
+  const calc = serviceRows.map(r => comCalcularFila(r, docAlejandra, docOtro)).filter(r => !COM_CIERRES[String(r.fecha).slice(0,7)]);
+  Object.values(COM_CIERRES).forEach(c => {
+    (c.filas || []).forEach(r => { if((!desde || r.fecha >= desde) && (!hasta || r.fecha <= hasta)) calc.push(r); });
+  });
+  calc.sort((a, b) => a.fecha < b.fecha ? 1 : a.fecha > b.fecha ? -1 : 0);
+  COM_SERVICE_ROWS = calc;
+  comRenderBarraCierre();
 
   renderComisionesResumen(docAlejandra, docOtro);
   renderComisionesPago(docAlejandra, docOtro);
@@ -4328,7 +4456,7 @@ async function guardarRegistro(){
     limpiarRegistroParcial();
   }catch(err){
     console.error('[SkinFabric] Error guardando registro:', err);
-    toast('No se pudo guardar el registro. Verifica los datos e intenta de nuevo.');
+    toast(msgMesCerrado(err) || 'No se pudo guardar el registro. Verifica los datos e intenta de nuevo.');
   }finally{
     btn.disabled = false; btn.textContent = '✓ Guardar registro';
   }
@@ -4557,7 +4685,7 @@ async function guardarInline(id, campo, valor){
   const { error } = await sb.from('consultas').update({ [campo]: valor || null, edited_by: MI_PERFIL?.id || null, edited_at: new Date().toISOString() }).eq('id', id);
   if(error){
     console.error('[SkinFabric] Error guardando ' + campo + ':', error);
-    toast('No se pudo guardar. Verifica tu horario de acceso.');
+    toast(msgMesCerrado(error) || 'No se pudo guardar. Verifica tu horario de acceso.');
     return;
   }
   const row = HIST_ROWS.find(r=>r.id===id);
@@ -4663,7 +4791,7 @@ async function restaurarConsulta(id){
   const { error } = await sb.from('consultas').update({ deleted:false, deleted_at:null, deleted_by:null }).eq('id', id);
   if(error){
     console.error('[SkinFabric] Error restaurando consulta:', error);
-    toast('No se pudo restaurar el registro.');
+    toast(msgMesCerrado(error) || 'No se pudo restaurar el registro.');
     return;
   }
   toast('✓ Registro restaurado.');
@@ -4801,7 +4929,7 @@ document.getElementById('edit-btn-guardar').addEventListener('click', async ()=>
   if(error){
     btn.disabled = false; btn.textContent = 'Guardar cambios';
     console.error('[SkinFabric] Error guardando edición:', error);
-    toast('No se pudo guardar. Verifica tu horario de acceso.');
+    toast(msgMesCerrado(error) || 'No se pudo guardar. Verifica tu horario de acceso.');
     return;
   }
   const { error: errDel } = await sb.from('consulta_servicios').delete().eq('consulta_id', HIST_EDIT_ID);
@@ -4844,7 +4972,7 @@ document.getElementById('edit-btn-eliminar').addEventListener('click', async ()=
   const { error } = await sb.from('consultas').update({ deleted:true, deleted_at:new Date().toISOString(), deleted_by: MI_PERFIL?.id || null }).eq('id', HIST_EDIT_ID);
   if(error){
     console.error('[SkinFabric] Error eliminando consulta:', error);
-    toast('No se pudo eliminar el registro.');
+    toast(msgMesCerrado(error) || 'No se pudo eliminar el registro.');
     return;
   }
   toast('✓ Registro movido a la papelera.');
@@ -5823,7 +5951,7 @@ function renderDashFarmacia(farm, FV, FG, doctorId){
   sec.style.display = '';
   const btn = esAdmin ? '<button class="btn-sm btn-teal" id="farm-btn-abrir" type="button">⬆ Cargar Excel</button>' : '';
   const head = `<div class="prod-head"><div class="prod-title">💊 Farmacia</div><div class="fm-head-r">${btn}<div class="prod-period">${esc2(dashPeriodo().texto)}</div></div></div>
-    <div class="prod-sub">Venta de medicamentos y productos · margen = venta − gasto de la categoría “Farmacia”</div>`;
+    <div class="prod-sub">${doctorId ? 'Resultados de <b>' + esc2(farmNombreCorto(((document.getElementById('dash-doctor').selectedOptions[0] || {}).textContent || '').trim())) + '</b> · ' : 'Venta global de la clínica · '}margen = venta − gasto de la categoría “Farmacia”</div>`;
   if(!farm.length){ sec.innerHTML = head + '<div class="fm-empty">Sin ventas de farmacia en este periodo. Usa “Cargar Excel” para subir el mes.</div>'; return; }
   const pct = (v, t) => t > 0 ? Math.round(v / t * 100) : 0;
   // Facturación
@@ -5845,30 +5973,16 @@ function renderDashFarmacia(farm, FV, FG, doctorId){
     const p = prod[k] || (prod[k] = { monto:0, n:0, txt:farmLimpiarProducto(f.medicamento) });
     p.monto += Number(f.monto || 0); p.n++;
   });
-  const top = Object.entries(prod).sort((a,b) => b[1].monto - a[1].monto).slice(0, 5);
+  const top = Object.entries(prod).sort((a,b) => b[1].monto - a[1].monto).slice(0, 8);
   const topMax = top.length ? top[0][1].monto : 1;
   const topHtml = top.map(([k,p]) =>
     `<div class="fm-br"><span class="fm-bl w" title="${esc2(p.txt)}">${esc2(farmTitulo(p.txt))}</span><span class="fm-bt"><i style="width:${p.monto / topMax * 100}%;background:#2F6FD0"></i></span><b>${fmtMoney0(p.monto)}</b><em>${p.n} ${p.n === 1 ? 'venta' : 'ventas'}</em></div>`).join('');
-  // Dr. vs Dra. (solo sin filtro de doctor y con los dos identificados)
-  let caraHtml = '';
-  const { docAlejandra, docOtro } = comResolverDoctores();
-  if(!doctorId && docAlejandra && docOtro){
-    const de = d => { const r = farm.filter(f => f.doctor_id === d.id); return { v: r.reduce((a,f)=> a + Number(f.monto || 0), 0), n: r.length, g: dashFarmGastoDe(d.id) }; };
-    const A = de(docOtro), B = de(docAlejandra);
-    const tug = (lab, a, b, fmt) => { const s = (a > 0 ? a : 0) + (b > 0 ? b : 0), pa = s > 0 ? Math.max(a, 0) / s * 100 : 50;
-      return `<div class="fm-tug"><div class="fm-tl">${lab}</div><div class="fm-tb"><i style="width:${pa}%;background:${DASH_COL_OTRO}"></i><i style="width:${100 - pa}%;background:${DASH_COL_ALE}"></i></div><div class="fm-tv"><b style="color:#173F82">${fmt(a)}</b><b style="color:#0B6B6B">${fmt(b)}</b></div></div>`; };
-    const tk = (x) => x.n ? x.v / x.n : 0;
-    caraHtml = `<div class="fm-pc"><div class="fm-pt">⚖️ ${esc2(farmNombreCorto(docOtro.nombre))} vs ${esc2(farmNombreCorto(docAlejandra.nombre))}</div>
-      <div class="fm-pl"><span style="color:#173F82"><u style="background:${DASH_COL_OTRO}"></u>${esc2(farmNombreCorto(docOtro.nombre))}</span><span style="color:#0B6B6B"><u style="background:${DASH_COL_ALE}"></u>${esc2(farmNombreCorto(docAlejandra.nombre))}</span></div>
-      ${tug('Venta de farmacia', A.v, B.v, fmtMoney0)}${tug('Ventas', A.n, B.n, v => String(v))}${tug('Ticket promedio', tk(A), tk(B), fmtMoney0)}${tug('Margen (venta − gasto)', A.v - A.g, B.v - B.g, fmtMoneyS)}</div>`;
-  }
   sec.innerHTML = head + `<div class="fm-f2">
     <div class="fm-col">
       <div class="fm-pc"><div class="fm-pt">🧾 Facturación</div><div class="fm-fbar">${fbar}</div><div class="fm-leg">${fleg}</div></div>
-      ${caraHtml}
+      <div class="fm-pc"><div class="fm-pt">💳 Medios de pago</div>${medHtml}</div>
     </div>
     <div class="fm-col">
-      <div class="fm-pc"><div class="fm-pt">💳 Medios de pago</div>${medHtml}</div>
       <div class="fm-pc"><div class="fm-pt">🏷️ Más vendidos</div>${topHtml}</div>
     </div></div>`;
 }
@@ -7419,6 +7533,11 @@ async function cargarActividad(){
         : `cambió la fecha de una consulta (antes ${fmtFechaCorta(d.fecha_anterior)})`;
       const dias = Number(d.dias) || 0;
       return `<div style="border-left:3px solid #E0703F;padding-left:8px;margin:2px 0"><b>${quien}</b> ${que} del <b>${fmtFechaCorta(d.fecha)}</b>${pac} · ${fmtMoney(d.monto)} · <span style="color:#B8481F;font-weight:700">${dias} ${dias === 1 ? 'día' : 'días'} de atraso</span> · ${cuando}</div>`;
+    }
+    if(a.accion === 'cerrar_comisiones' || a.accion === 'reabrir_comisiones'){
+      const per = d.periodo ? comNombreMes(d.periodo) : '';
+      const cierre = a.accion === 'cerrar_comisiones';
+      return `<div style="border-left:3px solid ${cierre ? '#2ABFBF' : '#E0703F'};padding-left:8px;margin:2px 0">${cierre ? '🔒' : '🔓'} <b>${quien}</b> ${cierre ? 'cerró' : 'reabrió'} las comisiones de <b>${esc2(per)}</b>${cierre && d.ingreso != null ? ' · ' + fmtMoney(d.ingreso) : ''} · ${cuando}</div>`;
     }
     return `<div>${quien} — ${esc2(a.accion)}${a.tabla ? ' · '+esc2(a.tabla) : ''} · ${cuando}</div>`;
   }).join('');
