@@ -552,6 +552,7 @@ main.appmain{padding:22px 26px 40px;max-width:1250px;margin:0 auto}
 .kpi-grid.cols4{grid-template-columns:repeat(4,1fr)}
 /* ══════════ DASHBOARD · gasto y margen (tarjetas con tendencia) ══════════ */
 .kpi-grid.cols3{grid-template-columns:repeat(3,1fr)}
+.kpi-grid.cols2{grid-template-columns:repeat(2,1fr)}
 .fin-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:10px}
 .fin-card{background:#fff;border:1.5px solid var(--g2);border-radius:11px;padding:12px 14px;display:flex;align-items:center;gap:10px;min-width:0}
 .fin-card .bd{flex:1;min-width:0}
@@ -1538,11 +1539,10 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
         <div class="fin-card m"><div class="bd"><div class="kpi-label">Margen bruto</div><div class="kpi-val" id="fin-mar-v">$0</div><div class="fin-sub" id="fin-mar-s"></div></div><div><div class="sp" id="fin-mar-sp"></div><div class="cap">margen acumulado</div></div></div>
       </div>
       <div class="fin-grid fm-rub" id="dash-rubros" style="display:none"></div>
-      <div class="kpi-grid cols4" id="dash-kpi-grid">
+      <div class="kpi-grid cols3" id="dash-kpi-grid">
         <div class="kpi-card" id="dash-kpi-ing-card"><div class="ico">💰</div><div class="kpi-label">Ingreso total</div><div class="kpi-val" id="dash-kpi-total">$0.00</div></div>
         <div class="kpi-card"><div class="ico">👥</div><div class="kpi-label">Pacientes</div><div class="kpi-val" id="dash-kpi-pacientes">0</div></div>
         <div class="kpi-card"><div class="ico">🎟️</div><div class="kpi-label">Ticket prom.</div><div class="kpi-val" id="dash-kpi-ticket">$0.00</div></div>
-        <div class="kpi-card"><div class="ico">🏆</div><div class="kpi-label">Doctor top</div><div class="kpi-val" id="dash-kpi-doctor-top" style="font-size:13px">—</div></div>
       </div>
       <div class="fin-sec" id="dash-resdoc" style="display:none">
         <div class="prod-head"><div class="prod-title">🩺 Resultado por doctor</div><div class="prod-period" id="dash-resdoc-periodo">Últimos 30 días</div></div>
@@ -2130,7 +2130,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.10.06-37';
+const APP_VERSION = 'v2026.10.06-38';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 // La marca de versión cambia de color según lo que tenga debajo: blanca sobre fondo oscuro, gris sobre fondo claro
@@ -5539,13 +5539,10 @@ function renderDashboard(){
   });
   const consultasCount = DASH_ROWS.length;
   const ticketProm = consultasCount ? ingresoTotal / consultasCount : 0;
-  let doctorTop = '—', maxVal = -1;
-  Object.entries(porDoctorMap).forEach(([nombre, val])=>{ if(val > maxVal){ maxVal = val; doctorTop = nombre; } });
 
   document.getElementById('dash-kpi-total').textContent = fmtMoney(ingresoTotal);
   document.getElementById('dash-kpi-pacientes').textContent = String(pacientesSet.size);
   document.getElementById('dash-kpi-ticket').textContent = fmtMoney(ticketProm);
-  document.getElementById('dash-kpi-doctor-top').textContent = doctorTop;
 
   renderChartTend();
   renderChartDoc(porDoctorMap);
@@ -6215,8 +6212,8 @@ function renderDashFin(ingresoLegacy){
   $('dash-fin').style.display = on ? '' : 'none';
   $('dash-kpi-ing-card').style.display = on ? 'none' : '';
   const grid = $('dash-kpi-grid');
-  grid.classList.toggle('cols4', !on);
-  grid.classList.toggle('cols3', on);
+  grid.classList.toggle('cols3', !on);
+  grid.classList.toggle('cols2', on);
   $('dash-ig-card').style.display = on ? '' : 'none';
   $('dash-gasto').style.display = on ? '' : 'none';
   $('dash-resdoc').style.display = 'none';
