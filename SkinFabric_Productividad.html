@@ -2140,7 +2140,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.10.06-40';
+const APP_VERSION = 'v2026.10.06-43';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 // La marca de versión cambia de color según lo que tenga debajo: blanca sobre fondo oscuro, gris sobre fondo claro
@@ -2971,6 +2971,10 @@ const COM_REGLAS_DEFAULT = {
   // Equipo dedicado a cada doctor/a (el resto de la cabina es equipo compartido entre ambos).
   equipo_alejandra: ['Depilación','Facial 3 en 1'],
   equipo_otro: ['Láser luz pulsada'],
+  // Paciente de cosmetóloga: toda la cabina se reparte 50/50 entre doctores (reparto_alejandra_pct), salvo estos servicios,
+  // donde la Dra. Alejandra se queda con dep_cosm_alejandra_pct (el resto, al Dr.).
+  servicios_dep_cosm: ['Depilación'],
+  dep_cosm_alejandra_pct: 70,
 };
 function comNormalizarConfig(c){
   const d = COM_REGLAS_DEFAULT, n = (v, f) => (v === null || v === undefined || v === '' || isNaN(Number(v))) ? f : Number(v);
@@ -2983,6 +2987,8 @@ function comNormalizarConfig(c){
     servicios_cabina: arr(c?.servicios_cabina, d.servicios_cabina),
     equipo_alejandra: arr(c?.equipo_alejandra, d.equipo_alejandra),
     equipo_otro: arr(c?.equipo_otro, d.equipo_otro),
+    servicios_dep_cosm: arr(c?.servicios_dep_cosm, d.servicios_dep_cosm),
+    dep_cosm_alejandra_pct: n(c?.dep_cosm_alejandra_pct, d.dep_cosm_alejandra_pct),
   };
 }
 let COM_REGLAS = [{ id: null, vigente_desde: COM_FECHA_BASE, config: comNormalizarConfig(COM_REGLAS_DEFAULT) }];  // orden ascendente
@@ -3028,7 +3034,8 @@ function comResolverDoctores(){
 //  1) Dueño doctor + equipo compartido (o sin equipo de cabina) → 100% para el dueño.
 //  2) Dueño doctor + equipo dedicado del OTRO doctor → 70% dueño / 30% dueño del equipo (por defecto).
 //  3) Cosmetóloga que atiende (y no es la dueña) → 3% para ella (por defecto).
-//  4) Dueño del paciente es cosmetóloga → ella se lleva 5%, y el resto se reparte 50/50 entre
+//  4) Dueño del paciente es cosmetóloga → ella se lleva 5% (aparte), y la cabina se reparte 50/50 entre los doctores sin importar el equipo
+//     (depilación: 70% Dra. / 30% Dr., config dep_cosm_alejandra_pct). Antes: el resto se reparte 50/50 entre
 //     los 2 doctores (sin importar equipo ni quién atendió). Un paciente SIN dueño asignado se
 //     trata igual (50/50), caso que aún no nos han confirmado pero es el default más razonable.
 function comCalcularFila(row, docAlejandra, docOtro){
@@ -3039,13 +3046,20 @@ function comCalcularFila(row, docAlejandra, docOtro){
   const equipoDedicadoCarlos = R.equipo_otro.includes(row.servicio);
   const pAt = R.cosm_atiende_pct / 100, pDu = R.cosm_duena_pct / 100, pEq = R.equipo_duena_pct / 100, pAl = R.reparto_alejandra_pct / 100;
   const txtReparto = (a) => (a === 50 ? '50/50' : `${fmtPct(a)}% Dra. / ${fmtPct(100 - a)}% Dr.`);
+  // Paciente de cosmetóloga en cabina: 50/50 entre doctores sin importar de quién sea el equipo; depilación = 70% Dra. / 30% Dr.
+  const esDepCosm = (R.servicios_dep_cosm || []).includes(row.servicio);
+  const pctAlC = esDepCosm ? Number(R.dep_cosm_alejandra_pct ?? 70) : R.reparto_alejandra_pct;
+  const pAlC = pctAlC / 100;
 
   const comCosmAtiende = (row.atiendeRol === 'cosmetologo' && row.atiendeId && row.atiendeId !== row.duenoId) ? monto * pAt : 0;
   // El % de "dueña del paciente" solo existe dentro de cabina — es la comisión por el trabajo
   // de la cosmetóloga, no por simplemente figurar como dueña del paciente en el sistema. Si ese
   // mismo paciente ve a un doctor para una consulta o procedimiento (fuera de cabina), ella no
   // comisiona nada ahí: confirmado explícitamente para no repetir el error de antes.
-  const comCosmDueno = (row.duenoRol === 'cosmetologo' && esCabina) ? monto * pDu : 0;
+  // Si el paciente es de una cosmetóloga pero lo atendió OTRA cosmetóloga, solo cobra la que atendió (3%): la dueña
+  // no cobra su 5% para no pagar comisión doble sobre el mismo servicio. Si lo atendió ella misma (5%) o un doctor, no cambia.
+  const atendioOtraCosm = row.atiendeRol === 'cosmetologo' && !!row.atiendeId && row.atiendeId !== row.duenoId;
+  const comCosmDueno = (row.duenoRol === 'cosmetologo' && esCabina && !atendioOtraCosm) ? monto * pDu : 0;
   const resto = monto - comCosmAtiende - comCosmDueno;
 
   const duenoEsOtro = docOtro && row.duenoId === docOtro.id;
@@ -3055,8 +3069,8 @@ function comCalcularFila(row, docAlejandra, docOtro){
 
   let comAlejandra = 0, comOtro = 0, regla = '—';
   if(row.duenoRol === 'cosmetologo' && esCabina){
-    comAlejandra = resto * pAl; comOtro = resto * (1 - pAl);
-    regla = txtReparto(R.reparto_alejandra_pct) + ' · dueña cosmetóloga';
+    comAlejandra = resto * pAlC; comOtro = resto * (1 - pAlC);
+    regla = txtReparto(pctAlC) + ' · dueña cosmetóloga' + (esDepCosm ? ' (depilación)' : '');
   } else if(row.duenoRol === 'cosmetologo' && !esCabina){
     // Fuera de cabina la dueña cosmetóloga no tiene nada que ver — el 100% es para el doctor
     // que de verdad atendió esa consulta (no se reparte entre los 2 doctores, porque aquí no
@@ -3090,7 +3104,10 @@ function comCalcularFila(row, docAlejandra, docOtro){
   if(esCabina){
     const tEq = `${fmtPct(R.equipo_duena_pct)}/${fmtPct(100 - R.equipo_duena_pct)}`;
     distAlejandra = 0; distOtro = 0;
-    if(equipoDedicadoAlejandra){
+    if(row.duenoRol === 'cosmetologo'){
+      distAlejandra = monto * pAlC; distOtro = monto * (1 - pAlC);
+      reglaDist = txtReparto(pctAlC) + ' · paciente de cosmetóloga' + (esDepCosm ? ' (depilación)' : '');
+    } else if(equipoDedicadoAlejandra){
       if(duenoEsOtro){ distOtro = monto * pEq; distAlejandra = monto * (1 - pEq); reglaDist = tEq + ' · equipo de ' + (docAlejandra?.nombre || 'Dra. Alejandra'); }
       else { distAlejandra = monto; reglaDist = '100% · equipo de ' + (docAlejandra?.nombre || 'Dra. Alejandra'); }
     } else if(equipoDedicadoCarlos){
@@ -3367,7 +3384,8 @@ function renderComisionesResumen(docAlejandra, docOtro){
   const reglaChip = regla => {
     if(regla.startsWith('100%')) return `<span class="chip chip-100">${esc2(regla)}</span>`;
     if(/^\d+(\.\d+)?\/\d+/.test(regla) && !regla.startsWith('50/50')) return `<span class="chip chip-7030">${esc2(regla)}</span>`;
-    if(regla.startsWith('50/50') || /^\d+(\.\d+)?% Dra\./.test(regla)) return `<span class="chip chip-5050">${esc2(regla)}</span>`;
+    if(/^\d+(\.\d+)?% Dra\./.test(regla)) return `<span class="chip chip-7030">${esc2(regla)}</span>`;
+    if(regla.startsWith('50/50')) return `<span class="chip chip-5050">${esc2(regla)}</span>`;
     return `<span class="chip">${esc2(regla)}</span>`;
   };
   const panelDetalleHtml = (panelId, titulo, nombreCorto, lista, valDe) => {
@@ -3419,7 +3437,7 @@ function renderComisionesResumen(docAlejandra, docOtro){
   });
   cosmetologas.forEach(c => {
     const clinicaRows = rows.filter(r => r.atiendeId === c.id && r.atiendeRol === 'cosmetologo' && r.atiendeId !== r.duenoId);
-    const propiosRows = rows.filter(r => r.duenoRol === 'cosmetologo' && r.duenoId === c.id && r.esCabina);
+    const propiosRows = rows.filter(r => r.duenoRol === 'cosmetologo' && r.duenoId === c.id && r.esCabina && !(r.atiendeRol === 'cosmetologo' && r.atiendeId && r.atiendeId !== r.duenoId));
     const montoClinica = clinicaRows.reduce((a,r)=> a + r.monto, 0);
     const comClinica = clinicaRows.reduce((a,r)=> a + r.comCosmAtiende, 0);
     const montoPropios = propiosRows.reduce((a,r)=> a + r.monto, 0);
@@ -3449,7 +3467,8 @@ const comNorm = t => String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g
 function comReglaChip(regla){
   if(regla.startsWith('100%')) return `<span class="chip chip-100">${esc2(regla)}</span>`;
   if(/^\d+(\.\d+)?\/\d+/.test(regla) && !regla.startsWith('50/50')) return `<span class="chip chip-7030">${esc2(regla)}</span>`;
-  if(regla.startsWith('50/50') || /^\d+(\.\d+)?% Dra\./.test(regla)) return `<span class="chip chip-5050">${esc2(regla)}</span>`;
+  if(/^\d+(\.\d+)?% Dra\./.test(regla)) return `<span class="chip chip-7030">${esc2(regla)}</span>`;
+    if(regla.startsWith('50/50')) return `<span class="chip chip-5050">${esc2(regla)}</span>`;
   return `<span class="chip">${esc2(regla)}</span>`;
 }
 // Llena los selects con el personal que aparece en el periodo (doctores y cosmetólogas agrupados) y conserva la selección.
@@ -6953,7 +6972,7 @@ function cfgrNueva(){
 function cfgrNombresServicios(){
   const nombres = (CATALOGOS.tiposServicio || []).map(t => t.nombre);
   const d = CFGR.draft;
-  [...d.servicios_cabina, ...d.equipo_alejandra, ...d.equipo_otro].forEach(n => { if(!nombres.includes(n)) nombres.push(n); });
+  [...d.servicios_cabina, ...d.equipo_alejandra, ...d.equipo_otro, ...(d.servicios_dep_cosm || [])].forEach(n => { if(!nombres.includes(n)) nombres.push(n); });
   return nombres;
 }
 function cfgrRender(){
@@ -6972,7 +6991,8 @@ function cfgrRender(){
     const cab = d.servicios_cabina.includes(n);
     const eq = d.equipo_alejandra.includes(n) ? 'a' : d.equipo_otro.includes(n) ? 'o' : 'c';
     return `<tr class="${cab ? '' : 'off'}" data-serv="${esc2(n)}"><td>${esc2(n)}</td><td><input type="checkbox" class="cfgr-cab" ${cab ? 'checked' : ''} aria-label="${esc2(n)} es de cabina"/></td>
-      <td><select class="cfgr-eq" ${cab ? '' : 'disabled'} aria-label="Equipo de ${esc2(n)}"><option value="c" ${eq==='c'?'selected':''}>Compartido</option><option value="a" ${eq==='a'?'selected':''}>${esc2(nA)}</option><option value="o" ${eq==='o'?'selected':''}>${esc2(nO)}</option></select></td></tr>`;
+      <td><select class="cfgr-eq" ${cab ? '' : 'disabled'} aria-label="Equipo de ${esc2(n)}"><option value="c" ${eq==='c'?'selected':''}>Compartido</option><option value="a" ${eq==='a'?'selected':''}>${esc2(nA)}</option><option value="o" ${eq==='o'?'selected':''}>${esc2(nO)}</option></select></td>
+      <td><input type="checkbox" class="cfgr-dep" ${(d.servicios_dep_cosm || []).includes(n) ? 'checked' : ''} ${cab ? '' : 'disabled'} aria-label="${esc2(n)}: reparto especial en pacientes de cosmetóloga"/></td></tr>`;
   }).join('');
   body.innerHTML = `
     <div class="cfgr-vers">${pills}</div>
@@ -6985,11 +7005,12 @@ function cfgrRender(){
         ${campo('cosm_atiende_pct', 'Cosmetóloga que atiende', 'Si no es la dueña del paciente. Se paga aparte: no se resta a los doctores.')}
         ${campo('cosm_duena_pct', 'Cosmetóloga dueña del paciente', 'Solo en servicios de cabina. Se paga aparte: no se resta a los doctores.')}
         ${campo('equipo_duena_pct', 'Dueño doctor con equipo del otro', 'Parte del dueño cuando el servicio usa el equipo dedicado del otro doctor; el resto es del dueño del equipo.')}
-        ${campo('reparto_alejandra_pct', `Reparto para ${esc2(nA)}`, `Cabina con equipo compartido y sin doctor dueño (dueña cosmetóloga o sin dueño): este % es de ${esc2(nA)} y el resto de ${esc2(nO)}.`)}
+        ${campo('reparto_alejandra_pct', `Reparto para ${esc2(nA)}`, `Cabina de pacientes de cosmetóloga (cualquier equipo) o sin doctor dueño: este % es de ${esc2(nA)} y el resto de ${esc2(nO)}.`)}
+        ${campo('dep_cosm_alejandra_pct', `Depilación en paciente de cosmetóloga: ${esc2(nA)}`, `Para los servicios marcados con “Reparto especial” en la tabla de abajo: este % es de ${esc2(nA)} y el resto de ${esc2(nO)}.`)}
       </div></div>
     <div class="cfgr-box"><h4>Servicios de cabina y equipo</h4>
-      <p class="cfgr-h">Marca los servicios que cuentan como cabina y de quién es el equipo. Compartido = el dueño del paciente se queda con todo.</p>
-      <div class="cfgr-wrap"><table class="cfgr-tbl"><thead><tr><th>Servicio</th><th>Cabina</th><th>Equipo</th></tr></thead><tbody>${filas}</tbody></table></div></div>
+      <p class="cfgr-h">Marca los servicios que cuentan como cabina y de quién es el equipo. Compartido = el dueño del paciente se queda con todo. Si el paciente es de una cosmetóloga, la cabina se reparte entre los doctores sin importar el equipo; “Reparto especial” (depilación) usa el % de arriba.</p>
+      <div class="cfgr-wrap"><table class="cfgr-tbl"><thead><tr><th>Servicio</th><th>Cabina</th><th>Equipo</th><th title="En pacientes de cosmetóloga se reparte con el % de depilación en vez de 50/50">Reparto especial</th></tr></thead><tbody>${filas}</tbody></table></div></div>
     <div class="cfgr-box"><h4>Así quedan las reglas</h4><ul class="cfgr-res" id="cfgr-resumen"></ul></div>
     <div id="cfgr-aviso"></div>
     <div class="cfgr-acc">
@@ -7006,7 +7027,8 @@ function cfgrResumen(){
   const li = [
     `Cosmetóloga que atiende (y no es la dueña): <b>${fmtPct(d.cosm_atiende_pct)}%</b>, se paga aparte.`,
     `Cosmetóloga dueña del paciente: <b>${fmtPct(d.cosm_duena_pct)}%</b> en cabina, se paga aparte.`,
-    `Cabina con equipo compartido: <b>100%</b> para el doctor dueño del paciente; si la dueña es cosmetóloga o no hay dueño, <b>${fmtPct(d.reparto_alejandra_pct)}%</b> ${esc2(nA)} / <b>${fmtPct(100 - d.reparto_alejandra_pct)}%</b> ${esc2(nO)}.`,
+    `Cabina con equipo compartido: <b>100%</b> para el doctor dueño del paciente; si no hay dueño asignado, <b>${fmtPct(d.reparto_alejandra_pct)}%</b> ${esc2(nA)} / <b>${fmtPct(100 - d.reparto_alejandra_pct)}%</b> ${esc2(nO)}.`,
+    `Paciente de cosmetóloga (cualquier equipo de cabina): <b>${fmtPct(d.reparto_alejandra_pct)}%</b> ${esc2(nA)} / <b>${fmtPct(100 - d.reparto_alejandra_pct)}%</b> ${esc2(nO)}; excepto ${esc2(lista(d.servicios_dep_cosm || []))}: <b>${fmtPct(d.dep_cosm_alejandra_pct ?? 70)}%</b> ${esc2(nA)} / <b>${fmtPct(100 - (d.dep_cosm_alejandra_pct ?? 70))}%</b> ${esc2(nO)}.`,
     `Equipo de ${esc2(nA)} (${esc2(lista(d.equipo_alejandra))}): <b>100%</b> para ella; si el paciente es de ${esc2(nO)}, <b>${fmtPct(d.equipo_duena_pct)}%</b> dueño / <b>${fmtPct(100 - d.equipo_duena_pct)}%</b> ${esc2(nA)}.`,
     `Equipo de ${esc2(nO)} (${esc2(lista(d.equipo_otro))}): <b>100%</b> para él; si el paciente es de ${esc2(nA)}, <b>${fmtPct(d.equipo_duena_pct)}%</b> dueña / <b>${fmtPct(100 - d.equipo_duena_pct)}%</b> ${esc2(nO)}.`,
     `Fuera de cabina: <b>100%</b> para el doctor dueño del paciente. Cabina: ${d.servicios_cabina.length} servicios.`,
@@ -7015,7 +7037,7 @@ function cfgrResumen(){
 }
 function cfgrValidar(){
   const d = CFGR.draft;
-  for(const k of ['cosm_atiende_pct','cosm_duena_pct','equipo_duena_pct','reparto_alejandra_pct']){
+  for(const k of ['cosm_atiende_pct','cosm_duena_pct','equipo_duena_pct','reparto_alejandra_pct','dep_cosm_alejandra_pct']){
     if(typeof d[k] !== 'number' || isNaN(d[k]) || d[k] < 0 || d[k] > 100) return 'Los porcentajes deben estar entre 0 y 100.';
   }
   if(d.cosm_atiende_pct + d.cosm_duena_pct >= 100) return 'Los porcentajes de cosmetóloga no pueden sumar 100% o más.';
@@ -7085,14 +7107,16 @@ document.getElementById('cfgr-body').addEventListener('change', (e) => {
   const tr = e.target.closest('tr[data-serv]'); if(!tr) return;
   const n = tr.dataset.serv;
   const quitar = a => { const i = a.indexOf(n); if(i >= 0) a.splice(i, 1); };
-  const cab = tr.querySelector('.cfgr-cab').checked, eq = tr.querySelector('.cfgr-eq').value;
-  quitar(d.servicios_cabina); quitar(d.equipo_alejandra); quitar(d.equipo_otro);
+  const cab = tr.querySelector('.cfgr-cab').checked, eq = tr.querySelector('.cfgr-eq').value, depCk = tr.querySelector('.cfgr-dep');
+  if(!d.servicios_dep_cosm) d.servicios_dep_cosm = [];
+  quitar(d.servicios_cabina); quitar(d.equipo_alejandra); quitar(d.equipo_otro); quitar(d.servicios_dep_cosm);
   if(cab){
     d.servicios_cabina.push(n);
     if(eq === 'a') d.equipo_alejandra.push(n); else if(eq === 'o') d.equipo_otro.push(n);
+    if(depCk.checked) d.servicios_dep_cosm.push(n);
   }
-  tr.classList.toggle('off', !cab); tr.querySelector('.cfgr-eq').disabled = !cab;
-  if(!cab) tr.querySelector('.cfgr-eq').value = 'c';
+  tr.classList.toggle('off', !cab); tr.querySelector('.cfgr-eq').disabled = !cab; depCk.disabled = !cab;
+  if(!cab){ tr.querySelector('.cfgr-eq').value = 'c'; depCk.checked = false; }
   cfgrResumen();
 });
 
