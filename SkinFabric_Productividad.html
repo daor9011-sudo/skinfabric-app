@@ -95,6 +95,16 @@ body{font-family:var(--font-b);min-height:100vh;color:var(--navy);background:#ee
 .s3-logout,.s3-config{font-family:var(--font-b);background:none;border:1px solid rgba(255,255,255,.25);color:#fff;padding:5px 12px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:5px}
 #app-user-name{font-family:var(--font-b);display:inline-flex;align-items:center}
 #btn-refresh{display:none}
+.baja-lbl{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:var(--g6)}
+.baja-lbl input{font:600 12px var(--font-b);padding:5px 7px;border:1.5px solid var(--g2);border-radius:8px;color:var(--navy);background:#fff;width:auto;max-width:140px}
+/* Rol cosmetóloga: solo ve su Cierre (su producción y sus pacientes) */
+body.rol-cosm .s3-segment button[data-screen2]:not([data-screen2="cierre"]){display:none!important}
+body.rol-cosm #cierre-doctor,body.rol-cosm #cierre-tabs,body.rol-cosm #cierre-por-pago-panel,body.rol-cosm #cierre-kpi-ticket-card{display:none!important}
+body.rol-cosm #cierre-por-doctor-panel{display:block!important}
+body.rol-cosm #cierre-kpis{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+.cierre-mi .cierre-card{margin-bottom:0}
+.cierre-mi .acordeon-pac{display:block!important}
+.cierre-mi .pac-fecha{display:inline-block;min-width:44px;color:var(--g6);font-size:11px;font-weight:700}
 /* Cierre de mes (Comisiones) */
 .cc-bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:14px 0 4px;padding:11px 14px;border-radius:12px;border:1px solid var(--g2);background:var(--g1);font-size:12.5px;color:var(--g6);line-height:1.4}
 .cc-bar .cc-ico{font-size:17px;flex:none}
@@ -1482,7 +1492,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
       </div>
     </div>
     <div class="card screen2" id="app-screen-cierre">
-      <div class="tab-title"><span>🧾 Resultados Operativos</span></div>
+      <div class="tab-title"><span id="cierre-title">🧾 Resultados Operativos</span></div>
       <div class="periodo-bar">
         <button class="btn-sm act" id="cierre-modo-dia" type="button">📋 Día</button>
         <button class="btn-sm" id="cierre-modo-mes" type="button">📅 Mes</button>
@@ -1494,13 +1504,13 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
         <select id="cierre-doctor" style="max-width:220px;margin-left:auto"><option value="">Todo el personal</option></select>
       </div>
 
-      <div class="kpi-grid">
-        <div class="kpi-card"><div class="ico">💰</div><div class="kpi-label">Ingreso total</div><div class="kpi-val" id="cierre-kpi-total">$0.00</div></div>
-        <div class="kpi-card"><div class="ico">🧾</div><div class="kpi-label">Consultas</div><div class="kpi-val" id="cierre-kpi-consultas">0</div></div>
-        <div class="kpi-card"><div class="ico">🎟️</div><div class="kpi-label">Ticket promedio</div><div class="kpi-val" id="cierre-kpi-ticket">$0.00</div></div>
+      <div class="kpi-grid" id="cierre-kpis">
+        <div class="kpi-card"><div class="ico">💰</div><div class="kpi-label" id="cierre-kpi-total-l">Ingreso total</div><div class="kpi-val" id="cierre-kpi-total">$0.00</div></div>
+        <div class="kpi-card"><div class="ico">🧾</div><div class="kpi-label" id="cierre-kpi-consultas-l">Consultas</div><div class="kpi-val" id="cierre-kpi-consultas">0</div></div>
+        <div class="kpi-card" id="cierre-kpi-ticket-card"><div class="ico">🎟️</div><div class="kpi-label">Ticket promedio</div><div class="kpi-val" id="cierre-kpi-ticket">$0.00</div></div>
       </div>
 
-      <div class="prm-tabs">
+      <div class="prm-tabs" id="cierre-tabs">
         <button type="button" class="prm-tab-btn act" data-target="cierre-por-doctor-panel">👥 Por Doctor</button>
         <button type="button" class="prm-tab-btn" data-target="cierre-por-pago-panel">💳 Por Medio de Pago</button>
       </div>
@@ -2130,7 +2140,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.10.06-38';
+const APP_VERSION = 'v2026.10.06-40';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 // La marca de versión cambia de color según lo que tenga debajo: blanca sobre fondo oscuro, gris sobre fondo claro
@@ -2317,6 +2327,19 @@ function entrarAlShell(perfil){
   document.getElementById('btn-config-header').style.display = showConfig ? 'inline-flex' : 'none';
   document.getElementById('um-config').style.display = showConfig ? 'flex' : 'none';
   window.MI_ROL_ADMIN = perfil.rol === 'admin';
+  const esCosm = perfil.rol === 'cosmetologo';
+  document.body.classList.toggle('rol-cosm', esCosm);
+  if(esCosm){
+    // Cosmetólogas: solo su Cierre (productividad propia). La base de datos también lo impone (RLS), esto es solo la vista.
+    document.getElementById('cierre-title').textContent = '🧾 Mi cierre';
+    document.getElementById('cierre-kpi-total-l').textContent = 'Mi producción';
+    document.getElementById('cierre-kpi-consultas-l').textContent = 'Mis pacientes';
+    setTimeout(() => document.querySelector('.s3-segment button[data-screen2="cierre"]').click(), 0);
+  } else {
+    document.getElementById('cierre-title').textContent = '🧾 Resultados Operativos';
+    document.getElementById('cierre-kpi-total-l').textContent = 'Ingreso total';
+    document.getElementById('cierre-kpi-consultas-l').textContent = 'Consultas';
+  }
   document.getElementById('bell-wrap').style.display = showConfig ? 'inline-flex' : 'none';
   if(showConfig) cargarCampana();
   window.MI_PUEDE_ELIMINAR_PAPELERA = perfil.rol === 'admin' && perfil.permisos?.puede_eliminar_papelera !== false;
@@ -3309,7 +3332,9 @@ function renderComisionesResumen(docAlejandra, docOtro){
 
   const sumarPor = (lista, nombre) => lista.filter(r => r.atiendeNombre === nombre).reduce((a,r)=> a + r.monto, 0);
   const doctores = (CATALOGOS.personal || []).filter(p => p.rol === 'doctor');
-  const cosmetologas = (CATALOGOS.personal || []).filter(p => p.rol === 'cosmetologo');
+  // Cosmetólogas con fecha de baja: solo aparecen si el periodo las incluye (o si tuvieron producción en él)
+  const desdeCom = document.getElementById('com-desde').value;
+  const cosmetologas = (CATALOGOS.personal || []).filter(p => p.rol === 'cosmetologo' && (personalVigente(p, desdeCom) || rows.some(r => r.atiendeId === p.id || r.duenoId === p.id)));
 
   const cabinaCosm = cosmetologas.map(c => ({ nombre:c.nombre, monto: sumarPor(cabina, c.nombre) }));
   const cabinaCosmTotal = cabinaCosm.reduce((a,c)=> a + c.monto, 0);
@@ -3786,7 +3811,7 @@ async function cargarCatalogos(){
     sb.from('catalogo_terminales').select('id,nombre').eq('activo', true).order('nombre'),
     sb.from('catalogo_medios_pago').select('id,nombre').eq('activo', true).order('orden'),
     sb.from('catalogo_procedencia').select('id,nombre').eq('activo', true).order('orden'),
-    sb.from('personal').select('id,nombre,rol').eq('activo', true).in('rol', ['doctor','cosmetologo']).order('nombre'),
+    sb.from('personal').select('id,nombre,rol,baja_hasta').eq('activo', true).in('rol', ['doctor','cosmetologo']).order('nombre'),
   ]);
   if(tipos.error) console.error('[SkinFabric] Error cargando tipos_servicio:', tipos.error);
   if(equipos.error) console.error('[SkinFabric] Error cargando equipos:', equipos.error);
@@ -3834,13 +3859,14 @@ async function cargarCatalogos(){
   poblarSelectDashFiltros();
 }
 
-function poblarSelectDashFiltros(){
+function poblarSelectDashDoctor(){
   const selDoc = document.getElementById('dash-doctor');
   const actualDoc = selDoc.value;
+  const desdeP = (typeof dashPeriodo === 'function') ? dashPeriodo().desde : null;
   selDoc.innerHTML = '<option value="">Todos los doctores</option>';
   const grupos = [ { label:'— Médicos', rol:'doctor' }, { label:'— Cosmetólogos/as', rol:'cosmetologo' } ];
   grupos.forEach(g=>{
-    const items = CATALOGOS.personal.filter(p=>p.rol === g.rol);
+    const items = CATALOGOS.personal.filter(p=>p.rol === g.rol && (p.id === actualDoc || personalVigente(p, desdeP)));
     if(!items.length) return;
     const og = document.createElement('optgroup');
     og.label = g.label;
@@ -3852,14 +3878,16 @@ function poblarSelectDashFiltros(){
     selDoc.appendChild(og);
   });
   if(actualDoc) selDoc.value = actualDoc;
-
+}
+function poblarSelectDashFiltros(){
+  poblarSelectDashDoctor();
   poblarSelect('dash-tipo', CATALOGOS.tiposServicio.map(t=>({value:t.id, label:t.nombre})), 'Todos los tipos');
 }
 
 function poblarSelectDueno(){
   const sel = document.getElementById('reg-dueno');
   const actual = sel.value;
-  sel.innerHTML = '<option value="">Seleccionar...</option>' + opcionesPersonalAgrupadoHtml(actual);
+  sel.innerHTML = '<option value="">Seleccionar...</option>' + opcionesPersonalAgrupadoHtml(actual, false, document.getElementById('reg-fecha').value);
   if(actual) sel.value = actual;
 }
 
@@ -3924,12 +3952,17 @@ function personaPrincipalDeSelMap(selMap){
   const persona = CATALOGOS.personal.find(p=>p.id === atendidoPorId);
   return { id: atendidoPorId, label: persona?.nombre || '' };
 }
-function opcionesPersonalAgrupadoHtml(selectedId, soloDoctor){
+// Personal con fecha de baja (baja_hasta = último día que trabajó): solo aparece en periodos/fechas hasta ese día.
+// 'desdeISO' = inicio del periodo o fecha de la consulta; vacío = sin filtro.
+function personalVigente(p, desdeISO){
+  return !p.baja_hasta || !desdeISO || p.baja_hasta >= desdeISO;
+}
+function opcionesPersonalAgrupadoHtml(selectedId, soloDoctor, fechaISO){
   const grupos = soloDoctor
     ? [ { label:'Médicos', rol:'doctor' } ]
     : [ { label:'Médicos', rol:'doctor' }, { label:'Cosmetólogos/as', rol:'cosmetologo' } ];
   return grupos.map(g=>{
-    const items = CATALOGOS.personal.filter(p=>p.rol === g.rol);
+    const items = CATALOGOS.personal.filter(p=>p.rol === g.rol && (p.id === selectedId || personalVigente(p, fechaISO)));
     if(!items.length) return '';
     const opts = items.map(p=> `<option value="${esc2(p.id)}" ${selectedId===p.id?'selected':''}>${esc2(p.nombre)}</option>`).join('');
     return `<optgroup label="${esc2(g.label)}">${opts}</optgroup>`;
@@ -3942,6 +3975,7 @@ function renderServiciosSel(selId, selMap, debeMostrarSplitPago){
   // hay un 2do pago activo en la consulta Y hay más de un servicio — con un solo servicio, todo
   // el 1er/2do pago de la consulta ya es, por definición, el de ese único servicio.
   const mostrarSplit = (typeof debeMostrarSplitPago === 'function') && debeMostrarSplitPago() && selMap.size > 1;
+  const fechaFormServ = (document.getElementById(selId.startsWith('edit') ? 'edit-fecha' : 'reg-fecha') || {}).value || '';
   cont.innerHTML = [...selMap.keys()].map((id)=>{
     const s = CATALOGOS.tiposServicio.find(x=>x.id === id);
     const nombre = s ? esc2(s.nombre) : '(servicio ya no disponible)';
@@ -3971,7 +4005,7 @@ function renderServiciosSel(selId, selMap, debeMostrarSplitPago){
       <div class="nom">${nombre}${ref}</div>
       <select class="atendido-select" title="¿Quién atendió este servicio?">
         <option value="">Seleccionar...</option>
-        ${opcionesPersonalAgrupadoHtml(atendidoPor, soloDoctor)}
+        ${opcionesPersonalAgrupadoHtml(atendidoPor, soloDoctor, fechaFormServ)}
       </select>
       <div class="monto-wrap"><span>$</span><input type="number" min="0" step="0.01" placeholder="0.00" value="${esc2(monto)}"/></div>
       <button class="quitar" type="button">✕</button>
@@ -4048,6 +4082,7 @@ function obtenerAtendidoPorDefectoReg(tipoServicioId){
   return MI_PERFIL.id;
 }
 const regServRefrescar = crearSelectorServicios({ buscar:'reg-serv-buscar', grid:'reg-serv-grid', sel:'reg-serv-sel' }, REG_SERV_SEL, updateResumen, obtenerAtendidoPorDefectoReg, () => document.getElementById('reg-grp-medio2').style.display !== 'none');
+document.getElementById('reg-fecha').addEventListener('change', () => { poblarSelectDueno(); regServRefrescar(); });
 function regServRender(filtro){
   if(filtro !== undefined) document.getElementById('reg-serv-buscar').value = filtro;
   regServRefrescar();
@@ -4827,7 +4862,7 @@ document.getElementById('hist-btn-vaciar-papelera').addEventListener('click', va
 // ── Modal: Editar consulta ──
 function poblarSelectEditDueno(selectedId){
   const sel = document.getElementById('edit-dueno');
-  sel.innerHTML = '<option value="">— Sin asignar —</option>' + opcionesPersonalAgrupadoHtml(selectedId);
+  sel.innerHTML = '<option value="">— Sin asignar —</option>' + opcionesPersonalAgrupadoHtml(selectedId, false, document.getElementById('edit-fecha').value);
   sel.value = selectedId || '';
 }
 const EDIT_SERV_SEL = new Map(); // tipo_servicio_id -> { monto: string, atendidoPor: string }
@@ -4838,6 +4873,7 @@ function editServTotal(){
   document.getElementById('edit-serv-meta').textContent = n ? (n + (n===1?' servicio seleccionado':' servicios seleccionados')) : 'Selecciona al menos un servicio';
 }
 const editServRefrescar = crearSelectorServicios({ buscar:'edit-serv-buscar', grid:'edit-serv-grid', sel:'edit-serv-sel' }, EDIT_SERV_SEL, editServTotal);
+document.getElementById('edit-fecha').addEventListener('change', () => { editServRefrescar(); });
 function editServRender(filtro){
   if(filtro !== undefined) document.getElementById('edit-serv-buscar').value = filtro;
   editServRefrescar();
@@ -5200,10 +5236,11 @@ function labelMes(d){ const s = d.toLocaleDateString('es-MX', { month:'long', ye
 function poblarSelectCierreDoctor(){
   const sel = document.getElementById('cierre-doctor');
   const actual = sel.value;
+  const desdeC = CIERRE_MODO === 'dia' ? isoLocal(CIERRE_FECHA) : isoLocal(primerDiaMes(CIERRE_FECHA));
   sel.innerHTML = '<option value="">Todo el personal</option>';
   const grupos = [ { label:'— Médicos', rol:'doctor' }, { label:'— Cosmetólogos/as', rol:'cosmetologo' } ];
   grupos.forEach(g=>{
-    const items = CATALOGOS.personal.filter(p=>p.rol === g.rol);
+    const items = CATALOGOS.personal.filter(p=>p.rol === g.rol && (p.id === actual || personalVigente(p, desdeC)));
     if(!items.length) return;
     const og = document.createElement('optgroup');
     og.label = g.label;
@@ -5218,6 +5255,7 @@ function poblarSelectCierreDoctor(){
 }
 
 function actualizarCierreUI(){
+  poblarSelectCierreDoctor();
   document.getElementById('cierre-modo-dia').classList.toggle('act', CIERRE_MODO === 'dia');
   document.getElementById('cierre-modo-mes').classList.toggle('act', CIERRE_MODO === 'mes');
   document.getElementById('cierre-date-label').textContent = CIERRE_MODO === 'dia' ? labelDia(CIERRE_FECHA) : labelMes(CIERRE_FECHA);
@@ -5263,7 +5301,7 @@ async function cargarCierre(){
   const desde = modoAlPedir === 'dia' ? isoLocal(fechaAlPedir) : isoLocal(primerDiaMes(fechaAlPedir));
   const hasta = modoAlPedir === 'dia' ? isoLocal(fechaAlPedir) : isoLocal(ultimoDiaMes(fechaAlPedir));
   let q = sb.from('consultas')
-    .select('id,monto,medio_pago,monto_2,medio_pago_2,doctor_id,pacientes(nombre),doctor:personal!doctor_id(nombre),consulta_servicios(tipo_servicio_id,monto,atendido_por,catalogo_tipos_servicio(nombre),atendido:personal(nombre))')
+    .select('id,fecha,monto,medio_pago,monto_2,medio_pago_2,doctor_id,pacientes(nombre),doctor:personal!doctor_id(nombre),consulta_servicios(tipo_servicio_id,monto,atendido_por,catalogo_tipos_servicio(nombre),atendido:personal(nombre))')
     .eq('deleted', false)
     .eq('no_vino', false)
     .gte('fecha', desde)
@@ -5282,7 +5320,40 @@ async function cargarCierre(){
   renderCierre();
 }
 
+// Vista de la cosmetóloga: solo SUS servicios y SUS pacientes (la base ya le entrega solo eso; aquí se vuelve a filtrar por seguridad)
+function renderCierreCosmetologa(){
+  const yo = MI_PERFIL?.id;
+  const items = [];
+  let total = 0;
+  CIERRE_ROWS.forEach(r => {
+    const mios = (r.consulta_servicios || []).filter(cs => cs.atendido_por === yo);
+    if(!mios.length) return;
+    const monto = mios.reduce((a, cs) => a + Number(cs.monto || 0), 0);
+    total += monto;
+    items.push({ fecha: r.fecha || '', nombre: r.pacientes?.nombre || '—', detalle: mios.map(cs => cs.catalogo_tipos_servicio?.nombre).filter(Boolean).join(', ') || '—', monto });
+  });
+  items.sort((a, b) => a.fecha < b.fecha ? 1 : a.fecha > b.fecha ? -1 : a.nombre.localeCompare(b.nombre));
+  document.getElementById('cierre-kpi-total').textContent = fmtMoney(total);
+  document.getElementById('cierre-kpi-consultas').textContent = String(items.length);
+  const cont = document.getElementById('cierre-por-doctor');
+  if(!items.length){
+    cont.innerHTML = '<div class="empty-note">No hay pacientes registrados a tu nombre en este periodo. Si falta alguno, avísale a Recepción.</div>';
+    return;
+  }
+  const mes = CIERRE_MODO === 'mes';
+  const filas = items.map(p => {
+    const f = p.fecha ? p.fecha.split('-').reverse().slice(0, 2).join('/') : '';
+    return `<div class="pac-row-grid"><span class="pac-nombre">${mes ? `<span class="pac-fecha">${esc2(f)}</span> ` : ''}${esc2(p.nombre)}</span><span class="pac-detalle">${esc2(p.detalle)}</span><span class="pac-monto">${fmtMoney(p.monto)}</span></div>`;
+  }).join('');
+  cont.innerHTML = `<div class="cierre-mi"><div class="cierre-card">
+    <div class="cierre-head"><span class="cierre-name">${esc2(MI_PERFIL?.nombre || 'Mi producción')}</span><span class="cierre-total">${fmtMoney(total)}</span></div>
+    <div class="cierre-meta">${items.length} paciente(s) · solo tus servicios</div>
+    <div class="acordeon-pac open">${filas}</div>
+  </div></div>`;
+}
+
 function renderCierre(){
+  if(MI_PERFIL?.rol === 'cosmetologo'){ renderCierreCosmetologa(); return; }
   let ingresoTotal = 0;
   const porDoctor = {};
   const porMedio = {};
@@ -5452,6 +5523,7 @@ function dashFilasServicio(consultas){
 
 async function cargarDashboard(){
   const miReqId = ++dashReqId;
+  poblarSelectDashDoctor();   // la lista de personal depende del periodo (quien ya no trabaja solo aparece en sus meses)
   const doctorId = document.getElementById('dash-doctor').value;
   const tipoId = document.getElementById('dash-tipo').value;
   const { desde, hasta } = dashPeriodo();
@@ -7093,6 +7165,7 @@ async function renderConfigPersonal(){
       </div>
       <div class="cardC-right">
         <label class="act-txt ${p.activo ? 'on' : ''}"><span class="switch"><input type="checkbox" class="cfg-p-activo" ${p.activo ? 'checked':''}/><span class="slider"></span></span>${p.activo ? 'Activo':'Inactivo'}</label>
+        <label class="baja-lbl" title="Último día que trabajó. Después de esa fecha deja de aparecer en listas y resultados (su historial se conserva).">Último día<input type="date" class="cfg-p-baja" value="${esc2(p.baja_hasta || '')}"/></label>
         <button class="btn-sm solid cfg-btn-cuenta" type="button">${p.auth_user_id ? 'Reset pass' : 'Dar acceso'}</button>
         <button class="btn-sm btn-del cfg-btn-quitar" type="button" title="Quitar de esta lista">🗑 Quitar</button>
       </div>
@@ -7134,6 +7207,11 @@ async function renderConfigPersonal(){
       });
     });
 
+    card.querySelector('.cfg-p-baja').addEventListener('change', async (e)=>{
+      const v = e.target.value || null;
+      const ok = await catalogoActualizar('personal', id, { baja_hasta: v });
+      if(ok){ toast(v ? '✓ Último día guardado.' : '✓ Sin fecha de baja.'); cargarCatalogos(); }
+    });
     card.querySelector('.cfg-btn-cuenta').addEventListener('click', ()=>{
       const p = lista.find(x => x.id === id);
       if(!p) return;
