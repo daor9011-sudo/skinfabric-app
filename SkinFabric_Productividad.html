@@ -1728,9 +1728,16 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
           <option value="7">7 días</option>
           <option value="30" selected>30 días</option>
           <option value="90">90 días</option>
+          <option value="mes">Mes específico</option>
+          <option value="rango">Rango de fechas específico</option>
           <option value="anio">Año</option>
           <option value="todo">Todo</option>
         </select>
+        <input type="month" id="gasto-mes-top" aria-label="Mes" style="display:none"/>
+        <span class="sep" id="gasto-sep-top" style="display:none">de</span>
+        <input type="date" id="gasto-desde-top" aria-label="Desde" style="display:none"/>
+        <span class="sep" id="gasto-sep-2-top" style="display:none">a</span>
+        <input type="date" id="gasto-hasta-top" aria-label="Hasta" style="display:none"/>
         <select id="gasto-doctor-filtro-top"><option value="">Todos los doctores</option></select>
         <select id="gasto-facturacion-filtro-top">
           <option value="">Facturado y no facturado</option>
@@ -1780,9 +1787,16 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
           <option value="7">7 días</option>
           <option value="30" selected>30 días</option>
           <option value="90">90 días</option>
+          <option value="mes">Mes específico</option>
+          <option value="rango">Rango de fechas específico</option>
           <option value="anio">Año</option>
           <option value="todo">Todo</option>
         </select>
+        <input type="month" id="gasto-mes" aria-label="Mes" style="display:none"/>
+        <span class="sep" id="gasto-sep" style="display:none">de</span>
+        <input type="date" id="gasto-desde" aria-label="Desde" style="display:none"/>
+        <span class="sep" id="gasto-sep-2" style="display:none">a</span>
+        <input type="date" id="gasto-hasta" aria-label="Hasta" style="display:none"/>
         <select id="gasto-doctor-filtro"><option value="">Todos los doctores</option></select>
         <select id="gasto-facturacion-filtro">
           <option value="">Facturado y no facturado</option>
@@ -2140,7 +2154,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.10.06-43';
+const APP_VERSION = 'v2026.10.07-44';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 // La marca de versión cambia de color según lo que tenga debajo: blanca sobre fondo oscuro, gris sobre fondo claro
@@ -2662,19 +2676,48 @@ function gastoFilasFiltradas(){
   const rango = document.getElementById('gasto-rango').value;
   const doctorId = document.getElementById('gasto-doctor-filtro').value;
   const facturacion = document.getElementById('gasto-facturacion-filtro').value;
-  const desde = rangoFechaDesde(rango);
+  let desde, hasta = null;
+  if(rango === 'mes'){
+    const r = rangoDeMes(document.getElementById('gasto-mes').value);
+    desde = r.desde; hasta = r.hasta;
+  } else if(rango === 'rango'){
+    desde = document.getElementById('gasto-desde').value || null;
+    hasta = document.getElementById('gasto-hasta').value || null;
+  } else {
+    desde = rangoFechaDesde(rango);
+  }
 
   return GASTO_ROWS.filter(g=>{
     if(catActiva !== 'todos' && g.categoria !== catActiva) return false;
     if(doctorId && g.creado_por !== doctorId) return false;
     if(facturacion && g.facturacion !== facturacion) return false;
     if(desde && g.fecha < desde) return false;
+    if(hasta && g.fecha > hasta) return false;
     if(texto && !(g.descripcion||'').toLowerCase().includes(texto)) return false;
     return true;
   });
 }
 
+// Muestra/oculta el selector de mes o de rango (en las dos barras) y los precarga la primera vez.
+function gastoSyncRangoUI(){
+  const rango = document.getElementById('gasto-rango').value;
+  const esMes = rango === 'mes', esRango = rango === 'rango';
+  ['', '-top'].forEach(sfx=>{
+    document.getElementById('gasto-mes'+sfx).style.display = esMes ? '' : 'none';
+    ['gasto-sep','gasto-desde','gasto-sep-2','gasto-hasta'].forEach(id=>{
+      document.getElementById(id+sfx).style.display = esRango ? '' : 'none';
+    });
+    if(esMes && !document.getElementById('gasto-mes'+sfx).value) document.getElementById('gasto-mes'+sfx).value = document.getElementById('gasto-mes').value || mesActualISO();
+    if(esRango){
+      const h = document.getElementById('gasto-hasta'+sfx), d = document.getElementById('gasto-desde'+sfx);
+      if(!h.value) h.value = document.getElementById('gasto-hasta').value || isoLocal(new Date());
+      if(!d.value){ const a = new Date(); a.setDate(a.getDate()-30); d.value = document.getElementById('gasto-desde').value || isoLocal(a); }
+    }
+  });
+}
+
 function refrescarGastoVista(){
+  gastoSyncRangoUI();
   const filas = gastoFilasFiltradas();
   renderGastoKpis(filas);
   renderGastoCharts(filas);
@@ -2863,6 +2906,9 @@ document.getElementById('editg-btn-guardar')?.addEventListener('click', async ()
 [
   ['gasto-buscar', 'gasto-buscar-top'],
   ['gasto-rango', 'gasto-rango-top'],
+  ['gasto-mes', 'gasto-mes-top'],
+  ['gasto-desde', 'gasto-desde-top'],
+  ['gasto-hasta', 'gasto-hasta-top'],
   ['gasto-doctor-filtro', 'gasto-doctor-filtro-top'],
   ['gasto-facturacion-filtro', 'gasto-facturacion-filtro-top'],
 ].forEach(([idA, idB])=>{
