@@ -2154,7 +2154,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.10.07-44';
+const APP_VERSION = 'v2026.10.07-45';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 // La marca de versión cambia de color según lo que tenga debajo: blanca sobre fondo oscuro, gris sobre fondo claro
@@ -4614,6 +4614,13 @@ function fmtFechaHora(ts){
   const dd = String(d.getDate()).padStart(2,'0'), mm = String(d.getMonth()+1).padStart(2,'0');
   const hh = String(d.getHours()).padStart(2,'0'), mi = String(d.getMinutes()).padStart(2,'0');
   return `${dd}/${mm} ${hh}:${mi}`;
+}
+// "06/10/2026 13:47" — fecha completa (con año) y hora en que se capturó o modificó un registro.
+function fmtFechaHoraLarga(ts){
+  if(!ts) return '—';
+  const d = new Date(ts);
+  const p = n => String(n).padStart(2,'0');
+  return `${p(d.getDate())}/${p(d.getMonth()+1)}/${d.getFullYear()} ${p(d.getHours())}:${p(d.getMinutes())}`;
 }
 function rangoFechaDesde(rango){
   const d = new Date();
@@ -7677,7 +7684,7 @@ async function cargarActividad(){
         ? 'registró consulta tardía'
         : `cambió la fecha de una consulta (antes ${fmtFechaCorta(d.fecha_anterior)})`;
       const dias = Number(d.dias) || 0;
-      return `<div style="border-left:3px solid #E0703F;padding-left:8px;margin:2px 0"><b>${quien}</b> ${que} del <b>${fmtFechaCorta(d.fecha)}</b>${pac} · ${fmtMoney(d.monto)} · <span style="color:#B8481F;font-weight:700">${dias} ${dias === 1 ? 'día' : 'días'} de atraso</span> · ${cuando}</div>`;
+      return `<div style="border-left:3px solid #E0703F;padding-left:8px;margin:2px 0"><b>${quien}</b> ${que} del <b>${fmtFechaCorta(d.fecha)}</b>${pac} · ${fmtMoney(d.monto)} · <span style="color:#B8481F;font-weight:700">${dias} ${dias === 1 ? 'día' : 'días'} de atraso</span> · <b>${a.accion === 'registro_tardio' ? 'Capturada' : 'Modificada'} el ${fmtFechaHoraLarga(a.created_at)}</b></div>`;
     }
     if(a.accion === 'cerrar_comisiones' || a.accion === 'reabrir_comisiones'){
       const per = d.periodo ? comNombreMes(d.periodo) : '';
@@ -7715,7 +7722,7 @@ function bellRender(){
     const que = a.accion === 'registro_tardio' ? 'registró consulta del' : `cambió una consulta (antes ${fmtFechaCorta(d.fecha_anterior)}) al`;
     const pac = a._pac ? ' · ' + esc2(a._pac) : '';
     const nuevo = !v || a.created_at > v;
-    return `<div class="bell-it${nuevo ? ' nuevo' : ''}"><b>${esc2(a.personal?.nombre || 'Sistema')}</b> ${que} <b>${fmtFechaCorta(d.fecha)}</b>${pac} · ${fmtMoney(d.monto)} · <span class="dd">${dias} ${dias === 1 ? 'día' : 'días'} de atraso</span><span class="ts">Capturado ${fmtFechaHora(a.created_at)}</span></div>`;
+    return `<div class="bell-it${nuevo ? ' nuevo' : ''}"><b>${esc2(a.personal?.nombre || 'Sistema')}</b> ${que} <b>${fmtFechaCorta(d.fecha)}</b>${pac} · ${fmtMoney(d.monto)} · <span class="dd">${dias} ${dias === 1 ? 'día' : 'días'} de atraso</span><span class="ts">${a.accion === 'registro_tardio' ? 'Capturada' : 'Modificada'} el ${fmtFechaHoraLarga(a.created_at)}</span></div>`;
   }).join('');
 }
 async function cargarCampana(){
