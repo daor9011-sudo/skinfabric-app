@@ -899,7 +899,7 @@ table.fm-pv{width:100%;border-collapse:collapse;font-size:12px}
 .rubro .vacio{font-size:12px;color:var(--g6);padding:4px 0}
 @media (max-width:700px){.rubro-grid{grid-template-columns:1fr}}
 
-.persona-grid{display:grid;grid-template-columns:1.25fr 1.25fr 1fr 1fr 1fr;gap:12px;margin-bottom:16px}
+.persona-grid{display:grid;grid-template-columns:var(--pg-cols,1.25fr 1.25fr 1fr 1fr 1fr);gap:12px;margin-bottom:16px}
 .persona{--c:#1B3A6B;border:1.5px solid var(--g2);border-radius:14px;padding:13px 14px 13px 22px;position:relative;overflow:hidden;background:#fff;min-width:0;box-shadow:0 4px 14px rgba(11,22,40,.10);display:flex;flex-direction:column}
 .persona::before{content:'';position:absolute;top:0;left:0;bottom:0;width:9px;background:var(--c)}
 .persona.doc1{--c:#2F6FD0}
@@ -2154,7 +2154,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.10.07-45';
+const APP_VERSION = 'v2026.10.08-46';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 // La marca de versión cambia de color según lo que tenga debajo: blanca sobre fondo oscuro, gris sobre fondo claro
@@ -3499,7 +3499,19 @@ function renderComisionesResumen(docAlejandra, docOtro){
       <div class="spacer"></div><div class="total-block"><div class="total-label">Comisión total</div><div class="total-value">${fmtMoney0(total)}</div></div>
     </div>`;
   });
-  document.getElementById('com-persona-grid').innerHTML = personaHtml || '<div class="empty-note">Sin personal con comisión configurada.</div>';
+  const gridPersonas = document.getElementById('com-persona-grid');
+  gridPersonas.innerHTML = personaHtml || '<div class="empty-note">Sin personal con comisión configurada.</div>';
+  // Las tarjetas ocupan siempre todo el ancho: las columnas se ajustan a cuántas hay en el periodo
+  // (p. ej. 2 doctores + 3 cosmetólogas en septiembre, 2 + 2 en octubre). Doctores un poco más anchos.
+  {
+    const nDoc = gridPersonas.querySelectorAll(':scope > .persona.doc1, :scope > .persona.doc2').length;
+    const nTot = gridPersonas.querySelectorAll(':scope > .persona').length;
+    if(nTot){
+      const cols = Math.min(nTot, 5);
+      const col = i => (i < nDoc ? '1.25fr' : '1fr');
+      gridPersonas.style.setProperty('--pg-cols', Array.from({ length: cols }, (_, i) => col(i)).join(' '));
+    } else gridPersonas.style.removeProperty('--pg-cols');
+  }
   document.getElementById('com-persona-detalle').innerHTML = panelesHtml;
 
   // ── Detalle (con filtros por quién atendió / dueño del paciente / texto) ──
