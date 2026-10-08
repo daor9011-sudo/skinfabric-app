@@ -866,6 +866,7 @@ table.fm-pv{width:100%;border-collapse:collapse;font-size:12px}
 .com-per span{font-size:11px;color:rgba(255,255,255,.7)}
 .com-per input{background:rgba(255,255,255,.95);border:0;border-radius:7px;padding:6px 8px;font:600 12px var(--font-b);color:var(--navy)}
 .com-per button{background:var(--teal);border:0;border-radius:7px;padding:7px 12px;font:800 11.5px var(--font-b);color:#06303a;cursor:pointer}
+.gasto-hero{padding-bottom:16px}
 .com-hero-tabs{display:flex;gap:4px;margin-top:14px;flex-wrap:wrap}
 .com-hero-tabs .prm-tab-btn{border:0;background:rgba(255,255,255,.10);color:rgba(255,255,255,.8);font:700 12.5px var(--font-b);padding:9px 18px;border-radius:10px 10px 0 0}
 .com-hero-tabs .prm-tab-btn.act{background:#fff;color:var(--navy)}
@@ -1170,6 +1171,12 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
   .com-per[data-modo=rango] .cl-h{display:block;grid-area:2 / 3 / 3 / 5}
   .com-per[data-modo=rango] #com-desde{display:block;grid-area:3 / 1 / 4 / 3}
   .com-per[data-modo=rango] #com-hasta{display:block;grid-area:3 / 3 / 4 / 5}
+  .com-per #gasto-btn-todo{display:none}
+  .com-per[data-modo=mes] #gasto-prev{display:block;grid-area:2 / 2}
+  .com-per[data-modo=mes] #gasto-mes{display:block;grid-area:2 / 3}
+  .com-per[data-modo=mes] #gasto-next{display:block;grid-area:2 / 4}
+  .com-per[data-modo=rango] #gasto-desde{display:block;grid-area:3 / 1 / 4 / 3}
+  .com-per[data-modo=rango] #gasto-hasta{display:block;grid-area:3 / 3 / 4 / 5}
   .com-per[data-modo=todo] .com-todo-note{display:block;grid-area:2 / 1 / 3 / 5;text-align:center;font-size:12.5px;font-weight:600;color:rgba(255,255,255,.85);background:rgba(255,255,255,.1);border-radius:9px;padding:9px 10px}
   .com-hero-tabs{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:12px}
   .com-hero-tabs .prm-tab-btn{padding:10px 6px;font-size:12px;text-align:center;white-space:nowrap}
@@ -1521,14 +1528,14 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
       <div class="tab-title" id="dash-title-desk"><span>📊 Dashboard de Indicadores</span></div>
       <div class="dash-hero" id="dash-hero">
         <div class="dash-hero-top"><div class="com-hero-ico">📊</div><div><h1>Dashboard</h1><p>Indicadores de la clínica · <b id="dash-hero-per">Últimos 30 días</b></p></div></div>
-      <div class="filter-bar" id="dash-filtros" data-modo="rec">
-        <div class="com-seg" id="dash-seg" role="tablist" aria-label="Periodo"><button type="button" data-m="rec" class="on">Recientes</button><button type="button" data-m="mes">Mes</button><button type="button" data-m="rango">Rango</button><button type="button" data-m="todo">Todo</button></div>
+      <div class="filter-bar" id="dash-filtros" data-modo="mes">
+        <div class="com-seg" id="dash-seg" role="tablist" aria-label="Periodo"><button type="button" data-m="rec">Recientes</button><button type="button" data-m="mes" class="on">Mes</button><button type="button" data-m="rango">Rango</button><button type="button" data-m="todo">Todo</button></div>
         <select id="dash-rango">
-          <option value="30" selected>Últimos 30 días</option>
+          <option value="30">Últimos 30 días</option>
           <option value="90">Últimos 90 días</option>
           <option value="anio">Este año</option>
           <option value="todo">Todo</option>
-          <option value="mes">📅 Un mes…</option>
+          <option value="mes" selected>📅 Un mes…</option>
           <option value="rango">📅 Rango…</option>
         </select>
         <select id="dash-rec" aria-label="Periodo reciente"><option value="30">Últimos 30 días</option><option value="90">Últimos 90 días</option><option value="anio">Este año</option></select>
@@ -1720,24 +1727,22 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
       </div>
     </div>
     <div class="card screen2" id="app-screen-gastos">
-      <div class="tab-title"><span>💸 Gastos de la Clínica</span></div>
+      <div class="com-hero gasto-hero">
+        <div class="com-hero-top">
+          <div class="com-hero-ico">💸</div>
+          <div><h1>Gastos</h1><p>Egresos de la clínica · <b id="gasto-hero-per">—</b></p></div>
+          <div class="com-per" id="gasto-per" data-modo="mes">
+            <div class="com-seg" role="tablist" aria-label="Periodo"><button type="button" data-m="mes" class="on">Mes</button><button type="button" data-m="rango">Rango</button><button type="button" data-m="todo">Todo</button></div>
+            <span class="cl-m">Mes</span><button type="button" class="com-arr" id="gasto-prev" aria-label="Mes anterior">‹</button><input type="month" id="gasto-mes" aria-label="Mes"/><button type="button" class="com-arr" id="gasto-next" aria-label="Mes siguiente">›</button>
+            <span class="cl-d"><i class="dk">o rango</i><i class="mb">Desde</i></span><input type="date" id="gasto-desde" aria-label="Desde"/>
+            <span class="cl-h"><i class="dk">a</i><i class="mb">Hasta</i></span><input type="date" id="gasto-hasta" aria-label="Hasta"/>
+            <button type="button" id="gasto-btn-todo">Ver todo</button>
+            <div class="com-todo-note">Todo el historial · sin filtro de fechas</div>
+          </div>
+        </div>
+      </div>
       <div class="filter-bar">
         <input type="text" id="gasto-buscar-top" placeholder="Buscar en descripciones..." style="flex:2;min-width:140px"/>
-        <select id="gasto-rango-top">
-          <option value="hoy">Hoy</option>
-          <option value="7">7 días</option>
-          <option value="30" selected>30 días</option>
-          <option value="90">90 días</option>
-          <option value="mes">Mes específico</option>
-          <option value="rango">Rango de fechas específico</option>
-          <option value="anio">Año</option>
-          <option value="todo">Todo</option>
-        </select>
-        <input type="month" id="gasto-mes-top" aria-label="Mes" style="display:none"/>
-        <span class="sep" id="gasto-sep-top" style="display:none">de</span>
-        <input type="date" id="gasto-desde-top" aria-label="Desde" style="display:none"/>
-        <span class="sep" id="gasto-sep-2-top" style="display:none">a</span>
-        <input type="date" id="gasto-hasta-top" aria-label="Hasta" style="display:none"/>
         <select id="gasto-doctor-filtro-top"><option value="">Todos los doctores</option></select>
         <select id="gasto-facturacion-filtro-top">
           <option value="">Facturado y no facturado</option>
@@ -1782,21 +1787,6 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
       <div class="sec-title">Todos los gastos<button class="btn-sm btn-outline" id="gasto-btn-exportar">↓ Exportar</button></div>
       <div class="filter-bar">
         <input type="text" id="gasto-buscar" placeholder="Buscar en descripciones..." style="flex:2;min-width:140px"/>
-        <select id="gasto-rango">
-          <option value="hoy">Hoy</option>
-          <option value="7">7 días</option>
-          <option value="30" selected>30 días</option>
-          <option value="90">90 días</option>
-          <option value="mes">Mes específico</option>
-          <option value="rango">Rango de fechas específico</option>
-          <option value="anio">Año</option>
-          <option value="todo">Todo</option>
-        </select>
-        <input type="month" id="gasto-mes" aria-label="Mes" style="display:none"/>
-        <span class="sep" id="gasto-sep" style="display:none">de</span>
-        <input type="date" id="gasto-desde" aria-label="Desde" style="display:none"/>
-        <span class="sep" id="gasto-sep-2" style="display:none">a</span>
-        <input type="date" id="gasto-hasta" aria-label="Hasta" style="display:none"/>
         <select id="gasto-doctor-filtro"><option value="">Todos los doctores</option></select>
         <select id="gasto-facturacion-filtro">
           <option value="">Facturado y no facturado</option>
@@ -2154,7 +2144,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.10.08-46';
+const APP_VERSION = 'v2026.10.08-47';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 // La marca de versión cambia de color según lo que tenga debajo: blanca sobre fondo oscuro, gris sobre fondo claro
@@ -2670,22 +2660,77 @@ async function cargarGastos(){
   refrescarGastoVista();
 }
 
+// Periodo de Gastos (mismo esquema que Comisiones): mes, rango de fechas o todo el historial.
+function gastoPeriodo(){
+  let d = document.getElementById('gasto-desde').value || null, h = document.getElementById('gasto-hasta').value || null;
+  if(d && h && d > h){ const t = d; d = h; h = t; }   // fechas invertidas: se acomodan solas
+  return { desde: d, hasta: h };
+}
+function gastoActualizarSubtitulo(){
+  const mes = document.getElementById('gasto-mes').value;
+  const { desde, hasta } = gastoPeriodo();
+  const f = iso => { const x = iso.split('-'); return `${x[2]}/${x[1]}/${x[0]}`; };
+  let t;
+  if(mes) t = comNombreMes(mes);
+  else if(desde || hasta) t = (desde ? f(desde) : 'inicio') + ' – ' + (hasta ? f(hasta) : 'hoy');
+  else t = 'Todo el historial';
+  document.getElementById('gasto-hero-per').textContent = t;
+}
+function gastoSetModo(m){
+  document.getElementById('gasto-per').dataset.modo = m;
+  document.querySelectorAll('#gasto-per .com-seg button').forEach(b=>b.classList.toggle('on', b.dataset.m === m));
+}
+document.getElementById('gasto-mes').addEventListener('change', function(){
+  const r = rangoDeMes(this.value);
+  document.getElementById('gasto-desde').value = r.desde || '';
+  document.getElementById('gasto-hasta').value = r.hasta || '';
+  gastoSetModo(this.value ? 'mes' : 'todo');
+  refrescarGastoVista();
+});
+['gasto-desde','gasto-hasta'].forEach(id=>document.getElementById(id).addEventListener('change', ()=>{
+  document.getElementById('gasto-mes').value = '';   // el rango ya no corresponde exactamente a un mes completo
+  gastoSetModo('rango');
+  refrescarGastoVista();
+}));
+document.getElementById('gasto-btn-todo').addEventListener('click', ()=>{
+  ['gasto-mes','gasto-desde','gasto-hasta'].forEach(id=>{ document.getElementById(id).value = ''; });
+  gastoSetModo('todo');
+  refrescarGastoVista();
+});
+document.querySelectorAll('#gasto-per .com-seg button').forEach(b=>b.addEventListener('click', ()=>{
+  const m = b.dataset.m, mes = document.getElementById('gasto-mes');
+  if(m === 'mes'){
+    if(!mes.value) mes.value = mesActualISO();
+    mes.dispatchEvent(new Event('change'));
+  } else if(m === 'rango'){
+    mes.value = '';           // las fechas quedan como estaban y se pueden ajustar
+    gastoSetModo('rango'); refrescarGastoVista();
+  } else document.getElementById('gasto-btn-todo').click();
+}));
+function gastoMoverMes(d){
+  const mes = document.getElementById('gasto-mes');
+  let [y, m] = (mes.value || mesActualISO()).split('-').map(Number);
+  m += d; if(m > 12){ m = 1; y++; } if(m < 1){ m = 12; y--; }
+  mes.value = y + '-' + String(m).padStart(2,'0');
+  mes.dispatchEvent(new Event('change'));
+}
+document.getElementById('gasto-prev').addEventListener('click', ()=>gastoMoverMes(-1));
+document.getElementById('gasto-next').addEventListener('click', ()=>gastoMoverMes(1));
+// Al abrir Gastos siempre se parte del mes en curso (no de "los últimos 30 días").
+(function gastoInicializarMesActual(){
+  const mes = document.getElementById('gasto-mes');
+  mes.value = mesActualISO();
+  const r = rangoDeMes(mes.value);
+  document.getElementById('gasto-desde').value = r.desde || '';
+  document.getElementById('gasto-hasta').value = r.hasta || '';
+})();
+
 function gastoFilasFiltradas(){
   const catActiva = GASTO_PILL_ACTIVA;
   const texto = document.getElementById('gasto-buscar').value.trim().toLowerCase();
-  const rango = document.getElementById('gasto-rango').value;
   const doctorId = document.getElementById('gasto-doctor-filtro').value;
   const facturacion = document.getElementById('gasto-facturacion-filtro').value;
-  let desde, hasta = null;
-  if(rango === 'mes'){
-    const r = rangoDeMes(document.getElementById('gasto-mes').value);
-    desde = r.desde; hasta = r.hasta;
-  } else if(rango === 'rango'){
-    desde = document.getElementById('gasto-desde').value || null;
-    hasta = document.getElementById('gasto-hasta').value || null;
-  } else {
-    desde = rangoFechaDesde(rango);
-  }
+  const { desde, hasta } = gastoPeriodo();
 
   return GASTO_ROWS.filter(g=>{
     if(catActiva !== 'todos' && g.categoria !== catActiva) return false;
@@ -2698,26 +2743,8 @@ function gastoFilasFiltradas(){
   });
 }
 
-// Muestra/oculta el selector de mes o de rango (en las dos barras) y los precarga la primera vez.
-function gastoSyncRangoUI(){
-  const rango = document.getElementById('gasto-rango').value;
-  const esMes = rango === 'mes', esRango = rango === 'rango';
-  ['', '-top'].forEach(sfx=>{
-    document.getElementById('gasto-mes'+sfx).style.display = esMes ? '' : 'none';
-    ['gasto-sep','gasto-desde','gasto-sep-2','gasto-hasta'].forEach(id=>{
-      document.getElementById(id+sfx).style.display = esRango ? '' : 'none';
-    });
-    if(esMes && !document.getElementById('gasto-mes'+sfx).value) document.getElementById('gasto-mes'+sfx).value = document.getElementById('gasto-mes').value || mesActualISO();
-    if(esRango){
-      const h = document.getElementById('gasto-hasta'+sfx), d = document.getElementById('gasto-desde'+sfx);
-      if(!h.value) h.value = document.getElementById('gasto-hasta').value || isoLocal(new Date());
-      if(!d.value){ const a = new Date(); a.setDate(a.getDate()-30); d.value = document.getElementById('gasto-desde').value || isoLocal(a); }
-    }
-  });
-}
-
 function refrescarGastoVista(){
-  gastoSyncRangoUI();
+  gastoActualizarSubtitulo();
   const filas = gastoFilasFiltradas();
   renderGastoKpis(filas);
   renderGastoCharts(filas);
@@ -2905,10 +2932,6 @@ document.getElementById('editg-btn-guardar')?.addEventListener('click', async ()
 // así que cada input se mantiene sincronizado con su pareja en ambas direcciones.
 [
   ['gasto-buscar', 'gasto-buscar-top'],
-  ['gasto-rango', 'gasto-rango-top'],
-  ['gasto-mes', 'gasto-mes-top'],
-  ['gasto-desde', 'gasto-desde-top'],
-  ['gasto-hasta', 'gasto-hasta-top'],
   ['gasto-doctor-filtro', 'gasto-doctor-filtro-top'],
   ['gasto-facturacion-filtro', 'gasto-facturacion-filtro-top'],
 ].forEach(([idA, idB])=>{
@@ -6756,6 +6779,7 @@ function renderChartServicio(){
   $('dash-prev').addEventListener('click', ()=>moverMes(-1));
   $('dash-next').addEventListener('click', ()=>moverMes(1));
   ['dash-rango','dash-mes','dash-desde','dash-hasta'].forEach(id=>$(id).addEventListener('change', sincronizar));
+  dashActualizarControlesPeriodo();   // por defecto el Dashboard abre en el mes en curso
   sincronizar();
   // Las etiquetas "Doctor" y "Tipo" ya van junto al campo, así que la primera opción dice solo "Todos"
   function etiquetas(){
