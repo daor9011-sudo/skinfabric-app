@@ -1968,6 +1968,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
         <div class="form-group full"><label>Paciente</label><input type="text" id="edit-paciente-nombre" style="font-weight:700"/></div>
         <div class="form-group"><label>Fecha</label><input type="date" id="edit-fecha"/></div>
         <div class="form-group"><label>Dueño del paciente</label><select id="edit-dueno"></select></div>
+        <div class="form-group"><label>Procedencia</label><select id="edit-procedencia"></select></div>
         <div class="form-group full">
           <label>Servicios <span class="req-badge">al menos uno</span></label>
           <div class="a-box">
@@ -2144,7 +2145,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.10.08-47';
+const APP_VERSION = 'v2026.10.12-48';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 // La marca de versión cambia de color según lo que tenga debajo: blanca sobre fondo oscuro, gris sobre fondo claro
@@ -4972,6 +4973,17 @@ function poblarSelectEditDueno(selectedId){
   sel.innerHTML = '<option value="">— Sin asignar —</option>' + opcionesPersonalAgrupadoHtml(selectedId, false, document.getElementById('edit-fecha').value);
   sel.value = selectedId || '';
 }
+// Procedencia del paciente (catálogo activo). Si la que tiene guardada ya no está activa, se agrega como opción
+// extra para no perderla en silencio al guardar.
+function poblarSelectEditProcedencia(selectedId, nombreActual){
+  const sel = document.getElementById('edit-procedencia');
+  sel.innerHTML = '<option value="">— Sin procedencia —</option>' + CATALOGOS.procedencias.map(p=>`<option value="${p.id}">${esc2(p.nombre)}</option>`).join('');
+  if(selectedId && ![...sel.options].some(o=>o.value===selectedId)){
+    const o = document.createElement('option'); o.value = selectedId; o.textContent = (nombreActual || 'Procedencia') + ' (inactiva)';
+    sel.appendChild(o);
+  }
+  sel.value = selectedId || '';
+}
 const EDIT_SERV_SEL = new Map(); // tipo_servicio_id -> { monto: string, atendidoPor: string }
 function editServTotal(){
   const total = [...EDIT_SERV_SEL.values()].reduce((a,v)=> a + (Number(v?.monto)||0), 0);
@@ -4997,6 +5009,7 @@ function abrirModalEditar(id){
   EDIT_SERV_SEL.clear();
   (r.consulta_servicios || []).forEach(cs=> EDIT_SERV_SEL.set(cs.tipo_servicio_id, { monto: String(cs.monto ?? ''), atendidoPor: cs.atendido_por || '' }));
   poblarSelectEditDueno(r.pacientes?.dueno_id || '');
+  poblarSelectEditProcedencia(r.pacientes?.procedencia_id || '', r.pacientes?.catalogo_procedencia?.nombre);
   editServRender('');
   poblarSelect('edit-medio', CATALOGOS.mediosPago.map(m=>({value:m.nombre, label:m.nombre})));
   // Si el medio de pago guardado ya no está en el catálogo activo (p.ej. "Tarjeta" de antes de
@@ -5053,6 +5066,7 @@ document.getElementById('edit-btn-guardar').addEventListener('click', async ()=>
   const servicios = [...EDIT_SERV_SEL.entries()].map(([id, val]) => ({ tipo_servicio_id: id, monto: Number(val?.monto || 0), atendido_por: val?.atendidoPor || null }));
   const montoTotal = servicios.reduce((a,s)=> a + s.monto, 0);
   const duenoId = document.getElementById('edit-dueno').value;
+  const procedenciaId = document.getElementById('edit-procedencia').value;
 
   const payload = {
     fecha: document.getElementById('edit-fecha').value,
@@ -5095,11 +5109,12 @@ document.getElementById('edit-btn-guardar').addEventListener('click', async ()=>
     return;
   }
   if(HIST_EDIT_PACIENTE_ID){
-    const { error: errDueno } = await sb.from('pacientes').update({ nombre: nombrePacienteEdit, dueno_id: duenoId || null }).eq('id', HIST_EDIT_PACIENTE_ID);
-    if(errDueno) console.error('[SkinFabric] Error actualizando dueño del paciente:', errDueno);
+    const { error: errDueno } = await sb.from('pacientes').update({ nombre: nombrePacienteEdit, dueno_id: duenoId || null, procedencia_id: procedenciaId || null }).eq('id', HIST_EDIT_PACIENTE_ID);
+    if(errDueno){ console.error('[SkinFabric] Error actualizando datos del paciente:', errDueno); toast('Se guardó la consulta, pero no se pudieron actualizar los datos del paciente.'); }
     else{
-      // Reflejar el nombre corregido de inmediato en las filas de esta consulta, sin esperar a recargar.
-      HIST_ROWS.forEach(r=>{ if(r.paciente_id === HIST_EDIT_PACIENTE_ID && r.pacientes) r.pacientes.nombre = nombrePacienteEdit; });
+      // Reflejar el nombre y la procedencia corregidos de inmediato en las filas de esta consulta, sin esperar a recargar.
+      const nomProc = CATALOGOS.procedencias.find(p=>p.id === procedenciaId)?.nombre || null;
+      HIST_ROWS.forEach(r=>{ if(r.paciente_id === HIST_EDIT_PACIENTE_ID && r.pacientes){ r.pacientes.nombre = nombrePacienteEdit; r.pacientes.procedencia_id = procedenciaId || null; r.pacientes.catalogo_procedencia = nomProc ? { nombre: nomProc } : null; } });
       renderHistorial();
     }
   }
