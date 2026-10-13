@@ -2145,7 +2145,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.10.12-48';
+const APP_VERSION = 'v2026.10.13-49';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 // La marca de versión cambia de color según lo que tenga debajo: blanca sobre fondo oscuro, gris sobre fondo claro
@@ -5423,14 +5423,14 @@ async function cargarCierre(){
   const desde = modoAlPedir === 'dia' ? isoLocal(fechaAlPedir) : isoLocal(primerDiaMes(fechaAlPedir));
   const hasta = modoAlPedir === 'dia' ? isoLocal(fechaAlPedir) : isoLocal(ultimoDiaMes(fechaAlPedir));
   let q = sb.from('consultas')
-    .select('id,fecha,monto,medio_pago,monto_2,medio_pago_2,doctor_id,pacientes(nombre),doctor:personal!doctor_id(nombre),consulta_servicios(tipo_servicio_id,monto,atendido_por,catalogo_tipos_servicio(nombre),atendido:personal(nombre))')
+    .select('id,fecha,monto,medio_pago,monto_2,medio_pago_2,doctor_id,pacientes(nombre),doctor:personal!doctor_id(nombre),consulta_servicios(tipo_servicio_id,monto,monto_1,monto_2,atendido_por,catalogo_tipos_servicio(nombre),atendido:personal(nombre))')
     .eq('deleted', false)
     .eq('no_vino', false)
     .gte('fecha', desde)
     .lte('fecha', hasta)
     .limit(2000);
-  const doctorId = document.getElementById('cierre-doctor').value;
-  if(doctorId) q = q.eq('doctor_id', doctorId);
+  // OJO: ya no se filtra por doctor_id en la base. Cada servicio se asigna a quien lo atendió (puede ser una cosmetóloga
+  // dentro de una consulta de un doctor), así que el filtro de persona se aplica en renderCierre sobre los servicios.
   const { data, error } = await q;
   if(miReqId !== cierreReqId) return; // el usuario ya cambió de día/mes/doctor mientras esto cargaba: descartar resultado obsoleto
   if(error){
@@ -5474,45 +5474,78 @@ function renderCierreCosmetologa(){
   </div></div>`;
 }
 
+// El cierre reparte cada SERVICIO a quien lo atendió (igual que el Historial): en una consulta de la Dra. con un facial de
+// una cosmetóloga, la consulta es de la Dra. y el facial es de la cosmetóloga. Lo cobrado (1er y 2do pago) se reparte
+// entre los servicios: con el desglose real por servicio si existe, y si no, en proporción al monto de cada servicio.
+function cierreAsignaciones(){
+  const out = [];
+  CIERRE_ROWS.forEach(r=>{
+    const m1 = Number(r.monto || 0), m2 = Number(r.monto_2 || 0), tot = m1 + m2;
+    const servs = (r.consulta_servicios || []).filter(cs => Number(cs.monto || 0) > 0);
+    const pacienteNombre = r.pacientes?.nombre || '—';
+    const base = { cid: r.id, paciente: pacienteNombre };
+    if(!servs.length){
+      // consulta sin servicios (no debería pasar): se queda completa con el doctor de la consulta
+      if(tot > 0) out.push({ ...base, pid: r.doctor_id, pnombre: r.doctor?.nombre || '—', serv: '', monto: tot, p1: m1, p2: m2, medio1: r.medio_pago, medio2: r.medio_pago_2 });
+      return;
+    }
+    servs.forEach(cs=>{
+      const monto = Number(cs.monto || 0);
+      let p1, p2;
+      if(cs.monto_1 != null){ p1 = Number(cs.monto_1 || 0); p2 = Number(cs.monto_2 || 0); }
+      else if(tot > 0){ p1 = monto * (m1 / tot); p2 = monto - p1; }
+      else { p1 = monto; p2 = 0; }
+      const pid = cs.atendido_por || r.doctor_id;
+      const pnombre = cs.atendido_por ? (cs.atendido?.nombre || '—') : (r.doctor?.nombre || '—');
+      out.push({ ...base, pid, pnombre, serv: cs.catalogo_tipos_servicio?.nombre || '', monto, p1, p2, medio1: r.medio_pago, medio2: r.medio_pago_2 });
+    });
+  });
+  return out;
+}
+
 function renderCierre(){
   if(MI_PERFIL?.rol === 'cosmetologo'){ renderCierreCosmetologa(); return; }
   let ingresoTotal = 0;
   const porDoctor = {};
   const porMedio = {};
+  const consultasVistas = new Set();
+  const personaFiltro = document.getElementById('cierre-doctor').value;
 
-  CIERRE_ROWS.forEach(r=>{
-    const monto1 = Number(r.monto || 0);
-    const monto2 = Number(r.monto_2 || 0);
-    const totalFila = monto1 + monto2;
-    ingresoTotal += totalFila;
-
-    const docId = r.doctor_id;
-    const docNombre = r.doctor?.nombre || '—';
-    if(!porDoctor[docId]) porDoctor[docId] = { nombre:docNombre, total:0, count:0, pagos:{}, pacientes:[] };
-    porDoctor[docId].total += totalFila;
-    porDoctor[docId].count += 1;
-    const servicio = nombresServicios(r.consulta_servicios, r.doctor?.nombre) || '—';
-    porDoctor[docId].pacientes.push({ nombre: r.pacientes?.nombre || '—', detalle: servicio, monto: totalFila });
-
-    if(r.medio_pago){
-      porDoctor[docId].pagos[r.medio_pago] = (porDoctor[docId].pagos[r.medio_pago] || 0) + monto1;
-      if(!porMedio[r.medio_pago]) porMedio[r.medio_pago] = { total:0, count:0, porDoctor:{} };
-      porMedio[r.medio_pago].total += monto1;
-      porMedio[r.medio_pago].count += 1;
-      porMedio[r.medio_pago].porDoctor[docNombre] = (porMedio[r.medio_pago].porDoctor[docNombre] || 0) + monto1;
+  // Una fila por consulta y persona (sus servicios juntos), para listar pacientes sin repetir
+  const porConsultaPersona = {};
+  cierreAsignaciones().forEach(a=>{
+    if(personaFiltro && a.pid !== personaFiltro) return;
+    ingresoTotal += a.monto;
+    consultasVistas.add(a.cid);
+    if(!porDoctor[a.pid]) porDoctor[a.pid] = { nombre:a.pnombre, total:0, count:0, pagos:{}, pacientes:[] };
+    const d = porDoctor[a.pid];
+    d.total += a.monto;
+    const k = a.pid + '|' + a.cid;
+    if(!porConsultaPersona[k]){
+      porConsultaPersona[k] = { nombre:a.paciente, servicios:[], monto:0 };
+      d.count += 1;
+      d.pacientes.push(porConsultaPersona[k]);
     }
-    if(r.medio_pago_2 && monto2){
-      porDoctor[docId].pagos[r.medio_pago_2] = (porDoctor[docId].pagos[r.medio_pago_2] || 0) + monto2;
-      if(!porMedio[r.medio_pago_2]) porMedio[r.medio_pago_2] = { total:0, count:0, porDoctor:{} };
-      porMedio[r.medio_pago_2].total += monto2;
-      porMedio[r.medio_pago_2].count += 1;
-      porMedio[r.medio_pago_2].porDoctor[docNombre] = (porMedio[r.medio_pago_2].porDoctor[docNombre] || 0) + monto2;
-    }
+    const pc = porConsultaPersona[k];
+    pc.monto += a.monto;
+    if(a.serv) pc.servicios.push(a.serv);
+
+    [[a.medio1, a.p1], [a.medio2, a.p2]].forEach(([medio, monto])=>{
+      if(!medio || !(monto > 0)) return;
+      d.pagos[medio] = (d.pagos[medio] || 0) + monto;
+      if(!porMedio[medio]) porMedio[medio] = { total:0, consultas:new Set(), porDoctor:{} };
+      porMedio[medio].total += monto;
+      porMedio[medio].consultas.add(a.cid);
+      porMedio[medio].porDoctor[a.pnombre] = (porMedio[medio].porDoctor[a.pnombre] || 0) + monto;
+    });
   });
+  Object.values(porDoctor).forEach(d=>{ d.pacientes.forEach(p=>{ p.detalle = p.servicios.join(', ') || '—'; }); });
+  Object.values(porMedio).forEach(m=>{ m.count = m.consultas.size; });
 
+  const nConsultas = consultasVistas.size;
   document.getElementById('cierre-kpi-total').textContent = fmtMoney(ingresoTotal);
-  document.getElementById('cierre-kpi-consultas').textContent = String(CIERRE_ROWS.length);
-  document.getElementById('cierre-kpi-ticket').textContent = fmtMoney(CIERRE_ROWS.length ? ingresoTotal / CIERRE_ROWS.length : 0);
+  document.getElementById('cierre-kpi-consultas').textContent = String(nConsultas);
+  document.getElementById('cierre-kpi-ticket').textContent = fmtMoney(nConsultas ? ingresoTotal / nConsultas : 0);
 
   renderCierrePorDoctor(porDoctor);
   renderCierrePorMedio(porMedio, ingresoTotal);
