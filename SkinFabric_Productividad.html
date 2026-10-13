@@ -2145,7 +2145,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.10.13-49';
+const APP_VERSION = 'v2026.10.13-50';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 // La marca de versión cambia de color según lo que tenga debajo: blanca sobre fondo oscuro, gris sobre fondo claro
@@ -5481,12 +5481,13 @@ function cierreAsignaciones(){
   const out = [];
   CIERRE_ROWS.forEach(r=>{
     const m1 = Number(r.monto || 0), m2 = Number(r.monto_2 || 0), tot = m1 + m2;
-    const servs = (r.consulta_servicios || []).filter(cs => Number(cs.monto || 0) > 0);
+    // Se incluyen también los servicios de $0 (cortesías): deben salir en el cierre aunque no sumen dinero.
+    const servs = (r.consulta_servicios || []);
     const pacienteNombre = r.pacientes?.nombre || '—';
     const base = { cid: r.id, paciente: pacienteNombre };
     if(!servs.length){
       // consulta sin servicios (no debería pasar): se queda completa con el doctor de la consulta
-      if(tot > 0) out.push({ ...base, pid: r.doctor_id, pnombre: r.doctor?.nombre || '—', serv: '', monto: tot, p1: m1, p2: m2, medio1: r.medio_pago, medio2: r.medio_pago_2 });
+      out.push({ ...base, pid: r.doctor_id, pnombre: r.doctor?.nombre || '—', serv: '', monto: tot, p1: m1, p2: m2, medio1: r.medio_pago, medio2: r.medio_pago_2 });
       return;
     }
     servs.forEach(cs=>{
@@ -5530,8 +5531,9 @@ function renderCierre(){
     pc.monto += a.monto;
     if(a.serv) pc.servicios.push(a.serv);
 
-    [[a.medio1, a.p1], [a.medio2, a.p2]].forEach(([medio, monto])=>{
-      if(!medio || !(monto > 0)) return;
+    // 1er pago: siempre cuenta si hay medio (una Cortesía es de $0 y debe aparecer); 2do pago: solo si trae dinero.
+    [[a.medio1, a.p1, true], [a.medio2, a.p2, false]].forEach(([medio, monto, primero])=>{
+      if(!medio || (!primero && !(monto > 0))) return;
       d.pagos[medio] = (d.pagos[medio] || 0) + monto;
       if(!porMedio[medio]) porMedio[medio] = { total:0, consultas:new Set(), porDoctor:{} };
       porMedio[medio].total += monto;
