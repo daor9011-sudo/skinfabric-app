@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<meta http-equiv="Cache-Control" content="no-cache, must-revalidate"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
 <title>Skin Fabric Consultas — Iniciar sesión</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;700;800&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -210,6 +213,9 @@ main.appmain{padding:22px 26px 40px;max-width:1250px;margin:0 auto}
 
 .toast2{position:fixed;top:16px;right:16px;background:#fff;border:1px solid rgba(42,191,191,.4);color:#0B6E6E;padding:10px 18px;border-radius:8px;font-size:12px;z-index:9990;opacity:0;transition:opacity .3s;pointer-events:none;box-shadow:0 4px 14px rgba(0,0,0,.12)}
 .toast2.show{opacity:1}
+#upd-banner{position:fixed;left:50%;bottom:18px;transform:translateX(-50%) translateY(20px);opacity:0;pointer-events:none;background:#0B1628;color:#fff;padding:11px 14px 11px 18px;border-radius:12px;font-size:13px;z-index:10001;display:flex;align-items:center;gap:12px;box-shadow:0 8px 28px rgba(11,22,40,.35);transition:opacity .25s,transform .25s;max-width:calc(100vw - 24px)}
+#upd-banner.show{opacity:1;transform:translateX(-50%);pointer-events:auto}
+#upd-banner button{background:#2ABFBF;color:#0B1628;border:0;border-radius:8px;padding:7px 14px;font-weight:700;font-size:12.5px;cursor:pointer;white-space:nowrap}
 
 .form-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px 16px}
 .form-grid .full{grid-column:1/-1}
@@ -2140,14 +2146,81 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 </div>
 
 <div class="toast2" id="toast2"></div>
+<div id="upd-banner" role="status"><span id="upd-msg">Hay una versión nueva de Skin Fabric.</span><button id="upd-btn" type="button">Actualizar ahora</button></div>
 
 <script>
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.10.13-50';
+const APP_VERSION = 'v2026.10.13-51';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
+
+// ── Auto-actualización: detecta una versión nueva publicada y recarga sola ──
+(function(){
+  const CADA_MS = 2 * 60 * 1000;      // revisa cada 2 min
+  const ESPERA_S = 8;                  // cuenta regresiva antes de recargar
+  let nuevaVer = null, cuenta = null, revisando = false, ultima = 0;
+  const ban = () => document.getElementById('upd-banner');
+  function urlLimpia(){ const u = new URL(location.href); u.searchParams.delete('_v'); u.searchParams.delete('_chk'); u.hash = ''; return u; }
+  function ocupado(){
+    // no recargar si hay un modal abierto o el usuario está escribiendo
+    if(document.querySelector('.modal-overlay.show')) return true;
+    const a = document.activeElement;
+    if(a && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName) && (a.value||'').length && Date.now() - ultimaTecla < 20000) return true;
+    return false;
+  }
+  let ultimaTecla = 0;
+  document.addEventListener('keydown', ()=>{ ultimaTecla = Date.now(); }, true);
+  function recargar(){
+    try{ sessionStorage.setItem('sf_upd_try', nuevaVer + '|' + Date.now()); }catch(e){}
+    const u = urlLimpia(); u.searchParams.set('_v', nuevaVer);
+    location.replace(u.toString() + location.hash);
+  }
+  function mostrar(){
+    const b = ban(); if(!b) return;
+    document.getElementById('upd-btn').onclick = recargar;
+    b.classList.add('show');
+    if(cuenta) return;
+    let seg = ESPERA_S;
+    const msg = document.getElementById('upd-msg');
+    cuenta = setInterval(()=>{
+      if(ocupado()){ msg.textContent = 'Hay una versión nueva. Se actualizará al terminar lo que estás haciendo.'; seg = ESPERA_S; return; }
+      msg.textContent = 'Versión nueva disponible. Actualizando en ' + seg + 's…';
+      if(--seg < 0){ clearInterval(cuenta); recargar(); }
+    }, 1000);
+  }
+  async function revisar(){
+    if(revisando || nuevaVer || !navigator.onLine) return;
+    if(Date.now() - ultima < 20000) return;
+    ultima = Date.now(); revisando = true;
+    try{
+      const u = urlLimpia(); u.searchParams.set('_chk', Date.now());
+      const r = await fetch(u.toString(), { cache:'no-store', headers:{ 'Cache-Control':'no-cache' } });
+      if(!r.ok) return;
+      const t = await r.text();
+      const m = t.match(/const APP_VERSION = '([^']+)'/);
+      if(!m || m[1] === APP_VERSION) return;
+      // evita bucles: si ya se intentó cargar esa versión y el servidor sigue entregando la vieja, solo avisa
+      let prev = null; try{ prev = sessionStorage.getItem('sf_upd_try'); }catch(e){}
+      nuevaVer = m[1];
+      if(prev && prev.split('|')[0] === nuevaVer && Date.now() - Number(prev.split('|')[1]) < 10*60*1000){
+        const b = ban(); document.getElementById('upd-msg').textContent = 'Hay una versión nueva. Cierra y vuelve a abrir la pestaña.';
+        document.getElementById('upd-btn').onclick = ()=> location.reload();
+        document.getElementById('upd-btn').textContent = 'Recargar'; b.classList.add('show'); return;
+      }
+      console.log('[SkinFabric] versión nueva', nuevaVer, '(actual', APP_VERSION + ')');
+      mostrar();
+    }catch(e){ /* sin red: se reintenta luego */ }
+    finally{ revisando = false; }
+  }
+  window.sfRevisarVersion = revisar;
+  document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState === 'visible') revisar(); });
+  window.addEventListener('focus', revisar);
+  window.addEventListener('online', revisar);
+  setInterval(revisar, CADA_MS);
+  setTimeout(revisar, 4000);
+})();
 // La marca de versión cambia de color según lo que tenga debajo: blanca sobre fondo oscuro, gris sobre fondo claro
 (function(){
   const tag = document.getElementById('app-version-tag');
