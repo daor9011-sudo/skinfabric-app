@@ -630,7 +630,7 @@ main.appmain{padding:22px 26px 40px;max-width:1250px;margin:0 auto}
 .farm-det-row .n,.farm-det-row .pr{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .farm-det-row .del{background:none;border:none;cursor:pointer;color:var(--red);font-size:13px;padding:0 4px}
 @media (max-width:720px){.farm-grid2{grid-template-columns:1fr}.bar-row{grid-template-columns:100px 1fr auto}.cuadre th,.cuadre td{padding:8px 5px;font-size:11px}.farm-det-row{grid-template-columns:44px minmax(0,1fr) auto auto}.farm-det-row .pr,.farm-det-row .pz{display:none}}
-body:not(.rol-cosm) #cierre-kpi-consultas-card,body.rol-cosm #cierre-kpi-ticketf-card,body.rol-cosm #cierre-kpi-serv-card,body.rol-cosm #cierre-kpi-farm-card,body.rol-cosm #cierre-kpi-top-card,body.rol-cosm #cierre-por-farm-panel{display:none!important}
+body:not(.rol-cosm) #cierre-kpi-consultas-card,body.rol-cosm #cierre-kpi-ticketf-card,body.rol-cosm #cierre-kpi-serv-card,body.rol-cosm #cierre-kpi-farm-card,body.rol-cosm #cierre-por-farm-panel{display:none!important}
 body.rol-cosm #reg-serv-filtros{display:none}
 /* ══════════ DASHBOARD · gasto y margen (tarjetas con tendencia) ══════════ */
 .kpi-grid.cols3{grid-template-columns:repeat(3,1fr)}
@@ -1595,7 +1595,6 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
         <div class="kpi-card" id="cierre-kpi-consultas-card"><div class="ico">🧾</div><div class="kpi-label" id="cierre-kpi-consultas-l">Consultas</div><div class="kpi-val" id="cierre-kpi-consultas">0</div></div>
         <div class="kpi-card" id="cierre-kpi-ticket-card"><div class="ico">🎟️</div><div class="kpi-label">Ticket servicios</div><div class="kpi-val" id="cierre-kpi-ticket">$0.00</div><div class="kpi-sub" id="cierre-kpi-ticket-s">—</div></div>
         <div class="kpi-card kpi-farm" id="cierre-kpi-ticketf-card"><div class="ico">🎟️</div><div class="kpi-label">Ticket farmacia</div><div class="kpi-val" id="cierre-kpi-ticketf">$0.00</div><div class="kpi-sub" id="cierre-kpi-ticketf-s">—</div></div>
-        <div class="kpi-card" id="cierre-kpi-top-card"><div class="ico">🏆</div><div class="kpi-label">Mayor ingreso</div><div class="kpi-val" id="cierre-kpi-top" style="font-size:14px">—</div><div class="kpi-sub" id="cierre-kpi-top-s"></div></div>
       </div>
 
       <div class="prm-tabs" id="cierre-tabs">
@@ -2254,7 +2253,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.10.14-56';
+const APP_VERSION = 'v2026.10.14-57';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 
@@ -5919,9 +5918,6 @@ function renderCierre(){
   document.getElementById('cierre-kpi-ticket-s').textContent = nConsultas + ' consulta(s)';
   document.getElementById('cierre-kpi-ticketf').textContent = fmtMoney(nVentasFarm ? ingresoFarm / nVentasFarm : 0);
   document.getElementById('cierre-kpi-ticketf-s').textContent = nVentasFarm ? nVentasFarm + ' venta(s) · ' + pzasFarm + ' pieza(s)' : 'sin ventas';
-  const top = Object.values(porDoctor).sort((a,b)=> b.total - a.total)[0];
-  document.getElementById('cierre-kpi-top').textContent = top ? top.nombre : '—';
-  document.getElementById('cierre-kpi-top-s').textContent = top ? fmtMoney(top.total) : '';
 
   renderCierrePorDoctor(porDoctor);
   renderCierrePorMedio(porMedio, ingresoTotal, ingresoFarm > 0);
