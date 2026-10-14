@@ -2254,7 +2254,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.10.14-53';
+const APP_VERSION = 'v2026.10.14-56';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 
@@ -4202,7 +4202,7 @@ function renderServiciosGrid(gridId, filtro, selMap, opts){
   if(opts && opts.farmacia && cat !== 'serv'){
     (CATALOGOS.farmacia || [])
       .filter(p => normalizar(p.nombre).includes(f) || normalizar(p.clave || '').includes(f))
-      .forEach(p => items.push({ id:'f:' + p.id, nombre:p.nombre, ref:'💊 Farmacia · ' + fmtMoney(p.precio) }));
+      .forEach(p => items.push({ id:'f:' + p.id, nombre:p.nombre, ref:'ref. ' + fmtMoney0(p.precio) }));
   }
   if(!items.length){ grid.innerHTML = '<div class="a-empty">' + (cat === 'farm' && !(CATALOGOS.farmacia || []).length ? 'Todavía no hay productos de farmacia en el catálogo.' : 'Sin resultados') + '</div>'; return; }
   grid.innerHTML = items.map(it => `
@@ -4268,7 +4268,6 @@ function renderFilaFarmacia(id, selMap, mostrarSplit, fechaFormServ){
   const cant = Math.max(1, parseInt(val.cantidad, 10) || 1);
   const precio = val.precio ?? sug;
   const monto = Number(val.monto) || 0;
-  const cambiado = Number(precio) !== sug;
   let splitHtml = '';
   if(mostrarSplit){
     const monto1 = (val.monto1 === undefined || val.monto1 === '') ? monto : val.monto1;
@@ -4278,14 +4277,14 @@ function renderFilaFarmacia(id, selMap, mostrarSplit, fechaFormServ){
       </div>`;
   }
   return `<div class="a-row farm" data-id="${esc2(id)}">
-      <div class="nom">${nombre}<span class="ref">💊 Farmacia · sugerido ${fmtMoney(sug)}${cambiado ? ' · <b>precio cambiado</b>' : ''}</span></div>
+      <div class="nom">${nombre}<span class="ref">ref. ${fmtMoney0(sug)}</span></div>
       <select class="atendido-select" title="¿Quién generó la venta?">
         <option value="">Vendido por...</option>
         ${opcionesPersonalAgrupadoHtml(val.atendidoPor || '', true, fechaFormServ)}
       </select>
       <div class="a-qty"><button type="button" class="qty-menos">−</button><b>${cant}</b><button type="button" class="qty-mas">+</button></div>
       <div class="monto-wrap" title="Precio por pieza"><span>$</span><input type="number" min="0" step="0.01" class="precio-unit" value="${esc2(precio)}"/></div>
-      <div class="sub-farm">${fmtMoney(monto)}</div>
+      <div class="sub-farm">${fmtMoney0(monto)}</div>
       <button class="quitar" type="button">✕</button>
       ${splitHtml}
     </div>`;
@@ -4374,7 +4373,7 @@ function crearSelectorServicios(ids, selMap, onChange, valorAtendidoPorDefecto, 
         row.querySelector('.precio-unit').addEventListener('input', e=>{
           recalc({ precio: e.target.value });
           const v = selMap.get(id);
-          row.querySelector('.sub-farm').textContent = fmtMoney(v.monto);
+          row.querySelector('.sub-farm').textContent = fmtMoney0(v.monto);
           const split1 = row.querySelector('.split1-input');
           if(split1){ split1.max = v.monto; row.querySelector('.split2-preview').textContent = '2do pago: ' + fmtMoney(Math.max(Number(v.monto) - (Number(split1.value)||0), 0)); }
           onChange();
@@ -5896,7 +5895,7 @@ function renderCierre(){
     ingresoFarm += monto; pzasFarm += cant;
     const d = nuevoDoctor(f.doctor_id, pnombre);
     d.total += monto; d.farm += monto; d.farmPzas += cant;
-    d.farmItems.push({ nombre: f.paciente || '—', detalle: '💊 ' + f.medicamento + (cant > 1 ? ' ×' + cant : ''), monto });
+    d.farmItems.push({ nombre: f.paciente || '—', detalle: f.medicamento + (cant > 1 ? ' ×' + cant : ''), monto });
     const cid = 'f' + f.id;
     sumaMedio(d, medioCanon(f.medio_pago), p1, true, cid, pnombre, true);
     sumaMedio(d, medioCanon(f.medio_pago_2), m2, false, cid, pnombre, true);
@@ -5941,7 +5940,7 @@ function renderCierrePorDoctor(porDoctor){
     const pacHtml = d.pacientes.map(p=>
       `<div class="pac-row-grid"><span class="pac-nombre">${esc2(p.nombre)}</span><span class="pac-detalle">${esc2(p.detalle)}</span><span class="pac-monto">${fmtMoney(p.monto)}</span></div>`
     ).join('') + d.farmItems.map(p=>
-      `<div class="pac-row-grid"><span class="pac-nombre">${esc2(p.nombre)}<span class="tagf">💊</span></span><span class="pac-detalle">${esc2(p.detalle)}</span><span class="pac-monto">${fmtMoney(p.monto)}</span></div>`
+      `<div class="pac-row-grid"><span class="pac-nombre">${esc2(p.nombre)}<span class="tagf">Farmacia</span></span><span class="pac-detalle">${esc2(p.detalle)}</span><span class="pac-monto">${fmtMoney(p.monto)}</span></div>`
     ).join('');
     const farmPill = d.farm > 0 ? `<span class="doc-pill" style="background:#F5F0FC;border:1px solid #D2B4DE;color:#7D3C98">💊 Farmacia ${fmtMoney(d.farm)}</span>` : '';
     const nItems = d.count + d.farmItems.length;
