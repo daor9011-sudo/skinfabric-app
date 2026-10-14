@@ -297,6 +297,9 @@ main.appmain{padding:22px 26px 40px;max-width:1250px;margin:0 auto}
 .a-qty button{border:none;background:var(--g1);width:26px;height:30px;font-size:15px;cursor:pointer;color:var(--navy);font-weight:700;font-family:inherit}
 .a-qty b{min-width:26px;text-align:center;font-size:13px;color:var(--navy)}
 .a-row .sub-farm{font-size:12px;font-weight:800;color:var(--navy);min-width:78px;text-align:right;flex-shrink:0}
+/* Config reducida (permiso "Productos"): solo el alta de productos de farmacia */
+.cfg-solo-prod > *:not(.tab-title):not(#cfg-farmacia-sec){display:none!important}
+.cfg-solo-prod #cfg-farmacia-sec .fp-imp,.cfg-solo-prod #cfg-farmacia-sec .fp-top,.cfg-solo-prod #cfg-farmacia-sec #cfg-farm-wrap{display:none!important}
 .promo-wrap{margin-top:8px;display:flex;flex-direction:column;gap:6px}
 .promo-farm{font-size:11.5px;font-weight:600;color:var(--g6);background:#FBF8FE;border:1px dashed #D2B4DE;border-radius:8px;padding:7px 10px}
 .promo-farm.ok{color:#5b2d73;background:#F5F0FC;border:1px solid #D2B4DE;font-weight:700}
@@ -2278,7 +2281,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.10.14-62';
+const APP_VERSION = 'v2026.10.14-63';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 
@@ -2524,13 +2527,15 @@ function entrarAlShell(perfil){
   const showDash = perfil.permisos?.puede_ver_dashboard === true;
   const showGastos = perfil.permisos?.puede_ver_gastos === true;
   const showComisiones = perfil.permisos?.puede_ver_comisiones === true;
-  const showConfig = perfil.rol === 'admin';
+  const soloProductos = perfil.rol !== 'admin' && perfil.permisos?.puede_alta_productos === true; // alta de productos de farmacia
+  const showConfig = perfil.rol === 'admin' || soloProductos;
   document.querySelector('[data-screen2="dash"]').classList.toggle('locked', !showDash);
   document.getElementById('nav-btn-gastos').style.display = showGastos ? '' : 'none';
   document.getElementById('nav-btn-comisiones').style.display = showComisiones ? '' : 'none';
   document.getElementById('btn-config-header').style.display = showConfig ? 'inline-flex' : 'none';
   document.getElementById('um-config').style.display = showConfig ? 'flex' : 'none';
   window.MI_ROL_ADMIN = perfil.rol === 'admin';
+  document.getElementById('app-screen-personal').classList.toggle('cfg-solo-prod', soloProductos);
   const esCosm = perfil.rol === 'cosmetologo';
   document.body.classList.toggle('rol-cosm', esCosm);
   if(esCosm){
@@ -3492,7 +3497,7 @@ async function comCerrarMes(){
   }
   toast(`🔒 ${comNombreMes(mes)} cerrado y liquidado.`);
   cargarComisiones();
-  if(typeof cargarActividad === 'function' && document.getElementById('app-screen-personal')?.classList.contains('act')) cargarActividad();
+  if(typeof cargarActividad === 'function' && MI_PERFIL?.rol === 'admin' && document.getElementById('app-screen-personal')?.classList.contains('act')) cargarActividad();
 }
 async function comReabrirMes(){
   const mes = comPeriodoMesActivo(); const c = mes && COM_CIERRES[mes];
@@ -7598,6 +7603,8 @@ document.getElementById('gestion-btn-guardar').addEventListener('click', async (
 // Módulo: Configuración
 // ============================================================
 function cargarConfiguracion(){
+  // Con solo el permiso "Productos" (no admin): únicamente el formulario para dar de alta productos de farmacia.
+  if(MI_PERFIL?.rol !== 'admin'){ if(MI_PERFIL?.permisos?.puede_alta_productos === true) cargarCatalogoFarmaciaCfg(); return; }
   renderConfigPersonal();
   cargarCatalogoTipos();
   cargarCatalogoFarmaciaCfg();
@@ -7861,6 +7868,7 @@ async function renderConfigPersonal(){
         <label class="perm-chip cfg-p-dashboard-wrap ${p.permisos?.puede_ver_dashboard ? 'on' : ''}"><input type="checkbox" class="cfg-p-dashboard" ${p.permisos?.puede_ver_dashboard ? 'checked':''}/><span class="ico">📊</span>Dashboard</label>
         <label class="perm-chip cfg-p-gastos-wrap ${p.permisos?.puede_ver_gastos ? 'on' : ''}"><input type="checkbox" class="cfg-p-gastos" ${p.permisos?.puede_ver_gastos ? 'checked':''}/><span class="ico">💸</span>Gastos</label>
         <label class="perm-chip cfg-p-comisiones-wrap ${p.permisos?.puede_ver_comisiones ? 'on' : ''}"><input type="checkbox" class="cfg-p-comisiones" ${p.permisos?.puede_ver_comisiones ? 'checked':''}/><span class="ico">💰</span>Comisiones</label>
+        <label class="perm-chip cfg-p-productos-wrap ${p.permisos?.puede_alta_productos ? 'on' : ''}" title="Puede dar de alta productos de farmacia (solo eso en Configuración)"><input type="checkbox" class="cfg-p-productos" ${p.permisos?.puede_alta_productos ? 'checked':''}/><span class="ico">🛒</span>Productos</label>
         <label class="perm-chip cfg-p-papelera-wrap ${p.permisos?.puede_eliminar_papelera !== false ? 'on' : ''}"><input type="checkbox" class="cfg-p-papelera" ${p.permisos?.puede_eliminar_papelera !== false ? 'checked':''}/><span class="ico">🗑️</span>Papelera</label>
       </div>
       <div class="cardC-right">
@@ -7895,6 +7903,7 @@ async function renderConfigPersonal(){
         puede_ver_gastos: card.querySelector('.cfg-p-gastos').checked,
         puede_ver_comisiones: card.querySelector('.cfg-p-comisiones').checked,
         puede_eliminar_papelera: card.querySelector('.cfg-p-papelera').checked,
+        puede_alta_productos: card.querySelector('.cfg-p-productos').checked,
       };
       const ok = await catalogoActualizar('personal', id, { permisos });
       if(ok) toast('✓ Guardado');
@@ -8056,7 +8065,7 @@ document.getElementById('cfg-personal-btn-agregar').addEventListener('click', as
     // puede_ver_comisiones ya NO se activa por default para nadie (ni admin/doctor): la pestaña
     // Comisiones se dejó visible solo para el perfil de Dani por decisión explícita. Si se
     // necesita dársela a alguien más, se activa a mano desde su tarjeta de permisos aquí mismo.
-    permisos: { puede_exportar:true, puede_ver_dashboard: (rol==='admin'||rol==='doctor'), puede_ver_gastos: rol==='admin', puede_ver_comisiones: false, puede_eliminar_papelera: rol==='admin' },
+    permisos: { puede_exportar:true, puede_ver_dashboard: (rol==='admin'||rol==='doctor'), puede_ver_gastos: rol==='admin', puede_ver_comisiones: false, puede_eliminar_papelera: rol==='admin', puede_alta_productos: false },
   });
   btn.disabled = false; btn.textContent = '+ Agregar personal';
   if(ok){
@@ -8501,7 +8510,7 @@ async function campanaNuevaFila(row){
   await cargarCampana();
   const a = BELL_ITEMS.find(x => x.id === row.id);
   if(a){ const dias = Number(a.detalle?.dias) || 0; toast(`🔔 ${a.personal?.nombre || 'Alguien'} registró una consulta tardía (${dias} ${dias === 1 ? 'día' : 'días'})`); }
-  if(document.getElementById('app-screen-personal')?.classList.contains('act')) cargarActividad();
+  if(MI_PERFIL?.rol === 'admin' && document.getElementById('app-screen-personal')?.classList.contains('act')) cargarActividad();
 }
 (function(){
   const btn = document.getElementById('btn-bell'), panel = document.getElementById('bell-panel');
