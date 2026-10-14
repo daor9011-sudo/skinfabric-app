@@ -367,7 +367,7 @@ main.appmain{padding:22px 26px 40px;max-width:1250px;margin:0 auto}
 .fp-precio span{font-size:12px;color:var(--g6);font-weight:700}
 .fp-precio input{border:none;padding:6px 0;width:100%;text-align:right;font-weight:700;font-size:13px;outline:none;font-family:inherit;background:transparent;font-variant-numeric:tabular-nums}
 .fp-ed{font-size:9.5px;font-weight:800;color:#9A6010;background:#FDF3E0;border-radius:10px;padding:1px 7px;margin-left:6px;white-space:nowrap}
-.fp-add{display:grid;grid-template-columns:1fr 2fr 1fr auto;gap:10px;align-items:end;margin-top:6px}
+.fp-add{display:grid;grid-template-columns:1fr 2fr 1fr .6fr auto;gap:10px;align-items:end;margin-top:6px}
 @media(max-width:720px){.fp-add{grid-template-columns:1fr}}
 .tx-table tr:hover td{background:var(--g1)}
 .tx-table input{padding:5px 8px;font-size:12px;width:100px;border:1px solid var(--g2);border-radius:5px;font-family:inherit;color:var(--navy)}
@@ -1943,6 +1943,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
             <div class="form-group"><label>Clave (opcional)</label><input type="text" id="cfg-farm-clave" placeholder="Ej. 7502002461153"/></div>
             <div class="form-group"><label>Producto</label><input type="text" id="cfg-farm-nombre" placeholder="Ej. Vastionin 20 mg c/30 cáps"/></div>
             <div class="form-group"><label>Precio sugerido</label><input type="number" id="cfg-farm-precio" min="0" step="0.01" placeholder="0.00"/></div>
+            <div class="form-group"><label>Piezas</label><input type="number" id="cfg-farm-piezas" min="1" step="1" value="1" title="Piezas que incluye una venta (promo 3×: 3)"/></div>
             <button class="btn-sm btn-outline" id="cfg-farm-btn-agregar" type="button" style="height:36px">+ Agregar</button>
           </div>
         </div>
@@ -2253,7 +2254,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.10.14-57';
+const APP_VERSION = 'v2026.10.14-58';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 
@@ -4087,7 +4088,7 @@ async function cargarCatalogos(){
     sb.from('catalogo_medios_pago').select('id,nombre').eq('activo', true).order('orden'),
     sb.from('catalogo_procedencia').select('id,nombre').eq('activo', true).order('orden'),
     sb.from('personal').select('id,nombre,rol,baja_hasta').eq('activo', true).in('rol', ['doctor','cosmetologo']).order('nombre'),
-    sb.from('farmacia_productos').select('id,clave,nombre,precio').eq('activo', true).order('nombre').limit(3000),
+    sb.from('farmacia_productos').select('id,clave,nombre,precio,piezas').eq('activo', true).order('nombre').limit(3000),
   ]);
   if(tipos.error) console.error('[SkinFabric] Error cargando tipos_servicio:', tipos.error);
   if(equipos.error) console.error('[SkinFabric] Error cargando equipos:', equipos.error);
@@ -4201,7 +4202,7 @@ function renderServiciosGrid(gridId, filtro, selMap, opts){
   if(opts && opts.farmacia && cat !== 'serv'){
     (CATALOGOS.farmacia || [])
       .filter(p => normalizar(p.nombre).includes(f) || normalizar(p.clave || '').includes(f))
-      .forEach(p => items.push({ id:'f:' + p.id, nombre:p.nombre, ref:'ref. ' + fmtMoney0(p.precio) }));
+      .forEach(p => items.push({ id:'f:' + p.id, nombre:p.nombre, ref:'ref. ' + fmtMoney0(p.precio) + (p.piezas > 1 ? ' · ' + p.piezas + ' pzas' : '') }));
   }
   if(!items.length){ grid.innerHTML = '<div class="a-empty">' + (cat === 'farm' && !(CATALOGOS.farmacia || []).length ? 'Todavía no hay productos de farmacia en el catálogo.' : 'Sin resultados') + '</div>'; return; }
   grid.innerHTML = items.map(it => `
@@ -4263,6 +4264,7 @@ function renderFilaFarmacia(id, selMap, mostrarSplit, fechaFormServ){
   const val = selMap.get(id) || {};
   const prod = (CATALOGOS.farmacia || []).find(x => 'f:' + x.id === id);
   const nombre = esc2(val.nombre || prod?.nombre || '(producto ya no disponible)');
+  const piezasPaq = parseInt(val.piezas ?? prod?.piezas, 10) || 1;
   const sug = Number(val.sugerido ?? prod?.precio ?? 0);
   const cant = Math.max(1, parseInt(val.cantidad, 10) || 1);
   const precio = val.precio ?? sug;
@@ -4276,7 +4278,7 @@ function renderFilaFarmacia(id, selMap, mostrarSplit, fechaFormServ){
       </div>`;
   }
   return `<div class="a-row farm" data-id="${esc2(id)}">
-      <div class="nom">${nombre}<span class="ref">ref. ${fmtMoney0(sug)}</span></div>
+      <div class="nom">${nombre}<span class="ref">ref. ${fmtMoney0(sug)}${piezasPaq > 1 ? ' · ' + piezasPaq + ' pzas' : ''}</span></div>
       <select class="atendido-select" title="¿Quién generó la venta?">
         <option value="">Vendido por...</option>
         ${opcionesPersonalAgrupadoHtml(val.atendidoPor || '', true, fechaFormServ)}
@@ -4346,7 +4348,7 @@ function crearSelectorServicios(ids, selMap, onChange, valorAtendidoPorDefecto, 
           if(esFarmKey(id)){
             const prod = (CATALOGOS.farmacia || []).find(x => 'f:' + x.id === id);
             const sug = Number(prod?.precio) || 0;
-            selMap.set(id, selMap.get(id) ?? { monto: String(sug), atendidoPor, cantidad:1, precio: String(sug), sugerido: sug, nombre: prod?.nombre || '' });
+            selMap.set(id, selMap.get(id) ?? { monto: String(sug), atendidoPor, cantidad:1, precio: String(sug), sugerido: sug, nombre: prod?.nombre || '', piezas: prod?.piezas || 1 });
           }else{
             selMap.set(id, selMap.get(id) ?? { monto:'', atendidoPor });
           }
@@ -4450,7 +4452,7 @@ document.querySelectorAll('#reg-serv-filtros .a-filtro-btn').forEach(btn => btn.
 }));
 // Catálogo de farmacia (solo productos activos) para el selector del Registro
 async function cargarCatalogoFarmaciaReg(){
-  const { data, error } = await sb.from('farmacia_productos').select('id,clave,nombre,precio').eq('activo', true).order('nombre').limit(3000);
+  const { data, error } = await sb.from('farmacia_productos').select('id,clave,nombre,precio,piezas').eq('activo', true).order('nombre').limit(3000);
   if(error){ console.error('[SkinFabric] Error cargando catálogo de farmacia:', error); return; }
   CATALOGOS.farmacia = data || [];
   regServRefrescar();
@@ -4894,7 +4896,7 @@ async function guardarRegistro(){
           paciente: nombre, paciente_id: pacienteId,
           medicamento: val.nombre || prod?.nombre || 'Producto de farmacia',
           producto_id: prod ? prod.id : null,
-          cantidad: Math.max(1, parseInt(val.cantidad, 10) || 1),
+          cantidad: Math.max(1, parseInt(val.cantidad, 10) || 1) * (parseInt(val.piezas ?? prod?.piezas, 10) || 1), // piezas reales (un paquete de 3 = 3 piezas)
           precio_unitario: Number(val.precio) || 0,
           monto: f.monto,
           medio_pago: medio, monto_2: tiene2 ? f.monto_2 : null, medio_pago_2: tiene2 ? medio2 : null,
@@ -8059,7 +8061,7 @@ function renderCfgFarmacia(){
     const editado = p.precio_excel != null && Number(p.precio) !== Number(p.precio_excel);
     return `<tr data-id="${esc2(p.id)}">
       <td class="fp-clave" title="${esc2(p.claves_alt ? 'También: ' + p.claves_alt : '')}">${esc2(p.clave || '—')}${p.claves_alt ? ' +' + p.claves_alt.split(',').length : ''}</td>
-      <td class="fp-nom">${esc2(p.nombre)}</td>
+      <td class="fp-nom">${esc2(p.nombre)}${p.piezas > 1 ? `<span class="tagf">${p.piezas} pzas</span>` : ''}</td>
       <td><span class="fp-precio"><span>$</span><input type="number" min="0" step="0.01" class="cfg-farm-precio" value="${esc2(p.precio)}"/></span>${editado ? `<span class="fp-ed" title="Precio original del Excel">editado · Excel ${fmtMoney0(p.precio_excel)}</span>` : ''}</td>
       <td><input type="checkbox" class="cfg-farm-activo" ${p.activo ? 'checked' : ''}/></td>
       <td><button class="btn-sm btn-del" type="button">Eliminar</button></td>
@@ -8096,14 +8098,15 @@ document.getElementById('cfg-farm-btn-agregar').addEventListener('click', async 
   const nombre = document.getElementById('cfg-farm-nombre').value.trim();
   const precioTxt = document.getElementById('cfg-farm-precio').value;
   const precio = Number(precioTxt);
+  const piezas = Math.max(1, parseInt(document.getElementById('cfg-farm-piezas').value, 10) || 1);
   if(!nombre){ toast('Escribe el nombre del producto.'); return; }
   if(precioTxt === '' || !(precio >= 0)){ toast('Escribe el precio sugerido.'); return; }
   if(CFG_FARM.some(p => farmNorm(p.nombre) === farmNorm(nombre))){ toast('Ya existe un producto con ese nombre.'); return; }
   const btn = document.getElementById('cfg-farm-btn-agregar'); btn.disabled = true;
-  const ok = await catalogoCrear('farmacia_productos', { clave: clave || null, nombre, precio, precio_excel: precio, activo: true });
+  const ok = await catalogoCrear('farmacia_productos', { clave: clave || null, nombre, precio, precio_excel: precio, piezas, activo: true });
   btn.disabled = false;
   if(ok){
-    ['cfg-farm-clave','cfg-farm-nombre','cfg-farm-precio'].forEach(i => document.getElementById(i).value = '');
+    ['cfg-farm-clave','cfg-farm-nombre','cfg-farm-precio'].forEach(i => document.getElementById(i).value = ''); document.getElementById('cfg-farm-piezas').value = 1;
     toast('✓ Producto agregado.');
     await cargarCatalogoFarmaciaCfg(); cargarCatalogoFarmaciaReg();
   }
