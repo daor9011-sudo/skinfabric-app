@@ -2282,7 +2282,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.10.14-64';
+const APP_VERSION = 'v2026.10.14-65';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 
@@ -5257,7 +5257,7 @@ function renderHistorial(){
       <td>—</td>
       <td>${quien}</td>
       <td>${quien}</td>
-      <td><span class="tagf" style="margin:0 6px 0 0">Farmacia</span>${esc2(f.medicamento || '—')}${cant > 1 ? ' ×' + cant : ''}</td>
+      <td>${esc2(f.medicamento || '—')}${cant > 1 ? ' ×' + cant : ''}</td>
       <td><b style="color:var(--purple)">${fmtMoney(f.monto)}</b></td>
       <td>${f.medio_pago ? iconoPago(f.medio_pago) + esc2(f.medio_pago) : '—'}${pago2f}</td>
       <td style="font-size:11px;color:var(--g6)">${f.facturado ? esc2(f.num_factura || 'Pendiente') : '—'}</td>
