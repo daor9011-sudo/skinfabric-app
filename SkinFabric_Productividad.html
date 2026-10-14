@@ -289,6 +289,14 @@ main.appmain{padding:22px 26px 40px;max-width:1250px;margin:0 auto}
 .split-pago-row input{border:1px solid rgba(42,191,191,.5);border-radius:6px;padding:4px 6px;font-size:12.5px;width:90px;text-align:right;font-family:inherit;color:var(--navy)}
 .split-pago-row .split2-preview{font-size:11.5px;color:var(--g6);font-weight:600}
 @media (max-width:560px){.a-row .nom{flex-basis:100%}}
+.a-filtros{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.a-filtro-btn{border:1.5px solid var(--g2);background:#fff;padding:6px 13px;border-radius:20px;font-size:11.5px;cursor:pointer;font-weight:700;color:var(--g6);font-family:inherit}
+.a-filtro-btn.active{background:var(--teal);color:#fff;border-color:var(--teal)}
+.a-row.farm .ref b{color:#9A6010}
+.a-qty{display:inline-flex;align-items:center;border:1px solid var(--g2);border-radius:7px;overflow:hidden;background:#fff;flex-shrink:0}
+.a-qty button{border:none;background:var(--g1);width:26px;height:30px;font-size:15px;cursor:pointer;color:var(--navy);font-weight:700;font-family:inherit}
+.a-qty b{min-width:26px;text-align:center;font-size:13px;color:var(--navy)}
+.a-row .sub-farm{font-size:12px;font-weight:800;color:var(--navy);min-width:78px;text-align:right;flex-shrink:0}
 .a-vacio{font-size:11.5px;color:var(--g4);font-style:italic;padding:4px 0}
 @media (max-width:820px){.form-grid{grid-template-columns:1fr 1fr}}
 @media (max-width:560px){.form-grid{grid-template-columns:1fr}}
@@ -343,6 +351,24 @@ main.appmain{padding:22px 26px 40px;max-width:1250px;margin:0 auto}
 .tx-table th:last-child{border-top-right-radius:8px;border-bottom-right-radius:8px}
 .tx-table td{padding:9px 12px;border-bottom:1px solid var(--g1);vertical-align:middle}
 .tx-table tr:last-child td{border-bottom:none}
+
+/* Configuración · Catálogo de farmacia */
+.fp-imp{display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:linear-gradient(180deg,#fff,#F5F0FC);border:1.5px solid #D2B4DE;border-radius:12px;padding:12px 16px;margin-bottom:14px}
+.fp-imp .t{font-weight:800;color:var(--purple);font-size:13px}.fp-imp .s{font-size:12px;color:var(--g6);flex:1 1 240px}
+.fp-top{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.fp-top input[type=text]{flex:1 1 240px;padding:8px 11px;font-size:13px;border:1.5px solid var(--g2);border-radius:8px;font-family:inherit;outline:none}
+.fp-top input[type=text]:focus{border-color:var(--teal)}
+.fp-count{font-size:12px;color:var(--g6);margin-left:auto}
+#cfg-farm-wrap{max-height:520px;overflow:auto;border:1px solid var(--g2);border-radius:10px}
+#cfg-farm-wrap .tx-table thead th{position:sticky;top:0;z-index:1}
+.fp-clave{font-size:11px;color:var(--g6);font-variant-numeric:tabular-nums;white-space:nowrap}
+.fp-nom{font-weight:600;color:var(--navy)}
+.fp-precio{display:inline-flex;align-items:center;gap:4px;background:#fff;border:1px solid rgba(42,191,191,.5);border-radius:7px;padding:0 8px;width:118px}
+.fp-precio span{font-size:12px;color:var(--g6);font-weight:700}
+.fp-precio input{border:none;padding:6px 0;width:100%;text-align:right;font-weight:700;font-size:13px;outline:none;font-family:inherit;background:transparent;font-variant-numeric:tabular-nums}
+.fp-ed{font-size:9.5px;font-weight:800;color:#9A6010;background:#FDF3E0;border-radius:10px;padding:1px 7px;margin-left:6px;white-space:nowrap}
+.fp-add{display:grid;grid-template-columns:1fr 2fr 1fr auto;gap:10px;align-items:end;margin-top:6px}
+@media(max-width:720px){.fp-add{grid-template-columns:1fr}}
 .tx-table tr:hover td{background:var(--g1)}
 .tx-table input{padding:5px 8px;font-size:12px;width:100px;border:1px solid var(--g2);border-radius:5px;font-family:inherit;color:var(--navy)}
 .tx-table input.hist-inline-factura{width:78px}
@@ -566,6 +592,46 @@ main.appmain{padding:22px 26px 40px;max-width:1250px;margin:0 auto}
 @media (max-width:560px){.kpi-grid{grid-template-columns:1fr}.periodo-bar select{margin-left:0!important}}
 
 .kpi-grid.cols4{grid-template-columns:repeat(4,1fr)}
+/* Cierre · farmacia */
+.kpi-grid.cierre-kpis{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.kpi-sub{font-size:10.5px;color:var(--g6);margin-top:3px}
+.kpi-card.kpi-farm{border-color:#D2B4DE;background:linear-gradient(180deg,#fff,#F5F0FC)}
+.kpi-card.kpi-farm .kpi-val{color:var(--purple)}
+.cs-sec{font-size:10.5px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--g6);margin:6px 0 8px}
+.farm-grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.farm-box{border:1px solid var(--g2);border-radius:12px;padding:14px 16px;background:#fff;margin-bottom:14px}
+.farm-grid2 .farm-box{margin-bottom:0}
+.bar-row{display:grid;grid-template-columns:130px 1fr auto;gap:10px;align-items:center;font-size:11.5px;padding:5px 0}
+.bar-row .bg{height:8px;background:#eef1f7;border-radius:5px;overflow:hidden}
+.bar-row .bg i{display:block;height:100%;background:var(--purple);border-radius:5px}
+.bar-row b{font-variant-numeric:tabular-nums}
+.bar-row .doc-pill{margin:0}
+.prod-row{display:grid;grid-template-columns:minmax(0,2.4fr) 44px minmax(0,1.3fr) minmax(70px,auto);gap:10px;align-items:center;padding:7px 0;border-bottom:1px solid #f0f2f7;font-size:12px}
+.prod-row.h{font-size:10px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:var(--g6);border-bottom:1.5px solid var(--g2)}
+.prod-row .n{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}
+.prod-row .q{text-align:center;color:var(--g6)}
+.prod-row .m{text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
+.prod-row .bg{height:6px;background:#eef1f7;border-radius:4px;overflow:hidden}
+.prod-row .bg i{display:block;height:100%;background:var(--purple);border-radius:4px}
+.cuadre{width:100%;border-collapse:collapse;font-size:12.5px;margin-bottom:14px}
+.cuadre th{font-size:10px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:var(--g6);text-align:right;padding:8px 10px;border-bottom:1.5px solid var(--g2)}
+.cuadre th:first-child,.cuadre td:first-child{text-align:left}
+.cuadre td{padding:9px 10px;border-bottom:1px solid #f0f2f7;text-align:right;font-variant-numeric:tabular-nums}
+.cuadre td.f{color:var(--purple);font-weight:700}.cuadre td.t{font-weight:800}
+.cuadre tr.tot td{border-top:2px solid var(--navy);border-bottom:none;font-weight:800;background:#FAFBFD}
+.cuadre .doc-pill{margin:0}
+.cs-split{display:flex;height:8px;border-radius:5px;overflow:hidden;background:rgba(0,0,0,.07);margin:8px 0 6px}
+.cs-split i{display:block;height:100%}.cs-split .s{background:var(--teal)}.cs-split .f{background:var(--purple)}
+.cs-ley{display:flex;gap:16px;flex-wrap:wrap;font-size:11px;color:var(--g6)}.cs-ley b{color:var(--navy)}
+.cs-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px}.cs-dot.s{background:var(--teal)}.cs-dot.f{background:var(--purple)}
+.tagf{font-size:9.5px;font-weight:800;color:var(--purple);background:#F5F0FC;border:1px solid #D2B4DE;border-radius:10px;padding:1px 6px;margin-left:6px}
+.farm-det-row{display:grid;grid-template-columns:48px minmax(0,1.4fr) minmax(0,2fr) 34px minmax(70px,auto) auto;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid #f4f6fb;font-size:11.5px}
+.farm-det-row .f{color:var(--g6);font-weight:700}.farm-det-row .pz{text-align:center;color:var(--g6)}.farm-det-row .m{text-align:right;font-weight:700;color:var(--purple)}
+.farm-det-row .n,.farm-det-row .pr{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.farm-det-row .del{background:none;border:none;cursor:pointer;color:var(--red);font-size:13px;padding:0 4px}
+@media (max-width:720px){.farm-grid2{grid-template-columns:1fr}.bar-row{grid-template-columns:100px 1fr auto}.cuadre th,.cuadre td{padding:8px 5px;font-size:11px}.farm-det-row{grid-template-columns:44px minmax(0,1fr) auto auto}.farm-det-row .pr,.farm-det-row .pz{display:none}}
+body:not(.rol-cosm) #cierre-kpi-consultas-card,body.rol-cosm #cierre-kpi-ticketf-card,body.rol-cosm #cierre-kpi-serv-card,body.rol-cosm #cierre-kpi-farm-card,body.rol-cosm #cierre-kpi-top-card,body.rol-cosm #cierre-por-farm-panel{display:none!important}
+body.rol-cosm #reg-serv-filtros{display:none}
 /* ══════════ DASHBOARD · gasto y margen (tarjetas con tendencia) ══════════ */
 .kpi-grid.cols3{grid-template-columns:repeat(3,1fr)}
 .kpi-grid.cols2{grid-template-columns:repeat(2,1fr)}
@@ -1399,9 +1465,14 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
         <div class="form-group" id="reg-grp-procedencia"><label>Procedencia</label><select id="reg-procedencia"><option value="">Seleccionar...</option></select></div>
         <div class="form-group" id="reg-grp-dueno"><label>Dueño del paciente <span class="req-badge">obligatorio</span></label><select id="reg-dueno"><option value="">Seleccionar...</option></select></div>
         <div class="form-group full">
-          <label>Servicios <span class="req-badge">al menos uno</span></label>
+          <label>Servicios y productos <span class="req-badge">al menos uno</span></label>
           <div class="a-box">
-            <input class="a-search" type="text" id="reg-serv-buscar" placeholder="🔎 Buscar servicio..." autocomplete="off"/>
+            <div class="a-filtros" id="reg-serv-filtros">
+              <button type="button" class="a-filtro-btn" data-cat="todos">Todos</button>
+              <button type="button" class="a-filtro-btn active" data-cat="serv">🩺 Servicios</button>
+              <button type="button" class="a-filtro-btn" data-cat="farm">💊 Farmacia</button>
+            </div>
+            <input class="a-search" type="text" id="reg-serv-buscar" placeholder="🔎 Buscar servicio o producto de farmacia..." autocomplete="off"/>
             <div class="a-grid" id="reg-serv-grid"></div>
             <div class="a-seleccion">
               <div class="a-seleccion-titulo">Seleccionados y su valor cobrado</div>
@@ -1517,18 +1588,24 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
         <select id="cierre-doctor" style="max-width:220px;margin-left:auto"><option value="">Todo el personal</option></select>
       </div>
 
-      <div class="kpi-grid" id="cierre-kpis">
-        <div class="kpi-card"><div class="ico">💰</div><div class="kpi-label" id="cierre-kpi-total-l">Ingreso total</div><div class="kpi-val" id="cierre-kpi-total">$0.00</div></div>
-        <div class="kpi-card"><div class="ico">🧾</div><div class="kpi-label" id="cierre-kpi-consultas-l">Consultas</div><div class="kpi-val" id="cierre-kpi-consultas">0</div></div>
-        <div class="kpi-card" id="cierre-kpi-ticket-card"><div class="ico">🎟️</div><div class="kpi-label">Ticket promedio</div><div class="kpi-val" id="cierre-kpi-ticket">$0.00</div></div>
+      <div class="kpi-grid cierre-kpis" id="cierre-kpis">
+        <div class="kpi-card"><div class="ico">💰</div><div class="kpi-label" id="cierre-kpi-total-l">Ingreso total</div><div class="kpi-val" id="cierre-kpi-total">$0.00</div><div class="kpi-sub" id="cierre-kpi-total-s">servicios + farmacia</div></div>
+        <div class="kpi-card" id="cierre-kpi-serv-card"><div class="ico">🩺</div><div class="kpi-label">Servicios</div><div class="kpi-val" id="cierre-kpi-serv">$0.00</div><div class="kpi-sub" id="cierre-kpi-serv-s">—</div></div>
+        <div class="kpi-card kpi-farm" id="cierre-kpi-farm-card"><div class="ico">💊</div><div class="kpi-label">Farmacia</div><div class="kpi-val" id="cierre-kpi-farm">$0.00</div><div class="kpi-sub" id="cierre-kpi-farm-s">—</div></div>
+        <div class="kpi-card" id="cierre-kpi-consultas-card"><div class="ico">🧾</div><div class="kpi-label" id="cierre-kpi-consultas-l">Consultas</div><div class="kpi-val" id="cierre-kpi-consultas">0</div></div>
+        <div class="kpi-card" id="cierre-kpi-ticket-card"><div class="ico">🎟️</div><div class="kpi-label">Ticket servicios</div><div class="kpi-val" id="cierre-kpi-ticket">$0.00</div><div class="kpi-sub" id="cierre-kpi-ticket-s">—</div></div>
+        <div class="kpi-card kpi-farm" id="cierre-kpi-ticketf-card"><div class="ico">🎟️</div><div class="kpi-label">Ticket farmacia</div><div class="kpi-val" id="cierre-kpi-ticketf">$0.00</div><div class="kpi-sub" id="cierre-kpi-ticketf-s">—</div></div>
+        <div class="kpi-card" id="cierre-kpi-top-card"><div class="ico">🏆</div><div class="kpi-label">Mayor ingreso</div><div class="kpi-val" id="cierre-kpi-top" style="font-size:14px">—</div><div class="kpi-sub" id="cierre-kpi-top-s"></div></div>
       </div>
 
       <div class="prm-tabs" id="cierre-tabs">
         <button type="button" class="prm-tab-btn act" data-target="cierre-por-doctor-panel">👥 Por Doctor</button>
         <button type="button" class="prm-tab-btn" data-target="cierre-por-pago-panel">💳 Por Medio de Pago</button>
+        <button type="button" class="prm-tab-btn" data-target="cierre-por-farm-panel">💊 Farmacia</button>
       </div>
       <div class="subpanel active" id="cierre-por-doctor-panel"><div id="cierre-por-doctor"></div></div>
       <div class="subpanel" id="cierre-por-pago-panel"><div id="cierre-por-pago"></div></div>
+      <div class="subpanel" id="cierre-por-farm-panel"><div id="cierre-por-farm"></div></div>
     </div>
     <div class="card screen2" id="app-screen-dash">
       <div class="tab-title" id="dash-title-desk"><span>📊 Dashboard de Indicadores</span></div>
@@ -1847,6 +1924,31 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
         <button class="btn-sm btn-outline" id="cfg-btn-agregar-tipo" type="button" style="margin-top:10px">+ Agregar tipo de servicio</button>
       </div>
 
+      <div class="config-section" id="cfg-farmacia-sec">
+        <div class="config-title"><span>💊 Catálogo de farmacia</span></div>
+        <div class="fp-imp"><div class="t">⬆ Importar desde Excel</div><div class="s">Elige tu archivo de inventario: toma la hoja con <b>Clave</b> y <b>Descripción</b> (la “Hoja1”) y el <b>Precio</b> del reporte como precio sugerido. Solo agrega los productos que no existan; no pisa precios que ya editaste.</div><button class="btn-sm act" id="cfg-farm-btn-importar" type="button">Elegir Excel…</button><input type="file" id="cfg-farm-file" accept=".xlsx,.xls" style="display:none"/></div>
+        <div class="fp-top">
+          <input type="text" id="cfg-farm-buscar" placeholder="🔎 Buscar por nombre o clave…" autocomplete="off"/>
+          <button class="btn-sm act" type="button" data-fpf="todos">Todos</button><button class="btn-sm" type="button" data-fpf="editados">Precio editado</button><button class="btn-sm" type="button" data-fpf="inactivos">Inactivos</button>
+          <span class="fp-count" id="cfg-farm-count"></span>
+        </div>
+        <div class="tx-table-wrap" id="cfg-farm-wrap">
+          <table class="tx-table">
+            <thead><tr><th>Clave</th><th>Producto</th><th>Precio sugerido</th><th>Activo</th><th></th></tr></thead>
+            <tbody id="cfg-farm-tbody"></tbody>
+          </table>
+        </div>
+        <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--g2)">
+          <div style="font-weight:800;font-size:13px;color:var(--navy);margin-bottom:8px">➕ Agregar producto</div>
+          <div class="fp-add">
+            <div class="form-group"><label>Clave (opcional)</label><input type="text" id="cfg-farm-clave" placeholder="Ej. 7502002461153"/></div>
+            <div class="form-group"><label>Producto</label><input type="text" id="cfg-farm-nombre" placeholder="Ej. Vastionin 20 mg c/30 cáps"/></div>
+            <div class="form-group"><label>Precio sugerido</label><input type="number" id="cfg-farm-precio" min="0" step="0.01" placeholder="0.00"/></div>
+            <button class="btn-sm btn-outline" id="cfg-farm-btn-agregar" type="button" style="height:36px">+ Agregar</button>
+          </div>
+        </div>
+      </div>
+
       <div class="config-section">
         <div class="config-title"><span>🔧 Equipo / Cabina (procedimientos)</span></div>
         <div class="tx-table-wrap">
@@ -2152,7 +2254,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.10.13-51';
+const APP_VERSION = 'v2026.10.14-53';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 
@@ -3972,20 +4074,21 @@ document.querySelector('[data-screen2="comisiones"]').addEventListener('click', 
 // ============================================================
 // Módulo: Registro
 // ============================================================
-const CATALOGOS = { tiposServicio:[], equipos:[], terminales:[], mediosPago:[], procedencias:[], personal:[] };
+const CATALOGOS = { tiposServicio:[], equipos:[], terminales:[], mediosPago:[], procedencias:[], personal:[], farmacia:[] };
 function fmtMoney0(v){ return '$' + (Math.round(Number(v||0)) + 0).toLocaleString('es-MX',{maximumFractionDigits:0}); }
 function fmtMoney(v){ return '$' + Number(v||0).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2}); }
 const PAGO_ICON = { Efectivo:'💵', Tarjeta:'💳', 'Tarjeta Crédito':'💳', 'Tarjeta Débito':'💳', Transferencia:'🏦', Cortesía:'🎁', AMEX:'💳', Amex:'💳' };
 function iconoPago(medio){ return medio ? (PAGO_ICON[medio] || '💰') + ' ' : ''; }
 
 async function cargarCatalogos(){
-  const [tipos, equipos, terminales, medios, procedencias, personal] = await Promise.all([
+  const [tipos, equipos, terminales, medios, procedencias, personal, farmacia] = await Promise.all([
     sb.from('catalogo_tipos_servicio').select('id,nombre,requiere_descripcion,requiere_equipo,referencia_precio').eq('activo', true).order('orden'),
     sb.from('catalogo_equipos').select('id,nombre,doctor_id').eq('activo', true).order('nombre'),
     sb.from('catalogo_terminales').select('id,nombre').eq('activo', true).order('nombre'),
     sb.from('catalogo_medios_pago').select('id,nombre').eq('activo', true).order('orden'),
     sb.from('catalogo_procedencia').select('id,nombre').eq('activo', true).order('orden'),
     sb.from('personal').select('id,nombre,rol,baja_hasta').eq('activo', true).in('rol', ['doctor','cosmetologo']).order('nombre'),
+    sb.from('farmacia_productos').select('id,clave,nombre,precio').eq('activo', true).order('nombre').limit(3000),
   ]);
   if(tipos.error) console.error('[SkinFabric] Error cargando tipos_servicio:', tipos.error);
   if(equipos.error) console.error('[SkinFabric] Error cargando equipos:', equipos.error);
@@ -4000,6 +4103,8 @@ async function cargarCatalogos(){
   CATALOGOS.mediosPago = medios.data || [];
   CATALOGOS.procedencias = procedencias.data || [];
   CATALOGOS.personal = personal.data || [];
+  if(farmacia.error) console.error('[SkinFabric] Error cargando farmacia_productos:', farmacia.error);
+  CATALOGOS.farmacia = farmacia.data || [];
 
   poblarSelectDueno();
   regServRender(document.getElementById('reg-serv-buscar').value);
@@ -4081,18 +4186,29 @@ function nombresServicios(consultaServicios, doctorPrincipalNombre){
 // Cada valor de selMap es { monto: string, atendidoPor: string } — atendidoPor vacío significa
 // "igual que el doctor/atendido principal de arriba" (así una consulta de un doctor puede derivar
 // un servicio de cabina hecho por otra persona, ej. una cosmetóloga).
-function renderServiciosGrid(gridId, filtro, selMap){
+const esFarmKey = k => String(k).startsWith('f:');
+function renderServiciosGrid(gridId, filtro, selMap, opts){
   const grid = document.getElementById(gridId);
   const f = normalizar(filtro || '');
-  const visibles = CATALOGOS.tiposServicio
-    .filter(s => normalizar(s.nombre).includes(f))
-    .slice()
-    .sort((a,b)=> a.nombre.localeCompare(b.nombre, 'es'));
-  if(!visibles.length){ grid.innerHTML = '<div class="a-empty">Sin resultados</div>'; return; }
-  grid.innerHTML = visibles.map(s => `
-    <label class="a-chip ${selMap.has(s.id)?'on':''}" data-id="${esc2(s.id)}">
-      <input type="checkbox" ${selMap.has(s.id)?'checked':''}/>
-      <div><div class="nom">${esc2(s.nombre)}</div>${s.referencia_precio ? `<div class="ref">ref. ${esc2(s.referencia_precio)}</div>` : ''}</div>
+  const cat = (opts && opts.cat) || 'serv';
+  const items = [];
+  if(cat !== 'farm'){
+    CATALOGOS.tiposServicio
+      .filter(s => normalizar(s.nombre).includes(f))
+      .slice()
+      .sort((a,b)=> a.nombre.localeCompare(b.nombre, 'es'))
+      .forEach(s => items.push({ id:s.id, nombre:s.nombre, ref: s.referencia_precio ? 'ref. ' + s.referencia_precio : '' }));
+  }
+  if(opts && opts.farmacia && cat !== 'serv'){
+    (CATALOGOS.farmacia || [])
+      .filter(p => normalizar(p.nombre).includes(f) || normalizar(p.clave || '').includes(f))
+      .forEach(p => items.push({ id:'f:' + p.id, nombre:p.nombre, ref:'💊 Farmacia · ' + fmtMoney(p.precio) }));
+  }
+  if(!items.length){ grid.innerHTML = '<div class="a-empty">' + (cat === 'farm' && !(CATALOGOS.farmacia || []).length ? 'Todavía no hay productos de farmacia en el catálogo.' : 'Sin resultados') + '</div>'; return; }
+  grid.innerHTML = items.map(it => `
+    <label class="a-chip ${selMap.has(it.id)?'on':''}" data-id="${esc2(it.id)}">
+      <input type="checkbox" ${selMap.has(it.id)?'checked':''}/>
+      <div><div class="nom">${esc2(it.nombre)}</div>${it.ref ? `<div class="ref">${esc2(it.ref)}</div>` : ''}</div>
     </label>`).join('');
 }
 // IDs de los tipos de servicio "Consulta de Primera Vez" / "Consulta Subsecuente": son los únicos
@@ -4110,7 +4226,7 @@ function esTipoServicioConsulta(tipoServicioId){
   return nombre === 'consulta de primera vez' || nombre === 'consulta subsecuente';
 }
 function selMapRequiereDoctor(selMap){
-  return [...selMap.keys()].some(esTipoServicioConsulta);
+  return [...selMap.keys()].filter(k => !esFarmKey(k)).some(esTipoServicioConsulta);
 }
 // Ya no hay un "Atendido por" general de la consulta en el formulario: cada servicio tiene el
 // suyo. Pero la tabla `consultas` sigue necesitando UN doctor_id (no puede ser null), así que se
@@ -4118,7 +4234,7 @@ function selMapRequiereDoctor(selMap){
 // manda (por definición solo puede ser un doctor/a); si no, se usa el primer servicio elegido
 // (en el orden en que se fueron marcando).
 function personaPrincipalDeSelMap(selMap){
-  const entradas = [...selMap.entries()];
+  const entradas = [...selMap.entries()].filter(([id]) => !esFarmKey(id));
   const entradaConsulta = entradas.find(([id]) => esTipoServicioConsulta(id));
   const elegida = entradaConsulta || entradas[0];
   const atendidoPorId = elegida ? elegida[1]?.atendidoPor : '';
@@ -4142,6 +4258,38 @@ function opcionesPersonalAgrupadoHtml(selectedId, soloDoctor, fechaISO){
     return `<optgroup label="${esc2(g.label)}">${opts}</optgroup>`;
   }).join('');
 }
+// Fila de un producto de farmacia en la lista de seleccionados: piezas, precio unitario editable
+// (arranca en el precio sugerido del catálogo) y quién generó la venta (solo doctores/as).
+function renderFilaFarmacia(id, selMap, mostrarSplit, fechaFormServ){
+  const val = selMap.get(id) || {};
+  const prod = (CATALOGOS.farmacia || []).find(x => 'f:' + x.id === id);
+  const nombre = esc2(val.nombre || prod?.nombre || '(producto ya no disponible)');
+  const sug = Number(val.sugerido ?? prod?.precio ?? 0);
+  const cant = Math.max(1, parseInt(val.cantidad, 10) || 1);
+  const precio = val.precio ?? sug;
+  const monto = Number(val.monto) || 0;
+  const cambiado = Number(precio) !== sug;
+  let splitHtml = '';
+  if(mostrarSplit){
+    const monto1 = (val.monto1 === undefined || val.monto1 === '') ? monto : val.monto1;
+    splitHtml = `<div class="split-pago-row">
+        <label>1er pago de este producto $<input type="number" class="split1-input" min="0" max="${monto}" step="0.01" placeholder="0.00" value="${esc2(monto1)}"/></label>
+        <span class="split2-preview">2do pago: ${fmtMoney(Math.max(monto - (Number(monto1) || 0), 0))}</span>
+      </div>`;
+  }
+  return `<div class="a-row farm" data-id="${esc2(id)}">
+      <div class="nom">${nombre}<span class="ref">💊 Farmacia · sugerido ${fmtMoney(sug)}${cambiado ? ' · <b>precio cambiado</b>' : ''}</span></div>
+      <select class="atendido-select" title="¿Quién generó la venta?">
+        <option value="">Vendido por...</option>
+        ${opcionesPersonalAgrupadoHtml(val.atendidoPor || '', true, fechaFormServ)}
+      </select>
+      <div class="a-qty"><button type="button" class="qty-menos">−</button><b>${cant}</b><button type="button" class="qty-mas">+</button></div>
+      <div class="monto-wrap" title="Precio por pieza"><span>$</span><input type="number" min="0" step="0.01" class="precio-unit" value="${esc2(precio)}"/></div>
+      <div class="sub-farm">${fmtMoney(monto)}</div>
+      <button class="quitar" type="button">✕</button>
+      ${splitHtml}
+    </div>`;
+}
 function renderServiciosSel(selId, selMap, debeMostrarSplitPago){
   const cont = document.getElementById(selId);
   if(!selMap.size){ cont.innerHTML = '<div class="a-vacio">Todavía no has seleccionado ningún servicio.</div>'; return; }
@@ -4151,6 +4299,7 @@ function renderServiciosSel(selId, selMap, debeMostrarSplitPago){
   const mostrarSplit = (typeof debeMostrarSplitPago === 'function') && debeMostrarSplitPago() && selMap.size > 1;
   const fechaFormServ = (document.getElementById(selId.startsWith('edit') ? 'edit-fecha' : 'reg-fecha') || {}).value || '';
   cont.innerHTML = [...selMap.keys()].map((id)=>{
+    if(esFarmKey(id)) return renderFilaFarmacia(id, selMap, mostrarSplit, fechaFormServ);
     const s = CATALOGOS.tiposServicio.find(x=>x.id === id);
     const nombre = s ? esc2(s.nombre) : '(servicio ya no disponible)';
     const ref = s?.referencia_precio ? ` <span class="ref">ref. ${esc2(s.referencia_precio)}</span>` : '';
@@ -4189,14 +4338,20 @@ function renderServiciosSel(selId, selMap, debeMostrarSplitPago){
 }
 function crearSelectorServicios(ids, selMap, onChange, valorAtendidoPorDefecto, debeMostrarSplitPago){
   function refrescar(){
-    renderServiciosGrid(ids.grid, document.getElementById(ids.buscar).value, selMap);
+    renderServiciosGrid(ids.grid, document.getElementById(ids.buscar).value, selMap, ids.farmacia ? { farmacia:true, cat: ids.cat ? ids.cat() : 'serv' } : undefined);
     renderServiciosSel(ids.sel, selMap, debeMostrarSplitPago);
     document.getElementById(ids.grid).querySelectorAll('.a-chip').forEach(chip=>{
       const id = chip.dataset.id;
       chip.querySelector('input').addEventListener('change', e=>{
         if(e.target.checked){
           const atendidoPor = valorAtendidoPorDefecto ? (valorAtendidoPorDefecto(id) || '') : '';
-          selMap.set(id, selMap.get(id) ?? { monto:'', atendidoPor });
+          if(esFarmKey(id)){
+            const prod = (CATALOGOS.farmacia || []).find(x => 'f:' + x.id === id);
+            const sug = Number(prod?.precio) || 0;
+            selMap.set(id, selMap.get(id) ?? { monto: String(sug), atendidoPor, cantidad:1, precio: String(sug), sugerido: sug, nombre: prod?.nombre || '' });
+          }else{
+            selMap.set(id, selMap.get(id) ?? { monto:'', atendidoPor });
+          }
         }
         else selMap.delete(id);
         refrescar();
@@ -4204,6 +4359,37 @@ function crearSelectorServicios(ids, selMap, onChange, valorAtendidoPorDefecto, 
     });
     document.getElementById(ids.sel).querySelectorAll('.a-row').forEach(row=>{
       const id = row.dataset.id;
+      if(esFarmKey(id)){
+        // Producto de farmacia: piezas × precio unitario = monto del renglón
+        const recalc = (cambios) => {
+          const prev = selMap.get(id) || {};
+          const nuevo = { ...prev, ...cambios };
+          const cant = Math.max(1, parseInt(nuevo.cantidad, 10) || 1);
+          nuevo.cantidad = cant;
+          nuevo.monto = String(Math.round(cant * (Number(nuevo.precio) || 0) * 100) / 100);
+          selMap.set(id, nuevo);
+        };
+        row.querySelector('.qty-menos').addEventListener('click', ()=>{ recalc({ cantidad: (parseInt(selMap.get(id)?.cantidad,10)||1) - 1 }); refrescar(); onChange(); });
+        row.querySelector('.qty-mas').addEventListener('click', ()=>{ recalc({ cantidad: (parseInt(selMap.get(id)?.cantidad,10)||1) + 1 }); refrescar(); onChange(); });
+        row.querySelector('.precio-unit').addEventListener('input', e=>{
+          recalc({ precio: e.target.value });
+          const v = selMap.get(id);
+          row.querySelector('.sub-farm').textContent = fmtMoney(v.monto);
+          const split1 = row.querySelector('.split1-input');
+          if(split1){ split1.max = v.monto; row.querySelector('.split2-preview').textContent = '2do pago: ' + fmtMoney(Math.max(Number(v.monto) - (Number(split1.value)||0), 0)); }
+          onChange();
+        });
+        row.querySelector('.atendido-select').addEventListener('change', e=>{ selMap.set(id, { ...(selMap.get(id) || {}), atendidoPor: e.target.value }); onChange(); });
+        const sp = row.querySelector('.split1-input');
+        if(sp) sp.addEventListener('input', e=>{
+          const prev = selMap.get(id) || {};
+          selMap.set(id, { ...prev, monto1: e.target.value });
+          row.querySelector('.split2-preview').textContent = '2do pago: ' + fmtMoney(Math.max((Number(prev.monto)||0) - (Number(e.target.value)||0), 0));
+          onChange();
+        });
+        row.querySelector('.quitar').addEventListener('click', ()=>{ selMap.delete(id); refrescar(); onChange(); });
+        return;
+      }
       row.querySelector('.monto-wrap input').addEventListener('input', e=>{
         const prev = selMap.get(id) || { monto:'', atendidoPor:'' };
         selMap.set(id, { ...prev, monto: e.target.value });
@@ -4252,11 +4438,25 @@ const REG_SERV_SEL = new Map(); // tipo_servicio_id -> { monto: string, atendido
 // explícitamente a un doctor/a.
 function obtenerAtendidoPorDefectoReg(tipoServicioId){
   if(!MI_PERFIL || (MI_PERFIL.rol !== 'doctor' && MI_PERFIL.rol !== 'cosmetologo')) return '';
+  if(esFarmKey(tipoServicioId)) return MI_PERFIL.rol === 'doctor' ? MI_PERFIL.id : ''; // la venta de farmacia la genera un doctor/a
   if(esTipoServicioConsulta(tipoServicioId) && MI_PERFIL.rol !== 'doctor') return '';
   return MI_PERFIL.id;
 }
-const regServRefrescar = crearSelectorServicios({ buscar:'reg-serv-buscar', grid:'reg-serv-grid', sel:'reg-serv-sel' }, REG_SERV_SEL, updateResumen, obtenerAtendidoPorDefectoReg, () => document.getElementById('reg-grp-medio2').style.display !== 'none');
+let REG_CAT_FILTRO = 'serv'; // 'todos' | 'serv' | 'farm' — segmentador del selector del Registro
+const regServRefrescar = crearSelectorServicios({ buscar:'reg-serv-buscar', grid:'reg-serv-grid', sel:'reg-serv-sel', farmacia:true, cat: () => REG_CAT_FILTRO }, REG_SERV_SEL, updateResumen, obtenerAtendidoPorDefectoReg, () => document.getElementById('reg-grp-medio2').style.display !== 'none');
 document.getElementById('reg-fecha').addEventListener('change', () => { poblarSelectDueno(); regServRefrescar(); });
+document.querySelectorAll('#reg-serv-filtros .a-filtro-btn').forEach(btn => btn.addEventListener('click', () => {
+  REG_CAT_FILTRO = btn.dataset.cat;
+  document.querySelectorAll('#reg-serv-filtros .a-filtro-btn').forEach(b => b.classList.toggle('active', b === btn));
+  regServRefrescar();
+}));
+// Catálogo de farmacia (solo productos activos) para el selector del Registro
+async function cargarCatalogoFarmaciaReg(){
+  const { data, error } = await sb.from('farmacia_productos').select('id,clave,nombre,precio').eq('activo', true).order('nombre').limit(3000);
+  if(error){ console.error('[SkinFabric] Error cargando catálogo de farmacia:', error); return; }
+  CATALOGOS.farmacia = data || [];
+  regServRefrescar();
+}
 function regServRender(filtro){
   if(filtro !== undefined) document.getElementById('reg-serv-buscar').value = filtro;
   regServRefrescar();
@@ -4360,11 +4560,19 @@ document.addEventListener('click', (e)=>{
 // ── Resumen en vivo ──
 function updateResumen(){
   const nombre = document.getElementById('reg-paciente-nombre').value.trim();
-  const principal = personaPrincipalDeSelMap(REG_SERV_SEL);
-  const nServ = REG_SERV_SEL.size;
+  let principal = personaPrincipalDeSelMap(REG_SERV_SEL);
+  const nFarm = [...REG_SERV_SEL.keys()].filter(esFarmKey).length;
+  const nServ = REG_SERV_SEL.size - nFarm;
+  if(!principal){
+    const vend = [...REG_SERV_SEL.entries()].find(([id, v]) => esFarmKey(id) && v?.atendidoPor);
+    if(vend) principal = { label: CATALOGOS.personal.find(x => x.id === vend[1].atendidoPor)?.nombre || '' };
+  }
   let metaParts = [];
   if(principal?.label) metaParts.push(principal.label);
-  metaParts.push(nServ ? (nServ + (nServ===1 ? ' servicio seleccionado' : ' servicios seleccionados')) : 'sin servicios seleccionados');
+  const partesSel = [];
+  if(nServ) partesSel.push(nServ + (nServ===1 ? ' servicio' : ' servicios'));
+  if(nFarm) partesSel.push(nFarm + (nFarm===1 ? ' producto' : ' productos') + ' de farmacia');
+  metaParts.push(partesSel.length ? partesSel.join(' + ') + ' seleccionado' + (nServ + nFarm === 1 ? '' : 's') : 'sin servicios seleccionados');
   const noVino = document.getElementById('reg-novino').checked;
   const montoServicios = noVino ? 0 : [...REG_SERV_SEL.values()].reduce((a,v)=> a + (Number(v?.monto)||0), 0);
   const grpMedio2Visible = document.getElementById('reg-grp-medio2').style.display !== 'none';
@@ -4379,7 +4587,7 @@ function updateResumen(){
     chequeo.style.display = '';
     if(diff === 0){
       chequeo.style.color = 'var(--teal)';
-      chequeo.textContent = `✓ Los dos pagos suman el total de servicios (${fmtMoney(montoServicios)}).`;
+      chequeo.textContent = `✓ Los dos pagos suman el total (${fmtMoney(montoServicios)}).`;
     }else if(diff > 0){
       chequeo.style.color = 'var(--red)';
       chequeo.textContent = `⚠ Los dos pagos suman ${fmtMoney(monto1+monto2)}, ${fmtMoney(diff)} MÁS que el total de servicios (${fmtMoney(montoServicios)}).`;
@@ -4486,7 +4694,10 @@ async function guardarRegistro(){
     alertaCampo('reg-dueno', 'Selecciona el dueño del paciente.');
     return;
   }
-  if(REG_SERV_SEL.size === 0){ alertaCampo('reg-serv-buscar', 'Selecciona al menos un servicio.'); return; }
+  if(REG_SERV_SEL.size === 0){ alertaCampo('reg-serv-buscar', 'Selecciona al menos un servicio o producto.'); return; }
+  const hayFarm = [...REG_SERV_SEL.keys()].some(esFarmKey);
+  const hayServ = [...REG_SERV_SEL.keys()].some(k => !esFarmKey(k));
+  if(noVino && hayFarm){ alertaCampo('reg-novino', 'Una visita en la que el paciente no vino no puede llevar productos de farmacia. Quítalos o desmarca "no vino".'); return; }
 
   // Ya no hay un "Atendido por" general: cada servicio debe traer el suyo.
   const idsSinAtendido = [...REG_SERV_SEL.entries()].filter(([, val]) => !val?.atendidoPor).map(([id]) => id);
@@ -4502,15 +4713,18 @@ async function guardarRegistro(){
       }
     });
     if(filas.length) filas[0].scrollIntoView({ behavior:'smooth', block:'center' });
-    document.getElementById('campo-alert-mensaje').textContent = 'Selecciona quién atendió cada servicio.';
+    document.getElementById('campo-alert-mensaje').textContent = hayFarm ? 'Selecciona quién atendió cada servicio y quién vendió cada producto.' : 'Selecciona quién atendió cada servicio.';
     document.getElementById('campo-alert-overlay').classList.add('show');
     return;
   }
 
   // El doctor_id de la consulta se deriva de los servicios: manda la Consulta de Primera
   // Vez/Subsecuente si hay una, si no el primer servicio elegido (ver personaPrincipalDeSelMap).
-  const doctorId = personaPrincipalDeSelMap(REG_SERV_SEL)?.id || '';
-  if(!doctorId){ alertaCampo('reg-serv-buscar', 'No se pudo determinar quién atiende la consulta.'); return; }
+  const doctorId = hayServ ? (personaPrincipalDeSelMap(REG_SERV_SEL)?.id || '') : '';
+  if(hayServ && !doctorId){ alertaCampo('reg-serv-buscar', 'No se pudo determinar quién atiende la consulta.'); return; }
+  // Cada producto de farmacia queda a nombre del doctor/a que generó la venta.
+  const farmSinDoctor = [...REG_SERV_SEL.entries()].filter(([id, v]) => esFarmKey(id) && CATALOGOS.personal.find(x => x.id === v?.atendidoPor)?.rol !== 'doctor');
+  if(farmSinDoctor.length){ alertaCampo('reg-serv-buscar', 'Cada producto de farmacia debe quedar a nombre de un doctor/a.'); return; }
   if(selMapRequiereDoctor(REG_SERV_SEL) && CATALOGOS.personal.find(p=>p.id === doctorId)?.rol !== 'doctor'){
     alertaCampo('reg-serv-buscar', 'Una Consulta de Primera Vez/Subsecuente debe quedar asociada a un doctor/a.');
     return;
@@ -4555,7 +4769,7 @@ async function guardarRegistro(){
       return;
     }
     if(grpMedio2Visible && Math.round((monto1 + monto2 - montoServicios) * 100) !== 0){
-      alertaCampo('reg-monto2', `El 1er pago (${fmtMoney(monto1)}) y el 2do pago (${fmtMoney(monto2)}) deben sumar exactamente el total de servicios: ${fmtMoney(montoServicios)}.`);
+      alertaCampo('reg-monto2', `El 1er pago (${fmtMoney(monto1)}) y el 2do pago (${fmtMoney(monto2)}) deben sumar exactamente el total: ${fmtMoney(montoServicios)}.`);
       return;
     }
     // Con 2do pago activo Y más de un servicio, cada servicio reparte cuánto de SU propio monto
@@ -4566,7 +4780,7 @@ async function guardarRegistro(){
     if(grpMedio2Visible && REG_SERV_SEL.size > 1){
       const sumaMonto1Servicios = [...REG_SERV_SEL.values()].reduce((a,v)=> a + (Number(v?.monto1) || 0), 0);
       if(Math.round((sumaMonto1Servicios - monto1) * 100) !== 0){
-        alertaCampo(null, `El 1er pago repartido entre los servicios suma ${fmtMoney(sumaMonto1Servicios)}, pero el total de 1er pago de la consulta es ${fmtMoney(monto1)}. Ajusta el "1er pago de este servicio" en cada fila hasta que coincidan.`);
+        alertaCampo(null, `El 1er pago repartido entre los renglones suma ${fmtMoney(sumaMonto1Servicios)}, pero el total de 1er pago de la consulta es ${fmtMoney(monto1)}. Ajusta el "1er pago de este servicio" en cada fila hasta que coincidan.`);
         return;
       }
     }
@@ -4584,7 +4798,7 @@ async function guardarRegistro(){
           }
         });
         if(filas.length) filas[0].scrollIntoView({ behavior:'smooth', block:'center' });
-        document.getElementById('campo-alert-mensaje').textContent = 'Cada servicio debe tener un monto mayor a $0 (a menos que el medio de pago sea Cortesía).';
+        document.getElementById('campo-alert-mensaje').textContent = 'Cada servicio y producto debe tener un monto mayor a $0 (a menos que el medio de pago sea Cortesía).';
         document.getElementById('campo-alert-overlay').classList.add('show');
         return;
       }
@@ -4640,28 +4854,71 @@ async function guardarRegistro(){
       if(errDuenoExistente) throw errDuenoExistente;
     }
 
-    const payload = {
-      fecha,
-      paciente_id: pacienteId,
-      doctor_id: doctorId,
-      terminal_id: terminalId || null,
-      monto: noVino ? 0 : monto1,
-      medio_pago: noVino ? null : (medio || null),
-      monto_2: noVino ? null : (grpMedio2Visible ? monto2 : null),
-      medio_pago_2: noVino ? null : (grpMedio2Visible ? (medio2 || null) : null),
-      factura: noVino ? false : factura,
-      no_vino: noVino,
-      notas: notas || null,
-      created_by: MI_PERFIL?.id || null,
-    };
-    const { data: nuevaConsulta, error: errConsulta } = await sb.from('consultas').insert(payload).select('id').single();
-    if(errConsulta) throw errConsulta;
+    const filasServ = serviciosSeleccionados.filter(x => !esFarmKey(x.tipo_servicio_id));
+    const filasFarmSel = serviciosSeleccionados.filter(x => esFarmKey(x.tipo_servicio_id));
 
-    const filasServicios = serviciosSeleccionados.map(s => ({ consulta_id: nuevaConsulta.id, tipo_servicio_id: s.tipo_servicio_id, monto: s.monto, monto_1: s.monto_1, monto_2: s.monto_2, atendido_por: s.atendido_por }));
-    const { error: errServ } = await sb.from('consulta_servicios').insert(filasServicios);
-    if(errServ) throw errServ;
+    if(filasServ.length){
+      // Con farmacia en la misma visita, el 1er/2do pago de la consulta es solo la parte de los servicios
+      // (la farmacia guarda su propio desglose en farmacia_ventas).
+      const sumaM1Serv = filasServ.reduce((a, x) => a + x.monto_1, 0);
+      const sumaM2Serv = filasServ.reduce((a, x) => a + x.monto_2, 0);
+      const dosPagosServ = grpMedio2Visible && (!hayFarm || sumaM2Serv > 0);
+      const payload = {
+        fecha,
+        paciente_id: pacienteId,
+        doctor_id: doctorId,
+        terminal_id: terminalId || null,
+        monto: noVino ? 0 : (hayFarm ? sumaM1Serv : monto1),
+        medio_pago: noVino ? null : (medio || null),
+        monto_2: noVino ? null : (dosPagosServ ? (hayFarm ? sumaM2Serv : monto2) : null),
+        medio_pago_2: noVino ? null : (dosPagosServ ? (medio2 || null) : null),
+        factura: noVino ? false : factura,
+        no_vino: noVino,
+        notas: notas || null,
+        created_by: MI_PERFIL?.id || null,
+      };
+      const { data: nuevaConsulta, error: errConsulta } = await sb.from('consultas').insert(payload).select('id').single();
+      if(errConsulta) throw errConsulta;
 
-    toast('✓ Registro guardado correctamente.');
+      const filasServicios = filasServ.map(s => ({ consulta_id: nuevaConsulta.id, tipo_servicio_id: s.tipo_servicio_id, monto: s.monto, monto_1: s.monto_1, monto_2: s.monto_2, atendido_por: s.atendido_por }));
+      const { error: errServ } = await sb.from('consulta_servicios').insert(filasServicios);
+      if(errServ) throw errServ;
+    }
+
+    if(filasFarmSel.length){
+      const filasFarm = filasFarmSel.map(f => {
+        const val = REG_SERV_SEL.get(f.tipo_servicio_id) || {};
+        const prodId = String(f.tipo_servicio_id).slice(2);
+        const prod = (CATALOGOS.farmacia || []).find(x => x.id === prodId);
+        const tiene2 = grpMedio2Visible && f.monto_2 > 0;
+        return {
+          fecha, periodo: fecha.slice(0, 7), doctor_id: f.atendido_por,
+          paciente: nombre, paciente_id: pacienteId,
+          medicamento: val.nombre || prod?.nombre || 'Producto de farmacia',
+          producto_id: prod ? prod.id : null,
+          cantidad: Math.max(1, parseInt(val.cantidad, 10) || 1),
+          precio_unitario: Number(val.precio) || 0,
+          monto: f.monto,
+          medio_pago: medio, monto_2: tiene2 ? f.monto_2 : null, medio_pago_2: tiene2 ? medio2 : null,
+          terminal_id: terminalId || null,
+          facturado: factura, nota: notas || null,
+        };
+      });
+      const { error: errFarm } = await sb.from('farmacia_ventas').insert(filasFarm);
+      if(errFarm){
+        console.error('[SkinFabric] Error guardando farmacia:', errFarm);
+        if(filasServ.length){
+          // Los servicios ya quedaron guardados: se quitan de la selección para no duplicarlos al reintentar.
+          [...REG_SERV_SEL.keys()].filter(k => !esFarmKey(k)).forEach(k => REG_SERV_SEL.delete(k));
+          regServRefrescar();
+          toast('Se guardaron los servicios, pero NO los productos de farmacia. Revisa y vuelve a guardar solo los productos.');
+          return;
+        }
+        throw errFarm;
+      }
+    }
+
+    toast(hayServ && hayFarm ? '✓ Registro y venta de farmacia guardados.' : (hayFarm ? '✓ Venta de farmacia guardada.' : '✓ Registro guardado correctamente.'));
     limpiarRegistroParcial();
   }catch(err){
     console.error('[SkinFabric] Error guardando registro:', err);
@@ -5407,6 +5664,7 @@ document.getElementById('export-btn-confirmar').addEventListener('click', async 
 let CIERRE_MODO = 'dia';
 let CIERRE_FECHA = new Date();
 let CIERRE_ROWS = [];
+let CIERRE_FARM = [];
 
 const MEDIO_COLORES = {
   efectivo: { bg:'#EAF7EE', border:'#A8D8B4', fg:'#2E7D4F', bar:'#2E7D4F', ico:'💵' },
@@ -5504,8 +5762,14 @@ async function cargarCierre(){
     .limit(2000);
   // OJO: ya no se filtra por doctor_id en la base. Cada servicio se asigna a quien lo atendió (puede ser una cosmetóloga
   // dentro de una consulta de un doctor), así que el filtro de persona se aplica en renderCierre sobre los servicios.
-  const { data, error } = await q;
+  // Ventas de farmacia del periodo (la cosmetóloga no las ve). Si falla, el cierre de servicios sigue funcionando.
+  const qFarm = MI_PERFIL?.rol === 'cosmetologo' ? null : sb.from('farmacia_ventas')
+    .select('id,fecha,doctor_id,paciente,paciente_id,medicamento,producto_id,cantidad,monto,monto_2,medio_pago,medio_pago_2,doctor:personal!doctor_id(nombre)')
+    .gte('fecha', desde).lte('fecha', hasta).order('fecha', { ascending:true }).limit(3000);
+  const [{ data, error }, resFarm] = await Promise.all([q, qFarm || Promise.resolve({ data:[], error:null })]);
   if(miReqId !== cierreReqId) return; // el usuario ya cambió de día/mes/doctor mientras esto cargaba: descartar resultado obsoleto
+  if(resFarm.error) console.error('[SkinFabric] Error cargando farmacia del cierre:', resFarm.error);
+  CIERRE_FARM = resFarm.data || [];
   if(error){
     console.error('[SkinFabric] Error cargando cierre:', error);
     toast('No se pudo cargar el cierre.');
@@ -5577,23 +5841,39 @@ function cierreAsignaciones(){
   return out;
 }
 
+// Nombre de medio de pago tal como está en el catálogo (el Excel de farmacia trae "Amex"/"AMEX" indistinto)
+function medioCanon(m){
+  if(!m) return m;
+  const n = normalizar(m).trim();
+  return (CATALOGOS.mediosPago.find(x => normalizar(x.nombre).trim() === n) || {}).nombre || m;
+}
 function renderCierre(){
   if(MI_PERFIL?.rol === 'cosmetologo'){ renderCierreCosmetologa(); return; }
-  let ingresoTotal = 0;
+  let ingresoServ = 0, ingresoFarm = 0, pzasFarm = 0;
   const porDoctor = {};
   const porMedio = {};
   const consultasVistas = new Set();
   const personaFiltro = document.getElementById('cierre-doctor').value;
+  const nuevoDoctor = (pid, nombre) => porDoctor[pid] || (porDoctor[pid] = { nombre, total:0, serv:0, farm:0, farmPzas:0, count:0, pagos:{}, pacientes:[], farmItems:[] });
+  const sumaMedio = (d, medio, monto, primero, cid, pnombre, esFarm) => {
+    // 1er pago: siempre cuenta si hay medio (una Cortesía es de $0 y debe aparecer); 2do pago: solo si trae dinero.
+    if(!medio || (!primero && !(monto > 0))) return;
+    d.pagos[medio] = (d.pagos[medio] || 0) + monto;
+    if(!porMedio[medio]) porMedio[medio] = { total:0, serv:0, farm:0, consultas:new Set(), porDoctor:{} };
+    const pm = porMedio[medio];
+    pm.total += monto; if(esFarm) pm.farm += monto; else pm.serv += monto;
+    pm.consultas.add(cid);
+    pm.porDoctor[pnombre] = (pm.porDoctor[pnombre] || 0) + monto;
+  };
 
   // Una fila por consulta y persona (sus servicios juntos), para listar pacientes sin repetir
   const porConsultaPersona = {};
   cierreAsignaciones().forEach(a=>{
     if(personaFiltro && a.pid !== personaFiltro) return;
-    ingresoTotal += a.monto;
+    ingresoServ += a.monto;
     consultasVistas.add(a.cid);
-    if(!porDoctor[a.pid]) porDoctor[a.pid] = { nombre:a.pnombre, total:0, count:0, pagos:{}, pacientes:[] };
-    const d = porDoctor[a.pid];
-    d.total += a.monto;
+    const d = nuevoDoctor(a.pid, a.pnombre);
+    d.total += a.monto; d.serv += a.monto;
     const k = a.pid + '|' + a.cid;
     if(!porConsultaPersona[k]){
       porConsultaPersona[k] = { nombre:a.paciente, servicios:[], monto:0 };
@@ -5603,27 +5883,50 @@ function renderCierre(){
     const pc = porConsultaPersona[k];
     pc.monto += a.monto;
     if(a.serv) pc.servicios.push(a.serv);
+    sumaMedio(d, a.medio1, a.p1, true, a.cid, a.pnombre, false);
+    sumaMedio(d, a.medio2, a.p2, false, a.cid, a.pnombre, false);
+  });
 
-    // 1er pago: siempre cuenta si hay medio (una Cortesía es de $0 y debe aparecer); 2do pago: solo si trae dinero.
-    [[a.medio1, a.p1, true], [a.medio2, a.p2, false]].forEach(([medio, monto, primero])=>{
-      if(!medio || (!primero && !(monto > 0))) return;
-      d.pagos[medio] = (d.pagos[medio] || 0) + monto;
-      if(!porMedio[medio]) porMedio[medio] = { total:0, consultas:new Set(), porDoctor:{} };
-      porMedio[medio].total += monto;
-      porMedio[medio].consultas.add(a.cid);
-      porMedio[medio].porDoctor[a.pnombre] = (porMedio[medio].porDoctor[a.pnombre] || 0) + monto;
-    });
+  // Farmacia: cada venta es de quien la generó (doctor/a); el 1er/2do pago se reparten igual que en los servicios.
+  const farmFilas = CIERRE_FARM.filter(f => !personaFiltro || f.doctor_id === personaFiltro);
+  farmFilas.forEach(f=>{
+    const monto = Number(f.monto || 0), m2 = Number(f.monto_2 || 0), p1 = monto - m2;
+    const cant = Math.max(1, parseInt(f.cantidad, 10) || 1);
+    const pnombre = f.doctor?.nombre || CATALOGOS.personal.find(x => x.id === f.doctor_id)?.nombre || '—';
+    ingresoFarm += monto; pzasFarm += cant;
+    const d = nuevoDoctor(f.doctor_id, pnombre);
+    d.total += monto; d.farm += monto; d.farmPzas += cant;
+    d.farmItems.push({ nombre: f.paciente || '—', detalle: '💊 ' + f.medicamento + (cant > 1 ? ' ×' + cant : ''), monto });
+    const cid = 'f' + f.id;
+    sumaMedio(d, medioCanon(f.medio_pago), p1, true, cid, pnombre, true);
+    sumaMedio(d, medioCanon(f.medio_pago_2), m2, false, cid, pnombre, true);
   });
   Object.values(porDoctor).forEach(d=>{ d.pacientes.forEach(p=>{ p.detalle = p.servicios.join(', ') || '—'; }); });
   Object.values(porMedio).forEach(m=>{ m.count = m.consultas.size; });
 
+  const ingresoTotal = ingresoServ + ingresoFarm;
   const nConsultas = consultasVistas.size;
+  const pct = (v) => ingresoTotal > 0 ? Math.round(v / ingresoTotal * 100) : 0;
   document.getElementById('cierre-kpi-total').textContent = fmtMoney(ingresoTotal);
+  document.getElementById('cierre-kpi-serv').textContent = fmtMoney(ingresoServ);
+  document.getElementById('cierre-kpi-serv-s').textContent = ingresoFarm > 0 ? pct(ingresoServ) + '% del ingreso · ' + nConsultas + ' consulta(s)' : nConsultas + ' consulta(s)';
+  document.getElementById('cierre-kpi-farm').textContent = fmtMoney(ingresoFarm);
+  document.getElementById('cierre-kpi-farm-s').textContent = farmFilas.length ? pct(ingresoFarm) + '% del ingreso · ' + pzasFarm + ' pieza(s)' : 'sin ventas';
   document.getElementById('cierre-kpi-consultas').textContent = String(nConsultas);
-  document.getElementById('cierre-kpi-ticket').textContent = fmtMoney(nConsultas ? ingresoTotal / nConsultas : 0);
+  // Tickets por separado: servicios = ingreso de servicios / consultas; farmacia = ingreso de farmacia / ventas
+  // (una venta = un paciente en un día, aunque se lleve varios productos).
+  const nVentasFarm = new Set(farmFilas.map(f => f.fecha + '|' + (f.paciente_id || normalizar(f.paciente || '').replace(/\s+/g, ' ').trim() || f.id))).size;
+  document.getElementById('cierre-kpi-ticket').textContent = fmtMoney(nConsultas ? ingresoServ / nConsultas : 0);
+  document.getElementById('cierre-kpi-ticket-s').textContent = nConsultas + ' consulta(s)';
+  document.getElementById('cierre-kpi-ticketf').textContent = fmtMoney(nVentasFarm ? ingresoFarm / nVentasFarm : 0);
+  document.getElementById('cierre-kpi-ticketf-s').textContent = nVentasFarm ? nVentasFarm + ' venta(s) · ' + pzasFarm + ' pieza(s)' : 'sin ventas';
+  const top = Object.values(porDoctor).sort((a,b)=> b.total - a.total)[0];
+  document.getElementById('cierre-kpi-top').textContent = top ? top.nombre : '—';
+  document.getElementById('cierre-kpi-top-s').textContent = top ? fmtMoney(top.total) : '';
 
   renderCierrePorDoctor(porDoctor);
-  renderCierrePorMedio(porMedio, ingresoTotal);
+  renderCierrePorMedio(porMedio, ingresoTotal, ingresoFarm > 0);
+  renderCierreFarmacia(farmFilas, ingresoFarm, pzasFarm);
 }
 
 function renderCierrePorDoctor(porDoctor){
@@ -5637,12 +5940,16 @@ function renderCierrePorDoctor(porDoctor){
     }).join('');
     const pacHtml = d.pacientes.map(p=>
       `<div class="pac-row-grid"><span class="pac-nombre">${esc2(p.nombre)}</span><span class="pac-detalle">${esc2(p.detalle)}</span><span class="pac-monto">${fmtMoney(p.monto)}</span></div>`
+    ).join('') + d.farmItems.map(p=>
+      `<div class="pac-row-grid"><span class="pac-nombre">${esc2(p.nombre)}<span class="tagf">💊</span></span><span class="pac-detalle">${esc2(p.detalle)}</span><span class="pac-monto">${fmtMoney(p.monto)}</span></div>`
     ).join('');
+    const farmPill = d.farm > 0 ? `<span class="doc-pill" style="background:#F5F0FC;border:1px solid #D2B4DE;color:#7D3C98">💊 Farmacia ${fmtMoney(d.farm)}</span>` : '';
+    const nItems = d.count + d.farmItems.length;
     return `<div class="cierre-card">
       <div class="cierre-head"><span class="cierre-name">${esc2(d.nombre)}</span><span class="cierre-total">${fmtMoney(d.total)}</span></div>
-      <div class="cierre-meta">${d.count} paciente(s)</div>
-      <div>${pillsHtml}</div>
-      <button class="toggle-link" type="button" data-idx="${i}">Ver pacientes (${d.count}) ▾</button>
+      <div class="cierre-meta">${[d.count ? d.count + ' paciente(s)' : '', d.farmItems.length ? d.farmPzas + ' pieza(s) de farmacia' : ''].filter(Boolean).join(' · ')}</div>
+      <div>${farmPill}${pillsHtml}</div>
+      <button class="toggle-link" type="button" data-idx="${i}">Ver pacientes (${nItems}) ▾</button>
       <div class="acordeon-pac" id="cierre-acordeon-${i}">${pacHtml}</div>
     </div>`;
   }).join('');
@@ -5653,26 +5960,97 @@ function renderCierrePorDoctor(porDoctor){
   });
 }
 
-function renderCierrePorMedio(porMedio, ingresoTotal){
+function renderCierrePorMedio(porMedio, ingresoTotal, hayFarm){
   const cont = document.getElementById('cierre-por-pago');
   const medios = Object.entries(porMedio).map(([nombre, v])=> ({ nombre, ...v })).sort((a,b)=> b.total - a.total);
   if(!medios.length){ cont.innerHTML = '<div class="empty-note">Sin resultados para este periodo.</div>'; return; }
-  cont.innerHTML = `<div class="pago-cards">` + medios.map(m=>{
+  // Con farmacia en el periodo: cuadre de caja con columnas Servicios · Farmacia · Total (como en Clinderm)
+  let cuadre = '';
+  if(hayFarm){
+    const sumS = medios.reduce((a,m)=> a + m.serv, 0), sumF = medios.reduce((a,m)=> a + m.farm, 0), cobrado = sumS + sumF;
+    const filas = medios.map(m=>{
+      const c = getMedioColor(m.nombre);
+      return `<tr><td><span class="doc-pill" style="background:${c.bg};border:1px solid ${c.border};color:${c.fg}">${c.ico} ${esc2(m.nombre)}</span></td><td>${fmtMoney(m.serv)}</td><td class="f">${fmtMoney(m.farm)}</td><td class="t">${fmtMoney(m.total)}</td><td>${cobrado > 0 ? Math.round(m.total / cobrado * 100) : 0}%</td></tr>`;
+    }).join('');
+    cuadre = `<div class="cs-sec">Cuadre de caja por medio de pago</div>
+      <table class="cuadre"><thead><tr><th>Medio</th><th>Servicios</th><th>💊 Farmacia</th><th>Total</th><th>%</th></tr></thead>
+      <tbody>${filas}<tr class="tot"><td>Total cobrado</td><td>${fmtMoney(sumS)}</td><td class="f">${fmtMoney(sumF)}</td><td>${fmtMoney(cobrado)}</td><td>100%</td></tr></tbody></table>`;
+  }
+  cont.innerHTML = cuadre + `<div class="pago-cards">` + medios.map(m=>{
     const c = getMedioColor(m.nombre);
     const pct = ingresoTotal > 0 ? Math.round((m.total / ingresoTotal) * 100) : 0;
     const desglose = Object.entries(m.porDoctor).sort((a,b)=> b[1]-a[1]).map(([doc,monto])=>
       `<div><span>${esc2(doc)}</span><span>${fmtMoney(monto)}</span></div>`
     ).join('');
+    const split = hayFarm && m.total > 0
+      ? `<div class="cs-split"><i class="s" style="width:${Math.round(m.serv / m.total * 100)}%"></i><i class="f" style="width:${Math.round(m.farm / m.total * 100)}%"></i></div>
+         <div class="cs-ley"><span><span class="cs-dot s"></span>Servicios <b>${fmtMoney0(m.serv)}</b></span><span><span class="cs-dot f"></span>Farmacia <b>${fmtMoney0(m.farm)}</b></span></div>`
+      : `<div class="barra-bg"><div class="barra-fill" style="width:${pct}%;background:${c.bar}"></div></div>`;
     return `<div class="pago-card" style="background:${c.bg};border:1.5px solid ${c.border}">
       <div class="ico">${c.ico}</div>
       <div class="nombre" style="color:${c.fg}">${esc2(m.nombre)}</div>
       <div class="total">${fmtMoney(m.total)}</div>
       <div class="sub">${pct}% del total · ${m.count} pago(s)</div>
-      <div class="barra-bg"><div class="barra-fill" style="width:${pct}%;background:${c.bar}"></div></div>
+      ${split}
       <div class="pago-desglose">${desglose}</div>
     </div>`;
   }).join('') + `</div>`;
 }
+
+// Pestaña "💊 Farmacia" del cierre: por medio de pago, quién generó la venta y productos vendidos (+ detalle de ventas)
+function renderCierreFarmacia(filas, totalFarm, pzas){
+  const cont = document.getElementById('cierre-por-farm');
+  if(!filas.length){ cont.innerHTML = '<div class="empty-note">Sin ventas de farmacia en este periodo.</div>'; return; }
+  const fMed = {}, fDoc = {}, prod = {};
+  filas.forEach(f=>{
+    const monto = Number(f.monto || 0), m2 = Number(f.monto_2 || 0), cant = Math.max(1, parseInt(f.cantidad, 10) || 1);
+    const m1n = medioCanon(f.medio_pago), m2n = medioCanon(f.medio_pago_2);
+    if(m1n) fMed[m1n] = (fMed[m1n] || 0) + (monto - m2);
+    if(m2n && m2 > 0) fMed[m2n] = (fMed[m2n] || 0) + m2;
+    const doc = f.doctor?.nombre || CATALOGOS.personal.find(x => x.id === f.doctor_id)?.nombre || 'Sin doctor';
+    fDoc[doc] = (fDoc[doc] || 0) + monto;
+    const k = (f.medicamento || '—').trim().toUpperCase();
+    const o = prod[k] || (prod[k] = { n: f.medicamento || '—', q:0, t:0 });
+    o.q += cant; o.t += monto;
+  });
+  const prodL = Object.values(prod).sort((a,b)=> b.t - a.t);
+  const maxP = prodL[0].t || 1;
+  const pc = (v) => totalFarm > 0 ? Math.round(v / totalFarm * 100) : 0;
+  const barras = (obj, conPill) => Object.entries(obj).sort((a,b)=> b[1] - a[1]).map(([k, v])=>{
+    const c = getMedioColor(k);
+    const etiqueta = conPill ? `<span class="doc-pill" style="background:${c.bg};border:1px solid ${c.border};color:${c.fg}">${c.ico} ${esc2(k)}</span>` : `<span style="font-weight:600">${esc2(k)}</span>`;
+    return `<div class="bar-row">${etiqueta}<span class="bg"><i style="width:${pc(v)}%"></i></span><b>${fmtMoney0(v)}</b></div>`;
+  }).join('');
+  const esAdmin = MI_PERFIL?.rol === 'admin';
+  const fmtF = iso => iso ? iso.split('-').reverse().slice(0, 2).join('/') : '';
+  const detalle = filas.slice().sort((a,b)=> a.fecha < b.fecha ? 1 : a.fecha > b.fecha ? -1 : 0).map(f=>
+    `<div class="farm-det-row" data-id="${esc2(f.id)}"><span class="f">${fmtF(f.fecha)}</span><span class="n" title="${esc2(f.paciente || '')}">${esc2(f.paciente || '—')}</span><span class="pr" title="${esc2(f.medicamento)}">${esc2(f.medicamento)}</span><span class="pz">×${Math.max(1, parseInt(f.cantidad, 10) || 1)}</span><span class="m">${fmtMoney(f.monto)}</span>${esAdmin ? '<button class="del" type="button" title="Eliminar esta venta">🗑</button>' : '<span></span>'}</div>`
+  ).join('');
+  cont.innerHTML = `
+    <div class="farm-grid2">
+      <div class="farm-box"><div class="cs-sec">Por medio de pago</div>${barras(fMed, true)}</div>
+      <div class="farm-box"><div class="cs-sec">Quién generó la venta</div>${barras(fDoc, false)}</div>
+    </div>
+    <div class="farm-box"><div class="cs-sec">Productos vendidos · ${pzas} pieza(s) · ${fmtMoney(totalFarm)}</div>
+      <div class="prod-row h"><span>Producto</span><span style="text-align:center">Pzas</span><span></span><span style="text-align:right">Total</span></div>
+      ${prodL.map(o=>`<div class="prod-row"><span class="n" title="${esc2(o.n)}">${esc2(o.n)}</span><span class="q">${o.q}</span><span class="bg"><i style="width:${pc2(o.t, maxP)}%"></i></span><span class="m">${fmtMoney0(o.t)}</span></div>`).join('')}
+    </div>
+    <div class="farm-box"><button class="toggle-link" type="button" id="cierre-farm-det-btn">Ver detalle de ventas (${filas.length}) ▾</button>
+      <div class="acordeon-pac" id="cierre-farm-det">${detalle}</div>
+    </div>`;
+  document.getElementById('cierre-farm-det-btn').addEventListener('click', () => document.getElementById('cierre-farm-det').classList.toggle('open'));
+  cont.querySelectorAll('.farm-det-row .del').forEach(btn => btn.addEventListener('click', async () => {
+    const id = btn.closest('.farm-det-row').dataset.id;
+    const f = CIERRE_FARM.find(x => x.id === id);
+    const ok = await confirmarAsync({ titulo:'¿Eliminar venta de farmacia?', mensaje:`Se eliminará la venta de "${esc2(f?.medicamento || '')}" (${fmtMoney(f?.monto)}) de ${esc2(f?.paciente || 'sin paciente')}. Esta acción no se puede deshacer.`, textoConfirmar:'Eliminar', icono:'🗑', danger:true });
+    if(!ok) return;
+    const { error } = await sb.from('farmacia_ventas').delete().eq('id', id);
+    if(error){ console.error('[SkinFabric] Error eliminando venta de farmacia:', error); toast('No se pudo eliminar la venta.'); return; }
+    toast('✓ Venta eliminada.');
+    cargarCierre();
+  }));
+}
+const pc2 = (v, max) => max > 0 ? Math.round(v / max * 100) : 0;
 
 // ============================================================
 // Módulo: Dashboard de Indicadores
@@ -7137,6 +7515,7 @@ document.getElementById('gestion-btn-guardar').addEventListener('click', async (
 function cargarConfiguracion(){
   renderConfigPersonal();
   cargarCatalogoTipos();
+  cargarCatalogoFarmaciaCfg();
   poblarSelectEquipoDoctor();
   cargarCatalogoEquipos();
   cargarCatalogoSimple('catalogo_medios_pago', 'cfg-medios-tbody', 'orden');
@@ -7653,6 +8032,132 @@ document.getElementById('cfg-btn-agregar-tipo').addEventListener('click', async 
     toast('✓ Agregado.');
     cargarCatalogoTipos();
     cargarCatalogos();
+  }
+});
+
+
+// ── Catálogo de farmacia (Configuración) ──
+let CFG_FARM = [];
+let CFG_FARM_FILTRO = 'todos';
+function farmNorm(t){ return normalizar(t).replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim(); }
+async function cargarCatalogoFarmaciaCfg(){
+  const tbody = document.getElementById('cfg-farm-tbody');
+  if(!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="5" class="empty-note">Cargando...</td></tr>';
+  const { data, error } = await sb.from('farmacia_productos').select('*').order('nombre').limit(3000);
+  if(error){ console.error('[SkinFabric] Error listando farmacia_productos:', error); tbody.innerHTML = '<tr><td colspan="5" class="empty-note">No se pudo cargar.</td></tr>'; return; }
+  CFG_FARM = data || [];
+  renderCfgFarmacia();
+}
+function renderCfgFarmacia(){
+  const tbody = document.getElementById('cfg-farm-tbody');
+  const q = farmNorm(document.getElementById('cfg-farm-buscar').value);
+  const lista = CFG_FARM.filter(p => {
+    if(q && !(farmNorm(p.nombre).includes(q) || farmNorm((p.clave||'') + ' ' + (p.claves_alt||'')).includes(q))) return false;
+    if(CFG_FARM_FILTRO === 'editados') return p.precio_excel != null && Number(p.precio) !== Number(p.precio_excel);
+    if(CFG_FARM_FILTRO === 'inactivos') return !p.activo;
+    return true;
+  });
+  document.getElementById('cfg-farm-count').textContent = lista.length + ' de ' + CFG_FARM.length + ' productos';
+  if(!lista.length){ tbody.innerHTML = '<tr><td colspan="5" class="empty-note">' + (CFG_FARM.length ? 'Sin resultados.' : 'Todavía no hay productos. Importa tu Excel o agrega uno abajo.') + '</td></tr>'; return; }
+  tbody.innerHTML = lista.map(p => {
+    const editado = p.precio_excel != null && Number(p.precio) !== Number(p.precio_excel);
+    return `<tr data-id="${esc2(p.id)}">
+      <td class="fp-clave" title="${esc2(p.claves_alt ? 'También: ' + p.claves_alt : '')}">${esc2(p.clave || '—')}${p.claves_alt ? ' +' + p.claves_alt.split(',').length : ''}</td>
+      <td class="fp-nom">${esc2(p.nombre)}</td>
+      <td><span class="fp-precio"><span>$</span><input type="number" min="0" step="0.01" class="cfg-farm-precio" value="${esc2(p.precio)}"/></span>${editado ? `<span class="fp-ed" title="Precio original del Excel">editado · Excel ${fmtMoney0(p.precio_excel)}</span>` : ''}</td>
+      <td><input type="checkbox" class="cfg-farm-activo" ${p.activo ? 'checked' : ''}/></td>
+      <td><button class="btn-sm btn-del" type="button">Eliminar</button></td>
+    </tr>`;
+  }).join('');
+  tbody.querySelectorAll('tr[data-id]').forEach(tr => {
+    const id = tr.dataset.id;
+    const prod = () => CFG_FARM.find(x => x.id === id);
+    tr.querySelector('.cfg-farm-precio').addEventListener('change', async e => {
+      const v = Number(e.target.value);
+      if(!(v >= 0) || e.target.value === ''){ toast('Escribe un precio válido.'); renderCfgFarmacia(); return; }
+      const ok = await catalogoActualizar('farmacia_productos', id, { precio: v });
+      if(ok){ prod().precio = v; toast('✓ Precio guardado'); renderCfgFarmacia(); cargarCatalogoFarmaciaReg(); }
+    });
+    tr.querySelector('.cfg-farm-activo').addEventListener('change', async e => {
+      const ok = await catalogoActualizar('farmacia_productos', id, { activo: e.target.checked });
+      if(ok){ prod().activo = e.target.checked; toast('✓ Guardado'); cargarCatalogoFarmaciaReg(); if(CFG_FARM_FILTRO === 'inactivos') renderCfgFarmacia(); }
+    });
+    tr.querySelector('.btn-del').addEventListener('click', async () => {
+      const ok = await confirmarAsync({ titulo:'¿Eliminar producto?', mensaje:`Se eliminará "${esc2(prod().nombre)}" del catálogo. Las ventas ya registradas se conservan. Si solo quieres que no aparezca en el Registro, desactívalo.`, textoConfirmar:'Eliminar', icono:'🗑', danger:true });
+      if(!ok) return;
+      if(await catalogoEliminar('farmacia_productos', id)){ CFG_FARM = CFG_FARM.filter(x => x.id !== id); toast('✓ Eliminado.'); renderCfgFarmacia(); cargarCatalogoFarmaciaReg(); }
+    });
+  });
+}
+document.getElementById('cfg-farm-buscar').addEventListener('input', renderCfgFarmacia);
+document.querySelectorAll('[data-fpf]').forEach(b => b.addEventListener('click', () => {
+  CFG_FARM_FILTRO = b.dataset.fpf;
+  document.querySelectorAll('[data-fpf]').forEach(x => x.classList.toggle('act', x === b));
+  renderCfgFarmacia();
+}));
+document.getElementById('cfg-farm-btn-agregar').addEventListener('click', async () => {
+  const clave = document.getElementById('cfg-farm-clave').value.trim();
+  const nombre = document.getElementById('cfg-farm-nombre').value.trim();
+  const precioTxt = document.getElementById('cfg-farm-precio').value;
+  const precio = Number(precioTxt);
+  if(!nombre){ toast('Escribe el nombre del producto.'); return; }
+  if(precioTxt === '' || !(precio >= 0)){ toast('Escribe el precio sugerido.'); return; }
+  if(CFG_FARM.some(p => farmNorm(p.nombre) === farmNorm(nombre))){ toast('Ya existe un producto con ese nombre.'); return; }
+  const btn = document.getElementById('cfg-farm-btn-agregar'); btn.disabled = true;
+  const ok = await catalogoCrear('farmacia_productos', { clave: clave || null, nombre, precio, precio_excel: precio, activo: true });
+  btn.disabled = false;
+  if(ok){
+    ['cfg-farm-clave','cfg-farm-nombre','cfg-farm-precio'].forEach(i => document.getElementById(i).value = '');
+    toast('✓ Producto agregado.');
+    await cargarCatalogoFarmaciaCfg(); cargarCatalogoFarmaciaReg();
+  }
+});
+// Importar Excel: lista de productos (hoja "Hoja1", o la hoja con Clave+Descripción sin Precio) + precio de cualquier hoja con columna Precio
+document.getElementById('cfg-farm-btn-importar').addEventListener('click', () => document.getElementById('cfg-farm-file').click());
+document.getElementById('cfg-farm-file').addEventListener('change', async e => {
+  const file = e.target.files[0]; e.target.value = '';
+  if(!file) return;
+  try{
+    const wb = XLSX.read(await file.arrayBuffer(), { type:'array' });
+    const hojas = wb.SheetNames.map(nombre => {
+      const rows = XLSX.utils.sheet_to_json(wb.Sheets[nombre], { header:1, defval:'' });
+      const hi = rows.findIndex(r => r.some(c => /^clave$/i.test(String(c).trim())));
+      if(hi < 0) return null;
+      const h = rows[hi].map(c => normalizar(String(c).trim()));
+      return { nombre, rows: rows.slice(hi + 1), iC: h.indexOf('clave'), iD: h.findIndex(x => x === 'descripcion'), iP: h.findIndex(x => x === 'precio') };
+    }).filter(Boolean);
+    if(!hojas.length){ toast('No encontré una hoja con la columna "Clave".'); return; }
+    const hojaLista = hojas.find(x => /^hoja ?1$/i.test(x.nombre) && x.iD >= 0) || hojas.find(x => x.iD >= 0 && x.iP < 0) || hojas.find(x => x.iD >= 0);
+    if(!hojaLista){ toast('No encontré la columna "Descripción".'); return; }
+    const precios = new Map();
+    hojas.forEach(hh => { if(hh.iP < 0) return; hh.rows.forEach(r => { const c = String(r[hh.iC] || '').trim(); const pr = Number(r[hh.iP]); if(c && pr > 0 && !precios.has(c)) precios.set(c, pr); }); });
+    const existentes = new Set(CFG_FARM.map(p => farmNorm(p.nombre)));
+    const clavesExist = new Set(CFG_FARM.flatMap(p => [p.clave, ...(p.claves_alt || '').split(',')]).filter(Boolean));
+    const nuevos = new Map(); let yaExistian = 0, repetidos = 0;
+    hojaLista.rows.forEach(r => {
+      const clave = String(r[hojaLista.iC] || '').trim(); const nombre = String(r[hojaLista.iD] || '').trim();
+      if(!clave || !nombre) return;
+      const k = farmNorm(nombre);
+      if(existentes.has(k) || clavesExist.has(clave)){ yaExistian++; return; }
+      if(nuevos.has(k)){ nuevos.get(k).alt.push(clave); repetidos++; return; }
+      nuevos.set(k, { clave, alt: [], nombre, precio: precios.get(clave) ?? 0, sinPrecio: !precios.has(clave) });
+    });
+    const lista = [...nuevos.values()];
+    if(!lista.length){ toast(`No hay productos nuevos (${yaExistian} ya estaban en el catálogo).`); return; }
+    const sinPrecio = lista.filter(x => x.sinPrecio).length;
+    const ok = await confirmarAsync({ titulo:'¿Importar productos?', mensaje:`Se agregarán <b>${lista.length}</b> productos nuevos` + (repetidos ? ` (${repetidos} duplicados por clave se unificaron)` : '') + (yaExistian ? `; ${yaExistian} ya existían y no se tocan` : '') + (sinPrecio ? `; <b>${sinPrecio}</b> quedan en $0 por no traer precio` : '') + '.', textoConfirmar:'Importar', icono:'⬆', danger:false });
+    if(!ok) return;
+    const filas = lista.map(x => ({ clave: x.clave, claves_alt: x.alt.length ? x.alt.join(',') : null, nombre: x.nombre, precio: x.precio, precio_excel: x.sinPrecio ? null : x.precio, activo: true }));
+    for(let i = 0; i < filas.length; i += 100){
+      const { error } = await sb.from('farmacia_productos').insert(filas.slice(i, i + 100));
+      if(error) throw error;
+    }
+    toast(`✓ ${filas.length} productos importados.`);
+    await cargarCatalogoFarmaciaCfg(); cargarCatalogoFarmaciaReg();
+  }catch(err){
+    console.error('[SkinFabric] Error importando catálogo de farmacia:', err);
+    toast('No se pudo importar el Excel.');
   }
 });
 
