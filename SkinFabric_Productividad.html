@@ -185,6 +185,16 @@ main.appmain{padding:22px 26px 40px;max-width:1250px;margin:0 auto}
 .hist-chip.c-procedimiento .ico{background:#FDF0D2}
 .hist-chip .v{font-family:var(--font-d);font-weight:800;font-size:15px;color:var(--navy);line-height:1.15}
 .hist-chip .l{font-size:9px;color:var(--g4);font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-top:1px}
+.hist-farm-card{flex:1 1 100%;background:linear-gradient(180deg,#FBF8FE,#fff 70px);border:1px solid #D2B4DE;border-radius:12px;padding:10px 16px 11px;box-shadow:0 1px 2px rgba(11,22,40,.04)}
+.hist-farm-card .h{display:flex;align-items:center;gap:9px}
+.hist-farm-card .h .ico{width:32px;height:32px;border-radius:9px;background:#EBD9F5;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.hist-farm-card .t{font-size:9px;color:var(--g4);font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+.hist-farm-card .big{font-family:var(--font-d);font-weight:800;font-size:19px;color:var(--purple);line-height:1.1}
+.hist-farm-card .go{margin-left:auto;background:none;border:0;padding:4px 0;font:inherit;font-size:11px;font-weight:700;color:var(--purple);text-decoration:underline;text-underline-offset:2px;cursor:pointer}
+.hist-farm-card .g{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:9px;padding-top:8px;border-top:1px dashed #E4CFEF}
+.hist-farm-card .g b{display:block;font-family:var(--font-d);font-size:13.5px;color:var(--navy)}
+.hist-farm-card .g span{font-size:9px;color:var(--g4);font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+.hist-farm-card .top{margin-top:8px;font-size:11px;color:var(--g6)}.hist-farm-card .top b{color:var(--navy)}
 .screen2{display:none}
 .screen2.act{display:block}
 .placeholder-note{font-size:12.5px;color:var(--g6);background:var(--g1);border:1px dashed var(--g2);border-radius:10px;padding:18px;text-align:center;line-height:1.6}
@@ -1307,6 +1317,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
   #com-kpis .kpi-card{gap:8px;padding:9px 10px}#com-kpis .kpi-val{font-size:17px}#com-kpis .kpi-label{font-size:8.5px}
   .hist-kpi-chips{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:12px}
   .hist-chip{padding:7px 9px 7px 7px;min-width:0;gap:8px}
+  .hist-farm-card{grid-column:1/-1;padding:9px 12px 10px}
   /* Filtros: cuadrícula de 2 columnas; píldoras en una fila deslizable */
   .filter-bar{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
   .filter-bar>*{min-width:0!important;width:100%}
@@ -2282,7 +2293,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.10.14-65';
+const APP_VERSION = 'v2026.10.14-66';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 
@@ -5042,6 +5053,7 @@ document.getElementById('reg-btn-limpiar').addEventListener('click', limpiarRegi
 // Módulo: Historial + Papelera + Exportar
 // ============================================================
 let HIST_ROWS = [];
+let HIST_FARM_KPI = []; // farmacia solo para la tarjeta de la vista Servicios (no se lista en la tabla)
 let HIST_FARM = []; // ventas de farmacia que se muestran en el Historial (filtro 💊 Farmacia / Servicios + Farmacia)
 let HIST_EXCL_FILTRO = null; // 'facturado' | 'nofacturado' | 'novino' | null
 let HIST_PAPELERA_ABIERTA = false;
@@ -5117,7 +5129,8 @@ async function cargarHistorial(){
   document.getElementById('hist-tipo').disabled = linea === 'farm';
   const quiereServ = linea !== 'farm';
   // Farmacia: no aplica con el filtro de tipo de servicio ni con "No vino"; las cosmetólogas no tienen acceso a esa tabla.
-  const quiereFarm = linea !== 'serv' && !tipoId && HIST_EXCL_FILTRO !== 'novino' && MI_PERFIL?.rol !== 'cosmetologo';
+  const puedeFarm = !tipoId && HIST_EXCL_FILTRO !== 'novino' && MI_PERFIL?.rol !== 'cosmetologo';
+  const quiereFarm = puedeFarm; // en la vista Servicios se consulta solo para la tarjeta de Farmacia
 
   // OJO: el límite de filas debe ser generoso. Como el resultado viene ordenado por fecha
   // descendente, un límite bajo no recorta "lo más viejo que sobre" de forma inofensiva — recorta
@@ -5170,7 +5183,8 @@ async function cargarHistorial(){
   }
   if(tipoId) rows = rows.filter(r => (r.consulta_servicios||[]).some(cs => cs.tipo_servicio_id === tipoId));
   HIST_ROWS = rows;
-  HIST_FARM = resF.data || [];
+  HIST_FARM = linea === 'serv' ? [] : (resF.data || []);
+  HIST_FARM_KPI = linea === 'serv' ? (resF.data || []) : [];
   renderHistorial();
 }
 
@@ -5199,8 +5213,9 @@ function renderHistKpis(){
       <div class="hist-chip c-primera"><span class="ico">👥</span><div><div class="v">${new Set(filasS.map(r=> r.paciente_id)).size}</div><div class="l">Pacientes (servicios)</div></div></div>`;
     return;
   }
+  const farmCard = histFarmCardHtml();
   const filasReales = HIST_ROWS.filter(r => !r.no_vino);
-  if(!filasReales.length){ cont.innerHTML = ''; return; }
+  if(!filasReales.length){ cont.innerHTML = farmCard; return; }
   const totalIngreso = filasReales.reduce((a,r)=> a + Number(r.monto||0) + Number(r.monto_2||0), 0);
   const pacientesUnicos = new Set(filasReales.map(r=> r.paciente_id)).size;
   const ticketProm = totalIngreso / filasReales.length;
@@ -5215,8 +5230,30 @@ function renderHistKpis(){
     <div class="hist-chip c-primera"><span class="ico">🆕</span><div><div class="v">${nPrimeraVez}</div><div class="l">Primera vez</div></div></div>
     <div class="hist-chip c-subsecuente"><span class="ico">🔁</span><div><div class="v">${nSubsecuente}</div><div class="l">Subsecuentes</div></div></div>
     <div class="hist-chip c-procedimiento"><span class="ico">💉</span><div><div class="v">${nProcedimiento}</div><div class="l">Procedimientos</div></div></div>
+    ${farmCard}
   `;
 }
+function histFarmCardHtml(){
+  if(!HIST_FARM_KPI.length) return '';
+  const fmt0 = n => '$' + Math.round(n).toLocaleString('es-MX');
+  const tot = HIST_FARM_KPI.reduce((a,f)=> a + Number(f.monto||0), 0);
+  const cant = f => Math.max(1, parseInt(f.cantidad,10) || 1);
+  const pzas = HIST_FARM_KPI.reduce((a,f)=> a + cant(f), 0);
+  const ventas = new Set(HIST_FARM_KPI.map(f => f.fecha + '|' + (normalizar(f.paciente||'').replace(/\s+/g,' ').trim() || f.id))).size;
+  const porProd = {};
+  HIST_FARM_KPI.forEach(f => { const k = f.medicamento || '—'; porProd[k] = (porProd[k]||0) + cant(f); });
+  const top = Object.entries(porProd).sort((a,b)=> b[1]-a[1])[0];
+  return `<div class="hist-farm-card">
+    <div class="h"><span class="ico">💊</span><div><div class="t">Farmacia</div><div class="big">${fmt0(tot)}</div></div><button type="button" class="go" id="hist-farm-go">Ver ventas →</button></div>
+    <div class="g"><div><b>${ventas}</b><span>Ventas</span></div><div><b>${pzas}</b><span>Piezas</span></div><div><b>${fmt0(ventas ? tot / ventas : 0)}</b><span>Ticket farmacia</span></div></div>
+    ${top ? `<div class="top">Más vendido: <b>${esc2(top[0])}</b> · ${top[1]} pzas</div>` : ''}
+  </div>`;
+}
+document.getElementById('hist-kpi-chips').addEventListener('click', e => {
+  if(!e.target.closest('#hist-farm-go')) return;
+  document.getElementById('hist-linea').value = 'farm';
+  cargarHistorial();
+});
 
 function renderHistorial(){
   const tbody = document.getElementById('hist-tbody');
