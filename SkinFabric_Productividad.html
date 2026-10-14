@@ -1572,6 +1572,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
         <input type="date" id="hist-desde" style="display:none"/>
         <span class="sep" id="hist-rango-sep-2" style="display:none">a</span>
         <input type="date" id="hist-hasta" style="display:none"/>
+        <select id="hist-linea" title="Qué mostrar"><option value="serv">🩺 Servicios</option><option value="farm">💊 Farmacia</option><option value="todo">Servicios + Farmacia</option></select>
         <select id="hist-tipo"><option value="">Todos los servicios</option></select>
         <select id="hist-medio"><option value="">Todos los medios</option></select>
       </div>
@@ -2281,7 +2282,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.10.14-63';
+const APP_VERSION = 'v2026.10.14-64';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 
@@ -5041,6 +5042,7 @@ document.getElementById('reg-btn-limpiar').addEventListener('click', limpiarRegi
 // Módulo: Historial + Papelera + Exportar
 // ============================================================
 let HIST_ROWS = [];
+let HIST_FARM = []; // ventas de farmacia que se muestran en el Historial (filtro 💊 Farmacia / Servicios + Farmacia)
 let HIST_EXCL_FILTRO = null; // 'facturado' | 'nofacturado' | 'novino' | null
 let HIST_PAPELERA_ABIERTA = false;
 let HIST_EDIT_ID = null;
@@ -5111,28 +5113,50 @@ async function cargarHistorial(){
     desde = rangoFechaDesde(rango);
   }
 
+  const linea = document.getElementById('hist-linea').value; // 'serv' | 'farm' | 'todo'
+  document.getElementById('hist-tipo').disabled = linea === 'farm';
+  const quiereServ = linea !== 'farm';
+  // Farmacia: no aplica con el filtro de tipo de servicio ni con "No vino"; las cosmetólogas no tienen acceso a esa tabla.
+  const quiereFarm = linea !== 'serv' && !tipoId && HIST_EXCL_FILTRO !== 'novino' && MI_PERFIL?.rol !== 'cosmetologo';
+
   // OJO: el límite de filas debe ser generoso. Como el resultado viene ordenado por fecha
   // descendente, un límite bajo no recorta "lo más viejo que sobre" de forma inofensiva — recorta
   // las fechas MÁS ANTIGUAS del rango filtrado (p.ej. al filtrar un mes completo con bastante
   // movimiento, se perdían calladamente los primeros días del mes y el total salía de menos).
   // 5000 cubre con margen holgado el volumen actual de la clínica incluso filtrando "Ver todo".
-  let q = sb.from('consultas')
-    .select('id,fecha,monto,medio_pago,monto_2,medio_pago_2,factura,num_factura,no_vino,notas,paciente_id,doctor_id,terminal_id,pacientes!inner(nombre,telefono,dueno_id,procedencia_id,catalogo_procedencia(nombre),dueno:personal!dueno_id(nombre,rol)),doctor:personal!doctor_id(nombre,rol),catalogo_terminales(nombre),consulta_servicios(tipo_servicio_id,monto,monto_1,monto_2,atendido_por,catalogo_tipos_servicio(nombre),atendido:personal(nombre,rol))')
-    .eq('deleted', false)
-    .order('fecha', { ascending:false })
-    .order('created_at', { ascending:false })
-    .limit(5000);
+  let q = null;
+  if(quiereServ){
+    q = sb.from('consultas')
+      .select('id,fecha,monto,medio_pago,monto_2,medio_pago_2,factura,num_factura,no_vino,notas,paciente_id,doctor_id,terminal_id,pacientes!inner(nombre,telefono,dueno_id,procedencia_id,catalogo_procedencia(nombre),dueno:personal!dueno_id(nombre,rol)),doctor:personal!doctor_id(nombre,rol),catalogo_terminales(nombre),consulta_servicios(tipo_servicio_id,monto,monto_1,monto_2,atendido_por,catalogo_tipos_servicio(nombre),atendido:personal(nombre,rol))')
+      .eq('deleted', false)
+      .order('fecha', { ascending:false })
+      .order('created_at', { ascending:false })
+      .limit(5000);
+    if(desde) q = q.gte('fecha', desde);
+    if(hasta) q = q.lte('fecha', hasta);
+    if(medio) q = q.eq('medio_pago', medio);
+    if(buscar) q = q.ilike('pacientes.nombre', `%${buscar}%`);
+    if(HIST_EXCL_FILTRO === 'facturado') q = q.eq('factura', true);
+    else if(HIST_EXCL_FILTRO === 'nofacturado') q = q.eq('factura', false);
+    else if(HIST_EXCL_FILTRO === 'novino') q = q.eq('no_vino', true);
+  }
+  let qf = null;
+  if(quiereFarm){
+    qf = sb.from('farmacia_ventas')
+      .select('id,fecha,paciente,medicamento,cantidad,monto,monto_2,medio_pago,medio_pago_2,facturado,num_factura,doctor_id,doctor:personal!doctor_id(nombre,rol)')
+      .order('fecha', { ascending:false })
+      .limit(5000);
+    if(desde) qf = qf.gte('fecha', desde);
+    if(hasta) qf = qf.lte('fecha', hasta);
+    if(medio) qf = qf.ilike('medio_pago', medio);
+    if(buscar) qf = qf.ilike('paciente', `%${buscar}%`);
+    if(HIST_EXCL_FILTRO === 'facturado') qf = qf.eq('facturado', true);
+    else if(HIST_EXCL_FILTRO === 'nofacturado') qf = qf.eq('facturado', false);
+  }
 
-  if(desde) q = q.gte('fecha', desde);
-  if(hasta) q = q.lte('fecha', hasta);
-  if(medio) q = q.eq('medio_pago', medio);
-  if(buscar) q = q.ilike('pacientes.nombre', `%${buscar}%`);
-  if(HIST_EXCL_FILTRO === 'facturado') q = q.eq('factura', true);
-  else if(HIST_EXCL_FILTRO === 'nofacturado') q = q.eq('factura', false);
-  else if(HIST_EXCL_FILTRO === 'novino') q = q.eq('no_vino', true);
-
-  const { data, error } = await q;
+  const [resS, resF] = await Promise.all([ q ? q : Promise.resolve({ data: [], error: null }), qf ? qf : Promise.resolve({ data: [], error: null }) ]);
   if(miReqId !== histReqId) return; // una carga más reciente ya está en curso o resolvió antes: descartar esta
+  const error = resS.error || resF.error;
   if(error){
     console.error('[SkinFabric] Error cargando historial:', error);
     tbody.innerHTML = '';
@@ -5140,17 +5164,41 @@ async function cargarHistorial(){
     empty.textContent = 'No se pudo cargar el historial.';
     return;
   }
-  let rows = data || [];
-  if(data && data.length >= 5000){
+  let rows = resS.data || [];
+  if(rows.length >= 5000){
     console.warn('[SkinFabric] Historial: se alcanzó el límite de 5000 filas — puede haber datos más antiguos sin mostrar. Hay que subir el límite o paginar.');
   }
   if(tipoId) rows = rows.filter(r => (r.consulta_servicios||[]).some(cs => cs.tipo_servicio_id === tipoId));
   HIST_ROWS = rows;
+  HIST_FARM = resF.data || [];
   renderHistorial();
 }
 
 function renderHistKpis(){
   const cont = document.getElementById('hist-kpi-chips');
+  const linea = document.getElementById('hist-linea').value;
+  const fmt0 = n => '$' + Math.round(n).toLocaleString('es-MX');
+  if(linea !== 'serv' && HIST_FARM.length){
+    const totF = HIST_FARM.reduce((a,f)=> a + Number(f.monto||0), 0);
+    const pzas = HIST_FARM.reduce((a,f)=> a + Math.max(1, parseInt(f.cantidad,10) || 1), 0);
+    const ventas = new Set(HIST_FARM.map(f => f.fecha + '|' + (normalizar(f.paciente||'').replace(/\s+/g,' ').trim() || f.id))).size;
+    if(linea === 'farm'){
+      cont.innerHTML = `
+        <div class="hist-chip c-total"><span class="ico">💊</span><div><div class="v">${fmt0(totF)}</div><div class="l">Farmacia</div></div></div>
+        <div class="hist-chip c-pac"><span class="ico">🧾</span><div><div class="v">${ventas}</div><div class="l">Ventas</div></div></div>
+        <div class="hist-chip c-ticket"><span class="ico">🎟️</span><div><div class="v">${fmt0(ventas ? totF / ventas : 0)}</div><div class="l">Ticket farmacia</div></div></div>
+        <div class="hist-chip c-primera"><span class="ico">📦</span><div><div class="v">${pzas}</div><div class="l">Piezas</div></div></div>`;
+      return;
+    }
+    const filasS = HIST_ROWS.filter(r => !r.no_vino);
+    const totS = filasS.reduce((a,r)=> a + Number(r.monto||0) + Number(r.monto_2||0), 0);
+    cont.innerHTML = `
+      <div class="hist-chip c-total"><span class="ico">💰</span><div><div class="v">${fmt0(totS + totF)}</div><div class="l">Total</div></div></div>
+      <div class="hist-chip c-pac"><span class="ico">🩺</span><div><div class="v">${fmt0(totS)}</div><div class="l">Servicios</div></div></div>
+      <div class="hist-chip c-ticket"><span class="ico">💊</span><div><div class="v">${fmt0(totF)}</div><div class="l">Farmacia · ${pzas} pzas</div></div></div>
+      <div class="hist-chip c-primera"><span class="ico">👥</span><div><div class="v">${new Set(filasS.map(r=> r.paciente_id)).size}</div><div class="l">Pacientes (servicios)</div></div></div>`;
+    return;
+  }
   const filasReales = HIST_ROWS.filter(r => !r.no_vino);
   if(!filasReales.length){ cont.innerHTML = ''; return; }
   const totalIngreso = filasReales.reduce((a,r)=> a + Number(r.monto||0) + Number(r.monto_2||0), 0);
@@ -5160,7 +5208,6 @@ function renderHistKpis(){
   const nPrimeraVez = contarTipo('Consulta de Primera Vez');
   const nSubsecuente = contarTipo('Consulta Subsecuente');
   const nProcedimiento = contarTipo('Procedimiento menor') + contarTipo('Procedimiento mayor');
-  const fmt0 = n => '$' + Math.round(n).toLocaleString('es-MX');
   cont.innerHTML = `
     <div class="hist-chip c-total"><span class="ico">💰</span><div><div class="v">${fmt0(totalIngreso)}</div><div class="l">Total</div></div></div>
     <div class="hist-chip c-pac"><span class="ico">👥</span><div><div class="v">${pacientesUnicos}</div><div class="l">Pacientes</div></div></div>
@@ -5175,10 +5222,10 @@ function renderHistorial(){
   const tbody = document.getElementById('hist-tbody');
   const empty = document.getElementById('hist-empty');
   renderHistKpis();
-  if(!HIST_ROWS.length){
+  if(!HIST_ROWS.length && !HIST_FARM.length){
     tbody.innerHTML = '';
     empty.style.display = '';
-    empty.textContent = 'No hay consultas para los filtros seleccionados.';
+    empty.textContent = document.getElementById('hist-linea').value === 'farm' ? 'No hay ventas de farmacia para los filtros seleccionados.' : 'No hay consultas para los filtros seleccionados.';
     return;
   }
   empty.style.display = 'none';
@@ -5192,8 +5239,31 @@ function renderHistorial(){
     const servicios = (r.consulta_servicios && r.consulta_servicios.length) ? r.consulta_servicios : [null];
     servicios.forEach(cs => filas.push({ consulta: r, cs }));
   });
+  // Con Farmacia visible, sus ventas se mezclan por fecha (más reciente primero) con las consultas.
+  if(HIST_FARM.length){
+    HIST_FARM.forEach(f => filas.push({ farm: f }));
+    filas.sort((x, y) => { const fx = (x.farm || x.consulta).fecha || '', fy = (y.farm || y.consulta).fecha || ''; return fx < fy ? 1 : fx > fy ? -1 : 0; });
+  }
 
-  tbody.innerHTML = filas.map(({consulta:r, cs})=>{
+  tbody.innerHTML = filas.map(({consulta:r, cs, farm:f})=>{
+    if(f){
+      const cant = Math.max(1, parseInt(f.cantidad, 10) || 1);
+      const pago2f = (Number(f.monto_2) > 0 && f.medio_pago_2) ? `<div style="font-size:10px;color:var(--g6)">+${iconoPago(f.medio_pago_2)}${esc2(f.medio_pago_2)}</div>` : '';
+      const quien = esc2(f.doctor?.nombre || '—');
+      return `<tr class="hist-farm-row" data-farm-id="${esc2(f.id)}">
+      <td>${fmtFechaCorta(f.fecha)}</td>
+      <td><b>${esc2(f.paciente || '—')}</b></td>
+      <td>—</td>
+      <td>—</td>
+      <td>${quien}</td>
+      <td>${quien}</td>
+      <td><span class="tagf" style="margin:0 6px 0 0">Farmacia</span>${esc2(f.medicamento || '—')}${cant > 1 ? ' ×' + cant : ''}</td>
+      <td><b style="color:var(--purple)">${fmtMoney(f.monto)}</b></td>
+      <td>${f.medio_pago ? iconoPago(f.medio_pago) + esc2(f.medio_pago) : '—'}${pago2f}</td>
+      <td style="font-size:11px;color:var(--g6)">${f.facturado ? esc2(f.num_factura || 'Pendiente') : '—'}</td>
+      <td>${MI_PERFIL?.rol === 'admin' ? `<button class="btn-sm btn-del hist-farm-del" data-id="${esc2(f.id)}" type="button" title="Eliminar esta venta">🗑</button>` : ''}</td>
+    </tr>`;
+    }
     const pago1 = r.no_vino ? '—' : iconoPago(r.medio_pago) + esc2(r.medio_pago || '—');
     const pago2 = (!r.no_vino && r.medio_pago_2) ? `<div style="font-size:10px;color:var(--g6)">+${iconoPago(r.medio_pago_2)}${esc2(r.medio_pago_2)}</div>` : '';
     const nombreServicio = esc2(cs?.catalogo_tipos_servicio?.nombre || '—');
@@ -5224,6 +5294,15 @@ function renderHistorial(){
   }).join('');
 
   tbody.querySelectorAll('.btn-edit').forEach(btn=> btn.addEventListener('click', ()=> abrirModalEditar(btn.dataset.id)));
+  tbody.querySelectorAll('.hist-farm-del').forEach(btn=> btn.addEventListener('click', async ()=>{
+    const f = HIST_FARM.find(x => x.id === btn.dataset.id);
+    const ok = await confirmarAsync({ titulo:'¿Eliminar venta de farmacia?', mensaje:`Se eliminará la venta de "${esc2(f?.medicamento || '')}" (${fmtMoney(f?.monto)}) de ${esc2(f?.paciente || 'sin paciente')}. Esta acción no se puede deshacer.`, textoConfirmar:'Eliminar', icono:'🗑', danger:true });
+    if(!ok) return;
+    const { error } = await sb.from('farmacia_ventas').delete().eq('id', btn.dataset.id);
+    if(error){ console.error('[SkinFabric] Error eliminando venta de farmacia:', error); toast('No se pudo eliminar la venta.'); return; }
+    toast('✓ Venta eliminada.');
+    cargarHistorial();
+  }));
   tbody.querySelectorAll('.hist-inline-factura').forEach(inp=>{
     inp.addEventListener('blur', ()=> guardarInline(inp.dataset.id, 'num_factura', inp.value.trim()));
     inp.addEventListener('input', ()=> inp.classList.toggle('pendiente', inp.dataset.factura === '1' && !inp.value.trim()));
@@ -5256,7 +5335,7 @@ document.getElementById('hist-buscar').addEventListener('input', ()=>{
   clearTimeout(histBuscarTimeout);
   histBuscarTimeout = setTimeout(cargarHistorial, 350);
 });
-['hist-tipo','hist-medio','hist-mes','hist-desde','hist-hasta'].forEach(id=>{
+['hist-linea','hist-tipo','hist-medio','hist-mes','hist-desde','hist-hasta'].forEach(id=>{
   document.getElementById(id).addEventListener('change', cargarHistorial);
 });
 document.getElementById('hist-rango').addEventListener('change', function(){
