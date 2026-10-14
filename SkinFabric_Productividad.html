@@ -2254,7 +2254,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.10.14-58';
+const APP_VERSION = 'v2026.10.14-59';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 
@@ -8036,6 +8036,14 @@ document.getElementById('cfg-btn-agregar-tipo').addEventListener('click', async 
 // ── Catálogo de farmacia (Configuración) ──
 let CFG_FARM = [];
 let CFG_FARM_FILTRO = 'todos';
+// Nombre con la primera en mayúscula (el Excel trae todo en mayúsculas); conserva siglas comunes (UV, SPF, AG, SVR, CD, HD, NR)
+function farmNombreBonito(n){
+  let t = String(n || '').trim().replace(/\s+/g, ' ');
+  if(t !== t.toUpperCase()) return t; // ya viene con minúsculas: se respeta
+  t = t.toLowerCase().replace(/\b(uv|spf|ag|svr|cd|hd|nr)\b/g, m => m.toUpperCase());
+  const i = t.search(/[a-záéíóúñ]/i);
+  return i < 0 ? t : t.slice(0, i) + t[i].toUpperCase() + t.slice(i + 1);
+}
 function farmNorm(t){ return normalizar(t).replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim(); }
 async function cargarCatalogoFarmaciaCfg(){
   const tbody = document.getElementById('cfg-farm-tbody');
@@ -8139,7 +8147,7 @@ document.getElementById('cfg-farm-file').addEventListener('change', async e => {
       const k = farmNorm(nombre);
       if(existentes.has(k) || clavesExist.has(clave)){ yaExistian++; return; }
       if(nuevos.has(k)){ nuevos.get(k).alt.push(clave); repetidos++; return; }
-      nuevos.set(k, { clave, alt: [], nombre, precio: precios.get(clave) ?? 0, sinPrecio: !precios.has(clave) });
+      nuevos.set(k, { clave, alt: [], nombre: farmNombreBonito(nombre), precio: precios.get(clave) ?? 0, sinPrecio: !precios.has(clave) });
     });
     const lista = [...nuevos.values()];
     if(!lista.length){ toast(`No hay productos nuevos (${yaExistian} ya estaban en el catálogo).`); return; }
