@@ -392,7 +392,9 @@ main.appmain{padding:22px 26px 40px;max-width:1250px;margin:0 auto}
 .tx-table.tx-cards{border-collapse:separate;border-spacing:0 8px}
 .tx-table.tx-cards thead tr{background:none}
 .tx-table.tx-cards th{color:var(--g4);background:none;text-shadow:none;border-bottom:none;padding:0 12px 6px;font-size:9px}
-.tx-table.tx-cards th:first-child,.tx-table.tx-cards th:last-child{border-radius:0}
+.tx-table.tx-cards th{background:#0F1F3A;color:rgba(255,255,255,.95);font-size:10px;font-weight:700;letter-spacing:1px;padding:11px 12px;border-bottom:3px solid var(--teal)}
+.tx-table.tx-cards th:first-child{border-radius:10px 0 0 10px}
+.tx-table.tx-cards th:last-child{border-radius:0 10px 10px 0}
 .tx-table.tx-cards tbody tr{background:#fff;box-shadow:0 1px 3px rgba(11,22,40,.08);transition:.15s}
 .tx-table.tx-cards tbody tr:hover td{background:none}
 .tx-table.tx-cards tbody tr:hover{box-shadow:0 5px 16px -2px rgba(11,22,40,.16)}
@@ -2290,7 +2292,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.10.14-68';
+const APP_VERSION = 'v2026.10.14-69';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 
