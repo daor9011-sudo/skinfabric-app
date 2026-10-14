@@ -2278,7 +2278,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.10.14-61';
+const APP_VERSION = 'v2026.10.14-62';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 
@@ -4283,7 +4283,7 @@ function opcionesPersonalAgrupadoHtml(selectedId, soloDoctor, fechaISO){
   }).join('');
 }
 // Fila de un producto de farmacia en la lista de seleccionados: piezas, precio unitario editable
-// (arranca en el precio sugerido del catálogo) y quién generó la venta (solo doctores/as).
+// (arranca en el precio sugerido del catálogo) y quién generó la venta (doctores/as o cosmetólogos/as).
 // Promos por mezcla: "lleva N piezas del grupo y pagas $X" (p.ej. 3 minoxidil de 30 caps, cualquier concentración, a $2,800).
 // Se define en farmacia_productos (promo_grupo, promo_cada, promo_precio). El descuento se reparte entre los renglones del grupo.
 const PROMO_ETIQUETAS = { minoxidil30:'Minoxidil 30 caps', minoxidil60:'Minoxidil 2.5 mg 60 caps' };
@@ -4347,7 +4347,7 @@ function renderFilaFarmacia(id, selMap, mostrarSplit, fechaFormServ){
       <div class="nom">${nombre}<span class="ref">ref. ${fmtMoney0(sug)}${piezasPaq > 1 ? ' · ' + piezasPaq + ' pzas' : ''}</span></div>
       <select class="atendido-select" title="¿Quién generó la venta?">
         <option value="">Vendido por...</option>
-        ${opcionesPersonalAgrupadoHtml(val.atendidoPor || '', true, fechaFormServ)}
+        ${opcionesPersonalAgrupadoHtml(val.atendidoPor || '', false, fechaFormServ)}
       </select>
       <div class="a-qty"><button type="button" class="qty-menos">−</button><b>${cant}</b><button type="button" class="qty-mas">+</button></div>
       <div class="monto-wrap" title="Precio por pieza"><span>$</span><input type="number" min="0" step="0.01" class="precio-unit" value="${esc2(precio)}"/></div>
@@ -4509,7 +4509,7 @@ const REG_SERV_SEL = new Map(); // tipo_servicio_id -> { monto: string, atendido
 // explícitamente a un doctor/a.
 function obtenerAtendidoPorDefectoReg(tipoServicioId){
   if(!MI_PERFIL || (MI_PERFIL.rol !== 'doctor' && MI_PERFIL.rol !== 'cosmetologo')) return '';
-  if(esFarmKey(tipoServicioId)) return MI_PERFIL.rol === 'doctor' ? MI_PERFIL.id : ''; // la venta de farmacia la genera un doctor/a
+  if(esFarmKey(tipoServicioId)) return MI_PERFIL.id; // la venta de farmacia la puede generar un doctor/a o una cosmetóloga
   if(esTipoServicioConsulta(tipoServicioId) && MI_PERFIL.rol !== 'doctor') return '';
   return MI_PERFIL.id;
 }
@@ -4793,9 +4793,9 @@ async function guardarRegistro(){
   // Vez/Subsecuente si hay una, si no el primer servicio elegido (ver personaPrincipalDeSelMap).
   const doctorId = hayServ ? (personaPrincipalDeSelMap(REG_SERV_SEL)?.id || '') : '';
   if(hayServ && !doctorId){ alertaCampo('reg-serv-buscar', 'No se pudo determinar quién atiende la consulta.'); return; }
-  // Cada producto de farmacia queda a nombre del doctor/a que generó la venta.
-  const farmSinDoctor = [...REG_SERV_SEL.entries()].filter(([id, v]) => esFarmKey(id) && CATALOGOS.personal.find(x => x.id === v?.atendidoPor)?.rol !== 'doctor');
-  if(farmSinDoctor.length){ alertaCampo('reg-serv-buscar', 'Cada producto de farmacia debe quedar a nombre de un doctor/a.'); return; }
+  // Cada producto de farmacia queda a nombre de quien generó la venta (doctor/a o cosmetóloga).
+  const farmSinDoctor = [...REG_SERV_SEL.entries()].filter(([id, v]) => esFarmKey(id) && !CATALOGOS.personal.find(x => x.id === v?.atendidoPor));
+  if(farmSinDoctor.length){ alertaCampo('reg-serv-buscar', 'Cada producto de farmacia debe tener quién generó la venta.'); return; }
   if(selMapRequiereDoctor(REG_SERV_SEL) && CATALOGOS.personal.find(p=>p.id === doctorId)?.rol !== 'doctor'){
     alertaCampo('reg-serv-buscar', 'Una Consulta de Primera Vez/Subsecuente debe quedar asociada a un doctor/a.');
     return;
