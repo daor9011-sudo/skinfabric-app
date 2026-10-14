@@ -188,12 +188,12 @@ main.appmain{padding:22px 26px 40px;max-width:1250px;margin:0 auto}
 .hist-farm-card{flex:1 1 100%;background:linear-gradient(180deg,#FBF8FE,#fff 70px);border:1px solid #D2B4DE;border-radius:12px;padding:10px 16px 11px;box-shadow:0 1px 2px rgba(11,22,40,.04)}
 .hist-farm-card .h{display:flex;align-items:center;gap:9px}
 .hist-farm-card .h .ico{width:32px;height:32px;border-radius:9px;background:#EBD9F5;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
-.hist-farm-card .t{font-size:9px;color:var(--g4);font-weight:700;text-transform:uppercase;letter-spacing:.4px}
-.hist-farm-card .big{font-family:var(--font-d);font-weight:800;font-size:19px;color:var(--purple);line-height:1.1}
+.hist-farm-card .t{font-size:9px;color:var(--g4);font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-top:1px}
+.hist-farm-card .big{font-family:var(--font-d);font-weight:800;font-size:15px;color:var(--purple);line-height:1.15}
 .hist-farm-card .go{margin-left:auto;background:none;border:0;padding:4px 0;font:inherit;font-size:11px;font-weight:700;color:var(--purple);text-decoration:underline;text-underline-offset:2px;cursor:pointer}
 .hist-farm-card .g{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:9px;padding-top:8px;border-top:1px dashed #E4CFEF}
-.hist-farm-card .g b{display:block;font-family:var(--font-d);font-size:13.5px;color:var(--navy)}
-.hist-farm-card .g span{font-size:9px;color:var(--g4);font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+.hist-farm-card .g b{display:block;font-family:var(--font-d);font-weight:800;font-size:15px;line-height:1.15;color:var(--navy)}
+.hist-farm-card .g span{display:block;margin-top:1px;font-size:9px;color:var(--g4);font-weight:700;text-transform:uppercase;letter-spacing:.4px}
 .hist-farm-card .top{margin-top:8px;font-size:11px;color:var(--g6)}.hist-farm-card .top b{color:var(--navy)}
 .screen2{display:none}
 .screen2.act{display:block}
@@ -2293,7 +2293,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.10.14-66';
+const APP_VERSION = 'v2026.10.14-67';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 
@@ -5244,7 +5244,7 @@ function histFarmCardHtml(){
   HIST_FARM_KPI.forEach(f => { const k = f.medicamento || '—'; porProd[k] = (porProd[k]||0) + cant(f); });
   const top = Object.entries(porProd).sort((a,b)=> b[1]-a[1])[0];
   return `<div class="hist-farm-card">
-    <div class="h"><span class="ico">💊</span><div><div class="t">Farmacia</div><div class="big">${fmt0(tot)}</div></div><button type="button" class="go" id="hist-farm-go">Ver ventas →</button></div>
+    <div class="h"><span class="ico">💊</span><div><div class="big">${fmt0(tot)}</div><div class="t">Farmacia</div></div><button type="button" class="go" id="hist-farm-go">Ver ventas →</button></div>
     <div class="g"><div><b>${ventas}</b><span>Ventas</span></div><div><b>${pzas}</b><span>Piezas</span></div><div><b>${fmt0(ventas ? tot / ventas : 0)}</b><span>Ticket farmacia</span></div></div>
     ${top ? `<div class="top">Más vendido: <b>${esc2(top[0])}</b> · ${top[1]} pzas</div>` : ''}
   </div>`;
