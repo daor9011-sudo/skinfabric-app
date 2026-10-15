@@ -2344,7 +2344,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.10.15-78';
+const APP_VERSION = 'v2026.10.15-79';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 
@@ -4522,6 +4522,7 @@ function crearSelectorServicios(ids, selMap, onChange, valorAtendidoPorDefecto, 
         const sp = row.querySelector('.split1-input');
         if(sp) sp.addEventListener('input', e=>{
           const prev = selMap.get(id) || {};
+          if(selMap === REG_SERV_SEL) REG_SPLIT_MANUAL = true;
           selMap.set(id, { ...prev, monto1: e.target.value });
           row.querySelector('.split2-preview').textContent = '2do pago: ' + fmtMoney(Math.max((Number(prev.monto)||0) - (Number(e.target.value)||0), 0));
           onChange();
@@ -4553,6 +4554,7 @@ function crearSelectorServicios(ids, selMap, onChange, valorAtendidoPorDefecto, 
       if(split1Input){
         split1Input.addEventListener('input', e=>{
           const prev = selMap.get(id) || { monto:'', atendidoPor:'' };
+          if(selMap === REG_SERV_SEL) REG_SPLIT_MANUAL = true;
           selMap.set(id, { ...prev, monto1: e.target.value });
           const montoNum = Number(prev.monto) || 0;
           const monto1Num = Number(e.target.value) || 0;
@@ -4569,6 +4571,27 @@ function crearSelectorServicios(ids, selMap, onChange, valorAtendidoPorDefecto, 
 }
 
 const REG_SERV_SEL = new Map(); // tipo_servicio_id -> { monto: string, atendidoPor: string }
+// Reparto del 1er/2do pago por renglón. Mientras nadie lo toque a mano (REG_SPLIT_MANUAL=false) se calcula solo a
+// partir del "Monto 1er pago" de la consulta: el 1er pago llena los renglones en orden y el resto cae en el 2do.
+let REG_SPLIT_MANUAL = false;
+function regRepartirSplitAuto(){
+  if(REG_SPLIT_MANUAL || REG_SERV_SEL.size < 2) return;
+  if(document.getElementById('reg-grp-medio2').style.display === 'none') return;
+  let resto = Math.max(Number(document.getElementById('reg-monto1').value) || 0, 0);
+  REG_SERV_SEL.forEach((val, id) => {
+    const m = Number(val?.monto) || 0;
+    const m1 = Math.round(Math.min(resto, m) * 100) / 100;
+    resto = Math.round((resto - m1) * 100) / 100;
+    REG_SERV_SEL.set(id, { ...val, monto1: String(m1) });
+  });
+  document.querySelectorAll('#reg-serv-sel .a-row').forEach(row => {
+    const v = REG_SERV_SEL.get(row.dataset.id), inp = row.querySelector('.split1-input');
+    if(!v || !inp) return;
+    inp.value = v.monto1;
+    const prev = row.querySelector('.split2-preview');
+    if(prev) prev.textContent = '2do pago: ' + fmtMoney(Math.max((Number(v.monto) || 0) - (Number(v.monto1) || 0), 0));
+  });
+}
 // Al marcar un servicio nuevo en el Registro, si quien inició sesión es doctor/a o cosmetóloga
 // se le precarga a sí mismo/a en el "Atendido por" de esa fila (para no obligarlo a elegirse a
 // propósito cada vez) — pero sigue siendo editable, por si ese servicio en particular lo hizo
@@ -4698,6 +4721,7 @@ document.addEventListener('click', (e)=>{
 
 // ── Resumen en vivo ──
 function updateResumen(){
+  regRepartirSplitAuto();
   const nombre = document.getElementById('reg-paciente-nombre').value.trim();
   let principal = personaPrincipalDeSelMap(REG_SERV_SEL);
   const nFarm = [...REG_SERV_SEL.keys()].filter(esFarmKey).length;
@@ -4745,6 +4769,20 @@ function updateResumen(){
 ['reg-paciente-nombre','reg-monto1','reg-monto2'].forEach(id=>{
   document.getElementById(id).addEventListener('input', updateResumen);
 });
+// El otro pago se completa solo con lo que falta para llegar al total (se puede corregir a mano).
+function regMontoServiciosTotal(){ return [...REG_SERV_SEL.values()].reduce((a,v)=> a + (Number(v?.monto)||0), 0); }
+document.getElementById('reg-monto1').addEventListener('input', ()=>{
+  const total = regMontoServiciosTotal();
+  const m1 = Number(document.getElementById('reg-monto1').value) || 0;
+  document.getElementById('reg-monto2').value = String(Math.max(Math.round((total - m1) * 100) / 100, 0));
+  REG_SPLIT_MANUAL = false; regRepartirSplitAuto(); updateResumen();
+});
+document.getElementById('reg-monto2').addEventListener('input', ()=>{
+  const total = regMontoServiciosTotal();
+  const m2 = Number(document.getElementById('reg-monto2').value) || 0;
+  document.getElementById('reg-monto1').value = String(Math.max(Math.round((total - m2) * 100) / 100, 0));
+  REG_SPLIT_MANUAL = false; regRepartirSplitAuto(); updateResumen();
+});
 
 // ── 2do medio de pago ──
 document.getElementById('reg-btn-2pago').addEventListener('click', ()=>{
@@ -4757,6 +4795,7 @@ document.getElementById('reg-btn-2pago').addEventListener('click', ()=>{
   grpMedio2.style.display = mostrar ? '' : 'none';
   grpMonto2.style.display = mostrar ? '' : 'none';
   btn.textContent = mostrar ? '− quitar 2do pago' : '+ agregar 2do pago';
+  REG_SPLIT_MANUAL = false;
   if(mostrar){
     // Por defecto: todo el total va al 1er pago y el 2do arranca en $0 — el usuario ajusta ambos.
     const montoServicios = [...REG_SERV_SEL.values()].reduce((a,v)=> a + (Number(v?.monto)||0), 0);
@@ -4916,6 +4955,7 @@ async function guardarRegistro(){
     // servicios se hayan pagado mitad en efectivo y mitad con tarjeta sin que el Excel/reporte
     // tenga que adivinar cómo se repartió. Antes de guardar, se verifica que ese reparto por
     // servicio sume exactamente los mismos totales ya capturados arriba.
+    if(grpMedio2Visible && REG_SERV_SEL.size > 1 && !REG_SPLIT_MANUAL) regRepartirSplitAuto();
     if(grpMedio2Visible && REG_SERV_SEL.size > 1){
       const sumaMonto1Servicios = [...REG_SERV_SEL.values()].reduce((a,v)=> a + (Number(v?.monto1) || 0), 0);
       if(Math.round((sumaMonto1Servicios - monto1) * 100) !== 0){
@@ -5084,6 +5124,7 @@ function limpiarRegistroCompleto(){
   document.getElementById('reg-btn-2pago').textContent = '+ agregar 2do pago';
   document.getElementById('reg-grp-procedencia').style.display = '';
   document.getElementById('reg-grp-dueno').style.display = '';
+  REG_SPLIT_MANUAL = false;
   REG_SERV_SEL.clear();
   regServRender('');
   limpiarSeleccionPaciente();
