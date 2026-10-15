@@ -1644,7 +1644,8 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
         <button class="btn-sm btn-outline" id="cierre-btn-next" type="button">›</button>
         <input type="date" id="cierre-date-input"/>
         <button class="btn-sm btn-outline" id="cierre-btn-hoy" type="button">↻ Hoy</button>
-        <select id="cierre-doctor" style="max-width:220px;margin-left:auto"><option value="">Todo el personal</option></select>
+        <button class="btn-sm btn-outline" id="cierre-btn-flash" type="button" title="Genera un PDF de una hoja con la productividad del periodo" style="margin-left:auto">📄 Exportar PDF</button>
+        <select id="cierre-doctor" style="max-width:220px"><option value="">Todo el personal</option></select>
       </div>
 
       <div class="kpi-grid cierre-kpis" id="cierre-kpis">
@@ -2313,7 +2314,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.10.14-73';
+const APP_VERSION = 'v2026.10.15-75';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 
@@ -5977,7 +5978,7 @@ async function cargarCierre(){
   const desde = modoAlPedir === 'dia' ? isoLocal(fechaAlPedir) : isoLocal(primerDiaMes(fechaAlPedir));
   const hasta = modoAlPedir === 'dia' ? isoLocal(fechaAlPedir) : isoLocal(ultimoDiaMes(fechaAlPedir));
   let q = sb.from('consultas')
-    .select('id,fecha,monto,medio_pago,monto_2,medio_pago_2,doctor_id,pacientes(nombre),doctor:personal!doctor_id(nombre),consulta_servicios(tipo_servicio_id,monto,monto_1,monto_2,atendido_por,catalogo_tipos_servicio(nombre),atendido:personal(nombre))')
+    .select('id,fecha,monto,medio_pago,monto_2,medio_pago_2,factura,num_factura,doctor_id,pacientes(nombre),doctor:personal!doctor_id(nombre),consulta_servicios(tipo_servicio_id,monto,monto_1,monto_2,atendido_por,catalogo_tipos_servicio(nombre),atendido:personal(nombre))')
     .eq('deleted', false)
     .eq('no_vino', false)
     .gte('fecha', desde)
@@ -6001,6 +6002,441 @@ async function cargarCierre(){
   CIERRE_ROWS = data || [];
   renderCierre();
 }
+
+// ── Flash report: PDF de una hoja con la productividad del día / mes (pestaña Cierre) ──
+const _scriptsCargados = {};
+function cargarScriptUnaVez(src){
+  return _scriptsCargados[src] || (_scriptsCargados[src] = new Promise((ok, fail)=>{
+    const s = document.createElement('script');
+    s.src = src; s.onload = () => ok();
+    s.onerror = () => { delete _scriptsCargados[src]; fail(new Error('No se pudo cargar ' + src)); };
+    document.head.appendChild(s);
+  }));
+}
+
+// Totales de servicios + farmacia en un rango de fechas (para comparativos y acumulado)
+async function flashTotalRango(desde, hasta){
+  const [c, fa] = await Promise.all([
+    sb.from('consultas').select('fecha,monto,monto_2').eq('deleted', false).eq('no_vino', false).gte('fecha', desde).lte('fecha', hasta).limit(5000),
+    sb.from('farmacia_ventas').select('fecha,monto').gte('fecha', desde).lte('fecha', hasta).limit(5000)
+  ]);
+  const dias = new Set();
+  let serv = 0, farm = 0;
+  (c.data || []).forEach(r => { serv += Number(r.monto || 0) + Number(r.monto_2 || 0); dias.add(r.fecha); });
+  (fa.data || []).forEach(r => { farm += Number(r.monto || 0); dias.add(r.fecha); });
+  return { serv, farm, total: serv + farm, dias: dias.size };
+}
+
+async function flashReunirDatos(){
+  const esDia = CIERRE_MODO === 'dia';
+  const f = new Date(CIERRE_FECHA);
+  const desde = esDia ? isoLocal(f) : isoLocal(primerDiaMes(f));
+  const hasta = esDia ? isoLocal(f) : isoLocal(ultimoDiaMes(f));
+  const rolDe = id => CATALOGOS.personal.find(p => p.id === id)?.rol || '';
+
+  const pros = {}, medios = {}, mix = {}, prodFarm = {};
+  const pro = (pid, nombre) => pros[pid] || (pros[pid] = { nombre, rol: rolDe(pid), cons: new Set(), serv: 0, farm: 0 });
+  const medio = m => medios[m] || (medios[m] = { serv: 0, farm: 0 });
+  const consultas = new Set(), fechasConActividad = new Set();
+  let serv = 0, farm = 0, pzas = 0, nPrimera = 0, nSub = 0;
+
+  // Mismas reglas del Cierre: el 1er pago cuenta siempre que haya medio; el 2º solo si trae dinero.
+  cierreAsignaciones().forEach(a => {
+    serv += a.monto; consultas.add(a.cid);
+    const p = pro(a.pid, a.pnombre); p.cons.add(a.cid); p.serv += a.monto;
+    if(a.medio1) medio(a.medio1).serv += a.p1;
+    if(a.medio2 && a.p2 > 0) medio(a.medio2).serv += a.p2;
+    const nom = a.serv || 'Sin servicio';
+    const m = mix[nom] || (mix[nom] = { n: 0, monto: 0 });
+    m.n += 1; m.monto += a.monto;
+    if(/primera vez/i.test(nom)) nPrimera++;
+    else if(/subsecuente/i.test(nom)) nSub++;
+  });
+  CIERRE_ROWS.forEach(r => { if(r.fecha) fechasConActividad.add(r.fecha); });
+
+  const ventas = new Set();
+  CIERRE_FARM.forEach(v => {
+    const monto = Number(v.monto || 0), m2 = Number(v.monto_2 || 0), p1 = monto - m2;
+    const cant = Math.max(1, parseInt(v.cantidad, 10) || 1);
+    const pn = v.doctor?.nombre || CATALOGOS.personal.find(x => x.id === v.doctor_id)?.nombre || '—';
+    farm += monto; pzas += cant;
+    pro(v.doctor_id, pn).farm += monto;
+    const m1n = medioCanon(v.medio_pago), m2n = medioCanon(v.medio_pago_2);
+    if(m1n) medio(m1n).farm += p1;
+    if(m2n && m2 > 0) medio(m2n).farm += m2;
+    ventas.add(v.fecha + '|' + (normalizar(v.paciente || '').replace(/\s+/g, ' ').trim() || v.id));
+    const k = v.medicamento || '—';
+    const pf = prodFarm[k] || (prodFarm[k] = { pzas: 0, monto: 0 });
+    pf.pzas += cant; pf.monto += monto;
+    if(v.fecha) fechasConActividad.add(v.fecha);
+  });
+
+  // Consultas externas: pendientes y comparativos
+  const conteo = (filtros) => {
+    let q = sb.from('consultas').select('id', { count: 'exact', head: true }).eq('deleted', false).gte('fecha', desde).lte('fecha', hasta);
+    return filtros(q);
+  };
+  const [rFact, rNoVino] = await Promise.all([
+    conteo(q => q.eq('no_vino', false).eq('factura', true).is('num_factura', null)),
+    conteo(q => q.eq('no_vino', true))
+  ]);
+  const factPend = rFact.count || 0, noVino = rNoVino.count || 0;
+
+  let comp = null, acum = null;
+  try{
+    if(esDia){
+      const rPrev = await sb.from('consultas').select('fecha').eq('deleted', false).eq('no_vino', false).lt('fecha', desde).order('fecha', { ascending: false }).limit(1);
+      const prev = rPrev.data && rPrev.data[0] && rPrev.data[0].fecha;
+      if(prev){
+        const t = await flashTotalRango(prev, prev);
+        const ayer = new Date(f); ayer.setDate(ayer.getDate() - 1);
+        const [py, pm, pd] = prev.split('-');
+        comp = { total: t.total, etiqueta: prev === isoLocal(ayer) ? 'ayer' : (pd + '/' + pm) };
+      }
+      const t = await flashTotalRango(isoLocal(primerDiaMes(f)), desde);
+      acum = { total: t.total, dias: t.dias, texto: 'Acumulado de ' + f.toLocaleDateString('es-MX', { month: 'long' }) + ' (1–' + f.getDate() + ')' };
+    } else {
+      const hoy = new Date();
+      const enCurso = hoy.getFullYear() === f.getFullYear() && hoy.getMonth() === f.getMonth();
+      const ini = new Date(f.getFullYear(), f.getMonth() - 1, 1);
+      const finMesAnt = new Date(f.getFullYear(), f.getMonth(), 0).getDate();
+      const dia = Math.min(enCurso ? hoy.getDate() : 31, finMesAnt);
+      const fin = new Date(ini.getFullYear(), ini.getMonth(), dia);
+      const t = await flashTotalRango(isoLocal(ini), isoLocal(fin));
+      comp = { total: t.total, etiqueta: 'mismo periodo de ' + ini.toLocaleDateString('es-MX', { month: 'long' }) };
+      acum = { total: serv + farm, dias: fechasConActividad.size, texto: 'Periodo completo del mes' };
+    }
+  }catch(e){ console.warn('[SkinFabric] Flash report: no se pudieron calcular comparativos', e); }
+
+  // Anexo: detalle por profesional y paciente (solo en el reporte de un día)
+  const anexo = [];
+  if(esDia){
+    const norm = n => normalizar(n || '').replace(/\s+/g, ' ').trim();
+    const porProf = new Map();
+    const filaDe = (pid, pnombre, pac) => {
+      if(!porProf.has(pid)) porProf.set(pid, { pid, nombre: pnombre, rol: rolDe(pid), filas: new Map() });
+      const pf = porProf.get(pid), k = norm(pac);
+      if(!pf.filas.has(k)) pf.filas.set(k, { pac: pac || '—', svcs: [], monto: 0, meds: [], farm: [], fmonto: 0, factPend: false, cids: new Set() });
+      return pf.filas.get(k);
+    };
+    const addMed = (r, med) => { if(med && !r.meds.includes(med)) r.meds.push(med); };
+    const factDe = {}; CIERRE_ROWS.forEach(r => { factDe[r.id] = r.factura && !r.num_factura; });
+    cierreAsignaciones().forEach(a => {
+      const r = filaDe(a.pid, a.pnombre, a.paciente);
+      if(a.serv && !r.svcs.includes(a.serv)) r.svcs.push(a.serv);
+      r.monto += a.monto; r.cids.add(a.cid);
+      addMed(r, a.medio1); if(a.medio2 && a.p2 > 0) addMed(r, a.medio2);
+      if(factDe[a.cid]) r.factPend = true;
+    });
+    CIERRE_FARM.forEach(v => {
+      const pn = v.doctor?.nombre || CATALOGOS.personal.find(x => x.id === v.doctor_id)?.nombre || '—';
+      const r = filaDe(v.doctor_id, pn, v.paciente);
+      const cant = Math.max(1, parseInt(v.cantidad, 10) || 1);
+      r.farm.push({ nombre: v.medicamento || '—', cant });
+      r.fmonto += Number(v.monto || 0);
+      addMed(r, medioCanon(v.medio_pago)); if(Number(v.monto_2 || 0) > 0) addMed(r, medioCanon(v.medio_pago_2));
+    });
+    porProf.forEach(pf => {
+      const filas = [...pf.filas.values()];
+      const serv = filas.reduce((a, r) => a + r.monto, 0), fm = filas.reduce((a, r) => a + r.fmonto, 0);
+      anexo.push({ nombre: pf.nombre, rol: pf.rol, filas, serv, farm: fm, nCons: filas.filter(r => r.cids.size).length, total: serv + fm });
+    });
+    anexo.sort((a, b) => b.total - a.total);
+  }
+  return { anexo, esDia, desde, f, serv, farm, pzas, ventas: ventas.size, consultas: consultas.size, nPrimera, nSub, pros, medios, mix, prodFarm, factPend, noVino, comp, acum };
+}
+
+const FLASH_CSS = `:root{--navy:#0B1628;--navy2:#1B3A6B;--teal:#2ABFBF;--g1:#F1F4F9;--g2:#E3E8F0;--g4:#8794A8;--g6:#5B6B84;--purple:#7D3C98;--green:#14764f}
+*{box-sizing:border-box;margin:0}
+html,body{background:#fff}
+body{width:816px;font-family:'Instrument Sans','Helvetica Neue',Arial,sans-serif;color:var(--navy);font-size:10.5px}
+.page{width:816px;min-height:1056px;display:flex;flex-direction:column;background:#fff}
+.page.fix{height:1056px;overflow:hidden}
+.d{font-family:'Bricolage Grotesque','Helvetica Neue',Arial,sans-serif}
+.hd{background:linear-gradient(135deg,#0B1628,#173363);color:#fff;padding:26px 36px 20px;border-bottom:4px solid var(--teal);display:flex;justify-content:space-between;align-items:flex-end}
+.hd .br{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.7);font-weight:700}
+.hd h1{font-size:26px;font-weight:800;margin-top:5px;letter-spacing:.2px;line-height:1.05}.hd h1 b{color:var(--teal)}
+.hd .dt{text-align:right;font-size:11px;color:rgba(255,255,255,.85);line-height:1.5}.hd .dt strong{display:block;font-size:15px;color:#fff;font-weight:700}
+.wrap{padding:20px 36px 24px;flex:1}
+.hero{display:grid;grid-template-columns:1.35fr 1fr 1fr 1fr;gap:10px}
+.k{border:1px solid var(--g2);border-radius:12px;padding:11px 13px;background:#fff}
+.k .l{font-size:8.5px;font-weight:800;letter-spacing:.7px;text-transform:uppercase;color:var(--g4)}
+.k .v{font-size:21px;font-weight:800;margin-top:4px;line-height:1}
+.k .s{font-size:9.5px;color:var(--g6);margin-top:5px}
+.k.main{background:linear-gradient(135deg,#0B1628,#1B3A6B);border:0;color:#fff}.k.main .l{color:rgba(255,255,255,.7)}.k.main .v{font-size:31px}.k.main .s{color:rgba(255,255,255,.85)}
+.up{display:inline-block;background:rgba(42,191,191,.25);color:#7DE8E8;font-weight:800;border-radius:10px;padding:1px 7px;margin-right:4px}.up.dn{background:rgba(255,120,100,.25);color:#FFB3A6}
+.k .v.t{color:#0f8f8f}.k .v.f{color:var(--purple)}
+h2{font-size:12px;font-weight:800;margin:18px 0 8px;display:flex;align-items:center;gap:8px}h2::after{content:'';flex:1;height:1px;background:var(--g2)}
+h2 small{font-family:'Instrument Sans',Arial,sans-serif;font-weight:600;color:var(--g4);font-size:9.5px}
+.lg{display:flex;gap:12px;font-size:9px;color:var(--g6);font-weight:600;font-family:'Instrument Sans',Arial,sans-serif}.lg i{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:4px}
+.bar{height:100%;border-radius:5px;display:flex;overflow:hidden}.spart{background:var(--teal);display:block}.fpart{background:var(--purple);display:block}.bar.t{background:var(--teal)}.bar.f{background:var(--purple)}
+.pr{display:grid;grid-template-columns:170px 1fr 120px 34px;gap:12px;align-items:center;padding:7px 0;border-bottom:1px dashed var(--g2)}
+.pn small{display:block;color:var(--g4);font-size:9px;margin-top:3px}
+.np{display:inline-block;font-size:10.5px;font-weight:700;border-radius:20px;padding:3px 10px;white-space:nowrap}
+.np.d1{background:#DCEBFB;color:#173F82;box-shadow:inset 0 0 0 1px #A9C9F2}.np.d2{background:#D9F4F4;color:#0B6B6B;box-shadow:inset 0 0 0 1px #8FDADA}.np.cs{background:#FFF0D2;color:#7A4D00;box-shadow:inset 0 0 0 1px #F0CD8A}
+.pb{height:14px;background:var(--g1);border-radius:5px}
+.pv{text-align:right}.pv b{font-size:13px;font-weight:800;display:block}.pv small{font-size:8.5px;color:var(--g4)}.pp{text-align:right;font-weight:800;color:var(--g6);font-size:11px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.mr{display:grid;grid-template-columns:104px 1fr 56px 28px;gap:8px;align-items:center;padding:4px 0}
+.mn{font-weight:600;font-size:10px;white-space:nowrap}.mb{height:11px;background:var(--g1);border-radius:4px}.mr b{text-align:right;font-size:10.5px}.mp{text-align:right;color:var(--g4);font-size:9.5px;font-weight:700}
+.xr{display:grid;grid-template-columns:1fr 26px 62px 52px;gap:7px;align-items:center;padding:3.5px 0}
+.xn{font-size:10px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.xk{color:var(--g4);font-size:9px;font-weight:700;text-align:right;white-space:nowrap}.xb{height:9px;background:var(--g1);border-radius:4px}.xr b{text-align:right;font-size:10.5px}
+.sub{font-size:9px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--g4);margin:10px 0 3px}
+.al{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:2px}
+.a{border-radius:10px;padding:9px 12px;display:flex;gap:9px;align-items:center;font-size:10px;line-height:1.35}
+.a b{font-size:17px;font-family:'Bricolage Grotesque','Helvetica Neue',Arial,sans-serif;font-weight:800;line-height:1}
+.a.w{background:#FDF1DC;border:1px solid #F0C36D;color:#7A4D00}.a.o{background:#E3F6EE;border:1px solid #A9DFC5;color:var(--green)}.a.i{background:var(--g1);border:1px solid var(--g2);color:var(--g6)}
+.ft{padding:11px 36px;border-top:1px solid var(--g2);display:flex;justify-content:space-between;font-size:8.5px;color:var(--g4)}
+.mes{background:var(--g1);border-radius:10px;padding:9px 14px;display:flex;justify-content:space-between;align-items:center;margin-top:14px;font-size:10px;color:var(--g6);gap:12px}.mes b{color:var(--navy);font-size:12px}
+
+.hd.s{padding:16px 36px 13px}.hd.s h1{font-size:19px;margin-top:3px}.hd.s .br{font-size:9px}.hd.s .dt{font-size:10px;line-height:1.45}.hd.s .dt strong{font-size:12px}
+.wrap.ax{padding:14px 36px 0}
+.blk{margin-bottom:12px}
+.bh{display:flex;align-items:center;gap:9px;padding:6px 0 5px;border-bottom:2px solid var(--navy)}
+.bs{font-size:9.5px;color:var(--g6);font-weight:600}.bh .ln{flex:1}.bt{font-size:9.5px;color:var(--g6)}.bt i{font-style:normal;color:var(--g4)}.btt{font-size:13px;font-family:'Bricolage Grotesque','Helvetica Neue',Arial,sans-serif;font-weight:800}
+.cols,.rw{display:grid;grid-template-columns:20px 150px 150px 1fr 92px 54px;gap:8px;align-items:center}
+.cols{font-size:8px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--g4);padding:5px 0 3px}.cols .r{text-align:right}
+.rw{padding:5px 0;border-bottom:1px solid var(--g2);min-height:25px}
+.rw.z{background:#FAFBFD}
+.rw .n{color:var(--g4);font-size:9px;text-align:right}.rw .pc{font-weight:700;font-size:10px;line-height:1.2}
+.rw .sv{display:flex;flex-wrap:wrap;gap:3px}
+.svc{display:inline-block;font-size:8.5px;font-weight:700;border-radius:10px;padding:2px 7px;line-height:1.25}
+.svc.k1{background:#DFF3E5;color:#1c7a41}.svc.k2{background:#DCEAFB;color:#1f5fae}.svc.k3{background:#FDF0D2;color:#9a6a06}
+.fac{font-size:8px;font-weight:700;background:#FDF1DC;color:#9A6010;border:1px dashed #F0C36D;border-radius:8px;padding:1px 6px}
+.mut{color:var(--g4);font-size:9px}
+.fm{font-size:8.5px;color:var(--purple);line-height:1.3;font-weight:600}
+.py{display:flex;flex-direction:column;gap:2px;align-items:flex-start}
+.pay{font-size:8.5px;font-weight:600;background:var(--g1);border-radius:6px;padding:1px 6px;white-space:nowrap}
+.rw .mo{text-align:right;font-family:'Bricolage Grotesque','Helvetica Neue',Arial,sans-serif;font-size:11px;font-weight:800}
+.tot{display:flex;justify-content:space-between;align-items:center;background:var(--navy);color:#fff;border-radius:10px;padding:10px 16px;margin-top:2px;font-size:10px}.tot b{font-size:17px;font-family:'Bricolage Grotesque','Helvetica Neue',Arial,sans-serif}
+`;
+
+function flashReportHtml(d, totalPaginas, paginasExtra){
+  const m = n => '$' + Math.round(n).toLocaleString('es-MX');
+  const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+  const total = d.serv + d.farm;
+  const tono = p => (p.rol === 'cosmetologo' || /^Cosm\./i.test(p.nombre)) ? 'cs' : (/alejandra/i.test(p.nombre) ? 'd2' : 'd1');
+  const rolTxt = p => p.rol === 'cosmetologo' || /^Cosm\./i.test(p.nombre) ? 'Cabina' : (/^Dra\./i.test(p.nombre) ? 'Doctora' : (/^Dr\./i.test(p.nombre) ? 'Doctor' : cap(p.rol || 'Equipo')));
+  const corto = n => String(n).split(/\s+/).slice(0, 3).join(' ');
+  const ahora = new Date().toLocaleString('es-MX', { timeZone: 'America/Mexico_City', day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true }).replace(',', ' ·');
+  const fechaTxt = d.esDia
+    ? cap(d.f.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).replace(',', ''))
+    : cap(d.f.toLocaleDateString('es-MX', { month: 'long', year: 'numeric' }));
+
+  // Comparativo
+  let comp = '';
+  if(d.comp && d.comp.total > 0){
+    const dl = (total - d.comp.total) / d.comp.total * 100;
+    comp = `<span class="up ${dl < 0 ? 'dn' : ''}">${dl < 0 ? '▼' : '▲'} ${Math.abs(dl).toFixed(1)}%</span> vs. ${esc2(d.comp.etiqueta)} (${m(d.comp.total)})`;
+  } else comp = d.esDia ? 'Sin día anterior para comparar' : 'Sin mes anterior para comparar';
+
+  // Profesionales
+  const lista = Object.values(d.pros).map(p => ({ ...p, t: p.serv + p.farm })).sort((a, b) => b.t - a.t);
+  const maxT = Math.max(1, ...lista.map(p => p.t));
+  const prow = lista.map(p => {
+    const k = p.cons.size;
+    return `<div class="pr"><div class="pn"><span class="np ${tono(p)}">${esc2(corto(p.nombre))}</span><small>${rolTxt(p)} · ${k} consulta${k === 1 ? '' : 's'}</small></div>
+      <div class="pb"><div class="bar" style="width:${Math.max(p.t / maxT * 100, p.t > 0 ? 4 : 0).toFixed(1)}%"><span class="spart" style="width:${p.t ? (p.serv / p.t * 100).toFixed(1) : 0}%"></span>${p.farm ? `<span class="fpart" style="width:${(p.farm / p.t * 100).toFixed(1)}%"></span>` : ''}</div></div>
+      <div class="pv"><b>${m(p.t)}</b><small>${m(p.serv)} serv.${p.farm ? ' · ' + m(p.farm) + ' farm.' : ''}</small></div><div class="pp">${total ? Math.round(p.t / total * 100) : 0}%</div></div>`;
+  }).join('');
+
+  // Medios de pago
+  const ml = Object.entries(d.medios).map(([n, v]) => ({ n, ...v, t: v.serv + v.farm })).sort((a, b) => b.t - a.t);
+  const mxM = Math.max(1, ...ml.map(x => x.t));
+  const mrow = ml.map(x => `<div class="mr"><span class="mn">${PAGO_ICON[x.n] || '💰'} ${esc2(x.n)}</span><div class="mb"><div class="bar" style="width:${(x.t / mxM * 100).toFixed(1)}%"><span class="spart" style="width:${x.t ? (x.serv / x.t * 100).toFixed(1) : 0}%"></span><span class="fpart" style="width:${x.t ? (x.farm / x.t * 100).toFixed(1) : 0}%"></span></div></div><b>${m(x.t)}</b><span class="mp">${total ? Math.round(x.t / total * 100) : 0}%</span></div>`).join('');
+
+  // Qué se vendió
+  const mixL = Object.entries(d.mix).map(([n, v]) => ({ n, cnt: v.n, monto: v.monto })).sort((a, b) => b.monto - a.monto).slice(0, 6);
+  const mxX = Math.max(1, ...mixL.map(x => x.monto));
+  const xrow = mixL.map(x => `<div class="xr"><span class="xn">${esc2(x.n)}</span><span class="xk">×${x.cnt}</span><div class="xb"><div class="bar t" style="width:${(x.monto / mxX * 100).toFixed(1)}%"></div></div><b>${m(x.monto)}</b></div>`).join('');
+  const topF = Object.entries(d.prodFarm).map(([n, v]) => ({ n, ...v })).sort((a, b) => b.monto - a.monto).slice(0, 3);
+  const mxF = Math.max(1, ...topF.map(x => x.monto));
+  const trow = topF.map(x => `<div class="xr"><span class="xn">${esc2(x.n)}</span><span class="xk">${x.pzas} pz</span><div class="xb"><div class="bar f" style="width:${(x.monto / mxF * 100).toFixed(1)}%"></div></div><b>${m(x.monto)}</b></div>`).join('');
+
+  // Pendientes
+  const efTr = ml.filter(x => /efectivo|transfer/i.test(normalizar(x.n))).reduce((a, x) => a + x.t, 0);
+  const acum = d.acum ? `<div class="mes"><span>${esc2(cap(d.acum.texto))}</span><span><b class="d">${m(d.acum.total)}</b> · ${d.acum.dias} día${d.acum.dias === 1 ? '' : 's'} con actividad · promedio por día <b class="d">${m(d.acum.dias ? d.acum.total / d.acum.dias : 0)}</b></span></div>` : '';
+  const quien = (typeof MI_PERFIL !== 'undefined' && MI_PERFIL?.nombre) ? 'por ' + esc2(MI_PERFIL.nombre) : '';
+
+  return `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Flash report</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>${FLASH_CSS}</style></head><body>
+<div class="page" id="flash-p1">
+<div class="hd"><div><div class="br">Skin Fabric · Flash report</div><h1 class="d">${d.esDia ? 'Cierre del día' : 'Cierre del mes'} · <b>Productividad</b></h1></div>
+<div class="dt"><strong class="d">${esc2(fechaTxt)}</strong>Generado el ${esc2(ahora)}<br>${quien}</div></div>
+<div class="wrap">
+<div class="hero">
+ <div class="k main"><div class="l">${d.esDia ? 'Ingreso total del día' : 'Ingreso total del mes'}</div><div class="v d">${m(total)}</div><div class="s">${comp}</div></div>
+ <div class="k"><div class="l">Servicios</div><div class="v t d">${m(d.serv)}</div><div class="s">${d.consultas} consulta${d.consultas === 1 ? '' : 's'} · ticket ${m(d.consultas ? d.serv / d.consultas : 0)}</div></div>
+ <div class="k"><div class="l">Farmacia</div><div class="v f d">${m(d.farm)}</div><div class="s">${d.ventas} venta${d.ventas === 1 ? '' : 's'} · ${d.pzas} pieza${d.pzas === 1 ? '' : 's'}</div></div>
+ <div class="k"><div class="l">Consultas</div><div class="v d">${d.consultas}</div><div class="s">${d.nPrimera} primera vez · ${d.nSub} subsec.</div></div>
+</div>
+<h2 class="d">Productividad por profesional <small>servicios + farmacia</small><span class="lg"><span><i style="background:var(--teal)"></i>Servicios</span><span><i style="background:var(--purple)"></i>Farmacia</span></span></h2>
+${prow || '<div style="color:var(--g4);padding:8px 0">Sin movimientos.</div>'}
+<div class="two">
+ <div><h2 class="d">Cobrado por medio de pago</h2>${mrow || '<div style="color:var(--g4)">Sin cobros.</div>'}</div>
+ <div><h2 class="d">Qué se vendió</h2><div class="sub" style="margin-top:0">Servicios · top ${mixL.length}</div>${xrow || '<div style="color:var(--g4)">—</div>'}${topF.length ? `<div class="sub">Farmacia · top ${topF.length}</div>${trow}` : ''}</div>
+</div>
+<h2 class="d">Pendientes para cerrar bien</h2>
+<div class="al">
+ <div class="a ${d.factPend > 0 ? 'w' : 'o'}"><b>${d.factPend}</b><span>facturas solicitadas<br>sin N° de factura</span></div>
+ <div class="a ${d.noVino > 0 ? 'w' : 'o'}"><b>${d.noVino}</b><span>pacientes que<br>no vinieron</span></div>
+ <div class="a i"><b>${m(efTr)}</b><span>en efectivo y transferencia<br>para conciliar en caja</span></div>
+</div>
+${acum}
+</div>
+<div class="ft"><span>Skin Fabric · Consultas · Cifras al momento de generar el reporte</span><span>Página 1 de ${totalPaginas || 1}</span></div>
+</div>
+${paginasExtra || ''}
+</body></html>`;
+}
+
+// ── Anexo: detalle de pacientes (se reparte en las hojas que hagan falta, cortando entre filas) ──
+function flashTonoPersona(nombre, rol){
+  return (rol === 'cosmetologo' || /^Cosm\./i.test(nombre)) ? 'cs' : (/alejandra/i.test(nombre) ? 'd2' : 'd1');
+}
+function flashAnexoFilaHtml(r, n, zebra){
+  const m = x => '$' + Math.round(x).toLocaleString('es-MX');
+  const kc = s => /primera vez/i.test(s) ? 'k1' : (/subsecuente/i.test(s) ? 'k2' : 'k3');
+  let sv = r.svcs.length ? r.svcs.map(x => `<span class="svc ${kc(x)}">${esc2(x)}</span>`).join(' ') : '<span class="mut">Solo farmacia</span>';
+  if(r.factPend) sv += ' <span class="fac">🧾 factura pend.</span>';
+  const fm = r.farm.length ? '<span class="fm">💊 ' + r.farm.map(x => esc2(x.nombre) + (x.cant > 1 ? ' ×' + x.cant : '')).join(' · ') + '</span>' : '<span class="mut">—</span>';
+  const py = r.meds.map(x => `<span class="pay">${PAGO_ICON[x] || '💰'} ${esc2(x)}</span>`).join('');
+  return `<div class="rw${zebra ? ' z' : ''}"><span class="n">${n}</span><span class="pc">${esc2(r.pac)}</span><span class="sv">${sv}</span>${fm}<span class="py">${py}</span><b class="mo">${m(r.monto + r.fmonto)}</b></div>`;
+}
+function flashAnexoCabHtml(b, cont){
+  const m = x => '$' + Math.round(x).toLocaleString('es-MX');
+  const corto = String(b.nombre).split(/\s+/).slice(0, 3).join(' ');
+  const nP = b.filas.length;
+  return `<div class="bh"><span class="np ${flashTonoPersona(b.nombre, b.rol)}">${esc2(corto)}</span><span class="bs">${cont ? '(continúa)' : `${b.nCons} consulta${b.nCons === 1 ? '' : 's'} · ${nP} paciente${nP === 1 ? '' : 's'}`}</span><span class="ln"></span><span class="bt">${m(b.serv)} <i>serv.</i>${b.farm ? ' · ' + m(b.farm) + ' <i>farm.</i>' : ''}</span><b class="btt">${m(b.total)}</b></div><div class="cols"><span></span><span>Paciente</span><span>Servicio</span><span>Farmacia</span><span>Pago</span><span class="r">Monto</span></div>`;
+}
+const FLASH_FONTS = '<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">';
+function flashAnexoPagina(d, ahoraFecha, ingresoTxt, cuerpo, n, tot){
+  return `<div class="page fix"><div class="hd s"><div><div class="br">Skin Fabric · Flash report · Anexo</div><h1 class="d">Detalle de <b>pacientes</b></h1></div><div class="dt"><strong class="d">${esc2(ahoraFecha)}</strong>Ingreso del día ${ingresoTxt}</div></div><div class="wrap ax">${cuerpo}</div><div class="ft"><span>Skin Fabric · Consultas · Cifras al momento de generar el reporte</span><span>Página ${n} de ${tot}</span></div></div>`;
+}
+async function flashMontarIframe(html){
+  const ifr = document.createElement('iframe');
+  ifr.setAttribute('aria-hidden', 'true');
+  ifr.style.cssText = 'position:fixed;left:-10000px;top:0;width:816px;height:1056px;border:0;visibility:hidden';
+  document.body.appendChild(ifr);
+  await new Promise(res => { ifr.onload = res; ifr.srcdoc = html; });
+  const doc = ifr.contentDocument;
+  try{ await Promise.race([doc.fonts.ready, new Promise(r => setTimeout(r, 2500))]); }catch(_){}
+  await new Promise(r => setTimeout(r, 250));
+  return ifr;
+}
+// Mide cada fila en un documento de prueba y reparte por hojas. Devuelve [{segmentos:[{b, cont, desde, hasta, final}]}]
+async function flashAnexoPaginar(d){
+  const m = x => '$' + Math.round(x).toLocaleString('es-MX');
+  const bloques = d.anexo;
+  let n = 0;
+  const filasHtml = bloques.map(b => b.filas.map((r, i) => flashAnexoFilaHtml(r, ++n, i % 2 === 1)));
+  const total = d.serv + d.farm;
+  const totHtml = `<div class="tot"><span>Total del día · ${n} registro${n === 1 ? '' : 's'} de pacientes</span><b>${m(total)}</b></div>`;
+  const medirHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8">${FLASH_FONTS}<style>${FLASH_CSS}</style></head><body>
+    <div class="page fix"><div class="hd s"><div><div class="br">x</div><h1 class="d">x</h1></div><div class="dt"><strong class="d">x</strong>x</div></div><div class="wrap ax" id="mw"><div class="blk" id="mb"></div></div><div class="ft"><span>x</span><span>x</span></div></div>
+    <div id="medidas" style="width:744px;position:absolute;left:0;top:1100px">${bloques.map((b, bi) => `<div class="blk" data-bi="${bi}"><div class="cab">${flashAnexoCabHtml(b, false)}</div>${filasHtml[bi].join('')}</div>`).join('')}<div id="mtot">${totHtml}</div></div></body></html>`;
+  const ifr = await flashMontarIframe(medirHtml);
+  try{
+    const doc = ifr.contentDocument;
+    const hHd = doc.querySelector('.hd').getBoundingClientRect().height;
+    const hFt = doc.querySelector('.ft').getBoundingClientRect().height;
+    const disp = 1056 - hHd - hFt - 14 - 6;  // alto útil (padding superior y un respiro abajo)
+    const medidas = [...doc.querySelectorAll('#medidas .blk')].map(bl => ({
+      cab: bl.querySelector('.cab').getBoundingClientRect().height,
+      filas: [...bl.querySelectorAll('.rw')].map(x => x.getBoundingClientRect().height)
+    }));
+    const hTot = doc.getElementById('mtot').getBoundingClientRect().height + 4;
+    const paginas = [{ segs: [] }]; let usado = 0;
+    const nuevaPagina = () => { paginas.push({ segs: [] }); usado = 0; };
+    medidas.forEach((md, bi) => {
+      let i = 0, cont = false;
+      while(i < md.filas.length){
+        // ¿cabe encabezado + al menos 1 fila en la hoja actual?
+        if(usado + md.cab + md.filas[i] > disp && usado > 0) nuevaPagina();
+        const seg = { bi, cont, desde: i, hasta: i, final: false };
+        usado += md.cab;
+        while(i < md.filas.length && usado + md.filas[i] <= disp){ usado += md.filas[i]; i++; seg.hasta = i; }
+        if(seg.hasta === seg.desde){ seg.hasta = ++i; usado += md.filas[seg.desde]; }  // fila más alta que la hoja: se coloca igual
+        paginas[paginas.length - 1].segs.push(seg);
+        cont = true;
+        if(i < md.filas.length) nuevaPagina();
+      }
+      usado += 12;   // separación entre bloques
+    });
+    if(usado + hTot > disp) nuevaPagina();
+    paginas[paginas.length - 1].total = true;
+    return { paginas, filasHtml, totHtml };
+  } finally { ifr.remove(); }
+}
+function flashAnexoPaginasHtml(d, pag, primeraNum, totalPags, fechaTxt){
+  const m = x => '$' + Math.round(x).toLocaleString('es-MX');
+  const ingreso = m(d.serv + d.farm);
+  return pag.paginas.map((p, k) => {
+    const cuerpo = p.segs.map(sg => {
+      const b = d.anexo[sg.bi];
+      return `<div class="blk">${flashAnexoCabHtml(b, sg.cont)}${pag.filasHtml[sg.bi].slice(sg.desde, sg.hasta).join('')}</div>`;
+    }).join('') + (p.total ? pag.totHtml : '');
+    return flashAnexoPagina(d, fechaTxt, ingreso, cuerpo, primeraNum + k, totalPags);
+  }).join('');
+}
+
+async function flashHtmlAPdf(html, nombreArchivo){
+  await Promise.all([
+    cargarScriptUnaVez('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js'),
+    cargarScriptUnaVez('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js')
+  ]);
+  // El reporte se dibuja en un iframe oculto para que los estilos de la app no lo afecten. Cada .page es una hoja carta.
+  const ifr = await flashMontarIframe(html);
+  try{
+    const doc = ifr.contentDocument;
+    const hojas = [...doc.querySelectorAll('.page')];
+    ifr.style.height = Math.max(1056, doc.documentElement.scrollHeight) + 'px';
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({ unit: 'pt', format: 'letter', orientation: 'portrait', compress: true });
+    const PW = 612, PH = 792;
+    for(let i = 0; i < hojas.length; i++){
+      const canvas = await window.html2canvas(hojas[i], { scale: 2.5, backgroundColor: '#ffffff', width: 816, windowWidth: 816, useCORS: true, logging: false });
+      const ratio = canvas.height / canvas.width;
+      let w = PW, h = PW * ratio;
+      if(h > PH){ h = PH; w = PH / ratio; }   // si el contenido creció, se ajusta a una sola hoja
+      if(i > 0) pdf.addPage('letter', 'portrait');
+      pdf.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG', (PW - w) / 2, 0, w, h, undefined, 'FAST');
+    }
+    pdf.setProperties({ title: nombreArchivo.replace(/\.pdf$/, '').replace(/_/g, ' '), subject: 'Flash report · Skin Fabric' });
+    pdf.save(nombreArchivo);
+  } finally {
+    ifr.remove();
+  }
+}
+
+async function exportarFlashReport(){
+  if(MI_PERFIL?.rol === 'cosmetologo') return;
+  const btn = document.getElementById('cierre-btn-flash');
+  if(!CIERRE_ROWS.length && !CIERRE_FARM.length){ toast('No hay movimientos en este periodo para exportar.'); return; }
+  const txt0 = btn.textContent;
+  btn.disabled = true; btn.textContent = '⏳ Generando…';
+  try{
+    const datos = await flashReunirDatos();
+    const nombre = 'Flash_Report_Cierre_' + (datos.esDia ? datos.desde : datos.desde.slice(0, 7)) + '.pdf';
+    // Anexo (solo reporte de un día): detalle de pacientes, repartido en las hojas necesarias
+    let extra = '', totalPags = 1;
+    if(datos.esDia && datos.anexo.length){
+      const pag = await flashAnexoPaginar(datos);
+      totalPags = 1 + pag.paginas.length;
+      const fechaTxt = datos.f.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).replace(',', '');
+      extra = flashAnexoPaginasHtml(datos, pag, 2, totalPags, fechaTxt.charAt(0).toUpperCase() + fechaTxt.slice(1));
+    }
+    await flashHtmlAPdf(flashReportHtml(datos, totalPags, extra), nombre);
+    toast('✓ PDF generado.');
+  }catch(e){
+    console.error('[SkinFabric] Error generando el flash report:', e);
+    toast('No se pudo generar el PDF. Revisa tu conexión e inténtalo de nuevo.');
+  }finally{
+    btn.disabled = false; btn.textContent = txt0;
+  }
+}
+document.getElementById('cierre-btn-flash').addEventListener('click', exportarFlashReport);
 
 // Vista de la cosmetóloga: solo SUS servicios y SUS pacientes (la base ya le entrega solo eso; aquí se vuelve a filtrar por seguridad)
 function renderCierreCosmetologa(){
@@ -6071,6 +6507,7 @@ function medioCanon(m){
   return (CATALOGOS.mediosPago.find(x => normalizar(x.nombre).trim() === n) || {}).nombre || m;
 }
 function renderCierre(){
+  { const bf = document.getElementById('cierre-btn-flash'); if(bf) bf.style.display = MI_PERFIL?.rol === 'cosmetologo' ? 'none' : ''; }
   if(MI_PERFIL?.rol === 'cosmetologo'){ renderCierreCosmetologa(); return; }
   let ingresoServ = 0, ingresoFarm = 0, pzasFarm = 0;
   const porDoctor = {};
