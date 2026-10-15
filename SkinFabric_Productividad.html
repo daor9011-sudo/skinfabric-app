@@ -2344,7 +2344,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.10.15-77';
+const APP_VERSION = 'v2026.10.15-78';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 
@@ -5358,10 +5358,10 @@ function renderHistorial(){
       <td><span class="h-svc far">${esc2(f.medicamento || '—')}${cant > 1 ? ' <i>×' + cant + '</i>' : ''}</span></td>
       <td><b style="color:var(--purple)">${fmtMoney(f.monto)}</b></td>
       <td>${f.medio_pago ? `<span class="h-pay">${iconoPago(f.medio_pago)}${esc2(f.medio_pago)}</span>` : '—'}${pago2f}</td>
-      <td>${MI_PERFIL?.rol === 'admin'
+      <td>${puedeEditarFarm()
         ? `<input type="text" class="hist-inline-factura hist-farm-factura${f.facturado && !f.num_factura ? ' pendiente' : ''}${f.num_factura ? ' ok' : ''}" data-farm-id="${esc2(f.id)}" data-factura="${f.facturado ? '1' : '0'}" value="${esc2(f.num_factura||'')}" placeholder="${f.facturado?'Pendiente':'—'}"/>`
         : `<span style="font-size:11px;color:var(--g6)">${f.facturado ? esc2(f.num_factura || 'Pendiente') : '<span class="h-mut">—</span>'}</span>`}</td>
-      <td>${MI_PERFIL?.rol === 'admin' ? `<button class="btn-sm btn-edit hist-farm-edit" data-id="${esc2(f.id)}" type="button" title="Editar esta venta">✏️</button> <button class="btn-sm btn-del hist-farm-del" data-id="${esc2(f.id)}" type="button" title="Eliminar esta venta">🗑</button>` : ''}</td>
+      <td>${puedeEditarFarm() ? `<button class="btn-sm btn-edit hist-farm-edit" data-id="${esc2(f.id)}" type="button" title="Editar esta venta">✏️</button>${MI_PERFIL?.rol === 'admin' ? ` <button class="btn-sm btn-del hist-farm-del" data-id="${esc2(f.id)}" type="button" title="Eliminar esta venta">🗑</button>` : ''}` : ''}</td>
     </tr>`;
     }
     const pago1 = r.no_vino ? '—' : `<span class="h-pay">${iconoPago(r.medio_pago)}${esc2(r.medio_pago || '—')}</span>`;
@@ -5415,6 +5415,8 @@ function renderHistorial(){
 }
 
 // ── Editar venta de farmacia (admin) ──
+// Editan farmacia admin, recepción y doctores (la cosmetóloga no ve farmacia). Eliminar sigue siendo solo del admin.
+function puedeEditarFarm(){ return !!MI_PERFIL?.rol && MI_PERFIL.rol !== 'cosmetologo'; }
 let HIST_FARM_EDIT_ID = null;
 function abrirModalEditarFarm(id){
   const f = HIST_FARM.find(x => x.id === id);
@@ -5441,6 +5443,7 @@ function abrirModalEditarFarm(id){
     }
     sel.value = val || '';
   });
+  document.getElementById('editf-btn-eliminar').style.display = MI_PERFIL?.rol === 'admin' ? '' : 'none';
   document.getElementById('modal-editar-farm').classList.add('show');
 }
 function cerrarModalEditarFarm(){
