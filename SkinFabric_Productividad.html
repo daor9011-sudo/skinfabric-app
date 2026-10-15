@@ -2170,6 +2170,36 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
   </div>
 </div>
 
+<!-- ══════════ Modal: Editar venta de farmacia (solo administrador) ══════════ -->
+<div class="modal-overlay" id="modal-editar-farm">
+  <div class="modal-box">
+    <div class="modal-head"><h3>💊 Editar venta de farmacia</h3><button class="modal-close" id="editf-btn-cerrar" type="button">✕</button></div>
+    <div class="modal-body">
+      <div class="form-grid" style="grid-template-columns:1fr 1fr">
+        <div class="form-group full"><label>Paciente</label><input type="text" id="editf-paciente" style="font-weight:700"/></div>
+        <div class="form-group"><label>Fecha</label><input type="date" id="editf-fecha"/></div>
+        <div class="form-group"><label>Vendió</label><select id="editf-doctor"></select></div>
+        <div class="form-group full"><label>Producto</label><input type="text" id="editf-producto"/></div>
+        <div class="form-group"><label>Piezas</label><input type="number" id="editf-cantidad" min="1" step="1"/></div>
+        <div class="form-group"><label>Monto total</label><input type="number" id="editf-monto" min="0" step="0.01"/></div>
+        <div class="form-group"><label>Medio de pago</label><select id="editf-medio"></select></div>
+        <div class="form-group"><label>Monto del 2.º pago <span style="font-weight:400;color:var(--g4)">(opcional)</span></label><input type="number" id="editf-monto2" min="0" step="0.01" placeholder="0"/></div>
+        <div class="form-group"><label>Medio del 2.º pago</label><select id="editf-medio2"></select></div>
+        <div class="form-group"><label>N° Factura</label><input type="text" id="editf-num-factura"/></div>
+        <div class="form-group"><label style="display:flex;align-items:center;gap:8px;text-transform:none;font-size:12.5px;font-weight:400;color:var(--navy)"><input type="checkbox" id="editf-facturado" style="width:15px;height:15px;flex:none"/> ¿Requiere factura?</label></div>
+        <div class="form-group full"><label>Notas</label><input type="text" id="editf-nota"/></div>
+      </div>
+    </div>
+    <div class="modal-foot" style="justify-content:space-between">
+      <button class="btn-sm btn-del" id="editf-btn-eliminar" type="button">🗑 Eliminar venta</button>
+      <div style="display:flex;gap:10px">
+        <button class="appbtn appbtn-s" id="editf-btn-cancelar" type="button" style="background:var(--g1);color:var(--g6);box-shadow:none">Cancelar</button>
+        <button class="appbtn appbtn-p" id="editf-btn-guardar" type="button">Guardar cambios</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ══════════ Modal: Editar gasto ══════════ -->
 <!-- ══════════ Modal: Cargar venta de farmacia (solo administrador) ══════════ -->
 <div class="modal-overlay" id="modal-farmacia">
@@ -2314,7 +2344,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.10.15-76';
+const APP_VERSION = 'v2026.10.15-77';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 
@@ -5177,7 +5207,7 @@ async function cargarHistorial(){
   let qf = null;
   if(quiereFarm){
     qf = sb.from('farmacia_ventas')
-      .select('id,fecha,paciente,medicamento,cantidad,monto,monto_2,medio_pago,medio_pago_2,facturado,num_factura,doctor_id,doctor:personal!doctor_id(nombre,rol)')
+      .select('id,fecha,paciente,medicamento,cantidad,monto,monto_2,medio_pago,medio_pago_2,facturado,num_factura,nota,doctor_id,doctor:personal!doctor_id(nombre,rol)')
       .order('fecha', { ascending:false })
       .limit(5000);
     if(desde) qf = qf.gte('fecha', desde);
@@ -5331,7 +5361,7 @@ function renderHistorial(){
       <td>${MI_PERFIL?.rol === 'admin'
         ? `<input type="text" class="hist-inline-factura hist-farm-factura${f.facturado && !f.num_factura ? ' pendiente' : ''}${f.num_factura ? ' ok' : ''}" data-farm-id="${esc2(f.id)}" data-factura="${f.facturado ? '1' : '0'}" value="${esc2(f.num_factura||'')}" placeholder="${f.facturado?'Pendiente':'—'}"/>`
         : `<span style="font-size:11px;color:var(--g6)">${f.facturado ? esc2(f.num_factura || 'Pendiente') : '<span class="h-mut">—</span>'}</span>`}</td>
-      <td>${MI_PERFIL?.rol === 'admin' ? `<button class="btn-sm btn-del hist-farm-del" data-id="${esc2(f.id)}" type="button" title="Eliminar esta venta">🗑</button>` : ''}</td>
+      <td>${MI_PERFIL?.rol === 'admin' ? `<button class="btn-sm btn-edit hist-farm-edit" data-id="${esc2(f.id)}" type="button" title="Editar esta venta">✏️</button> <button class="btn-sm btn-del hist-farm-del" data-id="${esc2(f.id)}" type="button" title="Eliminar esta venta">🗑</button>` : ''}</td>
     </tr>`;
     }
     const pago1 = r.no_vino ? '—' : `<span class="h-pay">${iconoPago(r.medio_pago)}${esc2(r.medio_pago || '—')}</span>`;
@@ -5364,6 +5394,7 @@ function renderHistorial(){
   }).join('');
 
   tbody.querySelectorAll('.btn-edit').forEach(btn=> btn.addEventListener('click', ()=> abrirModalEditar(btn.dataset.id)));
+  tbody.querySelectorAll('.hist-farm-edit').forEach(btn=> btn.addEventListener('click', ()=> abrirModalEditarFarm(btn.dataset.id)));
   tbody.querySelectorAll('.hist-farm-del').forEach(btn=> btn.addEventListener('click', async ()=>{
     const f = HIST_FARM.find(x => x.id === btn.dataset.id);
     const ok = await confirmarAsync({ titulo:'¿Eliminar venta de farmacia?', mensaje:`Se eliminará la venta de "${esc2(f?.medicamento || '')}" (${fmtMoney(f?.monto)}) de ${esc2(f?.paciente || 'sin paciente')}. Esta acción no se puede deshacer.`, textoConfirmar:'Eliminar', icono:'🗑', danger:true });
@@ -5382,6 +5413,92 @@ function renderHistorial(){
     inp.addEventListener('input', ()=>{ inp.classList.toggle('pendiente', inp.dataset.factura === '1' && !inp.value.trim()); inp.classList.toggle('ok', !!inp.value.trim()); });
   });
 }
+
+// ── Editar venta de farmacia (admin) ──
+let HIST_FARM_EDIT_ID = null;
+function abrirModalEditarFarm(id){
+  const f = HIST_FARM.find(x => x.id === id);
+  if(!f) return;
+  HIST_FARM_EDIT_ID = id;
+  const $ = k => document.getElementById('editf-' + k);
+  $('paciente').value = f.paciente || '';
+  $('fecha').value = f.fecha || '';
+  $('producto').value = f.medicamento || '';
+  $('cantidad').value = Math.max(1, parseInt(f.cantidad, 10) || 1);
+  $('monto').value = f.monto ?? '';
+  $('monto2').value = Number(f.monto_2) > 0 ? f.monto_2 : '';
+  $('num-factura').value = f.num_factura || '';
+  $('facturado').checked = !!f.facturado;
+  $('nota').value = f.nota || '';
+  const selDoc = $('doctor');
+  selDoc.innerHTML = '<option value="">— Sin asignar —</option>' + opcionesPersonalAgrupadoHtml(f.doctor_id, false, f.fecha);
+  selDoc.value = f.doctor_id || '';
+  ['medio', 'medio2'].forEach(k => {
+    poblarSelect('editf-' + k, CATALOGOS.mediosPago.map(m => ({ value:m.nombre, label:m.nombre })), k === 'medio2' ? '— Sin 2.º pago —' : 'Seleccionar...');
+    const sel = $(k), val = k === 'medio' ? f.medio_pago : f.medio_pago_2;
+    if(val && ![...sel.options].some(o => o.value === val)){
+      const o = document.createElement('option'); o.value = val; o.textContent = val + ' (anterior)'; sel.appendChild(o);
+    }
+    sel.value = val || '';
+  });
+  document.getElementById('modal-editar-farm').classList.add('show');
+}
+function cerrarModalEditarFarm(){
+  document.getElementById('modal-editar-farm').classList.remove('show');
+  HIST_FARM_EDIT_ID = null;
+}
+document.getElementById('editf-btn-cerrar').addEventListener('click', cerrarModalEditarFarm);
+document.getElementById('editf-btn-cancelar').addEventListener('click', cerrarModalEditarFarm);
+document.getElementById('editf-btn-eliminar').addEventListener('click', async ()=>{
+  const id = HIST_FARM_EDIT_ID;
+  const f = HIST_FARM.find(x => x.id === id);
+  if(!f) return;
+  const ok = await confirmarAsync({ titulo:'¿Eliminar venta de farmacia?', mensaje:`Se eliminará la venta de "${esc2(f.medicamento || '')}" (${fmtMoney(f.monto)}) de ${esc2(f.paciente || 'sin paciente')}. Esta acción no se puede deshacer.`, textoConfirmar:'Eliminar', icono:'🗑', danger:true });
+  if(!ok) return;
+  const { error } = await sb.from('farmacia_ventas').delete().eq('id', id);
+  if(error){ console.error('[SkinFabric] Error eliminando venta de farmacia:', error); toast('No se pudo eliminar la venta.'); return; }
+  cerrarModalEditarFarm();
+  toast('✓ Venta eliminada.');
+  cargarHistorial();
+});
+document.getElementById('editf-btn-guardar').addEventListener('click', async ()=>{
+  const id = HIST_FARM_EDIT_ID;
+  const f = HIST_FARM.find(x => x.id === id);
+  if(!f) return;
+  const $ = k => document.getElementById('editf-' + k);
+  const fecha = $('fecha').value;
+  const producto = $('producto').value.trim();
+  const monto = parseFloat($('monto').value);
+  const monto2 = parseFloat($('monto2').value) || 0;
+  const cantidad = Math.max(1, parseInt($('cantidad').value, 10) || 1);
+  const medio = $('medio').value, medio2 = $('medio2').value;
+  const numFac = $('num-factura').value.trim();
+  if(!fecha){ toast('Falta la fecha.'); return; }
+  if(!producto){ toast('Falta el producto.'); return; }
+  if(isNaN(monto) || monto < 0){ toast('Revisa el monto.'); return; }
+  if(!medio){ toast('Elige el medio de pago.'); return; }
+  if(monto2 > 0 && !medio2){ toast('Elige el medio del 2.º pago.'); return; }
+  if(monto2 > monto){ toast('El 2.º pago no puede ser mayor al monto total.'); return; }
+  const upd = {
+    fecha, periodo: fecha.slice(0, 7),
+    paciente: $('paciente').value.trim() || null,
+    doctor_id: $('doctor').value || null,
+    medicamento: producto, cantidad,
+    precio_unitario: Math.round(monto / cantidad * 100) / 100,
+    monto, medio_pago: medio,
+    monto_2: monto2 > 0 ? monto2 : null, medio_pago_2: monto2 > 0 ? medio2 : null,
+    facturado: $('facturado').checked || !!numFac,
+    num_factura: numFac || null,
+    nota: $('nota').value.trim() || null,
+  };
+  const btn = $('btn-guardar'); btn.disabled = true;
+  const { error } = await sb.from('farmacia_ventas').update(upd).eq('id', id);
+  btn.disabled = false;
+  if(error){ console.error('[SkinFabric] Error editando venta de farmacia:', error); toast(msgMesCerrado(error) || 'No se pudo guardar la venta.'); return; }
+  cerrarModalEditarFarm();
+  toast('✓ Venta actualizada');
+  cargarHistorial();
+});
 
 // Venta de farmacia: guarda el N° de factura. Si se captura un número, la venta queda como facturada.
 async function guardarFacturaFarm(id, valor, inp){
