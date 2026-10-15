@@ -2344,7 +2344,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.10.15-79';
+const APP_VERSION = 'v2026.10.15-80';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 
@@ -4955,7 +4955,11 @@ async function guardarRegistro(){
     // servicios se hayan pagado mitad en efectivo y mitad con tarjeta sin que el Excel/reporte
     // tenga que adivinar cómo se repartió. Antes de guardar, se verifica que ese reparto por
     // servicio sume exactamente los mismos totales ya capturados arriba.
-    if(grpMedio2Visible && REG_SERV_SEL.size > 1 && !REG_SPLIT_MANUAL) regRepartirSplitAuto();
+    // Si el reparto por renglón no coincide con el 1er pago de la consulta, se reparte solo (en vez de frenar el guardado).
+    if(grpMedio2Visible && REG_SERV_SEL.size > 1){
+      const sum1 = [...REG_SERV_SEL.values()].reduce((a,v)=> a + (Number(v?.monto1) || 0), 0);
+      if(Math.round((sum1 - monto1) * 100) !== 0){ REG_SPLIT_MANUAL = false; regRepartirSplitAuto(); toast('Repartí el pago entre los productos automáticamente.'); }
+    }
     if(grpMedio2Visible && REG_SERV_SEL.size > 1){
       const sumaMonto1Servicios = [...REG_SERV_SEL.values()].reduce((a,v)=> a + (Number(v?.monto1) || 0), 0);
       if(Math.round((sumaMonto1Servicios - monto1) * 100) !== 0){
