@@ -2314,7 +2314,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.10.15-75';
+const APP_VERSION = 'v2026.10.15-76';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 
@@ -5328,7 +5328,9 @@ function renderHistorial(){
       <td><span class="h-svc far">${esc2(f.medicamento || '—')}${cant > 1 ? ' <i>×' + cant + '</i>' : ''}</span></td>
       <td><b style="color:var(--purple)">${fmtMoney(f.monto)}</b></td>
       <td>${f.medio_pago ? `<span class="h-pay">${iconoPago(f.medio_pago)}${esc2(f.medio_pago)}</span>` : '—'}${pago2f}</td>
-      <td style="font-size:11px;color:var(--g6)">${f.facturado ? esc2(f.num_factura || 'Pendiente') : '<span class="h-mut">—</span>'}</td>
+      <td>${MI_PERFIL?.rol === 'admin'
+        ? `<input type="text" class="hist-inline-factura hist-farm-factura${f.facturado && !f.num_factura ? ' pendiente' : ''}${f.num_factura ? ' ok' : ''}" data-farm-id="${esc2(f.id)}" data-factura="${f.facturado ? '1' : '0'}" value="${esc2(f.num_factura||'')}" placeholder="${f.facturado?'Pendiente':'—'}"/>`
+        : `<span style="font-size:11px;color:var(--g6)">${f.facturado ? esc2(f.num_factura || 'Pendiente') : '<span class="h-mut">—</span>'}</span>`}</td>
       <td>${MI_PERFIL?.rol === 'admin' ? `<button class="btn-sm btn-del hist-farm-del" data-id="${esc2(f.id)}" type="button" title="Eliminar esta venta">🗑</button>` : ''}</td>
     </tr>`;
     }
@@ -5372,9 +5374,30 @@ function renderHistorial(){
     cargarHistorial();
   }));
   tbody.querySelectorAll('.hist-inline-factura').forEach(inp=>{
-    inp.addEventListener('blur', ()=> guardarInline(inp.dataset.id, 'num_factura', inp.value.trim()));
+    if(inp.hasAttribute('data-farm-id')){
+      inp.addEventListener('blur', ()=> guardarFacturaFarm(inp.dataset.farmId, inp.value.trim(), inp));
+    } else {
+      inp.addEventListener('blur', ()=> guardarInline(inp.dataset.id, 'num_factura', inp.value.trim()));
+    }
     inp.addEventListener('input', ()=>{ inp.classList.toggle('pendiente', inp.dataset.factura === '1' && !inp.value.trim()); inp.classList.toggle('ok', !!inp.value.trim()); });
   });
+}
+
+// Venta de farmacia: guarda el N° de factura. Si se captura un número, la venta queda como facturada.
+async function guardarFacturaFarm(id, valor, inp){
+  const f = HIST_FARM.find(x => x.id === id);
+  if(f && (f.num_factura || '') === valor) return; // sin cambios
+  const upd = { num_factura: valor || null };
+  if(valor) upd.facturado = true;
+  const { error } = await sb.from('farmacia_ventas').update(upd).eq('id', id);
+  if(error){
+    console.error('[SkinFabric] Error guardando factura de farmacia:', error);
+    toast(msgMesCerrado(error) || 'No se pudo guardar la factura de farmacia.');
+    return;
+  }
+  if(f){ f.num_factura = upd.num_factura; if(valor) f.facturado = true; }
+  if(inp){ inp.dataset.factura = (f && f.facturado) ? '1' : '0'; inp.classList.toggle('pendiente', inp.dataset.factura === '1' && !valor); inp.classList.toggle('ok', !!valor); inp.placeholder = inp.dataset.factura === '1' ? 'Pendiente' : '—'; }
+  toast('✓ Guardado');
 }
 
 async function guardarInline(id, campo, valor){
