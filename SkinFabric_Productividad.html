@@ -2349,7 +2349,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.10.15-81';
+const APP_VERSION = 'v2026.10.17-82';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 
@@ -6379,8 +6379,6 @@ async function flashReunirDatos(){
         const [py, pm, pd] = prev.split('-');
         comp = { total: t.total, etiqueta: prev === isoLocal(ayer) ? 'ayer' : (pd + '/' + pm) };
       }
-      const t = await flashTotalRango(isoLocal(primerDiaMes(f)), desde);
-      acum = { total: t.total, dias: t.dias, texto: 'Acumulado de ' + f.toLocaleDateString('es-MX', { month: 'long' }) + ' (1–' + f.getDate() + ')' };
     } else {
       const hoy = new Date();
       const enCurso = hoy.getFullYear() === f.getFullYear() && hoy.getMonth() === f.getMonth();
@@ -6390,7 +6388,6 @@ async function flashReunirDatos(){
       const fin = new Date(ini.getFullYear(), ini.getMonth(), dia);
       const t = await flashTotalRango(isoLocal(ini), isoLocal(fin));
       comp = { total: t.total, etiqueta: 'mismo periodo de ' + ini.toLocaleDateString('es-MX', { month: 'long' }) };
-      acum = { total: serv + farm, dias: fechasConActividad.size, texto: 'Periodo completo del mes' };
     }
   }catch(e){ console.warn('[SkinFabric] Flash report: no se pudieron calcular comparativos', e); }
 
@@ -6541,7 +6538,7 @@ function flashReportHtml(d, totalPaginas, paginasExtra){
 
   // Pendientes
   const efTr = ml.filter(x => /efectivo|transfer/i.test(normalizar(x.n))).reduce((a, x) => a + x.t, 0);
-  const acum = d.acum ? `<div class="mes"><span>${esc2(cap(d.acum.texto))}</span><span><b class="d">${m(d.acum.total)}</b> · ${d.acum.dias} día${d.acum.dias === 1 ? '' : 's'} con actividad · promedio por día <b class="d">${m(d.acum.dias ? d.acum.total / d.acum.dias : 0)}</b></span></div>` : '';
+  const acum = '';  // v82: se quitó el valor acumulado del Flash Report
   const quien = (typeof MI_PERFIL !== 'undefined' && MI_PERFIL?.nombre) ? 'por ' + esc2(MI_PERFIL.nombre) : '';
 
   return `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Flash report</title>
