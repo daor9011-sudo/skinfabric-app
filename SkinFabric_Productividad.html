@@ -2349,7 +2349,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.10.17-82';
+const APP_VERSION = 'v2026.10.19-83';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 
@@ -2451,6 +2451,21 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 function esc2(s){ return (s==null?'':String(s)).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function normalizar(s){ return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }
+// Nombres de pacientes: primera letra de cada nombre y apellido en mayúscula. Solo toca palabras escritas TODO en mayúsculas o TODO en
+// minúsculas (respeta "McDonald", "D'Amico"); "de/del/la/los…" quedan en minúscula; una inicial suelta ("E") queda en mayúscula.
+// Misma regla que la función SQL public.nom_prop() (la base también la aplica al guardar, con triggers).
+const NOM_PARTICULAS = ['de','del','la','las','los','da','do','di','van','von'];
+function nomProp(t){
+  if(t == null) return t;
+  return String(t).replace(/\s+/g, ' ').trim().split(' ').filter(Boolean).map((w, i)=>{
+    if([...w].length === 1) return (i > 0 && w === 'y') ? w : w.toUpperCase();
+    if(w !== w.toUpperCase() && w !== w.toLowerCase()) return w;
+    if(i > 0 && NOM_PARTICULAS.includes(w.toLowerCase())) return w.toLowerCase();
+    let r = '', prev = false;
+    for(const ch of w.toLowerCase()){ r += prev ? ch : ch.toUpperCase(); prev = /[\p{L}\p{N}]/u.test(ch); }
+    return r;
+  }).join(' ');
+}
 
 function hideLoadingPanel(){ document.getElementById('loading-panel').classList.add('hide'); }
 function showLoadingPanel(text){
@@ -3632,7 +3647,7 @@ async function cargarComisiones(){
       serviceRows.push({
         efectivo: comEfectivoServicio(c, cs, monto),
         fecha: c.fecha,
-        pacienteNombre: c.pacientes?.nombre || '—',
+        pacienteNombre: nomProp(c.pacientes?.nombre) || '—',
         duenoId, duenoRol, duenoNombre,
         servicio: cs.catalogo_tipos_servicio?.nombre || '—',
         atiendeId, atiendeRol, atiendeNombre,
@@ -4687,6 +4702,8 @@ function aplicarDefaultsPorRol(){}
 // ── Búsqueda de paciente (anti-duplicados) ──
 let REG_PACIENTE_SELECCIONADO = null;
 let regBuscarPacienteTimeout = null;
+// Al salir del campo, el nombre queda con la primera letra de cada nombre y apellido en mayúscula
+['reg-paciente-nombre','edit-paciente-nombre'].forEach(id => document.getElementById(id).addEventListener('blur', e => { const v = nomProp(e.target.value); if(v !== e.target.value) e.target.value = v; }));
 document.getElementById('reg-paciente-nombre').addEventListener('input', (e)=>{
   REG_PACIENTE_SELECCIONADO = null;
   const term = e.target.value.trim();
@@ -4706,7 +4723,7 @@ function mostrarSugerenciasPaciente(lista){
   if(!lista.length){ ocultarSugerenciasPaciente(); return; }
   box.innerHTML = lista.map(p => `
     <div class="suggest-item" data-id="${esc2(p.id)}">
-      <div class="sn">${esc2(p.nombre)}</div>
+      <div class="sn">${esc2(nomProp(p.nombre))}</div>
       <div class="sp">${esc2(p.telefono || 'sin teléfono')}</div>
     </div>`).join('');
   box.querySelectorAll('.suggest-item').forEach(el=>{
@@ -4723,7 +4740,7 @@ function ocultarSugerenciasPaciente(){
 }
 function seleccionarPaciente(p){
   REG_PACIENTE_SELECCIONADO = p;
-  document.getElementById('reg-paciente-nombre').value = p.nombre;
+  document.getElementById('reg-paciente-nombre').value = nomProp(p.nombre);
   document.getElementById('reg-telefono').value = p.telefono || '';
   ocultarSugerenciasPaciente();
   document.getElementById('reg-grp-procedencia').style.display = 'none';
@@ -4929,7 +4946,7 @@ function regActualizarTerminal(){
 // ── Guardar ──
 async function guardarRegistro(){
   const fecha = document.getElementById('reg-fecha').value;
-  const nombre = document.getElementById('reg-paciente-nombre').value.trim();
+  const nombre = nomProp(document.getElementById('reg-paciente-nombre').value.trim());
   const telefono = document.getElementById('reg-telefono').value.trim();
   const noVino = document.getElementById('reg-novino').checked;
 
@@ -5490,7 +5507,7 @@ function renderHistorial(){
       const quienHtml = personaCeldaHtml(f.doctor?.nombre, f.doctor?.rol);
       return `<tr class="hist-farm-row" data-farm-id="${esc2(f.id)}">
       <td class="h-dt">${fmtFechaCorta(f.fecha)}</td>
-      <td>${esc2(f.paciente || '—')}</td>
+      <td>${esc2(nomProp(f.paciente) || '—')}</td>
       <td class="h-mut">—</td>
       <td class="h-mut">—</td>
       <td>${quienHtml}</td>
@@ -5520,7 +5537,7 @@ function renderHistorial(){
     const monto = cs ? Number(cs.monto || 0) : Number(r.monto||0) + Number(r.monto_2||0);
     return `<tr data-consulta-id="${esc2(r.id)}">
       <td class="h-dt">${fmtFechaCorta(r.fecha)}</td>
-      <td>${esc2(r.pacientes?.nombre || '—')}${r.no_vino ? ' <span class="badge badge-novino">👻</span>' : ''}</td>
+      <td>${esc2(nomProp(r.pacientes?.nombre) || '—')}${r.no_vino ? ' <span class="badge badge-novino">👻</span>' : ''}</td>
       <td class="h-mut">${procedencia}</td>
       <td>${dueno}</td>
       <td>${doctorConsulta}</td>
@@ -5537,7 +5554,7 @@ function renderHistorial(){
   tbody.querySelectorAll('.hist-farm-edit').forEach(btn=> btn.addEventListener('click', ()=> abrirModalEditarFarm(btn.dataset.id)));
   tbody.querySelectorAll('.hist-farm-del').forEach(btn=> btn.addEventListener('click', async ()=>{
     const f = HIST_FARM.find(x => x.id === btn.dataset.id);
-    const ok = await confirmarAsync({ titulo:'¿Eliminar venta de farmacia?', mensaje:`Se eliminará la venta de "${esc2(f?.medicamento || '')}" (${fmtMoney(f?.monto)}) de ${esc2(f?.paciente || 'sin paciente')}. Esta acción no se puede deshacer.`, textoConfirmar:'Eliminar', icono:'🗑', danger:true });
+    const ok = await confirmarAsync({ titulo:'¿Eliminar venta de farmacia?', mensaje:`Se eliminará la venta de "${esc2(f?.medicamento || '')}" (${fmtMoney(f?.monto)}) de ${esc2(nomProp(f?.paciente) || 'sin paciente')}. Esta acción no se puede deshacer.`, textoConfirmar:'Eliminar', icono:'🗑', danger:true });
     if(!ok) return;
     const { error } = await sb.from('farmacia_ventas').delete().eq('id', btn.dataset.id);
     if(error){ console.error('[SkinFabric] Error eliminando venta de farmacia:', error); toast('No se pudo eliminar la venta.'); return; }
@@ -5563,7 +5580,7 @@ function abrirModalEditarFarm(id){
   if(!f) return;
   HIST_FARM_EDIT_ID = id;
   const $ = k => document.getElementById('editf-' + k);
-  $('paciente').value = f.paciente || '';
+  $('paciente').value = nomProp(f.paciente) || '';
   $('fecha').value = f.fecha || '';
   $('producto').value = f.medicamento || '';
   $('cantidad').value = Math.max(1, parseInt(f.cantidad, 10) || 1);
@@ -5597,7 +5614,7 @@ document.getElementById('editf-btn-eliminar').addEventListener('click', async ()
   const id = HIST_FARM_EDIT_ID;
   const f = HIST_FARM.find(x => x.id === id);
   if(!f) return;
-  const ok = await confirmarAsync({ titulo:'¿Eliminar venta de farmacia?', mensaje:`Se eliminará la venta de "${esc2(f.medicamento || '')}" (${fmtMoney(f.monto)}) de ${esc2(f.paciente || 'sin paciente')}. Esta acción no se puede deshacer.`, textoConfirmar:'Eliminar', icono:'🗑', danger:true });
+  const ok = await confirmarAsync({ titulo:'¿Eliminar venta de farmacia?', mensaje:`Se eliminará la venta de "${esc2(f.medicamento || '')}" (${fmtMoney(f.monto)}) de ${esc2(nomProp(f.paciente) || 'sin paciente')}. Esta acción no se puede deshacer.`, textoConfirmar:'Eliminar', icono:'🗑', danger:true });
   if(!ok) return;
   const { error } = await sb.from('farmacia_ventas').delete().eq('id', id);
   if(error){ console.error('[SkinFabric] Error eliminando venta de farmacia:', error); toast('No se pudo eliminar la venta.'); return; }
@@ -5628,7 +5645,7 @@ document.getElementById('editf-btn-guardar').addEventListener('click', async ()=
   if(monto2 + monto3 > monto){ toast('El 2.º y 3.er pago no pueden sumar más que el monto total.'); return; }
   const upd = {
     fecha, periodo: fecha.slice(0, 7),
-    paciente: $('paciente').value.trim() || null,
+    paciente: nomProp($('paciente').value.trim()) || null,
     doctor_id: $('doctor').value || null,
     medicamento: producto, cantidad,
     precio_unitario: Math.round(monto / cantidad * 100) / 100,
@@ -5757,7 +5774,7 @@ async function cargarPapelera(){
   tbody.innerHTML = rows.map(r=>`
     <tr>
       <td>${fmtFechaCorta(r.fecha)}</td>
-      <td>${esc2(r.pacientes?.nombre || '—')}</td>
+      <td>${esc2(nomProp(r.pacientes?.nombre) || '—')}</td>
       <td><span class="badge">${esc2(r.doctor?.nombre || '—')}</span></td>
       <td>${fmtMoney(r.monto)}</td>
       <td>${esc2(r.borrador?.nombre || '—')} · ${fmtFechaHora(r.deleted_at)}</td>
@@ -5846,7 +5863,7 @@ function abrirModalEditar(id){
   if(!r) return;
   HIST_EDIT_ID = id;
   HIST_EDIT_PACIENTE_ID = r.paciente_id || null;
-  document.getElementById('edit-paciente-nombre').value = r.pacientes?.nombre || '';
+  document.getElementById('edit-paciente-nombre').value = nomProp(r.pacientes?.nombre) || '';
   document.getElementById('edit-fecha').value = r.fecha;
   EDIT_SERV_SEL.clear();
   (r.consulta_servicios || []).forEach(cs=> EDIT_SERV_SEL.set(cs.tipo_servicio_id, { monto: String(cs.monto ?? ''), atendidoPor: cs.atendido_por || '' }));
@@ -5892,7 +5909,7 @@ document.getElementById('edit-btn-cancelar').addEventListener('click', cerrarMod
 
 document.getElementById('edit-btn-guardar').addEventListener('click', async ()=>{
   if(!HIST_EDIT_ID) return;
-  const nombrePacienteEdit = document.getElementById('edit-paciente-nombre').value.trim();
+  const nombrePacienteEdit = nomProp(document.getElementById('edit-paciente-nombre').value.trim());
   if(!nombrePacienteEdit){ toast('Escribe el nombre del paciente.'); return; }
   if(!document.getElementById('edit-fecha').value){ toast('Selecciona la fecha.'); return; }
   if(EDIT_SERV_SEL.size === 0){ toast('Selecciona al menos un servicio.'); return; }
@@ -6085,7 +6102,7 @@ function exportarExcel(filas){
       const info = cs ? comInfoExcel(r, cs, montoRow) : {};
       datos.push({
         'Fecha': r.fecha,
-        'Paciente': r.pacientes?.nombre || '',
+        'Paciente': nomProp(r.pacientes?.nombre) || '',
         'Procedencia': r.pacientes?.catalogo_procedencia?.nombre || '',
         'Dueño del paciente': r.pacientes?.dueno?.nombre || '',
         'Teléfono': r.pacientes?.telefono || '',
@@ -6413,7 +6430,7 @@ async function flashReunirDatos(){
     });
     CIERRE_FARM.forEach(v => {
       const pn = v.doctor?.nombre || CATALOGOS.personal.find(x => x.id === v.doctor_id)?.nombre || '—';
-      const r = filaDe(v.doctor_id, pn, v.paciente);
+      const r = filaDe(v.doctor_id, pn, nomProp(v.paciente));
       const cant = Math.max(1, parseInt(v.cantidad, 10) || 1);
       r.farm.push({ nombre: v.medicamento || '—', cant });
       r.fmonto += Number(v.monto || 0);
@@ -6731,7 +6748,7 @@ function renderCierreCosmetologa(){
     if(!mios.length) return;
     const monto = mios.reduce((a, cs) => a + Number(cs.monto || 0), 0);
     total += monto;
-    items.push({ fecha: r.fecha || '', nombre: r.pacientes?.nombre || '—', detalle: mios.map(cs => cs.catalogo_tipos_servicio?.nombre).filter(Boolean).join(', ') || '—', monto });
+    items.push({ fecha: r.fecha || '', nombre: nomProp(r.pacientes?.nombre) || '—', detalle: mios.map(cs => cs.catalogo_tipos_servicio?.nombre).filter(Boolean).join(', ') || '—', monto });
   });
   items.sort((a, b) => a.fecha < b.fecha ? 1 : a.fecha > b.fecha ? -1 : a.nombre.localeCompare(b.nombre));
   document.getElementById('cierre-kpi-total').textContent = fmtMoney(total);
@@ -6762,7 +6779,7 @@ function cierreAsignaciones(){
     const m1 = Number(r.monto || 0), m2 = Number(r.monto_2 || 0), tot = m1 + m2;
     // Se incluyen también los servicios de $0 (cortesías): deben salir en el cierre aunque no sumen dinero.
     const servs = (r.consulta_servicios || []);
-    const pacienteNombre = r.pacientes?.nombre || '—';
+    const pacienteNombre = nomProp(r.pacientes?.nombre) || '—';
     const base = { cid: r.id, paciente: pacienteNombre };
     if(!servs.length){
       // consulta sin servicios (no debería pasar): se queda completa con el doctor de la consulta
@@ -6849,7 +6866,7 @@ function renderCierre(){
     ingresoFarm += monto; pzasFarm += cant;
     const d = nuevoDoctor(f.doctor_id, pnombre);
     d.total += monto; d.farm += monto; d.farmPzas += cant;
-    d.farmItems.push({ nombre: f.paciente || '—', detalle: f.medicamento + (cant > 1 ? ' ×' + cant : ''), monto });
+    d.farmItems.push({ nombre: nomProp(f.paciente) || '—', detalle: f.medicamento + (cant > 1 ? ' ×' + cant : ''), monto });
     const cid = 'f' + f.id;
     farmPagosDe(f).forEach(pg => sumaMedio(d, medioCanon(pg.medio), pg.monto, pg.primero, cid, pnombre, true));
   });
@@ -6987,7 +7004,7 @@ function renderCierreFarmacia(filas, totalFarm, pzas){
   const esAdmin = MI_PERFIL?.rol === 'admin';
   const fmtF = iso => iso ? iso.split('-').reverse().slice(0, 2).join('/') : '';
   const detalle = filas.slice().sort((a,b)=> a.fecha < b.fecha ? 1 : a.fecha > b.fecha ? -1 : 0).map(f=>
-    `<div class="farm-det-row" data-id="${esc2(f.id)}"><span class="f">${fmtF(f.fecha)}</span><span class="n" title="${esc2(f.paciente || '')}">${esc2(f.paciente || '—')}</span><span class="pr" title="${esc2(f.medicamento)}">${esc2(f.medicamento)}</span><span class="pz">×${Math.max(1, parseInt(f.cantidad, 10) || 1)}</span><span class="m">${fmtMoney(f.monto)}</span>${esAdmin ? '<button class="del" type="button" title="Eliminar esta venta">🗑</button>' : '<span></span>'}</div>`
+    `<div class="farm-det-row" data-id="${esc2(f.id)}"><span class="f">${fmtF(f.fecha)}</span><span class="n" title="${esc2(nomProp(f.paciente) || '')}">${esc2(nomProp(f.paciente) || '—')}</span><span class="pr" title="${esc2(f.medicamento)}">${esc2(f.medicamento)}</span><span class="pz">×${Math.max(1, parseInt(f.cantidad, 10) || 1)}</span><span class="m">${fmtMoney(f.monto)}</span>${esAdmin ? '<button class="del" type="button" title="Eliminar esta venta">🗑</button>' : '<span></span>'}</div>`
   ).join('');
   cont.innerHTML = `
     <div class="farm-grid2">
@@ -7005,7 +7022,7 @@ function renderCierreFarmacia(filas, totalFarm, pzas){
   cont.querySelectorAll('.farm-det-row .del').forEach(btn => btn.addEventListener('click', async () => {
     const id = btn.closest('.farm-det-row').dataset.id;
     const f = CIERRE_FARM.find(x => x.id === id);
-    const ok = await confirmarAsync({ titulo:'¿Eliminar venta de farmacia?', mensaje:`Se eliminará la venta de "${esc2(f?.medicamento || '')}" (${fmtMoney(f?.monto)}) de ${esc2(f?.paciente || 'sin paciente')}. Esta acción no se puede deshacer.`, textoConfirmar:'Eliminar', icono:'🗑', danger:true });
+    const ok = await confirmarAsync({ titulo:'¿Eliminar venta de farmacia?', mensaje:`Se eliminará la venta de "${esc2(f?.medicamento || '')}" (${fmtMoney(f?.monto)}) de ${esc2(nomProp(f?.paciente) || 'sin paciente')}. Esta acción no se puede deshacer.`, textoConfirmar:'Eliminar', icono:'🗑', danger:true });
     if(!ok) return;
     const { error } = await sb.from('farmacia_ventas').delete().eq('id', id);
     if(error){ console.error('[SkinFabric] Error eliminando venta de farmacia:', error); toast('No se pudo eliminar la venta.'); return; }
@@ -7706,7 +7723,7 @@ function farmLeerHoja(nombre, ws){
     if(!medio){ out.errores.push('Fila ' + (i + 1) + ': medio de pago “' + String(r[H.medio] == null ? '' : r[H.medio]).trim() + '” no reconocido.'); continue; }
     const orig = String(r[H.medio]).trim();
     out.mediosOriginales[orig] = medio;
-    const pac = H.paciente >= 0 && r[H.paciente] != null ? String(r[H.paciente]).trim() : '';
+    const pac = H.paciente >= 0 && r[H.paciente] != null ? nomProp(String(r[H.paciente]).trim()) : '';
     let med = r[H.medicamento] != null ? String(r[H.medicamento]).replace(/\s+/g, ' ').trim() : '';
     if(!med){ med = '(sin descripción)'; out.sinDescripcion++; }
     const fac = H.facturado >= 0 ? farmFacturado(r[H.facturado]) : null;
@@ -8307,7 +8324,7 @@ async function cargarInactivos(){
   const ultimaPorPaciente = {};
   (data || []).forEach(r=>{
     if(!r.paciente_id || ultimaPorPaciente[r.paciente_id]) return;
-    ultimaPorPaciente[r.paciente_id] = { id: r.paciente_id, nombre: r.pacientes?.nombre, telefono: r.pacientes?.telefono, ultimaFecha: r.fecha, doctor: r.doctor?.nombre, servicio: nombresServicios(r.consulta_servicios, r.doctor?.nombre) };
+    ultimaPorPaciente[r.paciente_id] = { id: r.paciente_id, nombre: nomProp(r.pacientes?.nombre), telefono: r.pacientes?.telefono, ultimaFecha: r.fecha, doctor: r.doctor?.nombre, servicio: nombresServicios(r.consulta_servicios, r.doctor?.nombre) };
   });
 
   const hoy = new Date();
@@ -8369,7 +8386,7 @@ async function cargarNoVinieron(){
   const ultimoGeneral = {};
   (data || []).forEach(r=>{
     if(!r.paciente_id || ultimoGeneral[r.paciente_id]) return; // ya viene ordenado desc: la primera fila es la más reciente
-    ultimoGeneral[r.paciente_id] = { id: r.paciente_id, nombre: r.pacientes?.nombre, telefono: r.pacientes?.telefono, fecha: r.fecha, doctor: r.doctor?.nombre, servicio: nombresServicios(r.consulta_servicios, r.doctor?.nombre), noVino: r.no_vino };
+    ultimoGeneral[r.paciente_id] = { id: r.paciente_id, nombre: nomProp(r.pacientes?.nombre), telefono: r.pacientes?.telefono, fecha: r.fecha, doctor: r.doctor?.nombre, servicio: nombresServicios(r.consulta_servicios, r.doctor?.nombre), noVino: r.no_vino };
   });
 
   const pendientes = Object.values(ultimoGeneral)
@@ -9312,7 +9329,7 @@ async function cargarActividad(){
   const pacPorC = {};
   if(idsC.length){
     const { data: cs } = await sb.from('consultas').select('id,pacientes(nombre)').in('id', idsC);
-    (cs || []).forEach(c => { pacPorC[c.id] = c.pacientes?.nombre || ''; });
+    (cs || []).forEach(c => { pacPorC[c.id] = nomProp(c.pacientes?.nombre) || ''; });
   }
   cont.innerHTML = lista.map(a => {
     const quien = esc2(a.personal?.nombre || 'Sistema');
@@ -9373,7 +9390,7 @@ async function cargarCampana(){
   const ids = BELL_ITEMS.map(a => a.registro_id).filter(Boolean);
   if(ids.length){
     const { data: cs } = await sb.from('consultas').select('id,pacientes(nombre)').in('id', ids);
-    const m = {}; (cs || []).forEach(c => { m[c.id] = c.pacientes?.nombre || ''; });
+    const m = {}; (cs || []).forEach(c => { m[c.id] = nomProp(c.pacientes?.nombre) || ''; });
     BELL_ITEMS.forEach(a => { a._pac = m[a.registro_id] || ''; });
   }
   bellRender();
