@@ -381,6 +381,9 @@ main.appmain{padding:22px 26px 40px;max-width:1250px;margin:0 auto}
 #cfg-farm-wrap .tx-table thead th{position:sticky;top:0;z-index:1}
 .fp-clave{font-size:11px;color:var(--g6);font-variant-numeric:tabular-nums;white-space:nowrap}
 .fp-nom{font-weight:600;color:var(--navy)}
+.cfg-farm-nom-inp{width:100%;min-width:180px;border:1px solid transparent;background:transparent;border-radius:7px;padding:6px 8px;font:inherit;font-weight:600;color:var(--navy);outline:none}
+.cfg-farm-nom-inp:hover{border-color:rgba(42,191,191,.4)}
+.cfg-farm-nom-inp:focus{border-color:rgba(42,191,191,.8);background:#fff}
 .fp-precio{display:inline-flex;align-items:center;gap:4px;background:#fff;border:1px solid rgba(42,191,191,.5);border-radius:7px;padding:0 8px;width:118px}
 .fp-precio span{font-size:12px;color:var(--g6);font-weight:700}
 .fp-precio input{border:none;padding:6px 0;width:100%;text-align:right;font-weight:700;font-size:13px;outline:none;font-family:inherit;background:transparent;font-variant-numeric:tabular-nums}
@@ -2350,7 +2353,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.10.19-84';
+const APP_VERSION = 'v2026.10.19-85';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 
@@ -9056,11 +9059,12 @@ function renderCfgFarmacia(){
   });
   document.getElementById('cfg-farm-count').textContent = lista.length + ' de ' + CFG_FARM.length + ' productos';
   if(!lista.length){ tbody.innerHTML = '<tr><td colspan="5" class="empty-note">' + (CFG_FARM.length ? 'Sin resultados.' : 'Todavía no hay productos. Importa tu Excel o agrega uno abajo.') + '</td></tr>'; return; }
+  const puedeNom = MI_PERFIL?.rol === 'admin' || MI_PERFIL?.permisos?.puede_editar_productos === true;
   tbody.innerHTML = lista.map(p => {
     const editado = p.precio_excel != null && Number(p.precio) !== Number(p.precio_excel);
     return `<tr data-id="${esc2(p.id)}">
       <td class="fp-clave" title="${esc2(p.claves_alt ? 'También: ' + p.claves_alt : '')}">${esc2(p.clave || '—')}${p.claves_alt ? ' +' + p.claves_alt.split(',').length : ''}</td>
-      <td class="fp-nom">${esc2(p.nombre)}${p.piezas > 1 ? `<span class="tagf">${p.piezas} pzas</span>` : ''}${p.promo_grupo ? `<span class="tagf">promo ${p.promo_cada}×${fmtMoney0(p.promo_precio)}</span>` : ''}</td>
+      <td class="fp-nom">${puedeNom ? `<input type="text" class="cfg-farm-nom-inp" maxlength="160" value="${esc2(p.nombre)}" title="Editar nombre"/>` : esc2(p.nombre)}${p.piezas > 1 ? `<span class="tagf">${p.piezas} pzas</span>` : ''}${p.promo_grupo ? `<span class="tagf">promo ${p.promo_cada}×${fmtMoney0(p.promo_precio)}</span>` : ''}</td>
       <td><span class="fp-precio"><span>$</span><input type="number" min="0" step="0.01" class="cfg-farm-precio" value="${esc2(p.precio)}"/></span>${editado ? `<span class="fp-ed" title="Precio original del Excel">editado · Excel ${fmtMoney0(p.precio_excel)}</span>` : ''}</td>
       <td><input type="checkbox" class="cfg-farm-activo" ${p.activo ? 'checked' : ''}/></td>
       <td>${MI_PERFIL?.rol === 'admin' ? '<button class="btn-sm btn-del" type="button">Eliminar</button>' : ''}</td>
@@ -9069,6 +9073,15 @@ function renderCfgFarmacia(){
   tbody.querySelectorAll('tr[data-id]').forEach(tr => {
     const id = tr.dataset.id;
     const prod = () => CFG_FARM.find(x => x.id === id);
+    tr.querySelector('.cfg-farm-nom-inp')?.addEventListener('change', async e => {
+      const nombre = e.target.value.trim().replace(/\s+/g, ' ');
+      if(!nombre){ toast('Escribe el nombre del producto.'); renderCfgFarmacia(); return; }
+      if(nombre === prod().nombre){ e.target.value = nombre; return; }
+      if(CFG_FARM.some(x => x.id !== id && farmNorm(x.nombre) === farmNorm(nombre))){ toast('Ya existe un producto con ese nombre.'); renderCfgFarmacia(); return; }
+      const ok = await catalogoActualizar('farmacia_productos', id, { nombre });
+      if(ok){ prod().nombre = nombre; toast('✓ Nombre guardado'); renderCfgFarmacia(); cargarCatalogoFarmaciaReg(); }
+      else renderCfgFarmacia();
+    });
     tr.querySelector('.cfg-farm-precio').addEventListener('change', async e => {
       const v = Number(e.target.value);
       if(!(v >= 0) || e.target.value === ''){ toast('Escribe un precio válido.'); renderCfgFarmacia(); return; }
