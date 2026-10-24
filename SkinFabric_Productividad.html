@@ -1003,6 +1003,8 @@ table.fm-pv{width:100%;border-collapse:collapse;font-size:12px}
 .com-hero-tabs{display:flex;gap:4px;margin-top:14px;flex-wrap:wrap}
 .com-hero-tabs .prm-tab-btn{border:0;background:rgba(255,255,255,.10);color:rgba(255,255,255,.8);font:700 12.5px var(--font-b);padding:9px 18px;border-radius:10px 10px 0 0}
 .com-hero-tabs .prm-tab-btn.act{background:#fff;color:var(--navy)}
+.com-pdf-btn{margin-left:auto;align-self:center;border:1px solid rgba(255,255,255,.4);background:rgba(255,255,255,.12);color:#fff;font:700 12px var(--font-b);padding:8px 14px;border-radius:9px;cursor:pointer;margin-bottom:6px}
+.com-pdf-btn:hover{background:rgba(255,255,255,.22)}.com-pdf-btn:disabled{opacity:.6;cursor:wait}
 @media (max-width:900px){.com-per{margin-left:0;width:100%}}
 @media (max-width:560px){.com-hero h1{font-size:26px}}
 /* KPIs con ícono */
@@ -1313,6 +1315,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
   .com-per[data-modo=todo] .com-todo-note{display:block;grid-area:2 / 1 / 3 / 5;text-align:center;font-size:12.5px;font-weight:600;color:rgba(255,255,255,.85);background:rgba(255,255,255,.1);border-radius:9px;padding:9px 10px}
   .com-hero-tabs{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:12px}
   .com-hero-tabs .prm-tab-btn{padding:10px 6px;font-size:12px;text-align:center;white-space:nowrap}
+  .com-pdf-btn{grid-column:1 / -1;margin:6px 0 8px;padding:10px}
   .s3-navrow{padding:7px 8px;justify-content:flex-start;position:sticky;top:0;z-index:60;box-shadow:0 6px 14px -8px rgba(11,22,40,.3)}
   .s3-segment{flex-wrap:nowrap;overflow-x:auto;width:100%;scrollbar-width:none;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity}
   .s3-segment::-webkit-scrollbar{display:none}
@@ -1800,6 +1803,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
         <div class="com-hero-tabs">
           <button type="button" class="prm-tab-btn act" data-target="com-resumen-panel">📊 Resumen</button>
           <button type="button" class="prm-tab-btn" data-target="com-pago-panel">🤝 Pago entre doctores</button>
+          <button type="button" class="com-pdf-btn" id="com-btn-pdf-mes" title="PDF de varias hojas: productividad, comisiones y pago entre doctores del mes">📄 PDF cierre de mes</button>
         </div>
       </div>
 
@@ -2353,7 +2357,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.10.24-89';
+const APP_VERSION = 'v2026.10.24-90';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 
@@ -6550,7 +6554,7 @@ function flashReportHtml(d, totalPaginas, paginasExtra){
   const rolTxt = p => p.rol === 'cosmetologo' || /^Cosm\./i.test(p.nombre) ? 'Cabina' : (/^Dra\./i.test(p.nombre) ? 'Doctora' : (/^Dr\./i.test(p.nombre) ? 'Doctor' : cap(p.rol || 'Equipo')));
   const corto = n => String(n).split(/\s+/).slice(0, 3).join(' ');
   const ahora = new Date().toLocaleString('es-MX', { timeZone: 'America/Mexico_City', day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true }).replace(',', ' ·');
-  const fechaTxt = d.esDia
+  const fechaTxt = d.fechaTxtMes ? d.fechaTxtMes : d.esDia
     ? cap(d.f.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).replace(',', ''))
     : cap(d.f.toLocaleDateString('es-MX', { month: 'long', year: 'numeric' }));
 
@@ -6591,9 +6595,9 @@ function flashReportHtml(d, totalPaginas, paginasExtra){
 
   return `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Flash report</title>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style>${FLASH_CSS}</style></head><body>
+<style>${FLASH_CSS}${d.cssExtra || ''}</style></head><body>
 <div class="page" id="flash-p1">
-<div class="hd"><div><div class="br">Skin Fabric · Flash report</div><h1 class="d">${d.esDia ? 'Cierre del día' : 'Cierre del mes'} · <b>Productividad</b></h1></div>
+<div class="hd"><div><div class="br">Skin Fabric · ${d.brandTxt || 'Flash report'}</div><h1 class="d">${d.esDia ? 'Cierre del día' : (d.brandTxt ? 'Cierre de mes' : 'Cierre del mes')} · <b>Productividad</b></h1></div>
 <div class="dt"><strong class="d">${esc2(fechaTxt)}</strong>Generado el ${esc2(ahora)}<br>${quien}</div></div>
 <div class="wrap">
 <div class="hero">
@@ -6614,9 +6618,9 @@ ${prow || '<div style="color:var(--g4);padding:8px 0">Sin movimientos.</div>'}
  <div class="a ${d.noVino > 0 ? 'w' : 'o'}"><b>${d.noVino}</b><span>pacientes que<br>no vinieron</span></div>
  <div class="a i"><b>${m(efTr)}</b><span>en efectivo y transferencia<br>para conciliar en caja</span></div>
 </div>
-${acum}
+${acum}${d.mesBanner || ''}
 </div>
-<div class="ft"><span>Skin Fabric · Consultas · Cifras al momento de generar el reporte</span><span>Página 1 de ${totalPaginas || 1}</span></div>
+<div class="ft"><span>${d.pieTxt || 'Skin Fabric · Consultas · Cifras al momento de generar el reporte'}</span><span>Página 1 de ${totalPaginas || 1}</span></div>
 </div>
 ${paginasExtra || ''}
 </body></html>`;
@@ -6712,7 +6716,7 @@ function flashAnexoPaginasHtml(d, pag, primeraNum, totalPags, fechaTxt){
   }).join('');
 }
 
-async function flashHtmlAPdf(html, nombreArchivo){
+async function flashHtmlAPdf(html, nombreArchivo, asunto){
   await Promise.all([
     cargarScriptUnaVez('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js'),
     cargarScriptUnaVez('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js')
@@ -6734,7 +6738,7 @@ async function flashHtmlAPdf(html, nombreArchivo){
       if(i > 0) pdf.addPage('letter', 'portrait');
       pdf.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG', (PW - w) / 2, 0, w, h, undefined, 'FAST');
     }
-    pdf.setProperties({ title: nombreArchivo.replace(/\.pdf$/, '').replace(/_/g, ' '), subject: 'Flash report · Skin Fabric' });
+    pdf.setProperties({ title: nombreArchivo.replace(/\.pdf$/, '').replace(/_/g, ' '), subject: asunto || 'Flash report · Skin Fabric' });
     pdf.save(nombreArchivo);
   } finally {
     ifr.remove();
@@ -6768,6 +6772,288 @@ async function exportarFlashReport(){
   }
 }
 document.getElementById('cierre-btn-flash').addEventListener('click', exportarFlashReport);
+
+// ═════════════ PDF de cierre de mes (Comisiones): productividad + comisiones + pago entre doctores ═════════════
+// Página 1 = mismo Flash Report del mes (flashReportHtml). Páginas 2+ salen de lo que ya calculó la pantalla de Comisiones
+// (COM_SERVICE_ROWS: en meses cerrados son los valores congelados al cierre) y de comPagoCalcular().
+const CIERRE_MES_CSS = `
+.rep2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.rb{border:1px solid var(--g2);border-radius:12px;padding:11px 14px}
+.rb .tp{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.rb h3{font-size:11.5px;font-weight:800}.rb .su{font-size:9px;color:var(--g4);margin-top:2px;line-height:1.35}
+.rb .bg{font-size:17px;font-weight:800}
+.rb.cab{border-top:3px solid var(--teal)}.rb.con{border-top:3px solid var(--navy2)}
+.seg{display:flex;height:12px;border-radius:5px;overflow:hidden;margin:9px 0 6px;background:var(--g1)}.seg i{display:block}
+.lr{display:grid;grid-template-columns:10px 1fr auto 40px;gap:7px;align-items:center;padding:2.5px 0;font-size:10px}
+.lr .dt2{width:9px;height:9px;border-radius:3px}.lr b{font-size:10.5px}.lr small{color:var(--g4);font-weight:700;text-align:right;font-size:9px}
+.dc{border:1px solid var(--g2);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column}
+.dc.d1{border-top:3px solid #2F6FD0}.dc.d2{border-top:3px solid var(--teal)}
+.dc .nm{margin-bottom:2px}.dc .rl{font-size:9px;color:var(--g4);margin:4px 0 8px}
+.dc .ln2{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;border-bottom:1px dashed var(--g2);font-size:10.5px}.dc .ln2 b{font-size:12px}
+.dc .tt{display:flex;justify-content:space-between;align-items:center;margin-top:9px;padding:8px 11px;border-radius:9px;background:var(--navy);color:#fff}
+.dc .tt span{font-size:8.5px;font-weight:800;letter-spacing:.7px;text-transform:uppercase;color:rgba(255,255,255,.75)}.dc .tt b{font-size:18px}
+.cx{width:100%;border-collapse:collapse;font-size:10px}
+.cx th{font-size:8px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--g4);text-align:left;padding:5px 6px;border-bottom:2px solid var(--navy)}
+.cx th.r,.cx td.r{text-align:right}
+.cx td{padding:8px 6px;border-bottom:1px solid var(--g2);vertical-align:middle}
+.cx td small{display:block;color:var(--g4);font-size:8.5px;margin-top:2px}
+.cx td .pc{font-weight:700}
+.cx tr.sum td{border-bottom:0;background:var(--g1);font-weight:700}
+.cx tr.sum td b{font-family:'Bricolage Grotesque','Helvetica Neue',Arial,sans-serif;font-size:13px}
+.pct{display:inline-block;font-size:8.5px;font-weight:800;background:#E6F1FB;color:#1f5fae;border-radius:8px;padding:1px 6px;margin-left:4px}
+.note{font-size:9px;color:var(--g6);line-height:1.5;background:var(--g1);border-radius:10px;padding:9px 13px;margin-top:12px}
+.note b{color:var(--navy)}
+.ks{display:grid;grid-template-columns:1.25fr 1fr 1fr 1fr 1.25fr;gap:9px}
+.ks .k .v{font-size:19px}
+.ks .k.tr{background:linear-gradient(135deg,#0B1628,#1B3A6B);border:0;color:#fff}.ks .k.tr .l{color:rgba(255,255,255,.7)}.ks .k.tr .s{color:rgba(255,255,255,.85)}.ks .k.tr .v{font-size:26px}
+.ks .k.kc{border-top:3px solid #2F6FD0}.ks .k.ka{border-top:3px solid var(--teal)}.ks .k.e{border-top:3px solid var(--g4)}
+.mini{height:6px;background:var(--g1);border-radius:3px;margin-top:7px;display:flex;overflow:hidden}.mini i{display:block}
+.cc{display:grid;grid-template-columns:1fr 92px 1fr;gap:10px;align-items:stretch;margin-top:2px}
+.cd{border:1px solid var(--g2);border-radius:12px;padding:12px 14px}
+.cd.dc1{border-top:3px solid #2F6FD0}.cd.da1{border-top:3px solid var(--teal)}
+.cd .h{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.st{font-size:8.5px;font-weight:800;border-radius:9px;padding:2px 8px;white-space:nowrap}.st.deb{background:#FDE7E2;color:#B5301A}.st.fav{background:#E3F6EE;color:var(--green)}
+.cd .r{display:grid;grid-template-columns:16px 1fr auto;gap:6px;align-items:center;padding:6px 0;border-bottom:1px dashed var(--g2)}
+.cd .r .n{width:15px;height:15px;border-radius:50%;background:var(--g1);color:var(--g6);font-size:8.5px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.cd .r b{font-size:10px;display:block}.cd .r small{font-size:8.5px;color:var(--g4)}.cd .r .mm{font-weight:800;font-size:12px}
+.cd .sal{display:flex;justify-content:space-between;align-items:center;margin-top:9px;padding:9px 11px;border-radius:9px}
+.cd .sal.deb{background:#FDE7E2;color:#B5301A}.cd .sal.fav{background:#E3F6EE;color:var(--green)}
+.cd .sal .t{font-weight:800;font-size:10px}.cd .sal .t small{display:block;font-weight:600;font-size:8.5px;opacity:.8}.cd .sal .mm{font-size:19px;font-weight:800;white-space:nowrap}
+.mid{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:5px}
+.mid .bd{font-size:8px;font-weight:800;letter-spacing:.7px;text-transform:uppercase;color:var(--g4)}
+.mid .fl{font-size:30px;font-weight:800;color:var(--navy2);line-height:1}.mid .mm{font-size:15px;font-weight:800}
+.mid .q{font-size:8.5px;color:var(--g6);line-height:1.35}
+.ok{font-size:9.5px;font-weight:700;color:var(--green);background:#E3F6EE;border:1px solid #A9DFC5;border-radius:9px;padding:7px 12px;margin-top:11px}
+.cru{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:2px}
+.cru div{border:1px solid var(--g2);border-radius:10px;padding:9px 13px;font-size:9.5px;color:var(--g6);line-height:1.45}
+.cru b{color:var(--navy);font-size:13px;font-family:'Bricolage Grotesque','Helvetica Neue',Arial,sans-serif}
+.sig{display:grid;grid-template-columns:1fr 1fr;gap:46px;margin-top:22px;padding:0 20px}
+.sig div{border-top:1px solid var(--navy);padding-top:5px;text-align:center;font-size:9px;color:var(--g6)}.sig b{display:block;color:var(--navy);font-size:10px}
+.lock{display:inline-flex;align-items:center;gap:6px;background:#E3F6EE;border:1px solid #A9DFC5;color:var(--green);border-radius:9px;padding:2px 9px;font-size:9px;font-weight:700;margin-top:3px}
+.q1{border-radius:6px;font-size:8.5px;font-weight:700;padding:1px 7px;white-space:nowrap}.q1.qc{background:#DCEBFB;color:#173F82}.q1.qa{background:#D9F4F4;color:#0B6B6B}
+
+.lock.abierto{background:#FDF1DC;border-color:#F0C36D;color:#7A4D00}
+`;
+const CIERRE_SEL_CONS = 'id,fecha,monto,medio_pago,monto_2,medio_pago_2,factura,num_factura,doctor_id,pacientes(nombre),doctor:personal!doctor_id(nombre),consulta_servicios(tipo_servicio_id,monto,monto_1,monto_2,atendido_por,catalogo_tipos_servicio(nombre),atendido:personal(nombre))';
+const CIERRE_SEL_FARM = 'id,fecha,doctor_id,paciente,paciente_id,medicamento,producto_id,cantidad,monto,monto_2,medio_pago,medio_pago_2,monto_3,medio_pago_3,doctor:personal!doctor_id(nombre)';
+
+// Reúne los datos del Flash Report de un mes completo sin depender de lo que esté abierto en la pestaña Cierre.
+async function cierreMesDatosFlash(periodo){
+  const [y, mo] = periodo.split('-').map(Number);
+  const f = new Date(y, mo - 1, 1);
+  const desde = isoLocal(primerDiaMes(f)), hasta = isoLocal(ultimoDiaMes(f));
+  const [rc, rf] = await Promise.all([
+    sb.from('consultas').select(CIERRE_SEL_CONS).eq('deleted', false).eq('no_vino', false).gte('fecha', desde).lte('fecha', hasta).limit(5000),
+    sb.from('farmacia_ventas').select(CIERRE_SEL_FARM).gte('fecha', desde).lte('fecha', hasta).order('fecha', { ascending:true }).limit(5000)
+  ]);
+  if(rc.error) throw rc.error;
+  const resp = { modo: CIERRE_MODO, fecha: CIERRE_FECHA, rows: CIERRE_ROWS, farm: CIERRE_FARM };
+  try{
+    CIERRE_MODO = 'mes'; CIERRE_FECHA = f; CIERRE_ROWS = rc.data || []; CIERRE_FARM = rf.data || [];
+    return await flashReunirDatos();
+  } finally {
+    CIERRE_MODO = resp.modo; CIERRE_FECHA = resp.fecha; CIERRE_ROWS = resp.rows; CIERRE_FARM = resp.farm;
+  }
+}
+
+function cierreMesPaginasHtml(periodo, d, nombreMes){
+  const m = n => '$' + Math.round(n).toLocaleString('es-MX');
+  const m2 = n => '$' + Number(n).toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const suma = (arr, fn) => arr.reduce((a, r) => a + fn(r), 0);
+  const cortoN = n => String(n || '—').split(/\s+/).slice(0, 3).join(' ');
+  const sinCosm = n => String(n || '—').replace(/^Cosm\.\s*/i, '').split(/\s+/).slice(0, 2).join(' ');
+  const nom2 = n => String(n || '').split(' ').slice(0, 2).join(' ');
+  const cierre = COM_CIERRES[periodo];
+  const hasta = isoLocal(ultimoDiaMes(new Date(+periodo.slice(0, 4), +periodo.slice(5, 7) - 1, 1)));
+  const fCierre = cierre ? new Date(cierre.cerrado_at).toLocaleDateString('es-MX', { timeZone: 'America/Mexico_City', day: '2-digit', month: '2-digit', year: 'numeric' }) : '';
+  const sello = cierre ? `<span class="lock">🔒 Comisiones cerradas el ${fCierre}</span>` : `<span class="lock abierto">Mes abierto · cifras al generar</span>`;
+  const hdrS = (sec, titulo) => `<div class="hd s"><div><div class="br">Skin Fabric · Cierre de mes · ${sec}</div><h1 class="d">${titulo}</h1></div><div class="dt"><strong class="d">${esc2(nombreMes)}</strong>${sello}</div></div>`;
+
+  const rows = COM_SERVICE_ROWS;
+  const { docAlejandra, docOtro } = comResolverDoctores();
+  const R = (comReglasPara(hasta) || {}).config || {};
+  const esCabCos = r => r.esCabina && r.atiendeRol === 'cosmetologo';
+  const noCab = rows.filter(r => !esCabCos(r)), cab = rows.filter(esCabCos);
+  const ingreso = suma(rows, r => r.monto), ingNoCab = suma(noCab, r => r.monto), ingCab = suma(cab, r => r.monto);
+  const cosmTotal = suma(rows, r => (r.comCosmAtiende || 0) + (r.comCosmDueno || 0));
+  const desdeP = periodo + '-01';
+  const cosmetologas = (CATALOGOS.personal || []).filter(p => p.rol === 'cosmetologo' && (personalVigente(p, desdeP) || rows.some(r => r.atiendeId === p.id || r.duenoId === p.id)));
+  const doctores = [docOtro, docAlejandra].filter(Boolean);
+
+  // Barra de reparto con leyenda
+  const seg = (items, total) => {
+    const lista = items.filter(x => x.monto > 0).sort((a, b) => b.monto - a.monto);
+    if(!lista.length) return '<div class="su" style="margin-top:8px">Sin datos en este periodo</div>';
+    return '<div class="seg">' + lista.map(x => `<i style="width:${total > 0 ? x.monto / total * 100 : 0}%;background:${x.color}"></i>`).join('') + '</div>' +
+      lista.map(x => `<div class="lr"><span class="dt2" style="background:${x.color}"></span><span>${esc2(x.nombre)}</span><b>${m(x.monto)}</b><small>${total > 0 ? (x.monto / total * 100).toFixed(1) : '0.0'}%</small></div>`).join('');
+  };
+  const COL_COSM = ['#C8820A', '#9B4DBF', '#5B2475', '#2ABFBF', '#7B8FB3'];
+  const itemsCon = doctores.map(dd => ({ nombre: dd.nombre, monto: suma(noCab.filter(r => r.atiendeNombre === dd.nombre), r => r.monto), color: dd.id === docAlejandra?.id ? '#2ABFBF' : '#2F6FD0' }));
+  const itemsCab = cosmetologas.map((c, i) => ({ nombre: c.nombre, monto: suma(cab.filter(r => r.atiendeNombre === c.nombre), r => r.monto), color: COL_COSM[i % COL_COSM.length] }));
+
+  // Tarjetas de doctores
+  const docCard = dd => {
+    const esAl = dd.id === docAlejandra?.id;
+    const val = r => esAl ? r.comAlejandra : r.comOtro;
+    const c1 = suma(noCab, val), c2 = suma(cab, val), t = c1 + c2;
+    return { t, html: `<div class="dc ${esAl ? 'd2' : 'd1'}"><div class="nm"><span class="np ${esAl ? 'd2' : 'd1'}">${esc2(dd.nombre)}</span></div><div class="rl">${/^dra/i.test(dd.nombre) ? 'Doctora' : 'Doctor'} · suma de lo que le corresponde por cada servicio</div>
+<div class="ln2"><span>🩺 Consultas y Procedimientos</span><b>${m(c1)}</b></div>
+<div class="ln2"><span>🛁 Cabina <small style="color:var(--g4)">(reglas de dueño y equipo)</small></span><b>${m(c2)}</b></div>
+<div class="seg" style="margin:9px 0 0"><i style="width:${t > 0 ? c1 / t * 100 : 0}%;background:var(--navy2)"></i><i style="width:${t > 0 ? c2 / t * 100 : 0}%;background:var(--teal)"></i></div>
+<div class="tt"><span>Productividad total</span><b class="d">${m(t)}</b></div></div>` };
+  };
+  const dcards = doctores.map(docCard);
+  const sumaDocs = suma(dcards, x => x.t);
+  const cuadraDocs = Math.abs(sumaDocs - ingreso) < 0.5;
+
+  // Cosmetólogas
+  const pctDe = (lista, key) => { const u = [...new Set(lista.map(r => r[key]))]; return u.length === 1 ? fmtPct(u[0]) + '%' : (u.length ? 'varía' : ''); };
+  const crow = cosmetologas.map(c => {
+    const clin = rows.filter(r => r.atiendeId === c.id && r.atiendeRol === 'cosmetologo' && r.atiendeId !== r.duenoId);
+    const prop = rows.filter(r => r.duenoRol === 'cosmetologo' && r.duenoId === c.id && r.esCabina && !(r.atiendeRol === 'cosmetologo' && r.atiendeId && r.atiendeId !== r.duenoId));
+    const b1 = suma(clin, r => r.monto), c1 = suma(clin, r => r.comCosmAtiende || 0), b2 = suma(prop, r => r.monto), c2 = suma(prop, r => r.comCosmDueno || 0);
+    return `<tr><td><span class="np cs">${esc2(cortoN(c.nombre))}</span></td>
+<td class="r">${clin.length ? clin.length : '—'}<small>${clin.length ? 'servicios' : ''}</small></td><td class="r">${clin.length ? m(b1) : '—'}<small>${clin.length ? 'base · <span class="pct">' + pctDe(clin, 'pctCosmAtiende') + '</span>' : ''}</small></td><td class="r"><b>${clin.length ? m2(c1) : '—'}</b></td>
+<td class="r">${prop.length ? prop.length : '—'}<small>${prop.length ? 'servicios' : ''}</small></td><td class="r">${prop.length ? m(b2) : '—'}<small>${prop.length ? 'base · <span class="pct">' + pctDe(prop, 'pctCosmDueno') + '</span>' : ''}</small></td><td class="r"><b>${prop.length ? m2(c2) : '—'}</b></td>
+<td class="r"><b class="d" style="font-size:13px">${m2(c1 + c2)}</b></td></tr>`;
+  }).join('');
+
+  // Nota si el cierre congelado ya no coincide con los servicios actuales del mes
+  let notaDif = '';
+  if(cierre && Math.abs(ingreso - d.serv) >= 0.5){
+    notaDif = `<div class="note"><b>Ojo:</b> las comisiones se congelaron el ${fCierre} con ${m(ingreso)} en servicios; hoy los servicios del mes suman ${m(d.serv)} (${d.serv > ingreso ? '+' : '−'}${m(Math.abs(d.serv - ingreso))} por cambios hechos después del cierre). Las páginas de comisiones y pago entre doctores usan la cifra congelada.</div>`;
+  }
+  const regTxt = `cosmetóloga que atiende un paciente de la clínica ${fmtPct(R.cosm_atiende_pct ?? 0)}% · con paciente propio ${fmtPct(R.cosm_duena_pct ?? 0)}% · equipo dedicado de un doctor: ${fmtPct(R.equipo_duena_pct ?? 0)}/${fmtPct(100 - (R.equipo_duena_pct ?? 0))} si el paciente es del otro doctor · sin doctor dueño: ${fmtPct(R.reparto_alejandra_pct ?? 50)}/${fmtPct(100 - (R.reparto_alejandra_pct ?? 50))}`;
+
+  const M = (docAlejandra && docOtro) ? comPagoCalcular(docAlejandra, docOtro) : null;
+  const hayAnexo = M && M.N > 0;
+  const debeFilas = hayAnexo ? M.filas.filter(r => r.debe > 0.004).sort((a, b) => a.fecha < b.fecha ? 1 : a.fecha > b.fecha ? -1 : 0) : [];
+  const POR_HOJA = 24;
+  const hojasAnexo = debeFilas.length ? Math.ceil(debeFilas.length / POR_HOJA) : 0;
+  const totalPags = 3 + hojasAnexo;
+  const ft = n => `<div class="ft"><span>Skin Fabric · Cierre de mes · ${esc2(nombreMes)}</span><span>Página ${n} de ${totalPags}</span></div>`;
+
+  // ── Página 2: comisiones ──
+  const p2 = `<div class="page">${hdrS('Comisiones', 'Productividad y comisiones <b>por persona</b>')}<div class="wrap">
+<div class="hero">
+ <div class="k main"><div class="l">Ingreso total (sin farmacia)</div><div class="v d">${m(ingreso)}</div><div class="s">${rows.length} servicios · base de las comisiones</div></div>
+ <div class="k"><div class="l">Consultas y Proc.</div><div class="v d" style="color:var(--navy2)">${m(ingNoCab)}</div><div class="s">${noCab.length} servicios</div></div>
+ <div class="k"><div class="l">Cabina</div><div class="v t d">${m(ingCab)}</div><div class="s">${cab.length} servicios · cosmetólogas</div></div>
+ <div class="k"><div class="l">Comisión cosmetólogas</div><div class="v d" style="color:#9a6a06">${m2(cosmTotal)}</div><div class="s">${cosmetologas.length} cosmetóloga${cosmetologas.length === 1 ? '' : 's'}</div></div>
+</div>
+<h2 class="d">Dónde se produjo <small>quién atendió el servicio</small></h2>
+<div class="rep2">
+ <div class="rb con"><div class="tp"><div><h3>🩺 Consultas y Procedimientos</h3><div class="su">${noCab.length} servicios · incluye procedimientos de cabina atendidos directo por un doctor</div></div><div class="bg d">${m(ingNoCab)}</div></div>${seg(itemsCon, ingNoCab)}</div>
+ <div class="rb cab"><div class="tp"><div><h3>🛁 Cabina</h3><div class="su">${cab.length} servicios · atendidos por una cosmetóloga</div></div><div class="bg d">${m(ingCab)}</div></div>${seg(itemsCab, ingCab)}</div>
+</div>
+<h2 class="d">Productividad de los doctores <small>ya aplicadas las reglas de dueño y de equipo</small></h2>
+<div class="rep2">${dcards.map(x => x.html).join('')}</div>
+${cuadraDocs ? `<div class="ok" style="margin-top:9px">✓ Los dos doctores suman ${m(sumaDocs)} = el ingreso total sin farmacia del mes (${m(ingreso)}).</div>` : ''}
+<h2 class="d">Comisión de cosmetólogas <small>se paga aparte; no se descuenta a los doctores</small></h2>
+${crow ? `<table class="cx"><thead><tr><th>Cosmetóloga</th><th class="r" colspan="3">Px clínica · atendió pacientes de la clínica</th><th class="r" colspan="3">Px propios · pacientes suyos en cabina</th><th class="r">Comisión total</th></tr></thead>
+<tbody>${crow}<tr class="sum"><td colspan="7">Total comisión de cosmetólogas</td><td class="r"><b>${m2(cosmTotal)}</b></td></tr></tbody></table>` : '<div class="su">Sin cosmetólogas con comisión en este mes.</div>'}
+<div class="note"><b>Reglas vigentes del mes:</b> ${regTxt}.</div>${notaDif}
+</div>${ft(2)}</div>`;
+
+  // ── Página 3: pago entre doctores ──
+  let p3;
+  if(!M){
+    p3 = `<div class="page">${hdrS('Pago entre doctores', 'Distribución del dinero <b>de cabinas</b>')}<div class="wrap"><div class="note">No se encontraron los 2 doctores de la clínica en el catálogo de personal.</div></div>${ft(3)}</div>`;
+  } else if(M.N === 0){
+    p3 = `<div class="page">${hdrS('Pago entre doctores', 'Distribución del dinero <b>de cabinas</b>')}<div class="wrap"><div class="note">No hubo servicios de cabina atendidos por cosmetólogas en este mes, así que no hay nada que repartir entre doctores.</div></div>${ft(3)}</div>`;
+  } else {
+    const NM = { c: nom2(M.docC.nombre), a: nom2(M.docA.nombre) }, FULL = { c: M.docC.nombre, a: M.docA.nombre };
+    const pc = (a, b) => b > 0 ? (a / b * 100).toFixed(1) + '%' : '—';
+    const fms = n => (n > 0.004 ? '+' : n < -0.004 ? '−' : '') + m(Math.abs(n));
+    const aCero = M.transf < 0.005;
+    const flecha = M.deudor === 'c' ? '→' : '←';
+    const tr = n => `${n} servicio${n === 1 ? '' : 's'}`;
+    const card = k => {
+      const s = M.saldo[k], cls = s < -0.004 ? 'deb' : s > 0.004 ? 'fav' : 'cero';
+      const tag = { deb: 'Debe transferir', fav: 'A su favor', cero: 'Cuadrado' }[cls];
+      const otras = M.ot[k] > 0.005 ? `<div class="r"><span class="n">+</span><span><b>Cobrado en otras terminales</b><small>Su parte; se asume en su poder</small></span><span class="mm d">${m(M.ot[k])}</span></div>` : '';
+      return `<div class="cd ${k === 'c' ? 'dc1' : 'da1'}"><div class="h"><span class="np ${k === 'c' ? 'd1' : 'd2'}">${esc2(FULL[k])}</span><span class="st ${cls}">${tag}</span></div>
+  <div class="r"><span class="n">1</span><span><b>Valor correspondiente por cabinas</b><small>Según las reglas de equipo y dueño</small></span><span class="mm d">${m(M.corr[k])}</span></div>
+  <div class="r"><span class="n">2</span><span><b>Cobrado en su terminal</b><small>${tr(M.nT[k])} con tarjeta</small></span><span class="mm d">${m(M.term[k])}</span></div>
+  <div class="r"><span class="n">+</span><span><b>Efectivo que le toca</b><small>Se asume en su poder</small></span><span class="mm d">${m(M.ef[k])}</span></div>${otras}
+  <div class="sal ${cls}"><span class="t">3 · Saldo<small>${cls === 'deb' ? 'Tiene de más: debe pasarlo' : cls === 'fav' ? 'Le falta recibir' : 'No hay diferencia'}</small></span><span class="mm d">${fms(s)}</span></div></div>`;
+    };
+    const mid = aCero
+      ? `<div class="mid"><span class="bd">Cuentas a mano</span><span class="fl">=</span><span class="q">Ninguno le debe al otro por la cabina.</span></div>`
+      : `<div class="mid"><span class="bd">Por transferir</span><span class="fl">${flecha}</span><span class="mm d">${m(M.transf)}</span><span class="q"><b>${esc2(NM[M.deudor])}</b> le transfiere a <b>${esc2(NM[M.acreedor])}</b></span></div>`;
+    const cuadra = Math.abs(M.saldo.c + M.saldo.a) < 0.01 && Math.abs(M.Ec + M.Ea - M.P) < 0.01;
+    const cruce = k => M.filas.filter(r => r.t === k && r.debe > 0.004);
+    const dC = cruce('c'), dA = cruce('a');
+    const sC = suma(dC, r => r.debe), sA = suma(dA, r => r.debe);
+    p3 = `<div class="page">${hdrS('Pago entre doctores', 'Distribución del dinero <b>de cabinas</b>')}<div class="wrap">
+<div class="ks">
+ <div class="k"><div class="l">Productividad de cabinas</div><div class="v d">${m(M.P)}</div><div class="s">${M.N} servicios de cosmetólogas</div><div class="mini"><i style="width:${M.P > 0 ? M.Ec / M.P * 100 : 0}%;background:#2F6FD0"></i><i style="width:${M.P > 0 ? M.Ea / M.P * 100 : 0}%;background:var(--teal)"></i></div></div>
+ <div class="k e"><div class="l">Cobrado en efectivo</div><div class="v d">${m(M.Ef)}</div><div class="s">${pc(M.Ef, M.P)} · ${tr(M.nEf)}</div></div>
+ <div class="k kc"><div class="l">Corresponde a ${esc2(NM.c)}</div><div class="v d">${m(M.Ec)}</div><div class="s">${pc(M.Ec, M.P)} de la productividad</div></div>
+ <div class="k ka"><div class="l">Corresponde a ${esc2(NM.a)}</div><div class="v d">${m(M.Ea)}</div><div class="s">${pc(M.Ea, M.P)} de la productividad</div></div>
+ <div class="k tr"><div class="l">Por transferir</div><div class="v d">${m(M.transf)}</div><div class="s">${aCero ? 'Cuentas a mano' : `${esc2(NM[M.deudor])} ${flecha === '→' ? '→' : '→'} ${esc2(NM[M.acreedor])}`}</div></div>
+</div>
+<h2 class="d">Conciliación por doctor <small>lo que le corresponde vs. lo que ya tiene</small></h2>
+<div class="cc">${card('c')}${mid}${card('a')}</div>
+<div class="${cuadra ? 'ok' : 'note'}">${cuadra ? `✓ Los saldos suman cero: lo que le sobra a uno es lo que le falta al otro, y ${m(M.Ec)} + ${m(M.Ea)} = ${m(M.P)}.` : '⚠ Los saldos no cuadran; revisa los datos del periodo.'}</div>
+<h2 class="d">De dónde sale la diferencia <small>tarjeta cobrada en la terminal del otro doctor</small></h2>
+<div class="cru">
+ <div>En la terminal de <b>${esc2(NM.c)}</b> se cobraron servicios que le corresponden a ${esc2(NM.a)}:<br><b>${m(sC)}</b> · ${tr(dC.length)}</div>
+ <div>En la terminal de <b>${esc2(NM.a)}</b> se cobraron servicios que le corresponden a ${esc2(NM.c)}:<br><b>${m(sA)}</b> · ${tr(dA.length)}</div>
+</div>
+<div class="note"><b>Diferencia neta:</b> ${m(sC)} − ${m(sA)} = <b>${m(Math.abs(sC - sA))}</b>${aCero ? '' : ' a favor de ' + esc2(NM[M.acreedor])}. El efectivo no pasa por terminal: se asume que cada doctor tiene en su poder el efectivo que le corresponde, así que solo se compensa la diferencia de tarjeta. La comisión de las cosmetólogas (${m2(M.Cs)}) se paga aparte y no entra en este cálculo.${hojasAnexo ? ' El detalle servicio por servicio está en el anexo.' : ''}</div>
+${aCero ? '' : `<div class="sig"><div><b>${esc2(FULL[M.deudor])}</b>Entrega · fecha de transferencia</div><div><b>${esc2(FULL[M.acreedor])}</b>Recibe · fecha</div></div>`}
+</div>${ft(3)}</div>`;
+  }
+
+  // ── Anexo: servicios que se cruzaron de terminal ──
+  let anexos = '';
+  if(hojasAnexo){
+    const NM = { c: nom2(M.docC.nombre), a: nom2(M.docA.nombre) };
+    const fF = iso => iso ? iso.split('-').reverse().slice(0, 2).join('/') : '';
+    const sC = suma(debeFilas.filter(r => r.t === 'c'), r => r.debe), sA = suma(debeFilas.filter(r => r.t === 'a'), r => r.debe);
+    const nC = debeFilas.filter(r => r.t === 'c').length, nA = debeFilas.length - nC;
+    for(let h = 0; h < hojasAnexo; h++){
+      const trozo = debeFilas.slice(h * POR_HOJA, (h + 1) * POR_HOJA);
+      const ultima = h === hojasAnexo - 1;
+      const filas = trozo.map(r => `<tr><td>${fF(r.fecha)}</td><td><span class="pc">${esc2(nomProp(r.pacienteNombre) || '—')}</span></td><td>${esc2(r.servicio)}</td><td>${esc2(sinCosm(r.atiendeNombre))}</td><td><span class="q1 q${r.t}">Terminal ${esc2(NM[r.t])}</span></td><td class="r">${m(r.card)}</td><td><span class="q1 q${r.t}">Debe ${esc2(NM[r.t])}</span></td><td class="r"><b>${m(r.debe)}</b></td></tr>`).join('');
+      anexos += `<div class="page fix">${hdrS('Pago entre doctores · Anexo', 'Detalle de lo <b>que se debe</b>')}<div class="wrap ax">
+<div class="sub" style="margin-top:0">Servicios de cabina cobrados con tarjeta en la terminal del otro doctor · ${debeFilas.length} servicio${debeFilas.length === 1 ? '' : 's'}${hojasAnexo > 1 ? ' · hoja ' + (h + 1) + ' de ' + hojasAnexo : ''}</div>
+<table class="cx"><thead><tr><th>Fecha</th><th>Paciente</th><th>Servicio</th><th>Atendió</th><th>Cobró</th><th class="r">Tarjeta</th><th>Quién debe</th><th class="r">Monto</th></tr></thead><tbody>${filas}</tbody></table>
+${ultima ? `<div class="cru" style="margin-top:12px"><div>Debe ${esc2(NM.c)} (${nC} servicio${nC === 1 ? '' : 's'})<br><b>${m(sC)}</b></div><div>Debe ${esc2(NM.a)} (${nA} servicio${nA === 1 ? '' : 's'})<br><b>${m(sA)}</b></div></div>
+<div class="tot" style="margin-top:10px"><span>${M.transf < 0.005 ? 'Cuentas a mano' : 'Transferencia neta · ' + esc2(NM[M.deudor]) + ' → ' + esc2(NM[M.acreedor])}</span><b>${m(M.transf)}</b></div>` : ''}
+</div>${ft(4 + h)}</div>`;
+    }
+  }
+  return { html: p2 + p3 + anexos, total: totalPags, cerrado: !!cierre, fCierre };
+}
+
+async function exportarCierreMes(){
+  const btn = document.getElementById('com-btn-pdf-mes');
+  const per = comPeriodoMesActivo();
+  if(!per){ toast('Elige un mes completo (pestaña "Mes") para generar el PDF de cierre de mes.'); return; }
+  if(!COM_SERVICE_ROWS.length){ toast('No hay servicios en este mes para exportar.'); return; }
+  const txt0 = btn.textContent;
+  btn.disabled = true; btn.textContent = '⏳ Generando…';
+  try{
+    const d = await cierreMesDatosFlash(per);
+    const nombreMes = comNombreMes(per);
+    const pag = cierreMesPaginasHtml(per, d, nombreMes);
+    d.cssExtra = CIERRE_MES_CSS;
+    d.brandTxt = 'Cierre de mes'; d.fechaTxtMes = nombreMes;
+    d.pieTxt = 'Skin Fabric · Cierre de mes · ' + nombreMes;
+    d.mesBanner = `<div class="mes"><span>Las siguientes páginas traen las <b>comisiones</b> y el <b>pago entre doctores</b> de este mes.</span><span>${pag.cerrado ? 'Comisiones cerradas el ' + esc2(pag.fCierre) : 'Mes abierto · cifras al momento de generar'}</span></div>`;
+    await flashHtmlAPdf(flashReportHtml(d, pag.total, pag.html), 'Cierre_de_Mes_' + per + '.pdf', 'Cierre de mes · Skin Fabric');
+    toast('✓ PDF de cierre de mes generado.');
+  }catch(e){
+    console.error('[SkinFabric] Error generando el PDF de cierre de mes:', e);
+    toast('No se pudo generar el PDF. Revisa tu conexión e inténtalo de nuevo.');
+  }finally{
+    btn.disabled = false; btn.textContent = txt0;
+  }
+}
+document.getElementById('com-btn-pdf-mes').addEventListener('click', exportarCierreMes);
+
 
 // Vista de la cosmetóloga: solo SUS servicios y SUS pacientes (la base ya le entrega solo eso; aquí se vuelve a filtrar por seguridad)
 function renderCierreCosmetologa(){
