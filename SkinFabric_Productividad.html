@@ -1477,9 +1477,9 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
       <span class="s3-role-chip" id="app-role-chip">—</span>
       <span id="app-user-name">—</span>
       <div class="bell-wrap" id="bell-wrap" style="display:none">
-        <button class="s3-config bell-btn" id="btn-bell" type="button" title="Registros tardíos" aria-label="Registros tardíos" aria-haspopup="true" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg><span class="bell-badge" id="bell-badge" hidden>0</span></button>
-        <div class="bell-panel" id="bell-panel" role="dialog" aria-label="Registros tardíos">
-          <div class="bell-head"><b>Registros tardíos</b><button type="button" id="bell-marcar">Marcar vistas</button></div>
+        <button class="s3-config bell-btn" id="btn-bell" type="button" title="Avisos" aria-label="Avisos" aria-haspopup="true" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg><span class="bell-badge" id="bell-badge" hidden>0</span></button>
+        <div class="bell-panel" id="bell-panel" role="dialog" aria-label="Avisos">
+          <div class="bell-head"><b>Avisos</b><button type="button" id="bell-marcar">Marcar vistas</button></div>
           <div class="bell-list" id="bell-list"></div>
           <button type="button" class="bell-foot" id="bell-ver-todo">Ver actividad completa</button>
         </div>
@@ -2353,7 +2353,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.10.19-85';
+const APP_VERSION = 'v2026.10.24-89';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 
@@ -5523,7 +5523,7 @@ function renderHistorial(){
       <td>${puedeEditarFarm()
         ? `<input type="text" class="hist-inline-factura hist-farm-factura${f.facturado && !f.num_factura ? ' pendiente' : ''}${f.num_factura ? ' ok' : ''}" data-farm-id="${esc2(f.id)}" data-factura="${f.facturado ? '1' : '0'}" value="${esc2(f.num_factura||'')}" placeholder="${f.facturado?'Pendiente':'—'}"/>`
         : `<span style="font-size:11px;color:var(--g6)">${f.facturado ? esc2(f.num_factura || 'Pendiente') : '<span class="h-mut">—</span>'}</span>`}</td>
-      <td>${puedeEditarFarm() ? `<button class="btn-sm btn-edit hist-farm-edit" data-id="${esc2(f.id)}" type="button" title="Editar esta venta">✏️</button>${MI_PERFIL?.rol === 'admin' ? ` <button class="btn-sm btn-del hist-farm-del" data-id="${esc2(f.id)}" type="button" title="Eliminar esta venta">🗑</button>` : ''}` : ''}</td>
+      <td>${puedeEditarFarm() ? `<button class="btn-sm btn-edit hist-farm-edit" data-id="${esc2(f.id)}" type="button" title="Editar esta venta">✏️</button>${puedeEditarFarm() ? ` <button class="btn-sm btn-del hist-farm-del" data-id="${esc2(f.id)}" type="button" title="Eliminar esta venta">🗑</button>` : ''}` : ''}</td>
     </tr>`;
     }
     const pago1 = r.no_vino ? '—' : `<span class="h-pay">${iconoPago(r.medio_pago)}${esc2(r.medio_pago || '—')}</span>`;
@@ -5561,8 +5561,8 @@ function renderHistorial(){
     const f = HIST_FARM.find(x => x.id === btn.dataset.id);
     const ok = await confirmarAsync({ titulo:'¿Eliminar venta de farmacia?', mensaje:`Se eliminará la venta de "${esc2(f?.medicamento || '')}" (${fmtMoney(f?.monto)}) de ${esc2(nomProp(f?.paciente) || 'sin paciente')}. Esta acción no se puede deshacer.`, textoConfirmar:'Eliminar', icono:'🗑', danger:true });
     if(!ok) return;
-    const { error } = await sb.from('farmacia_ventas').delete().eq('id', btn.dataset.id);
-    if(error){ console.error('[SkinFabric] Error eliminando venta de farmacia:', error); toast('No se pudo eliminar la venta.'); return; }
+    const { error } = await borrarFarmaciaIds([btn.dataset.id]);
+    if(error){ console.error('[SkinFabric] Error eliminando venta de farmacia:', error); toast(msgMesCerrado(error) || 'No se pudo eliminar la venta (revisa permisos u horario).'); return; }
     toast('✓ Venta eliminada.');
     cargarHistorial();
   }));
@@ -5578,6 +5578,12 @@ function renderHistorial(){
 
 // ── Editar venta de farmacia (admin) ──
 // Editan farmacia admin, recepción y doctores (la cosmetóloga no ve farmacia). Eliminar sigue siendo solo del admin.
+// Borra ventas de farmacia y comprueba que de verdad se borraron (RLS devuelve 0 filas sin error si no hay permiso).
+async function borrarFarmaciaIds(ids){
+  const { data, error } = await sb.from('farmacia_ventas').delete().in('id', ids).select('id');
+  if(error) return { error, n: 0 };
+  return { error: (data || []).length < ids.length ? { message: 'sin_permiso' } : null, n: (data || []).length };
+}
 function puedeEditarFarm(){ return !!MI_PERFIL?.rol && MI_PERFIL.rol !== 'cosmetologo'; }
 let HIST_FARM_EDIT_ID = null;
 function abrirModalEditarFarm(id){
@@ -5606,7 +5612,7 @@ function abrirModalEditarFarm(id){
     }
     sel.value = val || '';
   });
-  document.getElementById('editf-btn-eliminar').style.display = MI_PERFIL?.rol === 'admin' ? '' : 'none';
+  document.getElementById('editf-btn-eliminar').style.display = puedeEditarFarm() ? '' : 'none';
   document.getElementById('modal-editar-farm').classList.add('show');
 }
 function cerrarModalEditarFarm(){
@@ -5621,8 +5627,8 @@ document.getElementById('editf-btn-eliminar').addEventListener('click', async ()
   if(!f) return;
   const ok = await confirmarAsync({ titulo:'¿Eliminar venta de farmacia?', mensaje:`Se eliminará la venta de "${esc2(f.medicamento || '')}" (${fmtMoney(f.monto)}) de ${esc2(nomProp(f.paciente) || 'sin paciente')}. Esta acción no se puede deshacer.`, textoConfirmar:'Eliminar', icono:'🗑', danger:true });
   if(!ok) return;
-  const { error } = await sb.from('farmacia_ventas').delete().eq('id', id);
-  if(error){ console.error('[SkinFabric] Error eliminando venta de farmacia:', error); toast('No se pudo eliminar la venta.'); return; }
+  const { error } = await borrarFarmaciaIds([id]);
+  if(error){ console.error('[SkinFabric] Error eliminando venta de farmacia:', error); toast(msgMesCerrado(error) || 'No se pudo eliminar la venta (revisa permisos u horario).'); return; }
   cerrarModalEditarFarm();
   toast('✓ Venta eliminada.');
   cargarHistorial();
@@ -5997,7 +6003,27 @@ document.getElementById('edit-btn-eliminar').addEventListener('click', async ()=
     toast(msgMesCerrado(error) || 'No se pudo eliminar el registro.');
     return;
   }
-  toast('✓ Registro movido a la papelera.');
+  // v86: la venta de farmacia es independiente de la consulta; si el paciente tiene farmacia ese mismo día, se ofrece borrarla también
+  // para que no quede huérfana (y duplicada) en el Cierre al volver a capturar el registro.
+  let farmMsg = '';
+  try{
+    const filaC = HIST_ROWS.find(x => x.id === HIST_EDIT_ID);
+    if(HIST_EDIT_PACIENTE_ID && filaC?.fecha){
+      const { data: fv } = await sb.from('farmacia_ventas').select('id,medicamento,cantidad,monto').eq('paciente_id', HIST_EDIT_PACIENTE_ID).eq('fecha', filaC.fecha).limit(50);
+      if(fv && fv.length){
+        const pzas = fv.reduce((a, x) => a + (Number(x.cantidad) || 1), 0);
+        const tot = fv.reduce((a, x) => a + (Number(x.monto) || 0), 0);
+        const lista = fv.map(x => `• ${esc2(x.medicamento || 'Producto')} (${Number(x.cantidad) || 1} pza) — ${fmtMoney0(x.monto)}`).join('<br>');
+        const borrar = await confirmarAsync({ titulo:'¿Borrar también la farmacia?', mensaje:`Este paciente tiene ${fv.length} venta(s) de farmacia ese mismo día (${pzas} pza · ${fmtMoney0(tot)}):<br><br>${lista}<br><br>Las ventas de farmacia no van a la papelera: si las borras se eliminan definitivamente. Si solo estás corrigiendo el registro, bórralas para no duplicarlas al capturar de nuevo.`, textoConfirmar:'Borrar farmacia también', textoCancelar:'Dejarlas', icono:'💊', danger:true });
+        if(borrar){
+          const { error: errF } = await borrarFarmaciaIds(fv.map(x => x.id));
+          if(errF){ console.error('[SkinFabric] Error borrando farmacia del día:', errF); farmMsg = ' Pero NO se pudo borrar la farmacia: ' + (msgMesCerrado(errF) || 'bórrala desde Farmacia.'); }
+          else farmMsg = ' Farmacia del día borrada (' + fv.length + ').';
+        }
+      }
+    }
+  }catch(e){ console.error('[SkinFabric] Error revisando farmacia del día:', e); }
+  toast('✓ Registro movido a la papelera.' + farmMsg);
   cerrarModalEditar();
   cargarHistorial();
 });
@@ -7009,7 +7035,7 @@ function renderCierreFarmacia(filas, totalFarm, pzas){
   const esAdmin = MI_PERFIL?.rol === 'admin';
   const fmtF = iso => iso ? iso.split('-').reverse().slice(0, 2).join('/') : '';
   const detalle = filas.slice().sort((a,b)=> a.fecha < b.fecha ? 1 : a.fecha > b.fecha ? -1 : 0).map(f=>
-    `<div class="farm-det-row" data-id="${esc2(f.id)}"><span class="f">${fmtF(f.fecha)}</span><span class="n" title="${esc2(nomProp(f.paciente) || '')}">${esc2(nomProp(f.paciente) || '—')}</span><span class="pr" title="${esc2(f.medicamento)}">${esc2(f.medicamento)}</span><span class="pz">×${Math.max(1, parseInt(f.cantidad, 10) || 1)}</span><span class="m">${fmtMoney(f.monto)}</span>${esAdmin ? '<button class="del" type="button" title="Eliminar esta venta">🗑</button>' : '<span></span>'}</div>`
+    `<div class="farm-det-row" data-id="${esc2(f.id)}"><span class="f">${fmtF(f.fecha)}</span><span class="n" title="${esc2(nomProp(f.paciente) || '')}">${esc2(nomProp(f.paciente) || '—')}</span><span class="pr" title="${esc2(f.medicamento)}">${esc2(f.medicamento)}</span><span class="pz">×${Math.max(1, parseInt(f.cantidad, 10) || 1)}</span><span class="m">${fmtMoney(f.monto)}</span>${puedeEditarFarm() ? '<button class="del" type="button" title="Eliminar esta venta">🗑</button>' : '<span></span>'}</div>`
   ).join('');
   cont.innerHTML = `
     <div class="farm-grid2">
@@ -7029,8 +7055,8 @@ function renderCierreFarmacia(filas, totalFarm, pzas){
     const f = CIERRE_FARM.find(x => x.id === id);
     const ok = await confirmarAsync({ titulo:'¿Eliminar venta de farmacia?', mensaje:`Se eliminará la venta de "${esc2(f?.medicamento || '')}" (${fmtMoney(f?.monto)}) de ${esc2(nomProp(f?.paciente) || 'sin paciente')}. Esta acción no se puede deshacer.`, textoConfirmar:'Eliminar', icono:'🗑', danger:true });
     if(!ok) return;
-    const { error } = await sb.from('farmacia_ventas').delete().eq('id', id);
-    if(error){ console.error('[SkinFabric] Error eliminando venta de farmacia:', error); toast('No se pudo eliminar la venta.'); return; }
+    const { error } = await borrarFarmaciaIds([id]);
+    if(error){ console.error('[SkinFabric] Error eliminando venta de farmacia:', error); toast(msgMesCerrado(error) || 'No se pudo eliminar la venta (revisa permisos u horario).'); return; }
     toast('✓ Venta eliminada.');
     cargarCierre();
   }));
@@ -9365,12 +9391,30 @@ async function cargarActividad(){
       const cierre = a.accion === 'cerrar_comisiones';
       return `<div style="border-left:3px solid ${cierre ? '#2ABFBF' : '#E0703F'};padding-left:8px;margin:2px 0">${cierre ? '🔒' : '🔓'} <b>${quien}</b> ${cierre ? 'cerró' : 'reabrió'} las comisiones de <b>${esc2(per)}</b>${cierre && d.ingreso != null ? ' · ' + fmtMoney(d.ingreso) : ''} · ${cuando}</div>`;
     }
+    const nt = actNuevaTexto(a);
+    if(nt) return `<div style="border-left:3px solid ${nt.color};padding-left:8px;margin:2px 0">${nt.ico} ${nt.html} · ${cuando}</div>`;
     return `<div>${quien} — ${esc2(a.accion)}${a.tabla ? ' · '+esc2(a.tabla) : ''} · ${cuando}</div>`;
   }).join('');
 }
 
 // ── Campanita: registros tardíos (solo admin) ──
-const BELL_ACCIONES = ['registro_tardio','fecha_retroactiva'];
+const ACT_NUEVAS = ['consulta_papelera','consulta_restaurada','farmacia_eliminada','farmacia_eliminada_masivo','vaciar_papelera','hard_delete_consulta'];
+const BELL_ACCIONES = ['registro_tardio','fecha_retroactiva', ...ACT_NUEVAS];
+// v89: texto de las acciones de papelera / farmacia para la campanita y la Actividad reciente
+function actNuevaTexto(a){
+  const d = a.detalle || {};
+  const quien = `<b>${esc2(a.personal?.nombre || 'Sistema')}</b>`;
+  const pac = `<b>${esc2(nomProp(d.paciente) || 'sin paciente')}</b>`;
+  switch(a.accion){
+    case 'consulta_papelera': return { ico:'🗑', color:'#E0703F', html:`${quien} movió a la papelera la consulta de ${pac} del ${fmtFechaCorta(d.fecha)} · ${fmtMoney(d.monto)}` };
+    case 'consulta_restaurada': return { ico:'♻️', color:'#2ABFBF', html:`${quien} restauró la consulta de ${pac} del ${fmtFechaCorta(d.fecha)} · ${fmtMoney(d.monto)}` };
+    case 'farmacia_eliminada': return { ico:'💊', color:'#E0703F', html:`${quien} eliminó una venta de farmacia: ${esc2(d.medicamento || 'producto')} ×${Math.max(1, parseInt(d.cantidad, 10) || 1)} · ${fmtMoney(d.monto)} · ${pac}${d.fecha ? ' · ' + fmtFechaCorta(d.fecha) : ''}` };
+    case 'farmacia_eliminada_masivo': return { ico:'💊', color:'#E0703F', html:`${quien} eliminó <b>${Number(d.cantidad) || 0}</b> ventas de farmacia de una vez (${fmtMoney(d.monto)}) — normalmente por reemplazar un Excel` };
+    case 'vaciar_papelera': return { ico:'🧹', color:'#B8481F', html:`${quien} <b>vació la papelera</b> (${Number(d.cantidad) || 0} consulta(s) eliminadas en definitiva)` };
+    case 'hard_delete_consulta': return { ico:'✕', color:'#B8481F', html:`${quien} eliminó en definitiva una consulta de la papelera` };
+  }
+  return null;
+}
 let BELL_ITEMS = [];
 function bellKey(){ return 'sf_bell_seen_' + (MI_PERFIL?.id || ''); }
 function bellVisto(){ try{ return localStorage.getItem(bellKey()) || ''; }catch(e){ return ''; } }
@@ -9383,14 +9427,16 @@ function bellRender(){
   badge.hidden = n === 0;
   badge.textContent = n > 9 ? '9+' : String(n);
   btn.classList.toggle('on', n > 0);
-  btn.setAttribute('aria-label', n ? `Registros tardíos: ${n} sin revisar` : 'Registros tardíos');
+  btn.setAttribute('aria-label', n ? `Avisos: ${n} sin revisar` : 'Avisos');
   const v = bellVisto();
   const list = document.getElementById('bell-list');
   if(!BELL_ITEMS.length){
-    list.innerHTML = '<div class="bell-vacio">Sin registros tardíos. Aquí te avisaremos cuando alguien capture una consulta de un día anterior.</div>';
+    list.innerHTML = '<div class="bell-vacio">Sin avisos. Aquí te avisaremos de consultas tardías, borrados, restauraciones y cuando se vacíe la papelera.</div>';
     return;
   }
   list.innerHTML = BELL_ITEMS.map(a => {
+    const ntx = actNuevaTexto(a);
+    if(ntx){ const nuevoX = !v || a.created_at > v; return `<div class="bell-it${nuevoX ? ' nuevo' : ''}">${ntx.ico} ${ntx.html}<span class="ts">${fmtFechaHora(a.created_at)}</span></div>`; }
     const d = a.detalle || {};
     const dias = Number(d.dias) || 0;
     const que = a.accion === 'registro_tardio' ? 'registró consulta del' : `cambió una consulta (antes ${fmtFechaCorta(d.fecha_anterior)}) al`;
@@ -9403,7 +9449,7 @@ async function cargarCampana(){
   if(!MI_PERFIL || MI_PERFIL.rol !== 'admin') return;
   const { data, error } = await sb.from('audit_log').select('*, personal(nombre)').in('accion', BELL_ACCIONES).order('created_at', { ascending:false }).limit(30);
   if(error){ console.error('[SkinFabric] Error cargando campanita:', error); return; }
-  BELL_ITEMS = data || [];
+  BELL_ITEMS = (data || []).filter(a => !(ACT_NUEVAS.includes(a.accion) && a.actor_id === MI_PERFIL.id));  // tus propias acciones no te avisan
   const ids = BELL_ITEMS.map(a => a.registro_id).filter(Boolean);
   if(ids.length){
     const { data: cs } = await sb.from('consultas').select('id,pacientes(nombre)').in('id', ids);
@@ -9416,7 +9462,8 @@ async function campanaNuevaFila(row){
   if(!row || !BELL_ACCIONES.includes(row.accion) || MI_PERFIL?.rol !== 'admin') return;
   await cargarCampana();
   const a = BELL_ITEMS.find(x => x.id === row.id);
-  if(a){ const dias = Number(a.detalle?.dias) || 0; toast(`🔔 ${a.personal?.nombre || 'Alguien'} registró una consulta tardía (${dias} ${dias === 1 ? 'día' : 'días'})`); }
+  if(a && ACT_NUEVAS.includes(a.accion)){ const nt = actNuevaTexto(a); if(nt) toast(`🔔 ${nt.html.replace(/<[^>]+>/g, '')}`); }
+  else if(a){ const dias = Number(a.detalle?.dias) || 0; toast(`🔔 ${a.personal?.nombre || 'Alguien'} registró una consulta tardía (${dias} ${dias === 1 ? 'día' : 'días'})`); }
   if(MI_PERFIL?.rol === 'admin' && document.getElementById('app-screen-personal')?.classList.contains('act')) cargarActividad();
 }
 (function(){
