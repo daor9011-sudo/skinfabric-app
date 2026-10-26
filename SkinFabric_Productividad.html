@@ -2357,7 +2357,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.10.24-90';
+const APP_VERSION = 'v2026.10.26-91';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 
@@ -2618,6 +2618,7 @@ function entrarAlShell(perfil){
   const showDash = perfil.permisos?.puede_ver_dashboard === true;
   const showGastos = perfil.permisos?.puede_ver_gastos === true;
   const showComisiones = perfil.permisos?.puede_ver_comisiones === true;
+  { const bp = document.getElementById('com-btn-pdf-mes'); if(bp) bp.style.display = (perfil.rol === 'admin' || perfil.rol === 'doctor') ? '' : 'none'; }   // PDF de cierre de mes: solo admin y doctores
   const soloProductos = perfil.rol !== 'admin' && (perfil.permisos?.puede_alta_productos === true || perfil.permisos?.puede_editar_productos === true); // alta y/o edición del catálogo de farmacia
   const showConfig = perfil.rol === 'admin' || soloProductos;
   document.querySelector('[data-screen2="dash"]').classList.toggle('locked', !showDash);
@@ -7029,6 +7030,7 @@ ${ultima ? `<div class="cru" style="margin-top:12px"><div>Debe ${esc2(NM.c)} (${
 }
 
 async function exportarCierreMes(){
+  if(MI_PERFIL?.rol !== 'admin' && MI_PERFIL?.rol !== 'doctor'){ toast('El PDF de cierre de mes solo lo pueden descargar el administrador y los doctores.'); return; }
   const btn = document.getElementById('com-btn-pdf-mes');
   const per = comPeriodoMesActivo();
   if(!per){ toast('Elige un mes completo (pestaña "Mes") para generar el PDF de cierre de mes.'); return; }
