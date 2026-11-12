@@ -2428,7 +2428,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.11.12-97';
+const APP_VERSION = 'v2026.11.12-98';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 
@@ -7489,7 +7489,7 @@ let CV_LAST = null;                 // último porDoctor (para re-pintar al camb
 const CV_EXPANDIDO = new Set();     // personas con "Ver todos" abierto (modo Mes)
 const CV_TOPE = 24;                 // pacientes visibles por persona en modo Mes antes de "Ver todos"
 const CV_VISTAS = [['tickets','▦ Tickets'],['acordeon','☰ Acordeón'],['clasica','Clásica']];
-function cvClave(){ return 'sf_cierre_vista_' + (MI_PERFIL?.id || 'u'); }
+function cvClave(){ return 'sf_cierre_vista2_' + (MI_PERFIL?.id || 'u'); /* v2: reinicia lo guardado en pruebas, todos arrancan en Clásica */ }
 function cvVista(){
   try{ const v = localStorage.getItem(cvClave()); if(CV_VISTAS.some(x => x[0] === v)) return v; }catch(e){}
   return 'clasica';
