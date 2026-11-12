@@ -669,7 +669,10 @@ main.appmain{padding:22px 26px 40px;max-width:1250px;margin:0 auto}
 .cv-mas:hover{border-color:var(--teal)}
 .cv-hdb{display:grid;grid-template-columns:auto auto 1fr;gap:26px;align-items:center;padding:18px 22px;background:linear-gradient(135deg,#0B1628,#1B3A6B);color:#fff}
 .cv-hdb.amb{background:linear-gradient(135deg,#2a1d05,#6b4a0b)}
-.cv-mut2{font-size:11.5px;color:rgba(255,255,255,.7)}
+.cv-mut2{font-size:11.5px;color:rgba(255,255,255,.85)}
+.cv-hn{font:800 18px var(--font-d);color:#fff;letter-spacing:.1px;line-height:1.2}
+.cv-hr{display:inline-block;margin:4px 0 2px;padding:2px 9px;border-radius:20px;background:rgba(255,255,255,.18);color:#fff;font-size:10.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+.cv-hdb .cv-big{color:#fff}.cv-kp>div,.cv-pmr{color:rgba(255,255,255,.92)}.cv-kp small{color:rgba(255,255,255,.75)}.cv-pc{color:rgba(255,255,255,.8)}
 .cv-big{font:800 32px var(--font-d);line-height:1.15;margin:2px 0}
 .cv-kp{display:flex;gap:22px}.cv-kp>div{font-size:11.5px;color:rgba(255,255,255,.75);display:flex;flex-direction:column;gap:2px}
 .cv-kp b{font:800 18px var(--font-d);color:#fff}.cv-kp small{font-size:10.5px;color:rgba(255,255,255,.6)}
@@ -2426,7 +2429,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.11.12-95';
+const APP_VERSION = 'v2026.11.12-96';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 
@@ -7573,7 +7576,7 @@ function cvTarjeta(d, vista){
     ? `<div><span class="cv-dot" style="background:#2ABFBF"></span>Servicios<b>${fmtMoney0(d.serv)}</b><small>producción de cabina</small></div>`
     : `${hayS ? `<div><span class="cv-dot" style="background:#2ABFBF"></span>Servicios<b>${fmtMoney0(d.serv)}</b><small>${pctS}% · ${d.count} consulta(s)</small></div>` : ''}${hayF ? `<div><span class="cv-dot" style="background:#9B59B6"></span>Farmacia<b>${fmtMoney0(d.farm)}</b><small>${pctF}% · ${nVent} venta(s) · ${d.farmPzas} pieza(s)</small></div>` : ''}`;
   const filas = visibles.map((p, i) => cvFila(d, p, CIERRE_MODO === 'dia' && i === 0 && !cab)).join('');
-  return `<section class="cv-card acc" style="border-left-color:${color}"><div class="cv-hdb${cab ? ' amb' : ''}"><div><div class="cv-mut2">${esc2(d.nombre)} · ${cab ? 'Cosmetóloga' : 'Doctor/a'}</div><div class="cv-big">${fmtMoney(d.total)}</div><div class="cv-mut2">${sub.replace(/^Cosmetóloga · /, '')}</div></div>
+  return `<section class="cv-card acc" style="border-left-color:${color}"><div class="cv-hdb${cab ? ' amb' : ''}"><div><div class="cv-hn">${esc2(d.nombre)}</div><div class="cv-hr">${cab ? 'Cosmetóloga' : 'Doctor/a'}</div><div class="cv-big">${fmtMoney(d.total)}</div><div class="cv-mut2">${sub.replace(/^Cosmetóloga · /, '')}</div></div>
     <div class="cv-kp">${kp}</div><div class="cv-pmx"><div class="cv-mut2" style="margin-bottom:6px">Cobrado por medio</div>${barras}</div></div>
     <div class="cv-lst"><div class="cv-lh"><span></span><span>Paciente</span><span>Desglose</span><span>Pagó con</span><span style="text-align:right">Total</span></div>${filas}</div>${mas}</section>`;
 }
