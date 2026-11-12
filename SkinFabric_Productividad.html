@@ -2427,7 +2427,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.11.12-99';
+const APP_VERSION = 'v2026.11.12-100';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 
@@ -7488,12 +7488,10 @@ let CV_LAST = null;                 // último porDoctor (para re-pintar al camb
 const CV_EXPANDIDO = new Set();     // personas con "Ver todos" abierto (modo Mes)
 const CV_TOPE = 24;                 // pacientes visibles por persona en modo Mes antes de "Ver todos"
 const CV_VISTAS = [['tickets','▦ Tickets'],['acordeon','☰ Acordeón'],['clasica','Clásica']];
-function cvClave(){ return 'sf_cierre_vista2_' + (MI_PERFIL?.id || 'u'); /* v2: reinicia lo guardado en pruebas, todos arrancan en Clásica */ }
-function cvVista(){
-  try{ const v = localStorage.getItem(cvClave()); if(CV_VISTAS.some(x => x[0] === v)) return v; }catch(e){}
-  return 'clasica';
-}
-function cvGuardar(v){ try{ localStorage.setItem(cvClave(), v); }catch(e){} }
+// La vista arranca SIEMPRE en Clásica; si eliges otra, vale solo mientras la app esté abierta (no se guarda).
+let CV_VISTA_SESION = 'clasica';
+function cvVista(){ return CV_VISTAS.some(x => x[0] === CV_VISTA_SESION) ? CV_VISTA_SESION : 'clasica'; }
+function cvGuardar(v){ CV_VISTA_SESION = v; }
 
 function renderCierrePorDoctor(porDoctor){
   CV_LAST = porDoctor;
