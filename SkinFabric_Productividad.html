@@ -667,20 +667,19 @@ main.appmain{padding:22px 26px 40px;max-width:1250px;margin:0 auto}
 .cv-tkp{margin-top:auto;padding-top:10px;display:flex;gap:5px;flex-wrap:wrap}
 .cv-mas{display:block;margin:14px auto 0;border:1.5px solid var(--g2);background:#fff;border-radius:20px;padding:7px 18px;font:700 12px var(--font-b);color:var(--navy);cursor:pointer}
 .cv-mas:hover{border-color:var(--teal)}
-.cv-hdb{display:grid;grid-template-columns:auto auto 1fr;gap:26px;align-items:center;padding:18px 22px;background:linear-gradient(180deg,#F6F8FC,#fff);border-bottom:1px solid var(--g2);color:var(--navy)}
-.cv-hdb.amb{background:linear-gradient(180deg,#FDF6E3,#fff)}
-.cv-mut2{font-size:11.5px;color:var(--g6)}
-.cv-hn{font:800 18px var(--font-d);color:var(--navy);letter-spacing:.1px;line-height:1.2}
-.cv-hr{display:inline-block;margin:4px 0 2px;padding:2px 9px;border-radius:20px;background:var(--navy);color:#fff;font-size:10.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+.cv-hdb{display:grid;grid-template-columns:auto auto 1fr;gap:26px;align-items:center;padding:18px 22px;background:linear-gradient(180deg,var(--cv-bg),#fff);border-bottom:1px solid var(--cv-bd);color:var(--cv-tx)}
+.cv-mut2{font-size:11.5px;color:var(--cv-tx);opacity:.8}
+.cv-hn{font:800 18px var(--font-d);color:var(--cv-tx);letter-spacing:.1px;line-height:1.2}
+.cv-hr{display:inline-block;margin:4px 0 2px;padding:2px 9px;border-radius:20px;background:var(--cv-tx);color:#fff;font-size:10.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
 
-.cv-big{font:800 32px var(--font-d);line-height:1.15;margin:2px 0;color:var(--navy)}
-.cv-kp{display:flex;gap:22px}.cv-kp>div{font-size:11.5px;color:var(--g6);display:flex;flex-direction:column;gap:2px}
-.cv-kp b{font:800 18px var(--font-d);color:var(--navy)}.cv-kp small{font-size:10.5px;color:var(--g4)}
+.cv-big{font:800 32px var(--font-d);line-height:1.15;margin:2px 0;color:var(--cv-tx)}
+.cv-kp{display:flex;gap:22px}.cv-kp>div{font-size:11.5px;color:var(--cv-tx);display:flex;flex-direction:column;gap:2px}
+.cv-kp b{font:800 18px var(--font-d);color:var(--cv-tx)}.cv-kp small{font-size:10.5px;color:var(--cv-tx);opacity:.75}
 .cv-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px}
 .cv-pmx{min-width:0}
 .cv-pmr{display:grid;grid-template-columns:auto minmax(40px,1fr) auto 34px;gap:8px;align-items:center;font-size:11.5px;margin-bottom:4px}
-.cv-pmb{height:6px;background:var(--g2);border-radius:4px;overflow:hidden}.cv-pmb i{display:block;height:100%;border-radius:4px}
-.cv-pmr b{font-weight:700;color:var(--navy)}.cv-pc{text-align:right;color:var(--g4)}
+.cv-pmb{height:6px;background:rgba(255,255,255,.75);border-radius:4px;overflow:hidden}.cv-pmb i{display:block;height:100%;border-radius:4px}
+.cv-pmr b{font-weight:700;color:var(--cv-tx)}.cv-pc{text-align:right;color:var(--cv-tx);opacity:.75}
 .cv-lh,.cv-ach{display:grid;grid-template-columns:18px minmax(0,1.5fr) minmax(0,1fr) minmax(0,1.6fr) 92px;gap:10px;align-items:center;padding:9px 18px}
 .cv-lh{font-size:10px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--g4);border-bottom:1px solid var(--g2)}
 .cv-ach{cursor:pointer;border-bottom:1px solid var(--g1);font-size:12.5px}.cv-ach:hover{background:var(--g1)}
@@ -2428,7 +2427,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.11.12-98';
+const APP_VERSION = 'v2026.11.12-99';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 
@@ -7510,6 +7509,12 @@ function cvPagosChips(pagos, conMonto){
   const mixto = arr.filter(x => x[1] > 0).length > 1;
   return arr.map(([m, v]) => cvChip(m, (conMonto || mixto) && v > 0 ? v : null)).join('');
 }
+// Misma paleta que la pantalla de Comisiones (Dr. azul, Dra. turquesa, cosmetólogas ámbar)
+function cvPaleta(d){
+  if(d.rol === 'cosmetologo') return { c:'#C8820A', bg:'#FFF0D2', bd:'#F0CD8A', tx:'#7A4D00' };
+  if(normalizar(d.nombre).includes('alejandra')) return { c:'#2ABFBF', bg:'#D9F4F4', bd:'#8FDADA', tx:'#0B6B6B' };
+  return { c:'#2F6FD0', bg:'#DCEBFB', bd:'#A9C9F2', tx:'#173F82' };
+}
 function cvColor(d){
   if(d.rol === 'cosmetologo') return '#C8820A';
   return normalizar(d.nombre).includes('alejandra') ? '#2ABFBF' : '#2F6FD0';
@@ -7574,8 +7579,9 @@ function cvTarjeta(d, vista){
   const kp = cab
     ? `<div><span class="cv-dot" style="background:#2ABFBF"></span>Servicios<b>${fmtMoney0(d.serv)}</b><small>producción de cabina</small></div>`
     : `${hayS ? `<div><span class="cv-dot" style="background:#2ABFBF"></span>Servicios<b>${fmtMoney0(d.serv)}</b><small>${pctS}% · ${d.count} consulta(s)</small></div>` : ''}${hayF ? `<div><span class="cv-dot" style="background:#9B59B6"></span>Farmacia<b>${fmtMoney0(d.farm)}</b><small>${pctF}% · ${nVent} venta(s) · ${d.farmPzas} pieza(s)</small></div>` : ''}`;
-  const filas = visibles.map((p, i) => cvFila(d, p, CIERRE_MODO === 'dia' && i === 0 && !cab)).join('');
-  return `<section class="cv-card acc" style="border-left-color:${color}"><div class="cv-hdb${cab ? ' amb' : ''}"><div><div class="cv-hn">${esc2(d.nombre)}</div><div class="cv-hr">${cab ? 'Cosmetóloga' : 'Doctor/a'}</div><div class="cv-big">${fmtMoney(d.total)}</div><div class="cv-mut2">${sub.replace(/^Cosmetóloga · /, '')}</div></div>
+  const filas = visibles.map((p) => cvFila(d, p, false)).join('');
+  const pal = cvPaleta(d);
+  return `<section class="cv-card acc" style="border-left-color:${color};--cv-bg:${pal.bg};--cv-bd:${pal.bd};--cv-tx:${pal.tx}"><div class="cv-hdb"><div><div class="cv-hn">${esc2(d.nombre)}</div><div class="cv-hr">${cab ? 'Cosmetóloga' : 'Doctor/a'}</div><div class="cv-big">${fmtMoney(d.total)}</div><div class="cv-mut2">${sub.replace(/^Cosmetóloga · /, '')}</div></div>
     <div class="cv-kp">${kp}</div><div class="cv-pmx"><div class="cv-mut2" style="margin-bottom:6px">Cobrado por medio</div>${barras}</div></div>
     <div class="cv-lst"><div class="cv-lh"><span></span><span>Paciente</span><span>Desglose</span><span>Pagó con</span><span style="text-align:right">Total</span></div>${filas}</div>${mas}</section>`;
 }
