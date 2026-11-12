@@ -412,6 +412,7 @@ main.appmain{padding:22px 26px 40px;max-width:1250px;margin:0 auto}
 .h-np.d2{background:#D9F4F4;color:#0B6B6B;box-shadow:inset 0 0 0 1px #8FDADA}
 .h-np.cs{background:#FFF0D2;color:#7A4D00;box-shadow:inset 0 0 0 1px #F0CD8A}
 .h-np.ot{background:var(--g1);color:var(--g6);box-shadow:inset 0 0 0 1px var(--g2)}
+.h-cruz{margin-top:3px;font-size:10px;font-weight:700;color:var(--purple);line-height:1.25}
 .h-svc{display:inline-block;max-width:128px;font-size:10.5px;font-weight:700;border-radius:20px;padding:3px 10px;line-height:1.25;background:#FDF0D2;color:#9a6a06}
 .h-svc.pri{background:#DFF3E5;color:#1c7a41}
 .h-svc.sub{background:#DCEAFB;color:#1f5fae}
@@ -2357,7 +2358,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.11.10-93';
+const APP_VERSION = 'v2026.11.12-94';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 
@@ -5272,6 +5273,7 @@ document.getElementById('reg-btn-limpiar').addEventListener('click', limpiarRegi
 // ============================================================
 let HIST_ROWS = [];
 let HIST_FARM_KPI = []; // farmacia solo para la tarjeta de la vista Servicios (no se lista en la tabla)
+let HIST_FARM_DUENOS = new Map(); // paciente_id -> dueño (para marcar ventas de pacientes de otro doctor)
 let HIST_FARM = []; // ventas de farmacia que se muestran en el Historial (filtro 💊 Farmacia / Servicios + Farmacia)
 let HIST_EXCL_FILTRO = null; // 'facturado' | 'nofacturado' | 'novino' | null
 let HIST_PAPELERA_ABIERTA = false;
@@ -5374,7 +5376,7 @@ async function cargarHistorial(){
   let qf = null;
   if(quiereFarm){
     qf = sb.from('farmacia_ventas')
-      .select('id,fecha,paciente,medicamento,cantidad,monto,monto_2,medio_pago,medio_pago_2,monto_3,medio_pago_3,facturado,num_factura,nota,doctor_id,doctor:personal!doctor_id(nombre,rol)')
+      .select('id,fecha,paciente,paciente_id,medicamento,cantidad,monto,monto_2,medio_pago,medio_pago_2,monto_3,medio_pago_3,facturado,num_factura,nota,doctor_id,doctor:personal!doctor_id(nombre,rol)')
       .order('fecha', { ascending:false })
       .limit(5000);
     if(desde) qf = qf.gte('fecha', desde);
@@ -5402,6 +5404,8 @@ async function cargarHistorial(){
   if(tipoId) rows = rows.filter(r => (r.consulta_servicios||[]).some(cs => cs.tipo_servicio_id === tipoId));
   HIST_ROWS = rows;
   HIST_FARM = linea === 'serv' ? [] : (resF.data || []);
+  HIST_FARM_DUENOS = HIST_FARM.length ? await farmDuenosDe(HIST_FARM) : new Map();
+  if(miReqId !== histReqId) return;
   HIST_FARM_KPI = linea === 'serv' ? (resF.data || []) : [];
   renderHistorial();
 }
@@ -5467,6 +5471,22 @@ document.getElementById('hist-kpi-chips').addEventListener('click', e => {
 
 // Nombre del personal en píldora de color (mismos colores que Comisiones):
 // Dra. Alejandra = verde agua, el otro doctor = azul, cabina (cosmetólogas) = ámbar.
+// Dueño del paciente de cada venta de farmacia (farmacia_ventas no tiene FK a pacientes: se consulta aparte por paciente_id).
+// Devuelve un Map paciente_id -> { nombre, rol }. Si falla, devuelve un Map vacío (la farmacia se muestra igual, sin dueño).
+async function farmDuenosDe(ventas){
+  const mapa = new Map();
+  const ids = [...new Set((ventas || []).map(v => v.paciente_id).filter(Boolean))];
+  for(let i = 0; i < ids.length; i += 150){
+    const { data, error } = await sb.from('pacientes').select('id,dueno:personal!dueno_id(nombre,rol)').in('id', ids.slice(i, i + 150));
+    if(error){ console.error('[SkinFabric] Error cargando dueños de pacientes de farmacia:', error); return mapa; }
+    (data || []).forEach(p => { if(p.dueno) mapa.set(p.id, { nombre: p.dueno.nombre, rol: p.dueno.rol }); });
+  }
+  return mapa;
+}
+// ¿El paciente es de un doctor y compró en la farmacia de OTRO doctor? (la venta se queda en la farmacia que vendió)
+function farmEsCruzada(v, dueno){
+  return !!(dueno && dueno.rol === 'doctor' && v.doctor?.rol === 'doctor' && dueno.nombre !== v.doctor?.nombre);
+}
 function personaCeldaHtml(nombre, rol){
   if(!nombre) return '<span class="h-mut">—</span>';
   const n = String(nombre);
@@ -5515,11 +5535,14 @@ function renderHistorial(){
       const cant = Math.max(1, parseInt(f.cantidad, 10) || 1);
       const pago2f = (Number(f.monto_2) > 0 && f.medio_pago_2 ? `<div style="font-size:10px;color:var(--g6)">+${iconoPago(f.medio_pago_2)}${esc2(f.medio_pago_2)}</div>` : '') + (Number(f.monto_3) > 0 && f.medio_pago_3 ? `<div style="font-size:10px;color:var(--g6)">+${iconoPago(f.medio_pago_3)}${esc2(f.medio_pago_3)}</div>` : '');
       const quienHtml = personaCeldaHtml(f.doctor?.nombre, f.doctor?.rol);
+      const duenoF = f.paciente_id ? HIST_FARM_DUENOS.get(f.paciente_id) : null;
+      const cruz = farmEsCruzada(f, duenoF);
+      const duenoFarmHtml = duenoF ? personaCeldaHtml(duenoF.nombre, duenoF.rol) + (cruz ? `<div class="h-cruz" title="Paciente de ${esc2(duenoF.nombre)}; la venta se queda en la farmacia de ${esc2(f.doctor?.nombre || '')}">↔ compró en farmacia de ${esc2(String(f.doctor?.nombre || '').split(/\s+/).slice(0, 2).join(' '))}</div>` : '') : '<span class="h-mut">—</span>';
       return `<tr class="hist-farm-row" data-farm-id="${esc2(f.id)}">
       <td class="h-dt">${fmtFechaCorta(f.fecha)}</td>
       <td>${esc2(nomProp(f.paciente) || '—')}</td>
       <td class="h-mut">—</td>
-      <td class="h-mut">—</td>
+      <td>${duenoFarmHtml}</td>
       <td>${quienHtml}</td>
       <td>${quienHtml}</td>
       <td><span class="h-svc far">${esc2(f.medicamento || '—')}${cant > 1 ? ' <i>×' + cant + '</i>' : ''}</span></td>
@@ -6188,6 +6211,8 @@ function exportarExcel(filas, farm){
         'Precio unitario': f.precio_unitario != null ? Number(f.precio_unitario) : '',
         'Monto de la venta': Number(f.monto || 0),
         'Vendió (doctor)': f.doctor?.nombre || '',
+        'Dueño del paciente': (f.paciente_id && farm.duenos?.get(f.paciente_id)?.nombre) || '',
+        'Paciente de otro doctor': farmEsCruzada(f, f.paciente_id ? farm.duenos?.get(f.paciente_id) : null) ? 'Sí' : '',
         '1er medio de pago': pagos[0]?.medio || '',
         '1er pago': pagos[0] ? Math.round(pagos[0].monto * 100) / 100 : '',
         '2do medio de pago': pagos[1]?.medio || '',
@@ -6254,7 +6279,7 @@ document.getElementById('export-btn-confirmar').addEventListener('click', async 
     const sinFarmPorFiltro = rango === 'filtros' && (document.getElementById('hist-tipo').value || HIST_EXCL_FILTRO === 'novino');
     if(incluirFarm && !sinFarmPorFiltro){
       let qf = sb.from('farmacia_ventas')
-        .select('fecha,paciente,medicamento,cantidad,precio_unitario,monto,monto_2,medio_pago,medio_pago_2,monto_3,medio_pago_3,terminal_id,facturado,num_factura,nota,doctor:personal!doctor_id(nombre)')
+        .select('fecha,paciente,paciente_id,medicamento,cantidad,precio_unitario,monto,monto_2,medio_pago,medio_pago_2,monto_3,medio_pago_3,terminal_id,facturado,num_factura,nota,doctor:personal!doctor_id(nombre,rol)')
         .order('fecha', { ascending:false }).limit(5000);
       if(rDesde) qf = qf.gte('fecha', rDesde);
       if(rHasta) qf = qf.lte('fecha', rHasta);
@@ -6267,7 +6292,7 @@ document.getElementById('export-btn-confirmar').addEventListener('click', async 
       }
       const { data: dF, error: eF } = await qf;
       if(eF){ console.error('[SkinFabric] Error cargando farmacia para exportar:', eF); toast('Ojo: no se pudo incluir la farmacia en el Excel.'); }
-      else farm = dF || [];
+      else { farm = dF || []; farm.duenos = await farmDuenosDe(farm); }
     }
     if(!filas.length && !farm.length){ toast('No hay registros para exportar con esos criterios.'); return; }
     await comCargarReglas();
