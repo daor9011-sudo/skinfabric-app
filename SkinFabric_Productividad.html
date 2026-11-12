@@ -382,6 +382,7 @@ main.appmain{padding:22px 26px 40px;max-width:1250px;margin:0 auto}
 .fp-clave{font-size:11px;color:var(--g6);font-variant-numeric:tabular-nums;white-space:nowrap}
 .fp-nom{font-weight:600;color:var(--navy)}
 .cfg-farm-nom-inp{width:100%;min-width:180px;border:1px solid transparent;background:transparent;border-radius:7px;padding:6px 8px;font:inherit;font-weight:600;color:var(--navy);outline:none}
+.cfg-farm-dueno{border:1px solid var(--g2);border-radius:7px;padding:5px 6px;font:inherit;font-size:12px;background:#fff;color:var(--navy);max-width:160px}
 .cfg-farm-nom-inp:hover{border-color:rgba(42,191,191,.4)}
 .cfg-farm-nom-inp:focus{border-color:rgba(42,191,191,.8);background:#fff}
 .fp-precio{display:inline-flex;align-items:center;gap:4px;background:#fff;border:1px solid rgba(42,191,191,.5);border-radius:7px;padding:0 8px;width:118px}
@@ -2070,12 +2071,12 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
         <div class="fp-imp"><div class="t">⬆ Importar desde Excel</div><div class="s">Elige tu archivo de inventario: toma la hoja con <b>Clave</b> y <b>Descripción</b> (la “Hoja1”) y el <b>Precio</b> del reporte como precio sugerido. Solo agrega los productos que no existan; no pisa precios que ya editaste.</div><button class="btn-sm act" id="cfg-farm-btn-importar" type="button">Elegir Excel…</button><input type="file" id="cfg-farm-file" accept=".xlsx,.xls" style="display:none"/></div>
         <div class="fp-top">
           <input type="text" id="cfg-farm-buscar" placeholder="🔎 Buscar por nombre o clave…" autocomplete="off"/>
-          <button class="btn-sm act" type="button" data-fpf="todos">Todos</button><button class="btn-sm" type="button" data-fpf="editados">Precio editado</button><button class="btn-sm" type="button" data-fpf="inactivos">Inactivos</button>
+          <button class="btn-sm act" type="button" data-fpf="todos">Todos</button><button class="btn-sm" type="button" data-fpf="editados">Precio editado</button><button class="btn-sm" type="button" data-fpf="inactivos">Inactivos</button><button class="btn-sm" type="button" data-fpf="sindueno">Sin dueño</button>
           <span class="fp-count" id="cfg-farm-count"></span>
         </div>
         <div class="tx-table-wrap" id="cfg-farm-wrap">
           <table class="tx-table">
-            <thead><tr><th>Clave</th><th>Producto</th><th>Precio sugerido</th><th>Activo</th><th></th></tr></thead>
+            <thead><tr><th>Clave</th><th>Producto</th><th>Precio sugerido</th><th title="La venta se acredita a este doctor, sin importar quién la cobre">Farmacia de</th><th>Activo</th><th></th></tr></thead>
             <tbody id="cfg-farm-tbody"></tbody>
           </table>
         </div>
@@ -2428,7 +2429,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.11.12-101';
+const APP_VERSION = 'v2026.11.12-102';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 
@@ -4281,7 +4282,7 @@ async function cargarCatalogos(){
     sb.from('catalogo_medios_pago').select('id,nombre').eq('activo', true).order('orden'),
     sb.from('catalogo_procedencia').select('id,nombre').eq('activo', true).order('orden'),
     sb.from('personal').select('id,nombre,rol,baja_hasta').eq('activo', true).in('rol', ['doctor','cosmetologo']).order('nombre'),
-    sb.from('farmacia_productos').select('id,clave,nombre,precio,piezas,promo_grupo,promo_cada,promo_precio').eq('activo', true).order('nombre').limit(3000),
+    sb.from('farmacia_productos').select('id,clave,nombre,precio,piezas,promo_grupo,promo_cada,promo_precio,dueno_id').eq('activo', true).order('nombre').limit(3000),
   ]);
   if(tipos.error) console.error('[SkinFabric] Error cargando tipos_servicio:', tipos.error);
   if(equipos.error) console.error('[SkinFabric] Error cargando equipos:', equipos.error);
@@ -4751,7 +4752,7 @@ document.querySelectorAll('#reg-serv-filtros .a-filtro-btn').forEach(btn => btn.
 }));
 // Catálogo de farmacia (solo productos activos) para el selector del Registro
 async function cargarCatalogoFarmaciaReg(){
-  const { data, error } = await sb.from('farmacia_productos').select('id,clave,nombre,precio,piezas,promo_grupo,promo_cada,promo_precio').eq('activo', true).order('nombre').limit(3000);
+  const { data, error } = await sb.from('farmacia_productos').select('id,clave,nombre,precio,piezas,promo_grupo,promo_cada,promo_precio,dueno_id').eq('activo', true).order('nombre').limit(3000);
   if(error){ console.error('[SkinFabric] Error cargando catálogo de farmacia:', error); return; }
   CATALOGOS.farmacia = data || [];
   regServRefrescar();
@@ -5266,7 +5267,7 @@ async function guardarRegistro(){
         const tramos = [[medio, f.monto_1], [grpMedio2Visible ? medio2 : '', f.monto_2], [triple ? medio3 : '', f.monto_3]].filter(([m, v]) => m && (v > 0 || m === 'Cortesía'));
         if(!tramos.length) tramos.push([medio, 0]);
         return {
-          fecha, periodo: fecha.slice(0, 7), doctor_id: f.atendido_por,
+          fecha, periodo: fecha.slice(0, 7), doctor_id: farmDoctorAcreditado(prod, f.atendido_por, duenoId),
           paciente: nombre, paciente_id: pacienteId,
           medicamento: val.nombre || prod?.nombre || 'Producto de farmacia',
           producto_id: prod ? prod.id : null,
@@ -9757,13 +9758,24 @@ function farmNombreBonito(n){
   const i = t.search(/[a-záéíóúñ]/i);
   return i < 0 ? t : t.slice(0, i) + t[i].toUpperCase() + t.slice(i + 1);
 }
+// La venta de farmacia se acredita al DUEÑO del producto (farmacia del Dr. o de la Dra.), no a quien la cobró.
+// Producto compartido (sin dueño): si la cobra una cosmetóloga se acredita al doctor dueño del paciente; si la cobra un doctor, queda con él.
+function farmDoctorAcreditado(prod, atendidoPor, duenoPacienteId){
+  if(prod?.dueno_id) return prod.dueno_id;
+  const quien = CATALOGOS.personal.find(x => x.id === atendidoPor);
+  if(quien?.rol === 'cosmetologo'){
+    const d = CATALOGOS.personal.find(x => x.id === duenoPacienteId);
+    if(d && d.rol === 'doctor') return d.id;
+  }
+  return atendidoPor;
+}
 function farmNorm(t){ return normalizar(t).replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim(); }
 async function cargarCatalogoFarmaciaCfg(){
   const tbody = document.getElementById('cfg-farm-tbody');
   if(!tbody) return;
-  tbody.innerHTML = '<tr><td colspan="5" class="empty-note">Cargando...</td></tr>';
+  tbody.innerHTML = '<tr><td colspan="6" class="empty-note">Cargando...</td></tr>';
   const { data, error } = await sb.from('farmacia_productos').select('*').order('nombre').limit(3000);
-  if(error){ console.error('[SkinFabric] Error listando farmacia_productos:', error); tbody.innerHTML = '<tr><td colspan="5" class="empty-note">No se pudo cargar.</td></tr>'; return; }
+  if(error){ console.error('[SkinFabric] Error listando farmacia_productos:', error); tbody.innerHTML = '<tr><td colspan="6" class="empty-note">No se pudo cargar.</td></tr>'; return; }
   CFG_FARM = data || [];
   renderCfgFarmacia();
 }
@@ -9774,10 +9786,11 @@ function renderCfgFarmacia(){
     if(q && !(farmNorm(p.nombre).includes(q) || farmNorm((p.clave||'') + ' ' + (p.claves_alt||'')).includes(q))) return false;
     if(CFG_FARM_FILTRO === 'editados') return p.precio_excel != null && Number(p.precio) !== Number(p.precio_excel);
     if(CFG_FARM_FILTRO === 'inactivos') return !p.activo;
+    if(CFG_FARM_FILTRO === 'sindueno') return !p.dueno_id;
     return true;
   });
   document.getElementById('cfg-farm-count').textContent = lista.length + ' de ' + CFG_FARM.length + ' productos';
-  if(!lista.length){ tbody.innerHTML = '<tr><td colspan="5" class="empty-note">' + (CFG_FARM.length ? 'Sin resultados.' : 'Todavía no hay productos. Importa tu Excel o agrega uno abajo.') + '</td></tr>'; return; }
+  if(!lista.length){ tbody.innerHTML = '<tr><td colspan="6" class="empty-note">' + (CFG_FARM.length ? 'Sin resultados.' : 'Todavía no hay productos. Importa tu Excel o agrega uno abajo.') + '</td></tr>'; return; }
   const puedeNom = MI_PERFIL?.rol === 'admin' || MI_PERFIL?.permisos?.puede_editar_productos === true;
   tbody.innerHTML = lista.map(p => {
     const editado = p.precio_excel != null && Number(p.precio) !== Number(p.precio_excel);
@@ -9785,6 +9798,7 @@ function renderCfgFarmacia(){
       <td class="fp-clave" title="${esc2(p.claves_alt ? 'También: ' + p.claves_alt : '')}">${esc2(p.clave || '—')}${p.claves_alt ? ' +' + p.claves_alt.split(',').length : ''}</td>
       <td class="fp-nom">${puedeNom ? `<input type="text" class="cfg-farm-nom-inp" maxlength="160" value="${esc2(p.nombre)}" title="Editar nombre"/>` : esc2(p.nombre)}${p.piezas > 1 ? `<span class="tagf">${p.piezas} pzas</span>` : ''}${p.promo_grupo ? `<span class="tagf">promo ${p.promo_cada}×${fmtMoney0(p.promo_precio)}</span>` : ''}</td>
       <td><span class="fp-precio"><span>$</span><input type="number" min="0" step="0.01" class="cfg-farm-precio" value="${esc2(p.precio)}"/></span>${editado ? `<span class="fp-ed" title="Precio original del Excel">editado · Excel ${fmtMoney0(p.precio_excel)}</span>` : ''}</td>
+      <td><select class="cfg-farm-dueno"${puedeNom ? '' : ' disabled'}><option value="">— Compartido —</option>${CATALOGOS.personal.filter(x => x.rol === 'doctor').map(x => `<option value="${esc2(x.id)}"${p.dueno_id === x.id ? ' selected' : ''}>${esc2(x.nombre)}</option>`).join('')}</select></td>
       <td><input type="checkbox" class="cfg-farm-activo" ${p.activo ? 'checked' : ''}/></td>
       <td>${MI_PERFIL?.rol === 'admin' ? '<button class="btn-sm btn-del" type="button">Eliminar</button>' : ''}</td>
     </tr>`;
@@ -9806,6 +9820,12 @@ function renderCfgFarmacia(){
       if(!(v >= 0) || e.target.value === ''){ toast('Escribe un precio válido.'); renderCfgFarmacia(); return; }
       const ok = await catalogoActualizar('farmacia_productos', id, { precio: v });
       if(ok){ prod().precio = v; toast('✓ Precio guardado'); renderCfgFarmacia(); cargarCatalogoFarmaciaReg(); }
+    });
+    tr.querySelector('.cfg-farm-dueno')?.addEventListener('change', async e => {
+      const v = e.target.value || null;
+      const ok = await catalogoActualizar('farmacia_productos', id, { dueno_id: v });
+      if(ok){ prod().dueno_id = v; toast('✓ Dueño guardado'); cargarCatalogoFarmaciaReg(); if(CFG_FARM_FILTRO === 'sindueno') renderCfgFarmacia(); }
+      else renderCfgFarmacia();
     });
     tr.querySelector('.cfg-farm-activo').addEventListener('change', async e => {
       const ok = await catalogoActualizar('farmacia_productos', id, { activo: e.target.checked });
