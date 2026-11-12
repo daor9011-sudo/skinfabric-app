@@ -633,6 +633,74 @@ main.appmain{padding:22px 26px 40px;max-width:1250px;margin:0 auto}
 .dsp-pie .lbl{font-size:10px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--g6);margin-right:4px}
 .dsp-pie .doc-pill{margin:0}
 @media(max-width:700px){.dsp-split{grid-template-columns:1fr}}
+/* ══════════ Cierre · Por Doctor: vistas Tickets / Acordeón ══════════ */
+.cv-bar{display:flex;align-items:center;justify-content:flex-end;gap:10px;margin:0 0 10px}
+.cv-vl{font-size:12px;font-weight:600;color:var(--g6)}
+.cv-seg{display:flex;background:#fff;border:1px solid var(--g2);border-radius:999px;padding:3px}
+.cv-seg button{border:0;background:transparent;padding:7px 14px;border-radius:999px;font:700 12px var(--font-b);color:var(--g6);cursor:pointer;white-space:nowrap}
+.cv-seg button.on{background:var(--navy);color:#fff}
+.cv-sec{display:flex;align-items:center;gap:12px;margin:22px 0 12px}
+.cv-st{font:800 19px var(--font-d);color:var(--navy);white-space:nowrap}
+.cv-sl{flex:1;height:1px;background:var(--g2)}
+.cv-stt{font-size:12px;color:var(--g6);text-align:right}.cv-stt b{font:800 17px var(--font-d);color:var(--navy);margin-left:6px}
+.cv-card{background:#fff;border:1px solid var(--g2);border-left:5px solid var(--teal);border-radius:16px;padding:18px 20px 20px;margin-bottom:16px;box-shadow:0 2px 10px rgba(11,22,40,.05)}
+.cv-card.acc{padding:0;overflow:hidden}
+.cv-dh{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:12px}
+.cv-dn{font:800 21px var(--font-d);color:var(--navy)}
+.cv-mut{font-size:12px;color:var(--g6)}.cv-mut.up{text-transform:uppercase;letter-spacing:.6px;margin-right:4px}
+.cv-pills{display:flex;gap:10px;flex-wrap:wrap}
+.cv-pil{border:1px solid;border-radius:12px;padding:7px 15px;min-width:128px}
+.cv-pil small{display:block;font-size:11px;color:var(--g6);font-weight:600}.cv-pil b{font:800 20px var(--font-d)}
+.cv-pil.s{border-color:#BFEAEA;background:#EAF9F9}.cv-pil.s b{color:#0B6E6E}
+.cv-pil.f{border-color:#E3CCEE;background:#F6EEFA}.cv-pil.f b{color:var(--purple)}
+.cv-pil.amb{border-color:#F2DDAE;background:#FDF6E3}.cv-pil.amb b{color:#9a6a06}
+.cv-pil.dk{background:var(--navy);border-color:var(--navy)}.cv-pil.dk small{color:rgba(255,255,255,.65)}.cv-pil.dk b{color:#fff}
+.cv-med{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:14px;padding-bottom:12px;border-bottom:1px dashed var(--g2)}
+.cv-chip{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;border:1px solid;white-space:nowrap}
+.cv-tkg{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+.cv-tk{border:1px solid var(--g2);border-top:4px solid var(--teal);border-radius:12px;padding:12px 14px 11px;background:#fff;display:flex;flex-direction:column;box-shadow:0 1px 4px rgba(11,22,40,.04);min-width:0}
+.cv-tkh{display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding-bottom:8px;border-bottom:1px dashed var(--g2);margin-bottom:5px}
+.cv-tkh b{font-size:13px;line-height:1.25;color:var(--navy);min-width:0;overflow-wrap:anywhere}.cv-tkh span{font:800 18px var(--font-d);white-space:nowrap;color:var(--navy)}
+.cv-cruz,.cv-own{display:block;font-size:11px;margin:1px 0 4px}.cv-cruz{font-weight:700;color:var(--purple)}.cv-own{font-weight:600;color:var(--g6)}
+.cv-tkc{font-size:10px;font-weight:800;letter-spacing:.8px;margin:7px 0 2px}.cv-tkc.s{color:#0B6E6E}.cv-tkc.f{color:var(--purple)}
+.cv-ln{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;padding:2px 0;line-height:1.3}.cv-ln span{color:var(--g6);min-width:0;overflow-wrap:anywhere}.cv-ln b{white-space:nowrap;color:var(--navy)}.cv-ln.f b{color:var(--purple)}
+.cv-tkp{margin-top:auto;padding-top:10px;display:flex;gap:5px;flex-wrap:wrap}
+.cv-mas{display:block;margin:14px auto 0;border:1.5px solid var(--g2);background:#fff;border-radius:20px;padding:7px 18px;font:700 12px var(--font-b);color:var(--navy);cursor:pointer}
+.cv-mas:hover{border-color:var(--teal)}
+.cv-hdb{display:grid;grid-template-columns:auto auto 1fr;gap:26px;align-items:center;padding:18px 22px;background:linear-gradient(135deg,#0B1628,#1B3A6B);color:#fff}
+.cv-hdb.amb{background:linear-gradient(135deg,#2a1d05,#6b4a0b)}
+.cv-mut2{font-size:11.5px;color:rgba(255,255,255,.7)}
+.cv-big{font:800 32px var(--font-d);line-height:1.15;margin:2px 0}
+.cv-kp{display:flex;gap:22px}.cv-kp>div{font-size:11.5px;color:rgba(255,255,255,.75);display:flex;flex-direction:column;gap:2px}
+.cv-kp b{font:800 18px var(--font-d);color:#fff}.cv-kp small{font-size:10.5px;color:rgba(255,255,255,.6)}
+.cv-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px}
+.cv-pmx{min-width:0}
+.cv-pmr{display:grid;grid-template-columns:auto minmax(40px,1fr) auto 34px;gap:8px;align-items:center;font-size:11.5px;margin-bottom:4px}
+.cv-pmr .cv-chip{background:rgba(255,255,255,.95)!important}
+.cv-pmb{height:6px;background:rgba(255,255,255,.18);border-radius:4px;overflow:hidden}.cv-pmb i{display:block;height:100%;border-radius:4px}
+.cv-pmr b{font-weight:700}.cv-pc{text-align:right;color:rgba(255,255,255,.65)}
+.cv-lh,.cv-ach{display:grid;grid-template-columns:18px minmax(0,1.5fr) minmax(0,1fr) minmax(0,1.6fr) 92px;gap:10px;align-items:center;padding:9px 18px}
+.cv-lh{font-size:10px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--g4);border-bottom:1px solid var(--g2)}
+.cv-ach{cursor:pointer;border-bottom:1px solid var(--g1);font-size:12.5px}.cv-ach:hover{background:var(--g1)}
+.cv-nm{min-width:0}.cv-nm b{display:block;color:var(--navy);overflow-wrap:anywhere}
+.cv-car{color:var(--g4);font-size:11px;transition:transform .15s}.cv-ac.open .cv-car{transform:rotate(90deg)}
+.cv-mini{display:flex;flex-direction:column;font-size:11.5px;font-weight:700}.cv-mini .s{color:#0B6E6E}.cv-mini .f{color:var(--purple)}
+.cv-pg{display:flex;gap:4px;flex-wrap:wrap}
+.cv-tot{text-align:right;font:800 14px var(--font-d);color:var(--navy)}
+.cv-acb{display:none;padding:4px 18px 10px 46px;background:#FAFBFE;border-bottom:1px solid var(--g1)}.cv-ac.open .cv-acb{display:block}
+.cv-al{display:grid;grid-template-columns:22px minmax(0,1fr) auto;gap:8px;font-size:12px;padding:3px 0;color:var(--g6)}
+.cv-al b.s{color:#0B6E6E}.cv-al b.f{color:var(--purple)}
+.cv-card.acc .cv-mas{margin:10px auto 14px}
+@media(max-width:900px){
+  .cv-hdb{grid-template-columns:1fr;gap:14px}
+  .cv-lh{display:none}
+  .cv-ach{grid-template-columns:16px minmax(0,1fr) auto;row-gap:4px}
+  .cv-car{grid-column:1;grid-row:1}.cv-nm{grid-column:2;grid-row:1}.cv-tot{grid-column:3;grid-row:1}
+  .cv-mini,.cv-pg{grid-column:2 / 4}
+  .cv-mini{flex-direction:row;gap:12px}
+}
+.cv-mini span:empty{display:none}
+@media(max-width:560px){.cv-bar{justify-content:stretch}.cv-seg{width:100%}.cv-seg button{flex:1;padding:7px 6px}.cv-stt{display:none}.cv-card{padding:14px 12px 16px}.cv-tkg{grid-template-columns:1fr}}
 .acordeon-pac{margin-top:8px;border-top:1px dashed var(--g2);padding-top:7px;display:none}
 .acordeon-pac.open{display:block}
 .pac-row-grid{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1.4fr) minmax(64px,auto);gap:10px;padding:5px 0;border-bottom:1px solid var(--g1);font-size:11px;align-items:center}
@@ -2358,7 +2426,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.11.12-94';
+const APP_VERSION = 'v2026.11.12-95';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 
@@ -6313,6 +6381,7 @@ let CIERRE_MODO = 'dia';
 let CIERRE_FECHA = new Date();
 let CIERRE_ROWS = [];
 let CIERRE_FARM = [];
+let CIERRE_FARM_DUENOS = new Map(); // paciente_id -> dueño (para marcar ventas de pacientes de otro doctor)
 
 const MEDIO_COLORES = {
   efectivo: { bg:'#EAF7EE', border:'#A8D8B4', fg:'#2E7D4F', bar:'#2E7D4F', ico:'💵' },
@@ -6402,7 +6471,7 @@ async function cargarCierre(){
   const desde = modoAlPedir === 'dia' ? isoLocal(fechaAlPedir) : isoLocal(primerDiaMes(fechaAlPedir));
   const hasta = modoAlPedir === 'dia' ? isoLocal(fechaAlPedir) : isoLocal(ultimoDiaMes(fechaAlPedir));
   let q = sb.from('consultas')
-    .select('id,fecha,monto,medio_pago,monto_2,medio_pago_2,factura,num_factura,doctor_id,pacientes(nombre),doctor:personal!doctor_id(nombre),consulta_servicios(tipo_servicio_id,monto,monto_1,monto_2,atendido_por,catalogo_tipos_servicio(nombre),atendido:personal(nombre))')
+    .select('id,fecha,monto,medio_pago,monto_2,medio_pago_2,factura,num_factura,doctor_id,paciente_id,pacientes(nombre,dueno:personal!dueno_id(nombre,rol)),doctor:personal!doctor_id(nombre),consulta_servicios(tipo_servicio_id,monto,monto_1,monto_2,atendido_por,catalogo_tipos_servicio(nombre),atendido:personal(nombre))')
     .eq('deleted', false)
     .eq('no_vino', false)
     .gte('fecha', desde)
@@ -6418,6 +6487,8 @@ async function cargarCierre(){
   if(miReqId !== cierreReqId) return; // el usuario ya cambió de día/mes/doctor mientras esto cargaba: descartar resultado obsoleto
   if(resFarm.error) console.error('[SkinFabric] Error cargando farmacia del cierre:', resFarm.error);
   CIERRE_FARM = resFarm.data || [];
+  CIERRE_FARM_DUENOS = CIERRE_FARM.length ? await farmDuenosDe(CIERRE_FARM) : new Map();
+  if(miReqId !== cierreReqId) return;
   if(error){
     console.error('[SkinFabric] Error cargando cierre:', error);
     toast('No se pudo cargar el cierre.');
@@ -7288,7 +7359,7 @@ function cierreAsignaciones(){
     // Se incluyen también los servicios de $0 (cortesías): deben salir en el cierre aunque no sumen dinero.
     const servs = (r.consulta_servicios || []);
     const pacienteNombre = nomProp(r.pacientes?.nombre) || '—';
-    const base = { cid: r.id, paciente: pacienteNombre };
+    const base = { cid: r.id, paciente: pacienteNombre, pacKey: r.paciente_id || ('n:' + normalizar(pacienteNombre)), dueno: r.pacientes?.dueno ? { nombre: r.pacientes.dueno.nombre, rol: r.pacientes.dueno.rol } : null };
     if(!servs.length){
       // consulta sin servicios (no debería pasar): se queda completa con el doctor de la consulta
       out.push({ ...base, pid: r.doctor_id, pnombre: r.doctor?.nombre || '—', serv: '', monto: tot, p1: m1, p2: m2, medio1: r.medio_pago, medio2: r.medio_pago_2 });
@@ -7331,7 +7402,11 @@ function renderCierre(){
   const porMedio = {};
   const consultasVistas = new Set();
   const personaFiltro = document.getElementById('cierre-doctor').value;
-  const nuevoDoctor = (pid, nombre) => porDoctor[pid] || (porDoctor[pid] = { nombre, total:0, serv:0, farm:0, farmPzas:0, count:0, pagos:{}, pagosS:{}, pagosF:{}, pacientes:[], farmItems:[] });
+  const nuevoDoctor = (pid, nombre) => porDoctor[pid] || (porDoctor[pid] = { pid, nombre, rol: (CATALOGOS.personal.find(x => x.id === pid) || {}).rol || '', total:0, serv:0, farm:0, farmPzas:0, count:0, pagos:{}, pagosS:{}, pagosF:{}, pacientes:[], farmItems:[], pacs:{} });
+  // Por paciente (para las vistas Tickets y Acordeón): sus servicios, sus productos y con qué pagó, dentro de cada persona.
+  const pacRec = (d, key, nombre, dueno) => d.pacs[key] || (d.pacs[key] = { nombre, dueno, serv:0, farm:0, lS:{}, lF:{}, pagos:{} });
+  const pacPago = (rec, medio, monto, primero) => { if(!medio || (!primero && !(monto > 0))) return; rec.pagos[medio] = (rec.pagos[medio] || 0) + monto; };
+  const addLinea = (obj, c, monto) => { const l = obj[c] || (obj[c] = { c, monto:0, n:0 }); l.monto += monto; l.n++; };
   const sumaMedio = (d, medio, monto, primero, cid, pnombre, esFarm) => {
     // 1er pago: siempre cuenta si hay medio (una Cortesía es de $0 y debe aparecer); 2do pago: solo si trae dinero.
     if(!medio || (!primero && !(monto > 0))) return;
@@ -7363,6 +7438,8 @@ function renderCierre(){
     if(a.serv) pc.servicios.push(a.serv);
     sumaMedio(d, a.medio1, a.p1, true, a.cid, a.pnombre, false);
     sumaMedio(d, a.medio2, a.p2, false, a.cid, a.pnombre, false);
+    const rec = pacRec(d, a.pacKey, a.paciente, a.dueno); rec.serv += a.monto; addLinea(rec.lS, a.serv || 'Consulta', a.monto);
+    pacPago(rec, a.medio1, a.p1, true); pacPago(rec, a.medio2, a.p2, false);
   });
 
   // Farmacia: cada venta es de quien la generó (doctor/a); el 1er/2do pago se reparten igual que en los servicios.
@@ -7376,7 +7453,9 @@ function renderCierre(){
     d.total += monto; d.farm += monto; d.farmPzas += cant;
     d.farmItems.push({ nombre: nomProp(f.paciente) || '—', detalle: f.medicamento + (cant > 1 ? ' ×' + cant : ''), monto });
     const cid = 'f' + f.id;
-    farmPagosDe(f).forEach(pg => sumaMedio(d, medioCanon(pg.medio), pg.monto, pg.primero, cid, pnombre, true));
+    const recF = pacRec(d, f.paciente_id || ('n:' + normalizar(nomProp(f.paciente) || '')), nomProp(f.paciente) || '—', (f.paciente_id && CIERRE_FARM_DUENOS.get(f.paciente_id)) || null);
+    recF.farm += monto; addLinea(recF.lF, f.medicamento || 'Producto de farmacia', monto);
+    farmPagosDe(f).forEach(pg => { sumaMedio(d, medioCanon(pg.medio), pg.monto, pg.primero, cid, pnombre, true); pacPago(recF, medioCanon(pg.medio), pg.monto, pg.primero); });
   });
   Object.values(porDoctor).forEach(d=>{ d.pacientes.forEach(p=>{ p.detalle = p.servicios.join(', ') || '—'; }); });
   Object.values(porMedio).forEach(m=>{ m.count = m.consultas.size; });
@@ -7403,10 +7482,140 @@ function renderCierre(){
   renderCierreFarmacia(farmFilas, ingresoFarm, pzasFarm);
 }
 
+// ── Cierre · Por Doctor: selector de vista (Tickets / Acordeón / Clásica) ──
+let CV_LAST = null;                 // último porDoctor (para re-pintar al cambiar de vista)
+const CV_EXPANDIDO = new Set();     // personas con "Ver todos" abierto (modo Mes)
+const CV_TOPE = 24;                 // pacientes visibles por persona en modo Mes antes de "Ver todos"
+const CV_VISTAS = [['tickets','▦ Tickets'],['acordeon','☰ Acordeón'],['clasica','Clásica']];
+function cvClave(){ return 'sf_cierre_vista_' + (MI_PERFIL?.id || 'u'); }
+function cvVista(){
+  try{ const v = localStorage.getItem(cvClave()); if(CV_VISTAS.some(x => x[0] === v)) return v; }catch(e){}
+  return CIERRE_MODO === 'mes' ? 'acordeon' : 'tickets';
+}
+function cvGuardar(v){ try{ localStorage.setItem(cvClave(), v); }catch(e){} }
+
 function renderCierrePorDoctor(porDoctor){
+  CV_LAST = porDoctor;
+  CV_EXPANDIDO.clear();
+  cvRender();
+}
+function cvChip(medio, monto){
+  const c = getMedioColor(medio);
+  return `<span class="cv-chip" style="background:${c.bg};border-color:${c.border};color:${c.fg}">${c.ico} ${esc2(medio)}${monto != null ? ' ' + fmtMoney0(monto) : ''}</span>`;
+}
+function cvPagosChips(pagos, conMonto){
+  const arr = Object.entries(pagos).filter(([m, v]) => v > 0 || (m && Object.keys(pagos).length === 1)).sort((a,b)=> b[1]-a[1]);
+  const mixto = arr.filter(x => x[1] > 0).length > 1;
+  return arr.map(([m, v]) => cvChip(m, (conMonto || mixto) && v > 0 ? v : null)).join('');
+}
+function cvColor(d){
+  if(d.rol === 'cosmetologo') return '#C8820A';
+  return normalizar(d.nombre).includes('alejandra') ? '#2ABFBF' : '#2F6FD0';
+}
+function cvNota(d, p){
+  if(!p.dueno || normalizar(p.dueno.nombre) === normalizar(d.nombre)) return '';
+  if(d.rol === 'cosmetologo') return `<span class="cv-own">Paciente de ${esc2(p.dueno.nombre)}</span>`;
+  if(p.dueno.rol === 'cosmetologo') return '';
+  return `<span class="cv-cruz">↔ paciente de ${esc2(p.dueno.nombre)}</span>`;
+}
+function cvLineas(obj, cls){
+  return Object.values(obj).sort((a,b)=> b.monto - a.monto).map(l =>
+    `<div class="cv-ln${cls ? ' ' + cls : ''}"><span>${esc2(l.c)}${l.n > 1 ? ' ×' + l.n : ''}</span><b>${fmtMoney0(l.monto)}</b></div>`).join('');
+}
+function cvTicket(d, p, color){
+  const tot = p.serv + p.farm;
+  return `<div class="cv-tk" style="border-top-color:${color}">
+    <div class="cv-tkh"><b>${esc2(p.nombre)}</b><span>${fmtMoney0(tot)}</span></div>${cvNota(d, p)}
+    ${Object.keys(p.lS).length ? `<div class="cv-tkc s">🩺 SERVICIOS</div>${cvLineas(p.lS, '')}` : ''}
+    ${Object.keys(p.lF).length ? `<div class="cv-tkc f">💊 FARMACIA</div>${cvLineas(p.lF, 'f')}` : ''}
+    <div class="cv-tkp">${cvPagosChips(p.pagos, false)}</div></div>`;
+}
+function cvFila(d, p, abierta){
+  const tot = p.serv + p.farm;
+  const lineas = Object.values(p.lS).sort((a,b)=> b.monto - a.monto).map(l => `<div class="cv-al"><span>🩺</span><span>${esc2(l.c)}${l.n > 1 ? ' ×' + l.n : ''}</span><b class="s">${fmtMoney(l.monto)}</b></div>`).join('')
+    + Object.values(p.lF).sort((a,b)=> b.monto - a.monto).map(l => `<div class="cv-al"><span>💊</span><span>${esc2(l.c)}${l.n > 1 ? ' ×' + l.n : ''}</span><b class="f">${fmtMoney(l.monto)}</b></div>`).join('');
+  return `<div class="cv-ac${abierta ? ' open' : ''}">
+    <div class="cv-ach" data-cv="row"><span class="cv-car">▸</span><span class="cv-nm"><b>${esc2(p.nombre)}</b>${cvNota(d, p)}</span>
+      <span class="cv-mini"><span class="s">${p.serv > 0 ? '🩺 ' + fmtMoney0(p.serv) : ''}</span><span class="f">${p.farm > 0 ? '💊 ' + fmtMoney0(p.farm) : ''}</span></span>
+      <span class="cv-pg">${cvPagosChips(p.pagos, false)}</span><b class="cv-tot">${fmtMoney(tot)}</b></div>
+    <div class="cv-acb">${lineas}</div></div>`;
+}
+function cvTarjeta(d, vista){
+  const color = cvColor(d), cab = d.rol === 'cosmetologo';
+  let pacs = Object.values(d.pacs).sort((a,b)=> (b.serv + b.farm) - (a.serv + a.farm));
+  const total = pacs.length;
+  const recortar = CIERRE_MODO === 'mes' && total > CV_TOPE && !CV_EXPANDIDO.has(d.pid);
+  const visibles = recortar ? pacs.slice(0, CV_TOPE) : pacs;
+  const mas = recortar ? `<button class="cv-mas" type="button" data-cv="mas" data-pid="${esc2(d.pid)}">Ver todos (${total}) ▾</button>` : '';
+  const hayS = d.serv > 0, hayF = d.farm > 0;
+  const nServ = Object.values(d.pacs).reduce((a,p)=> a + Object.values(p.lS).reduce((x,l)=> x + l.n, 0), 0);
+  const nVent = d.farmItems.length;
+  const sub = cab
+    ? `Cosmetóloga · ${total} paciente(s) · ${nServ} servicio(s)`
+    : `${total} paciente(s)${hayF ? ' · ' + d.farmPzas + ' pieza(s) de farmacia' : ''}`;
+  const pagosOrd = Object.entries(d.pagos).filter(x => x[1] > 0).sort((a,b)=> b[1]-a[1]);
+  const medios = pagosOrd.map(([m, v]) => cvChip(m, v)).join('');
+  if(vista === 'tickets'){
+    const pills = cab
+      ? `<div class="cv-pil amb"><small>Producido en cabina</small><b>${fmtMoney0(d.total)}</b></div>`
+      : `${hayS ? `<div class="cv-pil s"><small>Servicios · ${d.count} consulta(s)</small><b>${fmtMoney0(d.serv)}</b></div>` : ''}${hayF ? `<div class="cv-pil f"><small>Farmacia · ${nVent} venta(s)</small><b>${fmtMoney0(d.farm)}</b></div>` : ''}<div class="cv-pil dk"><small>Total</small><b>${fmtMoney0(d.total)}</b></div>`;
+    return `<section class="cv-card" style="border-left-color:${color}"><div class="cv-dh"><div><div class="cv-dn">${esc2(d.nombre)}</div><div class="cv-mut">${sub}</div></div><div class="cv-pills">${pills}</div></div>
+      <div class="cv-med"><span class="cv-mut up">Cobrado por medio</span>${medios}</div>
+      <div class="cv-tkg">${visibles.map(p => cvTicket(d, p, color)).join('')}</div>${mas}</section>`;
+  }
+  // Acordeón
+  const barras = pagosOrd.map(([m, v]) => {
+    const c = getMedioColor(m);
+    return `<div class="cv-pmr"><span>${cvChip(m, null)}</span><div class="cv-pmb"><i style="width:${d.total > 0 ? (v / d.total * 100).toFixed(1) : 0}%;background:${c.bar}"></i></div><b>${fmtMoney(v)}</b><span class="cv-pc">${d.total > 0 ? Math.round(v / d.total * 100) : 0}%</span></div>`;
+  }).join('');
+  const pctS = d.total > 0 ? Math.round(d.serv / d.total * 100) : 0, pctF = d.total > 0 ? Math.round(d.farm / d.total * 100) : 0;
+  const kp = cab
+    ? `<div><span class="cv-dot" style="background:#2ABFBF"></span>Servicios<b>${fmtMoney0(d.serv)}</b><small>producción de cabina</small></div>`
+    : `${hayS ? `<div><span class="cv-dot" style="background:#2ABFBF"></span>Servicios<b>${fmtMoney0(d.serv)}</b><small>${pctS}% · ${d.count} consulta(s)</small></div>` : ''}${hayF ? `<div><span class="cv-dot" style="background:#9B59B6"></span>Farmacia<b>${fmtMoney0(d.farm)}</b><small>${pctF}% · ${nVent} venta(s) · ${d.farmPzas} pieza(s)</small></div>` : ''}`;
+  const filas = visibles.map((p, i) => cvFila(d, p, CIERRE_MODO === 'dia' && i === 0 && !cab)).join('');
+  return `<section class="cv-card acc" style="border-left-color:${color}"><div class="cv-hdb${cab ? ' amb' : ''}"><div><div class="cv-mut2">${esc2(d.nombre)} · ${cab ? 'Cosmetóloga' : 'Doctor/a'}</div><div class="cv-big">${fmtMoney(d.total)}</div><div class="cv-mut2">${sub.replace(/^Cosmetóloga · /, '')}</div></div>
+    <div class="cv-kp">${kp}</div><div class="cv-pmx"><div class="cv-mut2" style="margin-bottom:6px">Cobrado por medio</div>${barras}</div></div>
+    <div class="cv-lst"><div class="cv-lh"><span></span><span>Paciente</span><span>Desglose</span><span>Pagó con</span><span style="text-align:right">Total</span></div>${filas}</div>${mas}</section>`;
+}
+function cvSeccion(titulo, etiqueta, personas, vista){
+  if(!personas.length) return '';
+  const tot = personas.reduce((a,d)=> a + d.total, 0);
+  return `<div class="cv-sec"><span class="cv-st">${titulo}</span><span class="cv-sl"></span><span class="cv-stt">${etiqueta}<b>${fmtMoney0(tot)}</b></span></div>` + personas.map(d => cvTarjeta(d, vista)).join('');
+}
+function cvRender(){
   const cont = document.getElementById('cierre-por-doctor');
-  const doctores = Object.values(porDoctor).sort((a,b)=> b.total - a.total);
-  if(!doctores.length){ cont.innerHTML = '<div class="empty-note">Sin resultados para este periodo.</div>'; return; }
+  if(!cont || !CV_LAST) return;
+  const todos = Object.values(CV_LAST).sort((a,b)=> b.total - a.total);
+  if(!todos.length){ cont.innerHTML = '<div class="empty-note">Sin resultados para este periodo.</div>'; return; }
+  const vista = cvVista();
+  const barra = `<div class="cv-bar"><span class="cv-vl">Vista</span><div class="cv-seg">${CV_VISTAS.map(([k, t]) => `<button type="button" class="${k === vista ? 'on' : ''}" data-cv="vista" data-v="${k}">${t}</button>`).join('')}</div></div>`;
+  let cuerpo;
+  if(vista === 'clasica'){
+    const div = document.createElement('div');
+    renderCierrePorDoctorClasica(todos, div);
+    cuerpo = div.innerHTML;
+  } else {
+    const docs = todos.filter(d => d.rol !== 'cosmetologo'), cabs = todos.filter(d => d.rol === 'cosmetologo');
+    cuerpo = cvSeccion('🩺 Doctores', docs.length + ' doctor(es) · producción del ' + (CIERRE_MODO === 'dia' ? 'día' : 'mes'), docs, vista)
+           + cvSeccion('🛁 Cabina', 'Lo que generó cada cosmetóloga con sus pacientes · ' + cabs.length + ' cosmetóloga(s)', cabs, vista);
+  }
+  cont.innerHTML = barra + cuerpo;
+  cont.onclick = (e)=>{
+    const t = e.target.closest('[data-cv],.toggle-link'); if(!t) return;
+    const acc = t.dataset.cv;
+    if(acc === 'vista'){ cvGuardar(t.dataset.v); cvRender(); return; }
+    if(acc === 'mas'){ CV_EXPANDIDO.add(t.dataset.pid); cvRender(); return; }
+    if(acc === 'row'){ t.closest('.cv-ac').classList.toggle('open'); return; }
+    if(t.classList.contains('toggle-link')){
+      const card = document.getElementById('cierre-card-' + t.dataset.idx);
+      if(!card) return;
+      const on = card.classList.toggle('open');
+      t.textContent = (on ? 'Ocultar' : 'Ver') + t.textContent.replace(/^(Ocultar|Ver)/, '');
+    }
+  };
+}
+
+function renderCierrePorDoctorClasica(doctores, cont){
   const pills = (obj) => Object.entries(obj).sort((a,b)=> b[1]-a[1]).map(([medio,monto])=>{
     const c = getMedioColor(medio);
     return `<span class="doc-pill" style="background:${c.bg};border:1px solid ${c.border};color:${c.fg}">${c.ico} ${esc2(medio)} ${fmtMoney(monto)}</span>`;
