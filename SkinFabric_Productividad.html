@@ -105,6 +105,7 @@ body{font-family:var(--font-b);min-height:100vh;color:var(--navy);background:#ee
 .baja-lbl input{font:600 12px var(--font-b);padding:5px 7px;border:1.5px solid var(--g2);border-radius:8px;color:var(--navy);background:#fff;width:auto;max-width:140px}
 /* Rol cosmetóloga: solo ve su Cierre (su producción y sus pacientes) */
 body.rol-cosm .s3-segment button[data-screen2]:not([data-screen2="cierre"]){display:none!important}
+body.rol-cont .s3-segment button[data-screen2="registro"],body.rol-cont .s3-segment button[data-screen2="historial"],body.rol-cont .s3-segment button[data-screen2="cierre"],body.rol-cont .s3-segment button[data-screen2="prm"]{display:none!important}
 body.rol-cosm #cierre-doctor,body.rol-cosm #cierre-tabs,body.rol-cosm #cierre-por-pago-panel,body.rol-cosm #cierre-kpi-ticket-card{display:none!important}
 body.rol-cosm #cierre-por-doctor-panel{display:block!important}
 body.rol-cosm #cierre-kpis{grid-template-columns:repeat(2,minmax(0,1fr))!important}
@@ -555,6 +556,7 @@ main.appmain{padding:22px 26px 40px;max-width:1250px;margin:0 auto}
 .p-avatar{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:13px;flex-shrink:0;font-family:var(--font-d)}
 .p-avatar.av-admin{background:linear-gradient(135deg,var(--purple),#5b2d73)}
 .p-avatar.av-doctor{background:linear-gradient(135deg,var(--navy2),var(--navy3))}
+.p-avatar.av-contabilidad{background:linear-gradient(135deg,#2f8f5b,#1f6b42)}
 .p-avatar.av-recepcion{background:linear-gradient(135deg,var(--teal),#22a8a8)}
 .p-avatar.av-cosmetologo{background:linear-gradient(135deg,#d6558f,#a8386b)}
 .cardC-name{font-weight:700;font-size:13px;color:var(--navy);display:flex;align-items:center;gap:6px;min-width:0}
@@ -722,6 +724,7 @@ main.appmain{padding:22px 26px 40px;max-width:1250px;margin:0 auto}
 .nom-al{border-radius:9px;padding:8px 12px;font-size:12px;margin-bottom:6px;border:1px solid}.nom-al.warn{background:#FFF7E6;border-color:#F0D18A;color:#7A4D00}.nom-al.bad{background:#FDEEEE;border-color:#F3C2C2;color:#B02A2A}
 .nom-pill{display:inline-flex;font-size:10.5px;font-weight:700;border:1px solid;border-radius:999px;padding:2px 8px;margin:1px 2px 1px 0;white-space:nowrap}.nom-pill.ok{background:#E9F6EF;border-color:#B5E2C3;color:#1E7A3F}.nom-pill.warn{background:#FFF7E6;border-color:#F0D18A;color:#9A6010}.nom-pill.bad{background:#FDEEEE;border-color:#F3C2C2;color:#B02A2A}.nom-pill.info{background:#EAF1FC;border-color:#BFD2F2;color:#2A5DB0}.nom-pill.tbd{background:#F1F3F8;border-color:var(--g2);color:var(--g6)}
 .nom-h{font:800 14px var(--font-d);margin:16px 0 4px}
+.nom-ro [data-nov-add],.nom-ro [data-nov-edit],.nom-ro [data-nov-del],.nom-ro [data-baja],.nom-ro [data-reactivar],.nom-ro .nom-add,.nom-ro .nom-h-alta,.nom-ro #nom-f-baja-reg{display:none!important}
 .nom-add{display:grid;grid-template-columns:2fr 1.4fr 1fr 1fr auto;gap:8px;margin:8px 0 14px}.nom-bar{display:flex;align-items:center;gap:8px;margin:0 0 10px;font-size:12px;color:var(--g6);font-weight:700}.nom-bar .nom-btn{margin:0}
 .nom-fund{font-size:11px;color:var(--g6);margin-top:14px;border-top:1px dashed var(--g2);padding-top:10px;line-height:1.55}
 .nom-3{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:12px;margin-top:6px}.nom-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}
@@ -1985,6 +1988,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
     </div>
     <div class="card screen2" id="app-screen-nominas">
       <div class="tab-title"><span>👥 Nóminas</span></div>
+      <div class="nom-al warn" id="nom-ro-note" style="display:none">👁 Modo consulta: puedes ver todo y descargar el reporte, pero no modificar nada.</div>
       <div class="prm-tabs" id="nom-tabs">
         <button type="button" class="prm-tab-btn act" data-nt="plantilla">👥 Plantilla</button>
         <button type="button" class="prm-tab-btn" data-nt="mes">🧾 Nómina quincenal</button>
@@ -2096,6 +2100,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
               <option value="cosmetologo">Cosmetólogo/a</option>
               <option value="recepcion">Recepción</option>
               <option value="admin">Admin</option>
+              <option value="contabilidad">Contabilidad (solo consulta)</option>
             </select>
           </div>
         </div>
@@ -2482,7 +2487,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.11.13-107';
+const APP_VERSION = 'v2026.11.13-108';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 
@@ -2726,7 +2731,7 @@ async function intentarEntrar(perfil){
 
 // ── Shell post-login ──
 let MI_PERFIL = null;
-const ROLE_LABELS = { admin:'Admin', doctor:'Doctor', cosmetologo:'Cosmetólogo/a', recepcion:'Recepción' };
+const ROLE_LABELS = { admin:'Admin', doctor:'Doctor', cosmetologo:'Cosmetólogo/a', recepcion:'Recepción', contabilidad:'Contabilidad' };
 function entrarAlShell(perfil){
   MI_PERFIL = perfil;
   document.getElementById('auth-view').classList.add('hide');
@@ -2740,15 +2745,18 @@ function entrarAlShell(perfil){
     document.getElementById('user-pill-rol').textContent = '★ ' + (ROLE_LABELS[perfil.rol] || perfil.rol);
   })();
 
-  const showDash = perfil.permisos?.puede_ver_dashboard === true;
-  const showGastos = perfil.permisos?.puede_ver_gastos === true;
-  const showComisiones = perfil.permisos?.puede_ver_comisiones === true;
+  const esCont = perfil.rol === 'contabilidad';    // Contabilidad: solo consulta (Dashboard, Gastos, Comisiones y Nómina). La base de datos también lo impone (RLS).
+  window.MI_SOLO_LECTURA = esCont;
+  document.body.classList.toggle('rol-cont', esCont);
+  const showDash = esCont || perfil.permisos?.puede_ver_dashboard === true;
+  const showGastos = esCont || perfil.permisos?.puede_ver_gastos === true;
+  const showComisiones = esCont || perfil.permisos?.puede_ver_comisiones === true;
   { const bp = document.getElementById('com-btn-pdf-mes'); if(bp) bp.style.display = (perfil.rol === 'admin' || perfil.rol === 'doctor') ? '' : 'none'; }   // PDF de cierre de mes: solo admin y doctores
   const soloProductos = perfil.rol !== 'admin' && (perfil.permisos?.puede_alta_productos === true || perfil.permisos?.puede_editar_productos === true); // alta y/o edición del catálogo de farmacia
   const showConfig = perfil.rol === 'admin' || soloProductos;
   document.querySelector('[data-screen2="dash"]').classList.toggle('locked', !showDash);
   document.getElementById('nav-btn-gastos').style.display = showGastos ? '' : 'none';
-  document.getElementById('nav-btn-nominas').style.display = perfil.rol === 'admin' ? '' : 'none';   // Nóminas: solo admin
+  document.getElementById('nav-btn-nominas').style.display = (perfil.rol === 'admin' || esCont) ? '' : 'none';   // Nóminas: admin (edita) y contabilidad (solo consulta)
   document.getElementById('nav-btn-comisiones').style.display = showComisiones ? '' : 'none';
   document.getElementById('btn-config-header').style.display = showConfig ? 'inline-flex' : 'none';
   document.getElementById('um-config').style.display = showConfig ? 'flex' : 'none';
@@ -2768,6 +2776,7 @@ function entrarAlShell(perfil){
     document.getElementById('cierre-kpi-total-l').textContent = 'Ingreso total';
     document.getElementById('cierre-kpi-consultas-l').textContent = 'Consultas';
   }
+  if(esCont) setTimeout(() => document.querySelector('.s3-segment button[data-screen2="dash"]').click(), 0);   // aterriza en el Dashboard
   document.getElementById('bell-wrap').style.display = showConfig ? 'inline-flex' : 'none';
   if(showConfig) cargarCampana();
   window.MI_PUEDE_ELIMINAR_PAPELERA = perfil.rol === 'admin' && perfil.permisos?.puede_eliminar_papelera !== false;
@@ -9517,7 +9526,7 @@ async function renderConfigPersonal(){
   cont.innerHTML = '<div class="empty-note">Cargando...</div>';
   // Ahora se listan y gestionan aquí los 4 roles (admin, doctor, cosmetólogo/a y recepción) —
   // cosmetólogos/as también pueden tener cuenta de acceso, ya que "Atendido por" los incluye igual que a los doctores.
-  const { data, error } = await sb.from('personal').select('*').in('rol', ['admin','doctor','cosmetologo','recepcion']).eq('oculto', false).order('nombre');
+  const { data, error } = await sb.from('personal').select('*').in('rol', ['admin','doctor','cosmetologo','recepcion','contabilidad']).eq('oculto', false).order('nombre');
   if(error){
     console.error('[SkinFabric] Error listando personal:', error);
     cont.innerHTML = '<div class="empty-note">No se pudo cargar.</div>';
@@ -9739,7 +9748,7 @@ document.getElementById('cfg-personal-btn-agregar').addEventListener('click', as
     // puede_ver_comisiones ya NO se activa por default para nadie (ni admin/doctor): la pestaña
     // Comisiones se dejó visible solo para el perfil de Dani por decisión explícita. Si se
     // necesita dársela a alguien más, se activa a mano desde su tarjeta de permisos aquí mismo.
-    permisos: { puede_exportar:true, puede_ver_dashboard: (rol==='admin'||rol==='doctor'), puede_ver_gastos: rol==='admin', puede_ver_comisiones: false, puede_eliminar_papelera: rol==='admin', puede_alta_productos: false, puede_editar_productos: false },
+    permisos: { puede_exportar:true, puede_ver_dashboard: (rol==='admin'||rol==='doctor'||rol==='contabilidad'), puede_ver_gastos: (rol==='admin'||rol==='contabilidad'), puede_ver_comisiones: rol==='contabilidad', puede_eliminar_papelera: rol==='admin', puede_alta_productos: false, puede_editar_productos: false },
   });
   btn.disabled = false; btn.textContent = '+ Agregar personal';
   if(ok){
@@ -10328,7 +10337,7 @@ function nomCalcMes(e, novs, per){
 function nomMesDefault(){ const h = new Date(); return h.getFullYear() + '-' + String(h.getMonth() + 1).padStart(2, '0') + '-Q' + (h.getDate() <= 15 ? 1 : 2); }
 
 async function cargarNominas(){
-  if(MI_PERFIL?.rol !== 'admin') return;
+  if(MI_PERFIL?.rol !== 'admin' && MI_PERFIL?.rol !== 'contabilidad') return;
   if(!NOM_PERIODO) NOM_PERIODO = nomMesDefault();
   document.getElementById('nom-mes').value = NOM_PERIODO.slice(0, 7); document.getElementById('nom-q').value = 'Q' + nomPer(NOM_PERIODO).Q;
   const [r1, r2, r3] = await Promise.all([
@@ -10346,6 +10355,11 @@ function nomRender(){
   document.querySelectorAll('.nom-panel').forEach(p => p.hidden = p.id !== 'nom-p-' + NOM_TAB);
   document.getElementById('nom-bar').style.display = (NOM_TAB === 'mes' || NOM_TAB === 'rep') ? 'flex' : 'none';
   ({ plantilla: nomRenderPlantilla, mes: nomRenderMes, vac: nomRenderVac, fin: nomRenderFin, rep: nomRenderRep })[NOM_TAB]();
+  // Contabilidad: solo consulta (la base de datos también lo impone). Se bloquean los campos y se ocultan los botones de edición.
+  const ro = window.MI_SOLO_LECTURA === true;
+  document.getElementById('app-screen-nominas').classList.toggle('nom-ro', ro);
+  document.getElementById('nom-ro-note').style.display = ro ? '' : 'none';
+  if(ro) document.querySelectorAll('#app-screen-nominas .nom-inp[data-id]').forEach(el => { el.disabled = true; });
 }
 const nomInp = (id, f, v, type = 'text', extra = '', cls = '') => `<input class="nom-inp${cls}" type="${type}" data-id="${esc2(id)}" data-f="${f}" value="${esc2(v ?? '')}" ${extra}/>`;
 
@@ -10379,12 +10393,13 @@ function nomRenderPlantilla(){
       <div class="nom-k"><small>Alertas</small><b>${avisos.length}</b><span>fecha de ingreso · salario mínimo</span></div></div>
     ${avisos.join('')}
     <div class="nom-wrap"><table class="nom-t"><thead><tr><th>Persona</th><th>Inicio de contrato</th><th class="r">Sueldo mensual</th><th class="r">Diario</th><th class="r">SDI (integrado)</th><th class="r">Vacaciones</th><th></th></tr></thead><tbody>${filas || '<tr><td colspan="7" class="empty-note">Sin personal activo.</td></tr>'}</tbody></table></div>
-    <h3 class="nom-h">+ Alta de personal</h3>
+    <h3 class="nom-h nom-h-alta">+ Alta de personal</h3>
     <div class="nom-add"><input class="nom-inp" id="nom-n-nombre" placeholder="Nombre completo"/><input class="nom-inp" id="nom-n-puesto" placeholder="Puesto"/><input class="nom-inp" id="nom-n-sueldo" type="number" min="0" step="0.01" placeholder="Sueldo mensual"/><input class="nom-inp" id="nom-n-ing" type="date" title="Inicio de contrato"/><button type="button" class="nom-btn p" id="nom-n-add">Agregar</button></div>
     ${bajas}
     <div class="nom-fund"><b>Fundamento:</b> arts. 76–81, 87 y 89 LFT · salario mínimo 2026 ${fmtMoney(NOM_SMG)} · UMA 2026 ${fmtMoney(NOM_UMA)}. SDI = sueldo diario × (1 + (15 + días de vacaciones × 25%) ÷ 365).</div>`;
 }
 async function nomGuardarEmp(id, campo, valor){
+  if(window.MI_SOLO_LECTURA) return false;
   const upd = { [campo]: valor };
   const { error } = await sb.from('nomina_empleados').update(upd).eq('id', id);
   if(error){ console.error('[SkinFabric] Nóminas:', error); toast('No se pudo guardar.'); return false; }
@@ -10435,6 +10450,7 @@ function nomRenderMes(){
 // ── Novedades (alta / edición) ──
 let NOM_NOV_EDIT = null;
 function nomAbrirNov(empId, novId){
+  if(window.MI_SOLO_LECTURA) return;
   const n = novId ? NOM_NOV.find(x => x.id === novId) : null;
   const e = NOM_EMP.find(x => x.id === (n ? n.empleado_id : empId));
   NOM_NOV_EDIT = { id: n?.id || null, empleado_id: e.id };
@@ -10456,6 +10472,7 @@ function nomNovCampos(){
   document.getElementById('nom-m-just-w').style.display = (tp === 'falta' || tp === 'incapacidad') ? 'flex' : 'none';
 }
 async function nomGuardarNov(){
+  if(window.MI_SOLO_LECTURA) return;
   const tipo = document.getElementById('nom-m-tipo').value, t = NOM_TIPOS[tipo][2];
   const dias = document.getElementById('nom-m-dias').value, monto = document.getElementById('nom-m-monto').value;
   if(t === 'dias' && !(Number(dias) > 0)){ toast('Escribe los días.'); return; }
@@ -10793,6 +10810,7 @@ async function nomCopiar(txt){
     if(el.id === 'nom-f-baja'){ if(el.value){ NOM_FIN.baja = el.value; NOM_FIN.vacTom = null; nomRenderFin(); } return; }
     if(el.id === 'nom-f-vac'){ NOM_FIN.vacTom = Math.max(Number(el.value) || 0, 0); nomRenderFin(); return; }
     if(!el.classList.contains('nom-inp') || !el.dataset.id) return;
+    if(window.MI_SOLO_LECTURA){ nomRender(); return; }
     const campo = el.dataset.f; let v = el.value;
     if(campo === 'salario_mensual'){ v = Number(v); if(!(v >= 0) || el.value === ''){ toast('Escribe un sueldo válido.'); nomRender(); return; } }
     else if(campo === 'salario_es_bruto') v = v === '1';
@@ -10802,6 +10820,7 @@ async function nomCopiar(txt){
   });
   root.addEventListener('click', async e => {
     const t = e.target.closest('button'); if(!t) return;
+    if(window.MI_SOLO_LECTURA && (t.dataset.novAdd || t.dataset.novEdit || t.dataset.novDel || t.dataset.baja || t.dataset.reactivar || t.id === 'nom-n-add' || t.id === 'nom-f-baja-reg')) return;
     if(t.dataset.novAdd) return nomAbrirNov(t.dataset.novAdd, null);
     if(t.dataset.novEdit) return nomAbrirNov(null, t.dataset.novEdit);
     if(t.dataset.novDel){
