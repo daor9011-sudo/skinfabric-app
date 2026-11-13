@@ -708,6 +708,10 @@ main.appmain{padding:22px 26px 40px;max-width:1250px;margin:0 auto}
 .nom-wrap{overflow-x:auto;border:1px solid var(--g2);border-radius:12px;background:#fff;margin:10px 0 14px}
 .nom-t{width:100%;border-collapse:collapse}.nom-t th{font-size:10px;letter-spacing:.6px;text-transform:uppercase;color:var(--g4);text-align:left;padding:9px 10px;border-bottom:2px solid var(--navy);white-space:nowrap;font-weight:800}
 .nom-t td{padding:9px 10px;border-bottom:1px solid var(--g2);font-size:12.5px;vertical-align:middle}.nom-t .r{text-align:right}.nom-t .b{font-weight:800}.nom-t td.nm{white-space:nowrap}
+.nom-t th.r{text-align:right}.nom-t td{font-variant-numeric:tabular-nums}.nom-t tbody tr:nth-child(even):not(.tot):not(.sel) td{background:#FAFBFE}
+.nom-t tr.g th{border-bottom:0;text-align:center;font-size:10px;color:#fff;letter-spacing:.8px;padding:5px}.nom-t tr.g .gp{background:var(--navy2)}.nom-t tr.g .gr{background:#8a6414}.nom-t tr.g .gd{background:#8b2f2f}.nom-t tr.g .gn{background:#0B6E6E}
+.nom-t .sep{border-left:2px solid var(--g2)}.nom-t td.nt{font-weight:800;color:#0B6E6E;font-size:13.5px}.nom-t tr.tot.dark td{background:var(--navy);color:#fff;border-top:0}.nom-t tr.tot.dark td.nt{color:#7be0e0}
+.nom-t .nm b{display:block}.nom-t td.nv{white-space:normal;min-width:150px}.nom-t .nom-btn.ic{padding:1px 8px;margin:0;border-style:dashed;color:var(--g6);font-size:11px}
 .nom-t .sub,.nom-card .sub,.nom-k span{font-size:11px;color:var(--g6)}.sub.warn,.nom-t td.warn{color:#9A6010}.mut{color:var(--g4)}
 .nom-t tr.tot td{border-top:2px solid var(--navy);border-bottom:0;font-weight:800;background:var(--g1)}.nom-t tr.sel td{background:#EAF9F9}.nom-neto{background:#EAF9F9}
 .nom-t.mini td,.nom-t.mini th{padding:7px 8px}
@@ -2478,7 +2482,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.11.13-106';
+const APP_VERSION = 'v2026.11.13-107';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 
@@ -10309,16 +10313,17 @@ function nomCalcMes(e, novs, per){
   const dDesc = dias('falta', n => !n.justificada) + dias('incapacidad', n => !n.justificada);   // solo lo no justificado se descuenta
   const dJust = dFalta + dInc - dDesc;
   const diasTrab = f.ing && f.ing > qi ? Math.min(15, Math.max(nomDias(f.ing, qf) + 1, 0)) : 15;
-  const prima = dVac * f.diario * 0.25, primaGrav = Math.max(prima - 15 * NOM_UMA, 0);
-  const descFalta = dDesc * f.diario, sueldo = Number(e.salario_mensual) / 2 * diasTrab / 15;
+  const c2 = v => Math.round(v * 100) / 100;                  // todo en centavos para que el Excel, el PDF y la pantalla cuadren
+  const prima = c2(dVac * f.diario * 0.25), primaGrav = Math.max(prima - 15 * NOM_UMA, 0);
+  const descFalta = c2(dDesc * f.diario), sueldo = c2(Number(e.salario_mensual) / 2 * diasTrab / 15);
   const bruto = e.salario_es_bruto !== false;
   const base = Math.max(sueldo - descFalta + bono + primaGrav, 0);
   const isr = bruto ? nomIsrQ(base) : 0;
   const imssDet = bruto ? nomImss(f.sdi, diasTrab) : {};
   const imss = Object.values(imssDet).reduce((a, v) => a + v, 0);
-  const perc = sueldo + bono + prima;
-  const ded = isr + imss + descFalta + otros;
-  return { f, e, novs, dVac, dFalta, dInc, dDesc, dJust, diasTrab, bono, otros, prima, descFalta, sueldo, perc, isr, imss, imssDet, ded, neto: perc - ded, bruto, subsidio: bruto && base <= NOM_SUBS_LIM * 15 / NOM_DQ };
+  const perc = c2(sueldo + bono + prima);
+  const ded = c2(isr + imss + descFalta + otros);
+  return { f, e, novs, dVac, dFalta, dInc, dDesc, dJust, diasTrab, bono, otros, prima, descFalta, sueldo, perc, isr, imss, imssDet, ded, neto: c2(perc - ded), bruto, subsidio: bruto && base <= NOM_SUBS_LIM * 15 / NOM_DQ };
 }
 function nomMesDefault(){ const h = new Date(); return h.getFullYear() + '-' + String(h.getMonth() + 1).padStart(2, '0') + '-Q' + (h.getDate() <= 15 ? 1 : 2); }
 
@@ -10364,7 +10369,7 @@ function nomRenderPlantilla(){
         <select class="nom-inp sel" data-id="${esc2(e.id)}" data-f="salario_es_bruto"><option value="1"${e.salario_es_bruto !== false ? ' selected' : ''}>Bruto</option><option value="0"${e.salario_es_bruto === false ? ' selected' : ''}>Neto</option></select></td>
       <td class="r">${fmtMoney(f.diario)}</td>
       <td class="r">${fmtMoney(f.sdi)}<div class="sub">×${f.factor.toFixed(4)}${f.sinFecha ? ' · mínimo' : ''}</div></td>
-      <td class="r">${f.sinFecha ? '—' : f.vac + ' d'}</td>
+      <td class="r">${f.sinFecha ? '—' : (f.ac < 1 ? '<span class="mut">12 d al 1.er año</span>' : f.vac + ' d')}</td>
       <td><button type="button" class="nom-btn sm" data-baja="${esc2(e.id)}">Dar de baja</button></td></tr>`;
   }).join('');
   const bajas = baj.length ? `<h3 class="nom-h">Bajas (${baj.length})</h3><div class="nom-wrap"><table class="nom-t"><tbody>${baj.map(e => `<tr><td class="nm"><b>${esc2(e.nombre)}</b><div class="sub">${esc2(e.puesto || '')}</div></td><td>Ingreso ${nomFechaTxt(e.fecha_ingreso)}</td><td>Baja ${nomFechaTxt(e.fecha_baja)}</td><td><button type="button" class="nom-btn sm" data-reactivar="${esc2(e.id)}">Reactivar</button></td></tr>`).join('')}</tbody></table></div>` : '';
@@ -10391,25 +10396,26 @@ async function nomGuardarEmp(id, campo, valor){
 function nomNovsDe(id){ return NOM_NOV.filter(n => n.empleado_id === id); }
 function nomChips(c){
   const ch = [];
-  if(c.dVac) ch.push(`<span class="nom-pill info">🏖 ${c.dVac} d vacaciones</span>`);
-  const nj = (t) => c.novs.filter(n => n.tipo === t && !n.justificada).reduce((a, n) => a + Number(n.dias || 0), 0), cj = (t) => c.novs.filter(n => n.tipo === t && n.justificada).reduce((a, n) => a + Number(n.dias || 0), 0);
-  if(nj('falta')) ch.push(`<span class="nom-pill bad">✗ ${nj('falta')} falta(s) · se descuenta</span>`);
-  if(cj('falta')) ch.push(`<span class="nom-pill ok">✓ ${cj('falta')} falta(s) justificada(s)</span>`);
-  if(nj('incapacidad')) ch.push(`<span class="nom-pill bad">🩺 ${nj('incapacidad')} d incap. · se descuenta</span>`);
-  if(cj('incapacidad')) ch.push(`<span class="nom-pill warn">🩺 ${cj('incapacidad')} d incap. justificada(s)</span>`);
-  if(c.bono) ch.push(`<span class="nom-pill ok">＋ ${fmtMoney0(c.bono)} bono</span>`);
-  if(c.otros) ch.push(`<span class="nom-pill tbd">− ${fmtMoney0(c.otros)} desc.</span>`);
+  const suma = (t, j) => c.novs.filter(n => n.tipo === t && !!n.justificada === j).reduce((a, n) => a + Number(n.dias || 0), 0);
+  if(c.dVac) ch.push(`<span class="nom-pill info">🏖 ${c.dVac} d</span>`);
+  if(suma('falta', false)) ch.push(`<span class="nom-pill bad" title="Se descuenta">✗ ${suma('falta', false)} falta</span>`);
+  if(suma('incapacidad', false)) ch.push(`<span class="nom-pill bad" title="Se descuenta">🩺 ${suma('incapacidad', false)} d incap.</span>`);
+  const dj = suma('falta', true) + suma('incapacidad', true);
+  if(dj) ch.push(`<span class="nom-pill ok" title="Justificada: no se descuenta">✓ ${dj} d justificada</span>`);
+  if(c.bono) ch.push(`<span class="nom-pill ok">＋ ${fmtMoney0(c.bono)}</span>`);
+  if(c.otros) ch.push(`<span class="nom-pill tbd">− ${fmtMoney0(c.otros)}</span>`);
   c.novs.filter(n => n.tipo === 'otro').forEach(() => ch.push('<span class="nom-pill tbd">📝 nota</span>'));
   return ch.join(' ') || '<span class="mut">Sin novedades</span>';
 }
 function nomRenderMes(){
   const calcs = nomActivos().map(e => nomCalcMes(e, nomNovsDe(e.id), NOM_PERIODO));
   const T = k => calcs.reduce((a, c) => a + c[k], 0);
+  const N = v => v ? Number(v).toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '<span class="mut">—</span>';
   const filas = calcs.map(c => `<tr><td class="nm"><b>${esc2(c.e.nombre)}</b><div class="sub">${esc2(c.e.puesto || '')}</div></td>
-    <td>${nomChips(c)}<div><button type="button" class="nom-btn sm" data-nov-add="${esc2(c.e.id)}">＋ Novedad</button></div></td>
-    <td class="r">${fmtMoney(c.sueldo)}${c.diasTrab < 15 ? `<div class="sub">${c.diasTrab} d (ingreso)</div>` : ''}</td><td class="r">${c.bono + c.prima ? fmtMoney(c.bono + c.prima) : '—'}</td><td class="r b">${fmtMoney(c.perc)}</td>
-    <td class="r">${c.bruto ? fmtMoney(c.isr) : '<span class="mut">—</span>'}</td><td class="r">${c.bruto ? fmtMoney(c.imss) : '<span class="mut">—</span>'}</td>
-    <td class="r">${c.descFalta ? fmtMoney(c.descFalta) : '—'}</td><td class="r">${c.otros ? fmtMoney(c.otros) : '—'}</td><td class="r b nom-neto">${fmtMoney(c.neto)}</td></tr>`).join('');
+    <td class="nv">${nomChips(c)} <button type="button" class="nom-btn sm ic" data-nov-add="${esc2(c.e.id)}" title="Agregar novedad" aria-label="Agregar novedad">＋</button></td>
+    <td class="r">${N(c.sueldo)}${c.diasTrab < 15 ? `<div class="sub">${c.diasTrab} d (ingreso)</div>` : ''}</td><td class="r">${N(c.bono + c.prima)}</td><td class="r b">${N(c.perc)}</td>
+    <td class="r sep">${c.bruto ? N(c.isr) : '<span class="mut">—</span>'}</td><td class="r">${c.bruto ? N(c.imss) : '<span class="mut">—</span>'}</td>
+    <td class="r sep">${N(c.descFalta)}</td><td class="r">${N(c.otros)}</td><td class="r sep nt">${N(c.neto)}</td></tr>`).join('');
   const sub = calcs.filter(c => c.subsidio).map(c => `<div class="nom-al warn">ℹ <b>${esc2(c.e.nombre)}</b> gana ≤ ${fmtMoney(NOM_SUBS_LIM)}: puede aplicar subsidio al empleo (no lo calculo; lo define el contador).</div>`).join('');
   const neto = calcs.filter(c => !c.bruto).map(c => `<div class="nom-al warn">ℹ <b>${esc2(c.e.nombre)}</b> está capturada con sueldo <b>neto</b>: no calculo ISR/IMSS (falta el bruto).</div>`).join('');
   const sf = calcs.filter(c => c.f.sinFecha).map(c => `<div class="nom-al warn">⚠ <b>${esc2(c.e.nombre)}</b> sin fecha de ingreso: el SDI usa el mínimo de ley (12 días de vacaciones).</div>`).join('');
@@ -10417,8 +10423,10 @@ function nomRenderMes(){
     return `<tr><td>${esc2(e?.nombre || '—')}</td><td>${t[0]} ${t[1]}${n.tipo === 'falta' || n.tipo === 'incapacidad' ? (n.justificada ? ' <span class="nom-pill ok">justificada</span>' : ' <span class="nom-pill bad">se descuenta</span>') : ''}</td><td>${n.fecha ? nomFechaTxt(n.fecha) : '—'}</td><td class="r">${n.dias != null && n.dias !== '' ? Number(n.dias) + ' d' : '—'}</td><td class="r">${n.monto != null && n.monto !== '' ? fmtMoney(n.monto) : '—'}</td><td>${esc2(n.nota || '')}</td>
       <td class="r"><button type="button" class="nom-btn sm" data-nov-edit="${esc2(n.id)}">Editar</button> <button type="button" class="nom-btn sm bad" data-nov-del="${esc2(n.id)}">Quitar</button></td></tr>`; }).join('');
   document.getElementById('nom-p-mes').innerHTML = `${sf}${neto}${sub}
-    <div class="nom-wrap"><table class="nom-t"><thead><tr><th>Persona</th><th>Novedades de la quincena</th><th class="r">Sueldo</th><th class="r">Bono / prima vac.</th><th class="r">Percepciones</th><th class="r">ISR</th><th class="r">IMSS obrero</th><th class="r">Faltas</th><th class="r">Otros desc.</th><th class="r">Neto a pagar</th></tr></thead>
-      <tbody>${filas}<tr class="tot"><td colspan="2">Totales · ${esc2(nomLabelPer(NOM_PERIODO))}</td><td class="r">${fmtMoney(T('sueldo'))}</td><td class="r">${fmtMoney(T('bono') + T('prima'))}</td><td class="r">${fmtMoney(T('perc'))}</td><td class="r">${fmtMoney(T('isr'))}</td><td class="r">${fmtMoney(T('imss'))}</td><td class="r">${fmtMoney(T('descFalta'))}</td><td class="r">${fmtMoney(T('otros'))}</td><td class="r">${fmtMoney(T('neto'))}</td></tr></tbody></table></div>
+    <div class="nom-wrap"><table class="nom-t"><thead><tr class="g"><th colspan="2"></th><th colspan="3" class="gp">Percepciones</th><th colspan="2" class="gr">Retenciones</th><th colspan="2" class="gd">Descuentos</th><th class="gn">Neto</th></tr>
+      <tr><th>Persona</th><th>Novedades</th><th class="r">Sueldo quinc.</th><th class="r">Bono / prima</th><th class="r">Total</th><th class="r sep">ISR</th><th class="r">IMSS obrero</th><th class="r sep">Faltas</th><th class="r">Otros</th><th class="r sep">A pagar</th></tr></thead>
+      <tbody>${filas}<tr class="tot dark"><td colspan="2">Totales · ${calcs.length} persona(s) · ${esc2(nomLabelPer(NOM_PERIODO))}</td><td class="r">${N(T('sueldo'))}</td><td class="r">${N(T('bono') + T('prima'))}</td><td class="r">${N(T('perc'))}</td><td class="r">${N(T('isr'))}</td><td class="r">${N(T('imss'))}</td><td class="r">${N(T('descFalta'))}</td><td class="r">${N(T('otros'))}</td><td class="r nt">${N(T('neto'))}</td></tr></tbody></table></div>
+    <div style="margin:-6px 2px 4px;font-size:11px;color:var(--g6)">Importes en pesos (MXN). Rojo = se descuenta; verde = justificada, sin descuento.</div>
     <h3 class="nom-h">Novedades registradas (${NOM_NOV.length})</h3>
     <div class="nom-wrap"><table class="nom-t"><thead><tr><th>Persona</th><th>Tipo</th><th>Fecha</th><th class="r">Días</th><th class="r">Monto</th><th>Nota</th><th></th></tr></thead><tbody>${nov || '<tr><td colspan="7" class="empty-note">Sin novedades en esta quincena. Usa “＋ Novedad” en la persona.</td></tr>'}</tbody></table></div>
     <div class="nom-fund"><b>Cómo se calcula (nómina quincenal, 15 días):</b> sueldo = mensual ÷ 2; ISR con la tarifa del art. 96 LISR (Anexo 8 RMF 2026) prorrateada a 15 días, sobre sueldo − faltas + bonos + prima vacacional gravada; IMSS cuota obrera sobre el SDI × 15 días (0.40% excedente 3 UMA, 0.25%, 0.375%, 0.625%, 1.125%); prima vacacional 25% de los días tomados (exenta hasta 15 UMA = ${fmtMoney(15 * NOM_UMA)}). Faltas e incapacidades: si están <b>justificadas</b> no se descuentan; si no, se descuenta el día (sueldo ÷ 30). Las comisiones de cosmetólogas no se pagan por nómina. Es un cálculo de apoyo: el contador valida antes de timbrar.</div>`;
@@ -10660,7 +10668,7 @@ async function nomReportePdf(){
   catch(err){ console.error('[SkinFabric] Reporte de nómina:', err); toast('No se pudo generar el PDF.'); }
   finally{ btn.disabled = false; btn.textContent = t0; }
 }
-function nomReporteExcel(){
+function nomReporteExcelPlano(){
   if(typeof XLSX === 'undefined'){ toast('No se pudo exportar.'); return; }
   const D = nomReporteDatos(NOM_PERIODO), r2 = v => Math.round(v * 100) / 100;
   const wb = XLSX.utils.book_new();
@@ -10669,6 +10677,92 @@ function nomReporteExcel(){
   const hoy = nomPeriodoRef(NOM_PERIODO);
   XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(D.calcs.filter(c => !c.f.sinFecha).map(c => { const tom = nomVacTomados(c.e, hoy); return { Persona: c.e.nombre, 'Inicio de contrato': c.e.fecha_ingreso, 'Años cumplidos': c.f.ac, 'Días de ley / devengados': nomVacDev(c.f, hoy), Tomados: tom, Pendientes: Math.max(Math.round((nomVacDev(c.f, hoy) - tom) * 100) / 100, 0) }; })), 'Vacaciones');
   XLSX.writeFile(wb, 'Nomina_' + NOM_PERIODO + '.xlsx');
+}
+const NOM_XLS_LIB = 'https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js';
+function nomXlsFecha(s){ if(!s) return null; const [y, m, d] = String(s).slice(0, 10).split('-').map(Number); return new Date(Date.UTC(y, m - 1, d)); }
+async function nomReporteExcel(){
+  const btn = document.getElementById('nom-r-xls'); const t0 = btn.textContent; btn.disabled = true; btn.textContent = '⏳ Generando…';
+  try{
+    try{ await cargarScriptUnaVez(NOM_XLS_LIB); }catch(_){ toast('Sin conexión a la librería de formato; descargo versión simple.'); nomReporteExcelPlano(); return; }
+    const D = nomReporteDatos(NOM_PERIODO), r2 = v => Math.round(v * 100) / 100, T = D.T;
+    const hoy = nomPeriodoRef(NOM_PERIODO), etq = nomLabelPer(NOM_PERIODO);
+    const wb = new ExcelJS.Workbook(); wb.creator = 'Skin Fabric'; wb.created = new Date();
+    const FONT = 'Arial', NAVY = 'FF0B1628', AZUL = 'FF1B3A6B', AZUL2 = 'FF22488A', AMB = 'FF8A6414', AMB2 = 'FFA67A1E', ROJO = 'FF8B2F2F', ROJO2 = 'FFA64444', TEAL = 'FF0B6E6E', ZEBRA = 'FFF6F8FC', LINEA = 'FFE1E5EE';
+    const fill = c => ({ type:'pattern', pattern:'solid', fgColor:{ argb:c } });
+    const fino = { style:'thin', color:{ argb:LINEA } };
+    const NUM = '#,##0.00;-#,##0.00;"–"', FEC = 'dd/mm/yyyy';
+    const base = ws => { ws.pageSetup = { orientation:'landscape', paperSize:1, fitToPage:true, fitToWidth:1, fitToHeight:0, margins:{ left:.4, right:.4, top:.6, bottom:.6, header:.3, footer:.3 } };
+      ws.headerFooter = { oddFooter:'&L&8Skin Fabric · ' + etq + '&R&8Página &P de &N' }; ws.properties.defaultRowHeight = 18; };
+    const titulo = (ws, n, txt, sub) => { ws.mergeCells(1, 1, 1, n); const t = ws.getCell(1, 1); t.value = txt; t.font = { name:FONT, size:15, bold:true, color:{ argb:'FFFFFFFF' } }; t.fill = fill(NAVY); t.alignment = { vertical:'middle', indent:1 }; ws.getRow(1).height = 32;
+      ws.mergeCells(2, 1, 2, n); const s2 = ws.getCell(2, 1); s2.value = sub; s2.font = { name:FONT, size:10, color:{ argb:'FF334155' } }; s2.fill = fill('FFEAF2FA'); s2.alignment = { vertical:'middle', indent:1 }; ws.getRow(2).height = 20; };
+    const enc = (cell, color, txt, al = 'center') => { cell.value = txt; cell.font = { name:FONT, size:10, bold:true, color:{ argb:'FFFFFFFF' } }; cell.fill = fill(color); cell.alignment = { vertical:'middle', horizontal:al, wrapText:true }; cell.border = { top:fino, left:fino, bottom:fino, right:fino }; };
+    const celda = (cell, v, o = {}) => { cell.value = v; cell.font = { name:FONT, size:10, bold:!!o.b, color:{ argb:o.color || 'FF0B1628' } }; if(o.fill) cell.fill = fill(o.fill); if(o.num) cell.numFmt = o.num; cell.alignment = { vertical:'middle', horizontal:o.al || (o.num ? 'right' : 'left'), wrapText:!!o.wrap }; cell.border = { top:fino, left:fino, bottom:fino, right:fino }; };
+
+    // ── Hoja 1: Resumen
+    const ws = wb.addWorksheet('Resumen', { views:[{ state:'frozen', xSplit:2, ySplit:5 }] }); base(ws);
+    ws.columns = [{ width:30 }, { width:22 }, ...Array(8).fill({ width:15 })];
+    titulo(ws, 10, 'Skin Fabric · Nómina quincenal', etq + '   |   Generado el ' + nomFechaTxt(new Date()) + '   |   Cálculo de apoyo — validar con el contador');
+    ws.mergeCells(4, 1, 5, 2); enc(ws.getCell(4, 1), AZUL, 'PERSONA');
+    ws.mergeCells(4, 3, 4, 5); enc(ws.getCell(4, 3), AZUL, 'PERCEPCIONES'); ws.mergeCells(4, 6, 4, 7); enc(ws.getCell(4, 6), AMB, 'RETENCIONES'); ws.mergeCells(4, 8, 4, 9); enc(ws.getCell(4, 8), ROJO, 'DESCUENTOS');
+    ws.mergeCells(4, 10, 5, 10); enc(ws.getCell(4, 10), TEAL, 'NETO A PAGAR');
+    [['Sueldo quincenal', AZUL2], ['Bono / prima vac.', AZUL2], ['Total', AZUL2], ['ISR', AMB2], ['IMSS obrero', AMB2], ['Faltas', ROJO2], ['Otros', ROJO2]].forEach(([t, col], i) => enc(ws.getCell(5, 3 + i), col, t));
+    ws.getRow(4).height = 22; ws.getRow(5).height = 22;
+    D.calcs.forEach((c, i) => { const r = 6 + i, z = i % 2 ? ZEBRA : null;
+      celda(ws.getCell(r, 1), c.e.nombre, { fill:z, b:true }); celda(ws.getCell(r, 2), c.e.puesto || '', { fill:z, color:'FF64748B' });
+      celda(ws.getCell(r, 3), r2(c.sueldo), { fill:z, num:NUM }); celda(ws.getCell(r, 4), r2(c.bono + c.prima), { fill:z, num:NUM });
+      celda(ws.getCell(r, 5), { formula:`C${r}+D${r}`, result:r2(c.sueldo) + r2(c.bono + c.prima) }, { fill:z, num:NUM, b:true });
+      celda(ws.getCell(r, 6), r2(c.isr), { fill:z, num:NUM }); celda(ws.getCell(r, 7), r2(c.imss), { fill:z, num:NUM });
+      celda(ws.getCell(r, 8), r2(c.descFalta), { fill:z, num:NUM }); celda(ws.getCell(r, 9), r2(c.otros), { fill:z, num:NUM });
+      celda(ws.getCell(r, 10), { formula:`E${r}-F${r}-G${r}-H${r}-I${r}`, result:r2(c.neto) }, { fill:z, num:NUM, b:true, color:TEAL }); });
+    const n = D.calcs.length, rt = 6 + n, r0 = 6, r1 = rt - 1;
+    const sumas = { 3:T('sueldo'), 4:T('bono') + T('prima'), 5:T('perc'), 6:T('isr'), 7:T('imss'), 8:T('descFalta'), 9:T('otros'), 10:T('neto') };
+    ws.mergeCells(rt, 1, rt, 2); celda(ws.getCell(rt, 1), 'TOTALES', { b:true, fill:'FFEAF2FA' }); ws.getCell(rt, 2).fill = fill('FFEAF2FA');
+    for(let col = 3; col <= 10; col++){ const L = String.fromCharCode(64 + col); celda(ws.getCell(rt, col), { formula:`SUM(${L}${r0}:${L}${r1})`, result:r2(sumas[col]) }, { num:NUM, b:true, fill:'FFEAF2FA', color:col === 10 ? TEAL : 'FF0B1628' }); ws.getCell(rt, col).border = { top:{ style:'double', color:{ argb:AZUL } }, bottom:fino, left:fino, right:fino }; }
+    ws.getRow(rt).height = 22;
+    ws.mergeCells(rt + 2, 1, rt + 2, 10); const nota = ws.getCell(rt + 2, 1);
+    nota.value = 'ISR: tarifa art. 96 LISR (Anexo 8 RMF 2026) prorrateada a quincena de 15 días · IMSS: cuotas obreras 2026 sobre SDI × 15 días · Faltas e incapacidades justificadas no se descuentan · Las comisiones de cosmetólogas no se pagan por nómina. Cálculo de apoyo; el contador valida ISR, subsidio al empleo y cuotas antes de timbrar.';
+    nota.font = { name:FONT, size:9, italic:true, color:{ argb:'FF64748B' } }; nota.alignment = { wrapText:true, vertical:'top' }; ws.getRow(rt + 2).height = 38;
+    ws.pageSetup.printTitlesRow = '4:5';
+
+    // ── Hoja 2: Novedades
+    const wn = wb.addWorksheet('Novedades', { views:[{ state:'frozen', ySplit:4 }] }); base(wn);
+    wn.columns = [{ width:30 }, { width:26 }, { width:13 }, { width:8 }, { width:14 }, { width:13 }, { width:44 }];
+    titulo(wn, 7, 'Novedades · ' + etq, 'Faltas e incapacidades justificadas no se descuentan');
+    ['Persona', 'Tipo', 'Fecha', 'Días', 'Monto', 'Justificada', 'Nota'].forEach((t, i) => enc(wn.getCell(4, i + 1), AZUL, t, i === 0 || i === 6 ? 'left' : 'center')); wn.getRow(4).height = 22;
+    const nov = D.nov.slice().sort((a, b) => String(a.fecha || '9').localeCompare(String(b.fecha || '9')));
+    nov.forEach((nv, i) => { const r = 5 + i, z = i % 2 ? ZEBRA : null, fj = nv.tipo === 'falta' || nv.tipo === 'incapacidad';
+      celda(wn.getCell(r, 1), NOM_EMP.find(e => e.id === nv.empleado_id)?.nombre || '', { fill:z });
+      celda(wn.getCell(r, 2), NOM_TIPOS[nv.tipo][1], { fill:z }); celda(wn.getCell(r, 3), nomXlsFecha(nv.fecha), { fill:z, num:FEC, al:'center' });
+      celda(wn.getCell(r, 4), nv.dias == null ? null : Number(nv.dias), { fill:z, al:'center' }); celda(wn.getCell(r, 5), nv.monto == null ? null : Number(nv.monto), { fill:z, num:NUM });
+      celda(wn.getCell(r, 6), fj ? (nv.justificada ? 'Sí' : 'No') : '', { fill:z, al:'center', color:fj && !nv.justificada ? 'FFB42A2A' : 'FF1F7A47', b:fj }); celda(wn.getCell(r, 7), nv.nota || '', { fill:z, wrap:true }); });
+    if(!nov.length){ wn.mergeCells(5, 1, 5, 7); celda(wn.getCell(5, 1), 'Sin novedades en esta quincena.', { color:'FF64748B' }); }
+    else wn.autoFilter = { from:{ row:4, column:1 }, to:{ row:4 + nov.length, column:7 } };
+
+    // ── Hoja 3: Vacaciones
+    const wv = wb.addWorksheet('Vacaciones', { views:[{ state:'frozen', ySplit:4 }] }); base(wv);
+    wv.columns = [{ width:30 }, { width:16 }, { width:10 }, { width:20 }, { width:12 }, { width:13 }];
+    titulo(wv, 6, 'Vacaciones del personal · al ' + nomFechaTxt(hoy), 'Con menos de 1 año se muestran los días devengados proporcionalmente (12 días al cumplir el primer año)');
+    ['Persona', 'Inicio de contrato', 'Años', 'Días de ley / devengados', 'Tomados', 'Pendientes'].forEach((t, i) => enc(wv.getCell(4, i + 1), AZUL, t, i === 0 ? 'left' : 'center')); wv.getRow(4).height = 30;
+    D.calcs.filter(c => !c.f.sinFecha).forEach((c, i) => { const r = 5 + i, z = i % 2 ? ZEBRA : null, tom = nomVacTomados(c.e, hoy), dev = nomVacDev(c.f, hoy);
+      celda(wv.getCell(r, 1), c.e.nombre, { fill:z, b:true }); celda(wv.getCell(r, 2), nomXlsFecha(c.e.fecha_ingreso), { fill:z, num:FEC, al:'center' }); celda(wv.getCell(r, 3), c.f.ac, { fill:z, al:'center' });
+      celda(wv.getCell(r, 4), dev, { fill:z, num:'0.00', al:'center' }); celda(wv.getCell(r, 5), tom, { fill:z, num:'0.00', al:'center' });
+      celda(wv.getCell(r, 6), { formula:`MAX(D${r}-E${r},0)`, result:Math.max(r2(dev - tom), 0) }, { fill:z, num:'0.00', al:'center', b:true }); });
+
+    // ── Hoja 4: Provisiones
+    const wp = wb.addWorksheet('Provisiones'); base(wp);
+    wp.columns = [{ width:46 }, { width:26 }, { width:16 }];
+    titulo(wp, 3, 'Provisiones · al ' + nomFechaTxt(hoy), 'Para pólizas contables');
+    ['Concepto', 'Base de cálculo', 'Importe'].forEach((t, i) => enc(wp.getCell(4, i + 1), AZUL, t, i === 2 ? 'right' : 'left')); wp.getRow(4).height = 22;
+    [['Aguinaldo (15 días) acumulado', '15 d × días del año ÷ 365', D.prov.aguinaldo], ['Prima vacacional del año (25%)', '25% × días de vacaciones', D.prov.primaVac], ['Vacaciones devengadas no disfrutadas', 'días pendientes × salario diario', D.prov.vacPend]].forEach(([a, b, v], i) => { const r = 5 + i, z = i % 2 ? ZEBRA : null; celda(wp.getCell(r, 1), a, { fill:z }); celda(wp.getCell(r, 2), b, { fill:z, color:'FF64748B' }); celda(wp.getCell(r, 3), r2(v), { fill:z, num:NUM }); });
+    celda(wp.getCell(8, 1), 'TOTAL PROVISIONES', { b:true, fill:'FFEAF2FA' }); celda(wp.getCell(8, 2), '', { fill:'FFEAF2FA' });
+    celda(wp.getCell(8, 3), { formula:'SUM(C5:C7)', result:r2(D.prov.aguinaldo + D.prov.primaVac + D.prov.vacPend) }, { num:NUM, b:true, fill:'FFEAF2FA' }); wp.getCell(8, 3).border = { top:{ style:'double', color:{ argb:AZUL } }, bottom:fino, left:fino, right:fino };
+
+    const buf = await wb.xlsx.writeBuffer();
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([buf], { type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })); a.download = 'Nomina_' + NOM_PERIODO + '.xlsx';
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+    toast('✓ Excel descargado');
+  }catch(err){ console.error('[SkinFabric] Excel de nómina:', err); toast('No se pudo generar el Excel.'); }
+  finally{ btn.disabled = false; btn.textContent = t0; }
 }
 function nomMensajeWa(){
   const D = nomReporteDatos(NOM_PERIODO), m = fmtMoney0, T = D.T, c = t => NOM_NOV.filter(n => n.tipo === t).reduce((a, n) => a + Number(n.dias || 0), 0);
