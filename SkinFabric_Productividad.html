@@ -929,7 +929,16 @@ body.rol-cosm #reg-serv-filtros{display:none}
 .fm-rub .kpi-label u{display:inline-block;width:8px;height:8px;border-radius:50%;flex:none}
 .fm-rub .fin-card .kpi-val{color:#0B1628}
 .fm-rub .fin-card .sp{width:64px}
-@media (max-width:900px){.fm-rub,.fm-rub.n2{grid-template-columns:repeat(2,minmax(0,1fr))}.fm-rub .fin-card .sp,.fm-rub .fin-card .cap{display:none}.fm-rub .fin-card .kpi-val{font-size:18px}}
+.fm-rub.n6{grid-template-columns:repeat(6,minmax(0,1fr))}.fm-rub.n4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.fm-rub.n6 .fin-card,.fm-rub.n4 .fin-card{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto auto auto;column-gap:6px;row-gap:1px;align-items:end;padding:10px 12px}
+.fm-rub.n6 .bd,.fm-rub.n4 .bd{display:contents}
+.fm-rub.n6 .kpi-label,.fm-rub.n4 .kpi-label{grid-area:1 / 1 / 2 / 3;font-size:9.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fm-rub.n6 .fin-card .kpi-val,.fm-rub.n4 .fin-card .kpi-val{grid-area:2 / 1 / 3 / 2;font-size:20px}
+.fm-rub.n6 .fin-sub,.fm-rub.n4 .fin-sub{grid-area:3 / 1 / 4 / 3;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fm-rub.n6 .fin-card>div:last-child,.fm-rub.n4 .fin-card>div:last-child{grid-area:2 / 2 / 3 / 3;align-self:center}
+.fm-rub.n6 .fin-card .sp,.fm-rub.n4 .fin-card .sp{width:50px;height:22px}.fm-rub.n6 .fin-card .cap,.fm-rub.n4 .fin-card .cap{display:none}
+.fm-rub .fin-card.px .fin-sub{grid-column:1 / -1}
+@media (max-width:900px){.fm-rub,.fm-rub.n2,.fm-rub.n4,.fm-rub.n6{grid-template-columns:repeat(2,minmax(0,1fr))}.fm-rub .fin-card .sp,.fm-rub .fin-card .cap{display:none}.fm-rub .fin-card .kpi-val{font-size:18px}}
 .fm-sec .prod-head .fm-head-r{display:flex;align-items:center;gap:8px}
 .fm-f2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
 .fm-col{display:flex;flex-direction:column;gap:10px;min-width:0}
@@ -2487,7 +2496,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.11.13-108';
+const APP_VERSION = 'v2026.11.13-109';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 
@@ -7994,6 +8003,7 @@ function renderDashboard(){
   document.getElementById('dash-kpi-total').textContent = fmtMoney(ingresoTotal);
   document.getElementById('dash-kpi-pacientes').textContent = String(pacientesSet.size);
   document.getElementById('dash-kpi-ticket').textContent = fmtMoney(ticketProm);
+  dashEspejoKpis();
 
   renderChartTend();
   renderChartDoc(porDoctorMap);
@@ -8344,6 +8354,7 @@ function farmTitulo(k){
   return k.toLowerCase().replace(/(^|[\s(])([a-zñáéíóú])/g, (m,a,b) => a + b.toUpperCase()).replace(/\b(Mg|Ml|Caps|Nr|Svr|Hd|Spf)\b/g, x => x === 'Mg' ? 'mg' : x === 'Ml' ? 'ml' : x === 'Caps' ? 'caps' : x.toUpperCase());
 }
 
+function dashEspejoKpis(){ document.querySelectorAll('#dash-rubros [data-esp]').forEach(el => { const o = document.getElementById(el.dataset.esp); if(o) el.textContent = o.textContent; }); }
 function renderDashRubros(){
   const box = document.getElementById('dash-rubros');
   const sec = document.getElementById('dash-farmacia');
@@ -8379,16 +8390,20 @@ function renderDashRubros(){
   const cardsFarm =
     card('', FARM_COL, 'Farmacia', fmtMoney0(FV), doctorId ? farm.length + ' ventas' : pc(FV), ser(sFV)) +
     card('m', FARM_COL, 'Margen de farmacia', FV > 0 ? fmtMoneyS(MF) : '—', FV > 0 ? '<b>' + fmtPct2(MF / FV * 100) + '</b> · gasto ' + fmtMoney0(FG) : 'sin ventas cargadas · gasto ' + fmtMoney0(FG), sMF);
+  // Pacientes y Ticket prom. viajan en la misma fila (sus valores se copian de los KPI de siempre, ver dashEspejoKpis)
+  const mini = (col, lab, id, sub) => `<div class="fin-card px"><div class="bd"><div class="kpi-label"><u style="background:${col}"></u>${lab}</div><div class="kpi-val" data-esp="${id}">—</div><div class="fin-sub">${sub}</div></div></div>`;
+  const cardsExtra = mini('#6A3691', 'Pacientes', 'dash-kpi-pacientes', 'únicos en el periodo') + mini('#D6336C', 'Ticket prom.', 'dash-kpi-ticket', 'por consulta');
   if(doctorId){
-    box.className = 'fin-grid fm-rub n2';
-    box.innerHTML = cardsFarm;
+    box.className = 'fin-grid fm-rub n4';
+    box.innerHTML = cardsFarm + cardsExtra;
   } else {
-    box.className = 'fin-grid fm-rub';
+    box.className = 'fin-grid fm-rub n6';
     box.innerHTML =
       card('', '#1B3A6B', 'Consultas y proced.', fmtMoney0(CP), pc(CP), ser(sCP)) +
-      card('', '#7D3C98', 'Cabinas', fmtMoney0(CAB), pc(CAB), ser(sCAB)) + cardsFarm;
+      card('', '#7D3C98', 'Cabinas', fmtMoney0(CAB), pc(CAB), ser(sCAB)) + cardsFarm + cardsExtra;
   }
   box.style.display = '';
+  dashEspejoKpis();
   renderDashFarmacia(farm, FV, FG, doctorId);
 }
 
@@ -8665,6 +8680,7 @@ function renderDashFin(ingresoLegacy){
   const grid = $('dash-kpi-grid');
   grid.classList.toggle('cols3', !on);
   grid.classList.toggle('cols2', on);
+  grid.style.display = on ? 'none' : '';   // con finanzas activas, Pacientes y Ticket van dentro de la fila de rubros
   $('dash-ig-card').style.display = on ? '' : 'none';
   $('dash-gasto').style.display = on ? '' : 'none';
   $('dash-resdoc').style.display = 'none';
