@@ -2429,7 +2429,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.11.12-102';
+const APP_VERSION = 'v2026.11.12-103';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 
@@ -5266,6 +5266,9 @@ async function guardarRegistro(){
         // Cada renglón guarda sus pagos reales (hasta 3): los tramos de $0 no se registran (salvo Cortesía) y el 1er medio del renglón es el primero que sí tuvo dinero.
         const tramos = [[medio, f.monto_1], [grpMedio2Visible ? medio2 : '', f.monto_2], [triple ? medio3 : '', f.monto_3]].filter(([m, v]) => m && (v > 0 || m === 'Cortesía'));
         if(!tramos.length) tramos.push([medio, 0]);
+        // Lo que se da en Cortesía no es ingreso: ese tramo se guarda en $0 (el precio de lista queda en precio_unitario).
+        const tramosV = tramos.map(([m, v]) => [m, m === 'Cortesía' ? 0 : v]);
+        const montoNeto = tramosV.reduce((a, [, v]) => a + v, 0);
         return {
           fecha, periodo: fecha.slice(0, 7), doctor_id: farmDoctorAcreditado(prod, f.atendido_por, duenoId),
           paciente: nombre, paciente_id: pacienteId,
@@ -5273,9 +5276,9 @@ async function guardarRegistro(){
           producto_id: prod ? prod.id : null,
           cantidad: Math.max(1, parseInt(val.cantidad, 10) || 1) * (parseInt(val.piezas ?? prod?.piezas, 10) || 1), // piezas reales (un paquete de 3 = 3 piezas)
           precio_unitario: (function(){ const u = Math.max(1, parseInt(val.cantidad, 10) || 1) * (parseInt(val.piezas ?? prod?.piezas, 10) || 1); return u > 0 ? Math.round(f.monto / u * 100) / 100 : (Number(val.precio) || 0); })(),
-          monto: f.monto,
-          medio_pago: tramos[0][0], monto_2: tramos[1] ? tramos[1][1] : null, medio_pago_2: tramos[1] ? tramos[1][0] : null,
-          monto_3: tramos[2] ? tramos[2][1] : null, medio_pago_3: tramos[2] ? tramos[2][0] : null,
+          monto: montoNeto,
+          medio_pago: tramosV[0][0], monto_2: tramosV[1] ? tramosV[1][1] : null, medio_pago_2: tramosV[1] ? tramosV[1][0] : null,
+          monto_3: tramosV[2] ? tramosV[2][1] : null, medio_pago_3: tramosV[2] ? tramosV[2][0] : null,
           terminal_id: terminalId || null,
           facturado: factura, nota: notas || null,
         };
