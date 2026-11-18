@@ -1608,6 +1608,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 .a-chip .stk{display:inline-block;margin-left:6px;font-size:9.5px;font-weight:700;padding:1px 6px;border-radius:999px;background:#EAF7EE;color:#2E7D4F;white-space:nowrap}
 .a-chip .stk.no{background:#FDEDEA;color:#B8481F}
 .iv-fil select#iv-dueno{max-width:190px}
+.fr-top select{border:1.5px solid var(--g2);border-radius:9px;padding:8px 10px;font:600 12.5px var(--font-b);background:#fff;color:var(--navy)}
 @media (max-width:1100px){.iv-al,.iv-kpis{grid-template-columns:1fr 1fr}.iv-split{grid-template-columns:minmax(0,1fr)}}
 @media (max-width:700px){
   .iv-hero{margin:-14px -13px 0;padding:16px 14px}.iv-hero h1{font-size:23px}.iv-hero .acts{margin-left:0;width:100%}.iv-hero .acts .iv-hbtn{flex:1;padding:9px 6px;font-size:12px}
@@ -2227,7 +2228,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
     </div>
     <div class="card screen2" id="app-screen-inv">
       <div class="iv-hero"><div class="ico">📦</div><div><h1>Inventario</h1><p>Farmacia y mostrador · existencias por lote y caducidad</p></div>
-        <div class="acts"><button type="button" class="iv-hbtn" data-ivt="flash">⚡ Flash report</button><button type="button" class="iv-hbtn" data-ivt="conteo">🧮 Conteo físico</button><button type="button" class="iv-hbtn solid" data-ivt="ent">➕ Registrar entrada</button></div></div>
+        <div class="acts"><button type="button" class="iv-hbtn" id="iv-h-xls">⬇ Descargar Excel</button><button type="button" class="iv-hbtn" data-ivt="flash">⚡ Flash report</button><button type="button" class="iv-hbtn" data-ivt="conteo">🧮 Conteo físico</button><button type="button" class="iv-hbtn solid" data-ivt="ent">➕ Registrar entrada</button></div></div>
       <div class="iv-tabs" id="iv-tabs">
         <button type="button" data-ivt="exist" class="on">📦 Existencias <em id="iv-n-exist">—</em></button>
         <button type="button" data-ivt="ent">🚚 Entradas</button>
@@ -2287,10 +2288,12 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 
       <div id="iv-v-flash" style="display:none">
         <div class="fr-top">
-          <div class="fr-per" id="fr-per" style="margin-right:auto"><button type="button" data-p="sem">Semana</button><button type="button" data-p="mes" class="on">Mes</button><button type="button" data-p="tri">Trimestre</button></div>
+          <div class="fr-per" id="fr-per"><button type="button" data-p="sem">Semana</button><button type="button" data-p="mes" class="on">Mes</button><button type="button" data-p="tri">Trimestre</button></div>
+          <select id="fr-dueno" aria-label="Dueño"><option value="">Todo (ambos dueños)</option></select>
           <div class="r"><button type="button" class="btn-sm btn-outline" id="fr-wa">💬 Copiar para WhatsApp</button><button type="button" class="btn-sm" id="fr-pdf" style="background:var(--navy);border-color:var(--navy);color:#fff">⬇ Descargar PDF</button></div>
         </div>
-        <div class="fx-doc" id="fx"></div>
+        <p class="iv-hint">Elige el periodo y el dueño (o todo) y el PDF se descarga directo, sin vista previa.</p>
+        <div class="fx-doc" id="fx" style="display:none"></div>
       </div>
     </div>
     <div class="iv-ov" id="iv-ov"></div>
@@ -2696,7 +2699,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.11.18-110';
+const APP_VERSION = 'v2026.11.18-111';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 
@@ -11164,7 +11167,7 @@ async function invCargar(){
   const desde = new Date(); desde.setDate(desde.getDate() - 120);
   const d0 = isoLocal(desde);
   const [rp, rl, rm, rv] = await Promise.all([
-    sb.from('farmacia_productos').select('id,nombre,grupo,activo,existencia,stock_minimo,piezas,dueno_id').order('nombre').limit(3000),
+    sb.from('farmacia_productos').select('id,clave,nombre,precio,grupo,activo,existencia,stock_minimo,piezas,dueno_id').order('nombre').limit(3000),
     sb.from('inventario_lotes').select('id,producto_id,lote,caducidad,cantidad,costo_unitario,created_at').limit(5000),
     sb.from('inventario_movimientos').select('id,fecha,tipo,producto_id,lote_id,cantidad,costo_unitario,caducidad,venta_id,proveedor,num_factura,nota,created_at,quien:personal!creado_por(nombre)').gte('fecha', d0).order('fecha', { ascending:false }).order('created_at', { ascending:false }).limit(5000),
     sb.from('farmacia_ventas').select('id,fecha,producto_id,medicamento,cantidad,monto').gte('fecha', d0).limit(5000),
@@ -11175,6 +11178,7 @@ async function invCargar(){
   const conLote = new Set(INV_L.map(l => l.producto_id));
   INV_P = (rp.data || []).filter(p => p.activo || conLote.has(p.id) || (p.existencia || 0) !== 0);
   invPoblarDuenos();
+  { const f = document.getElementById('fr-dueno'); if(f){ const v = f.value, ids = [...new Set(INV_P.map(p => p.dueno_id).filter(Boolean))]; f.innerHTML = '<option value="">Todo (ambos dueños)</option>' + ids.map(id => `<option value="${esc2(id)}">${esc2(invDuenoNombre(id))}</option>`).join('') + (INV_P.some(p => !p.dueno_id) ? '<option value="_none">Sin dueño</option>' : ''); f.value = [...f.options].some(o => o.value === v) ? v : ''; } }
   INV_M = rm.data || []; INV_V = rv.data || [];
   const grupos = [...new Set(INV_P.map(p => p.grupo || 'Otras marcas'))].sort((a, b) => a.localeCompare(b, 'es'));
   ['iv-grupo','iv-c-grupo'].forEach(id => { const sel = document.getElementById(id); const v = sel.value; sel.innerHTML = '<option value="">Todas las marcas</option>' + grupos.map(g => `<option>${esc2(g)}</option>`).join(''); sel.value = grupos.includes(v) ? v : ''; });
@@ -11345,6 +11349,51 @@ async function invEditarCad(loteId){
   if(error){ toast('No se pudo guardar la caducidad.'); return; }
   toast('✓ Caducidad actualizada'); await invCargar(); invAbrir(l.producto_id);
 }
+// ── Descarga directa del inventario en Excel: una hoja con todo y una por dueño ──
+async function invDescargarExcel(){
+  const btns = ['iv-h-xls'].map(id => document.getElementById(id)).filter(Boolean), t0 = btns.map(b => b.textContent);
+  btns.forEach(b => { b.disabled = true; b.textContent = '⏳ Generando…'; });
+  try{
+    await cargarScriptUnaVez('https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js');
+    const wb = new ExcelJS.Workbook(); wb.creator = 'Skin Fabric'; wb.created = new Date();
+    const F = 'Arial', NAVY = 'FF0B1628', AZUL = 'FF1B3A6B', ZEBRA = 'FFF6F8FC', LINEA = 'FFE3E8F0', MX = '$#,##0.00', FEC = 'dd/mm/yyyy';
+    const fill = c => ({ type:'pattern', pattern:'solid', fgColor:{ argb:c } });
+    const fino = { style:'thin', color:{ argb:LINEA } };
+    const hoy = new Date(), hoyTxt = hoy.toLocaleString('es-MX', { day:'2-digit', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit', hour12:true });
+    const grupos = [['Todo', null, INV_P.slice()]];
+    const ids = [...new Set(INV_P.map(p => p.dueno_id).filter(Boolean))].sort((a, b) => invDuenoNombre(a).localeCompare(invDuenoNombre(b), 'es'));
+    ids.forEach(id => grupos.push([invDuenoNombre(id), id, INV_P.filter(p => p.dueno_id === id)]));
+    if(INV_P.some(p => !p.dueno_id)) grupos.push(['Sin dueño', '_none', INV_P.filter(p => !p.dueno_id)]);
+    const usados = new Set();
+    grupos.forEach(([nombre, id, lista]) => {
+      let nh = nombre.replace(/[\\/?*\[\]:]/g, '').slice(0, 28) || 'Hoja'; let k = 2; while(usados.has(nh.toLowerCase())) nh = nh.slice(0, 25) + ' ' + (k++); usados.add(nh.toLowerCase());
+      const ws = wb.addWorksheet(nh, { views:[{ state:'frozen', ySplit:4 }] });
+      ws.columns = [{ width:20 }, { width:50 }, { width:22 }, { width:14 }, { width:11 }, { width:11 }, { width:15 }, { width:13 }, { width:15 }, { width:13 }];
+      ws.mergeCells('A1:J1'); const c1 = ws.getCell('A1'); c1.value = 'Inventario · ' + (id === null ? 'Todo' : nombre); c1.font = { name:F, size:15, bold:true, color:{ argb:'FFFFFFFF' } }; c1.fill = fill(NAVY); c1.alignment = { vertical:'middle', indent:1 }; ws.getRow(1).height = 28;
+      ws.mergeCells('A2:J2'); const c2 = ws.getCell('A2'); c2.value = 'Skin Fabric · al ' + hoyTxt + ' · costos sin IVA'; c2.font = { name:F, size:10, color:{ argb:'FF64748B' } }; c2.alignment = { indent:1 };
+      ['Clave', 'Descripción', 'Marca', 'Dueño', 'Existencia', 'Mínimo', 'Próx. caducidad', 'Costo', 'Valor a costo', 'Precio venta'].forEach((t, i) => { const c = ws.getCell(4, i + 1); c.value = t; c.font = { name:F, size:10, bold:true, color:{ argb:'FFFFFFFF' } }; c.fill = fill(AZUL); c.alignment = { horizontal:i >= 4 ? 'center' : 'left', vertical:'middle', wrapText:true }; });
+      ws.getRow(4).height = 24;
+      const orden = lista.slice().sort((a, b) => (a.grupo || 'Otras marcas').localeCompare(b.grupo || 'Otras marcas', 'es') || a.nombre.localeCompare(b.nombre, 'es'));
+      orden.forEach((p, i) => {
+        const r = 5 + i, cu = invCostoDe(p), pc = invProxCad(p), z = i % 2 ? ZEBRA : null;
+        const vals = [p.clave || '', p.nombre, p.grupo || 'Otras marcas', invDuenoCorto(p.dueno_id), p.existencia || 0, p.stock_minimo, pc ? new Date(pc + 'T12:00:00') : null, cu || null, { formula:`IF(OR(E${r}<=0,H${r}=\"\"),0,E${r}*H${r})`, result:(p.existencia > 0 && cu) ? Math.round(p.existencia * cu * 100) / 100 : 0 }, Number(p.precio) || null];
+        vals.forEach((v, j) => { const c = ws.getCell(r, j + 1); c.value = v; c.font = { name:F, size:10, bold:j === 1, color:{ argb:j === 4 && p.existencia < 0 ? 'FFB42A2A' : 'FF0B1628' } }; c.border = { bottom:fino }; if(z) c.fill = fill(z); if(j >= 4) c.alignment = { horizontal:'center' }; if(j === 7 || j === 8 || j === 9){ c.numFmt = MX; c.alignment = { horizontal:'right' }; } if(j === 6) c.numFmt = FEC; });
+      });
+      const rt = 5 + orden.length, f1 = 5, f2 = Math.max(5, rt - 1);
+      ws.getCell(rt, 2).value = 'TOTAL · ' + orden.length + ' productos';
+      ws.getCell(rt, 5).value = { formula:`SUM(E${f1}:E${f2})`, result:orden.reduce((a, p) => a + Math.max(0, p.existencia || 0), 0) };
+      ws.getCell(rt, 9).value = { formula:`SUM(I${f1}:I${f2})`, result:Math.round(orden.reduce((a, p) => a + invValor(p), 0) * 100) / 100 };
+      for(let j = 1; j <= 10; j++){ const c = ws.getCell(rt, j); c.font = { name:F, size:10, bold:true }; c.fill = fill('FFEAF2FA'); c.border = { top:{ style:'double', color:{ argb:'FF0B1628' } } }; if(j === 5) c.alignment = { horizontal:'center' }; if(j === 9){ c.numFmt = MX; c.alignment = { horizontal:'right' }; } }
+      if(orden.length) ws.autoFilter = { from:{ row:4, column:1 }, to:{ row:4 + orden.length, column:10 } };
+      ws.pageSetup = { orientation:'landscape', fitToPage:true, fitToWidth:1, fitToHeight:0 };
+    });
+    const buf = await wb.xlsx.writeBuffer();
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([buf], { type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })); a.download = 'Inventario_SkinFabric_' + invHoy() + '.xlsx';
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+    toast('✓ Excel descargado');
+  }catch(err){ console.error('[SkinFabric] Excel de inventario:', err); toast('No se pudo generar el Excel. Revisa tu conexión e inténtalo de nuevo.'); }
+  finally{ btns.forEach((b, i) => { b.disabled = false; b.textContent = t0[i]; }); }
+}
 // ── Flash report ──
 function invFlashDatos(per){
   const dias = per === 'sem' ? 7 : per === 'tri' ? 91 : null;
@@ -11371,7 +11420,19 @@ function invFlashDatos(per){
 // ── Flash report de inventario · formato narrativo (estilo cierre de mes) ──
 //  Hoja 1: resumen, indicadores, pendientes y gráficas. Anexos: A sin movimiento, B por caducar, C sugerido de compra.
 //  La pantalla muestra las mismas hojas carta que salen en el PDF.
+let INV_FDU_TXT = '';
+// El reporte se arma con el inventario de UN dueño (o todo): se filtra temporalmente y se restaura.
 function invRenderFlash(){
+  const du = (document.getElementById('fr-dueno') || {}).value || '';
+  if(!du){ INV_FDU_TXT = ''; return invRenderFlashCore(); }
+  const ok = p => du === '_none' ? !p.dueno_id : p.dueno_id === du;
+  const bak = [INV_P, INV_L, INV_M, INV_V];
+  INV_P = INV_P.filter(ok); const ids = new Set(INV_P.map(p => p.id));
+  INV_L = INV_L.filter(l => ids.has(l.producto_id)); INV_M = INV_M.filter(m => ids.has(m.producto_id)); INV_V = INV_V.filter(v => ids.has(v.producto_id));
+  INV_FDU_TXT = du === '_none' ? 'Sin dueño' : invDuenoNombre(du);
+  try{ return invRenderFlashCore(); } finally { [INV_P, INV_L, INV_M, INV_V] = bak; }
+}
+function invRenderFlashCore(){
   const D = invFlashDatos(INV_FR), varPz = D.fin - D.ini, pct = D.ini ? varPz / D.ini * 100 : 0;
   const MES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
   const hoy = new Date(), cap = s => s.charAt(0).toUpperCase() + s.slice(1);
@@ -11458,8 +11519,8 @@ function invRenderFlash(){
   const sec = (t, s) => `<h2 class="nr-h2">${t}${s ? ` <small>${s}</small>` : ''}</h2>`;
   const vacio = t => `<p class="nr-vacio">${t}</p>`;
   const hd = (t1, t2, chico) => chico
-    ? `<div class="nr-hd s"><div><div class="br">Flash report de inventario · Skin Fabric</div><h1>${t1}</h1></div><div class="dt"><strong>${titPer}</strong>${rango}</div></div>`
-    : `<div class="nr-hd"><div><div class="br">Skin Fabric · Farmacia y mostrador</div><h1>Flash report de <b>inventario</b></h1></div><div class="dt"><strong>${titPer}</strong>${rango} · generado ${gen}</div></div>`;
+    ? `<div class="nr-hd s"><div><div class="br">Flash report de inventario · Skin Fabric${INV_FDU_TXT ? ' · ' + E(INV_FDU_TXT) : ''}</div><h1>${t1}</h1></div><div class="dt"><strong>${titPer}</strong>${rango}</div></div>`
+    : `<div class="nr-hd"><div><div class="br">Skin Fabric · Farmacia y mostrador${INV_FDU_TXT ? ' · ' + E(INV_FDU_TXT) : ''}</div><h1>Flash report de <b>inventario</b></h1></div><div class="dt"><strong>${titPer}</strong>${rango} · generado ${gen}</div></div>`;
   const tm = top[0], mm = mv[0];
   const bullets = [
     D.diasInv ? `Al ritmo actual el inventario alcanza para <b>${Math.round(D.diasInv)} días</b>.` : 'No hubo ventas de farmacia en el periodo.',
@@ -11550,9 +11611,10 @@ function invFlashZoom(){
 }
 window.addEventListener('resize', () => { if(INV_TAB === 'flash') invFlashZoom(); });
 function invCopiarWA(){
+  invRenderFlash();
   const x = window._INV_FR; if(!x) return;
   const { D, per, varPz, pzR, vR, top, margen, pedir, pedirTot, C, dorm, vDorm, pzDorm } = x, $ = v => fmtMoney0(v || 0);
-  const t = [`📦 *Flash report de inventario · Skin Fabric*`, per, '',
+  const t = [`📦 *Flash report de inventario · Skin Fabric*${INV_FDU_TXT ? ' · ' + INV_FDU_TXT : ''}`, per, '',
     `• Inventario: *${D.fin} pzas*${C && D.finV ? ' · ' + $(D.finV) + ' a costo' : ''} (${varPz < 0 ? '▼' : '▲'} ${Math.abs(varPz)} vs. inicio)`,
     `• Venta farmacia: *${$(D.ventaPesos)}*${margen != null ? ` · margen ${$(margen)}${D.ventaPesos ? ` (${Math.round(margen / D.ventaPesos * 100)}%)` : ''}` : ''}`,
     `• Rotación ${D.rot.toFixed(2)}×${D.diasInv ? ' · ' + Math.round(D.diasInv) + ' días de inventario' : ''}`,
@@ -11567,6 +11629,7 @@ function invCopiarWA(){
 // Descarga directa del Flash report como PDF (una página carta por hoja), sin ventana de impresión.
 async function invDescargarPDF(){
   const btn = document.getElementById('fr-pdf'), txt = btn.textContent;
+  invRenderFlash();
   if(!document.querySelector('#fx .nr-sheet')) return;
   btn.disabled = true; btn.textContent = '⏳ Generando PDF…';
   let fr = null;
@@ -11592,7 +11655,7 @@ async function invDescargarPDF(){
       pdf.addImage(canvas.toDataURL('image/jpeg', 0.9), 'JPEG', 0, 0, pw, ph);
     }
     pdf.setProperties({ title: 'Flash report de inventario · Skin Fabric', author: 'Skin Fabric' });
-    pdf.save(`Flash_inventario_SkinFabric_${INV_FR === 'sem' ? 'semana' : INV_FR === 'tri' ? 'trimestre' : 'mes'}_${invHoy()}.pdf`);
+    pdf.save(`Flash_inventario_SkinFabric_${INV_FR === 'sem' ? 'semana' : INV_FR === 'tri' ? 'trimestre' : 'mes'}${INV_FDU_TXT ? '_' + normalizar(INV_FDU_TXT).replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '') : '_todo'}_${invHoy()}.pdf`);
     toast('✓ PDF descargado.');
   }catch(e){
     console.error('[SkinFabric] Error generando el PDF del flash report:', e);
@@ -11629,6 +11692,8 @@ async function invDescargarPDF(){
   document.getElementById('iv-m-fil').addEventListener('click', e => { const b = e.target.closest('.pill'); if(b){ INV_MF = b.dataset.m; invRenderMovs(); } });
   document.getElementById('iv-m-q').addEventListener('input', invRenderMovs);
   document.getElementById('fr-per').addEventListener('click', e => { const b = e.target.closest('button[data-p]'); if(b){ INV_FR = b.dataset.p; invRenderFlash(); } });
+  document.getElementById('iv-h-xls').addEventListener('click', invDescargarExcel);
+  document.getElementById('fr-dueno').addEventListener('change', invRenderFlash);
   document.getElementById('fr-wa').addEventListener('click', invCopiarWA);
   document.getElementById('fr-pdf').addEventListener('click', invDescargarPDF);
   document.addEventListener('keydown', e => { if(e.key === 'Escape') invCerrar(); });
