@@ -2133,11 +2133,12 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
         <button type="button" class="prm-tab-btn act" data-nt="plantilla">👥 Plantilla</button>
         <button type="button" class="prm-tab-btn" data-nt="mes">🧾 Nómina quincenal</button>
         <button type="button" class="prm-tab-btn" data-nt="vac">🏖 Vacaciones y prestaciones</button>
+        <button type="button" class="prm-tab-btn" data-nt="agui">🎄 Aguinaldo</button>
         <button type="button" class="prm-tab-btn" data-nt="fin">📤 Finiquitos y liquidaciones</button>
         <button type="button" class="prm-tab-btn" data-nt="rep">📑 Reporte para contadores</button>
       </div>
       <div class="nom-bar" id="nom-bar" style="display:none"><span>Periodo</span><button type="button" class="nom-btn sm" id="nom-mes-prev" aria-label="Mes anterior">‹</button><input type="month" id="nom-mes" class="nom-inp" aria-label="Mes"/><select id="nom-q" class="nom-inp" aria-label="Quincena"><option value="Q1">1.ª quincena (1–15)</option><option value="Q2">2.ª quincena (16–fin de mes)</option></select><button type="button" class="nom-btn sm" id="nom-mes-next" aria-label="Siguiente">›</button></div>
-      <div class="nom-panel" id="nom-p-plantilla"></div><div class="nom-panel" id="nom-p-mes" hidden></div><div class="nom-panel" id="nom-p-vac" hidden></div><div class="nom-panel" id="nom-p-fin" hidden></div><div class="nom-panel" id="nom-p-rep" hidden></div>
+      <div class="nom-panel" id="nom-p-plantilla"></div><div class="nom-panel" id="nom-p-mes" hidden></div><div class="nom-panel" id="nom-p-vac" hidden></div><div class="nom-panel" id="nom-p-agui" hidden></div><div class="nom-panel" id="nom-p-fin" hidden></div><div class="nom-panel" id="nom-p-rep" hidden></div>
       <div class="nom-ov" id="nom-modal"><div class="nom-md"><h3 id="nom-m-tit">Novedad</h3>
         <label>Tipo<select id="nom-m-tipo" class="nom-inp"></select></label>
         <label>Fecha (opcional)<input type="date" id="nom-m-fecha" class="nom-inp"/></label>
@@ -2699,7 +2700,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.11.18-111';
+const APP_VERSION = 'v2026.11.18-112';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 
@@ -10598,7 +10599,7 @@ function nomRender(){
   document.querySelectorAll('#nom-tabs .prm-tab-btn').forEach(b => b.classList.toggle('act', b.dataset.nt === NOM_TAB));
   document.querySelectorAll('.nom-panel').forEach(p => p.hidden = p.id !== 'nom-p-' + NOM_TAB);
   document.getElementById('nom-bar').style.display = (NOM_TAB === 'mes' || NOM_TAB === 'rep') ? 'flex' : 'none';
-  ({ plantilla: nomRenderPlantilla, mes: nomRenderMes, vac: nomRenderVac, fin: nomRenderFin, rep: nomRenderRep })[NOM_TAB]();
+  ({ plantilla: nomRenderPlantilla, mes: nomRenderMes, vac: nomRenderVac, agui: nomRenderAgui, fin: nomRenderFin, rep: nomRenderRep })[NOM_TAB]();
   // Contabilidad: solo consulta (la base de datos también lo impone). Se bloquean los campos y se ocultan los botones de edición.
   const ro = window.MI_SOLO_LECTURA === true;
   document.getElementById('app-screen-nominas').classList.toggle('nom-ro', ro);
@@ -10758,6 +10759,106 @@ function nomRenderVac(){
     <div class="nom-3"><div class="nom-card"><h4>Reforma “Vacaciones dignas” (2023)</h4><p>Desde el 1.er año son <b>12 días</b> y suben <b>2 por año hasta 20</b> (año 5); del 6 al 10 son 22 y luego +2 cada 5 años. Prima vacacional <b>mínimo 25%</b>. Aguinaldo <b>mínimo 15 días</b>, a más tardar el <b>20 de diciembre</b>. Las vacaciones se registran como novedad en “Nómina quincenal”; los disfrutados cuentan desde el último aniversario.</p></div>
     <div class="nom-card"><h4>Tabla art. 76 LFT</h4>${[['1 año',12],['2 años',14],['3 años',16],['4 años',18],['5 años',20],['6 a 10',22],['11 a 15',24],['16 a 20',26]].map(([a, b]) => `<div class="nom-ln"><span>${a}</span><b>${b} días</b></div>`).join('')}</div>
     <div class="nom-card"><h4>Topes exentos de ISR 2026</h4><div class="nom-ln"><span>Aguinaldo (30 UMA)</span><b>${fmtMoney(30 * NOM_UMA)}</b></div><div class="nom-ln"><span>Prima vacacional (15 UMA)</span><b>${fmtMoney(15 * NOM_UMA)}</b></div><p class="sub">UMA 2026 = ${fmtMoney(NOM_UMA)}. Lo que exceda se grava.</p></div></div>`;
+}
+
+
+// ── Aguinaldo ──
+// LFT art. 87: mínimo 15 días de salario, proporcional al tiempo trabajado en el año, a más tardar el 20 de diciembre.
+// ISR (LISR art. 93 frac. XIV): exento hasta 30 UMA; lo demás se grava con el procedimiento del art. 174 del Reglamento.
+let NOM_AG = { anio: new Date().getFullYear(), dias: 15 };
+function nomAguinaldo(e, anio, diasAg){
+  const c2 = v => Math.round(v * 100) / 100;
+  const ini = new Date(anio, 0, 1, 12), fin = new Date(anio, 11, 31, 12), f = nomFicha(e, fin);
+  const desde = f.ing && f.ing > ini ? f.ing : ini;
+  const diasTrab = f.ing && f.ing > fin ? 0 : Math.min(nomDias(desde, fin) + 1, 365);
+  const bruto = c2(f.diario * diasAg * diasTrab / 365);
+  const exento = Math.min(bruto, c2(30 * NOM_UMA)), gravado = c2(bruto - exento);
+  const mensual = Number(e.salario_mensual) || 0, calcIsr = e.salario_es_bruto !== false;
+  let isr = 0, tasa = 0;
+  if(calcIsr && gravado > 0){
+    const gm = gravado / 365 * NOM_DQ;                                  // gravado llevado a mes
+    const isrExtra = nomIsr(mensual + gm) - nomIsr(mensual);            // ISR del mes con y sin el aguinaldo gravado
+    tasa = gm > 0 ? isrExtra / gm : 0; isr = c2(gravado * tasa);
+  }
+  return { e, f, diasTrab, diario: f.diario, bruto, exento, gravado, isr, tasa, calcIsr, neto: c2(bruto - isr), sinFecha: f.sinFecha };
+}
+function nomAguDatos(){
+  const filas = nomActivos().map(e => nomAguinaldo(e, NOM_AG.anio, NOM_AG.dias)).filter(r => r.diasTrab > 0);
+  const T = k => filas.reduce((a, r) => a + r[k], 0);
+  return { filas, T, limite: new Date(NOM_AG.anio, 11, 20, 12) };
+}
+function nomRenderAgui(){
+  const D = nomAguDatos(), m = fmtMoney, T = D.T, sin = D.filas.filter(r => r.sinFecha).length;
+  const tr = D.filas.map(r => `<tr><td class="nm"><b>${esc2(r.e.nombre)}</b><div class="sub">${esc2(r.e.puesto || '')}</div></td>
+    <td>${r.sinFecha ? '<span class="warn">sin fecha: año completo</span>' : esc2(nomFechaTxt(r.e.fecha_ingreso))}</td><td class="r">${r.diasTrab}<div class="sub">de 365</div></td><td class="r">${m(r.diario)}</td>
+    <td class="r b">${m(r.bruto)}</td><td class="r">${m(r.exento)}</td><td class="r">${r.gravado ? m(r.gravado) : '—'}</td>
+    <td class="r">${r.calcIsr ? (r.isr ? m(r.isr) + '<div class="sub">tasa ' + (r.tasa * 100).toFixed(2) + '%</div>' : '$0.00') : '<span class="sub">sueldo neto: sin ISR</span>'}</td><td class="r b">${m(r.neto)}</td></tr>`).join('') || '<tr><td colspan="9" class="empty-note">No hay personal con contrato en ese año.</td></tr>';
+  document.getElementById('nom-p-agui').innerHTML = `
+    ${sin ? `<div class="nom-al warn">⚠ ${sin} persona(s) sin fecha de inicio de contrato: se calculó el año completo. Captura la fecha en Plantilla.</div>` : ''}
+    ${NOM_AG.dias < 15 ? '<div class="nom-al bad">La ley exige mínimo 15 días de aguinaldo.</div>' : ''}
+    <div class="nom-sel"><label>Año<input type="number" id="nom-ag-anio" class="nom-inp" min="2020" max="2100" step="1" value="${NOM_AG.anio}"/></label>
+      <label>Días de aguinaldo<input type="number" id="nom-ag-dias" class="nom-inp" min="15" step="1" value="${NOM_AG.dias}" title="Mínimo legal: 15 días"/></label>
+      <div class="sub">Fecha límite de pago: <b>${esc2(nomFechaTxt(D.limite))}</b></div></div>
+    <div class="nom-kpis"><div class="nom-k dk"><small>Aguinaldo bruto total</small><b>${m(T('bruto'))}</b><span>${D.filas.length} persona(s)</span></div><div class="nom-k"><small>Exento de ISR</small><b>${m(T('exento'))}</b><span>hasta 30 UMA por persona</span></div><div class="nom-k"><small>ISR estimado</small><b>${m(T('isr'))}</b><span>sobre ${m(T('gravado'))} gravado</span></div><div class="nom-k"><small>Neto a pagar</small><b>${m(T('neto'))}</b><span>antes de otros descuentos</span></div></div>
+    <div class="nom-wrap"><table class="nom-t"><thead><tr><th>Persona</th><th>Inicio de contrato</th><th class="r">Días del año</th><th class="r">Salario diario</th><th class="r">Aguinaldo bruto</th><th class="r">Exento (30 UMA)</th><th class="r">Gravado</th><th class="r">ISR estimado</th><th class="r">Neto a pagar</th></tr></thead><tbody>${tr}</tbody>
+      <tfoot><tr class="trs"><td colspan="4">Totales</td><td class="r">${m(T('bruto'))}</td><td class="r">${m(T('exento'))}</td><td class="r">${m(T('gravado'))}</td><td class="r">${m(T('isr'))}</td><td class="r">${m(T('neto'))}</td></tr></tfoot></table></div>
+    <div class="nom-acts"><button type="button" class="nom-btn p" id="nom-ag-pdf">📄 Descargar PDF</button> <button type="button" class="nom-btn" id="nom-ag-xls">⬇ Excel</button> <button type="button" class="nom-btn" id="nom-ag-wa">💬 Copiar mensaje de WhatsApp</button></div>
+    <div class="nom-fund"><b>Cómo se calcula:</b> salario diario × ${NOM_AG.dias} días × días trabajados en ${NOM_AG.anio} ÷ 365 (LFT art. 87). Quien ingresó en el año cobra la parte proporcional; las faltas no restan días. Exento hasta 30 UMA (${m(30 * NOM_UMA)}); el excedente se grava: se lleva a mes (÷ 365 × 30.4), se suma al sueldo mensual, se calcula el ISR con la tarifa mensual y la diferencia da la tasa que se aplica al gravado (art. 174 RISR). No incluye subsidio al empleo. Personal dado de baja cobra su aguinaldo proporcional en el finiquito. Cálculo de apoyo: el contador valida antes de pagar.</div>`;
+}
+function nomAguPdfHtml(){
+  const D = nomAguDatos(), m = fmtMoney, T = D.T;
+  const filas = D.filas.map(r => `<tr><td>${esc2(r.e.nombre)}<div class="mut">${esc2(r.e.puesto || '')}</div></td><td class="r">${r.diasTrab}</td><td class="r">${m(r.diario)}</td><td class="r b">${m(r.bruto)}</td><td class="r">${m(r.exento)}</td><td class="r">${m(r.gravado)}</td><td class="r">${r.calcIsr ? m(r.isr) : '—'}</td><td class="r b">${m(r.neto)}</td></tr>`).join('');
+  const cols = '<colgroup><col style="width:25%"><col style="width:8%"><col style="width:11%"><col style="width:13%"><col style="width:12%"><col style="width:10%"><col style="width:10%"><col style="width:11%"></colgroup>';
+  return `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Aguinaldo</title>${FLASH_FONTS}<style>${FLASH_CSS}${NOM_PDF_CSS}</style></head><body>
+  <div class="page"><div class="hd"><div><div class="br">Skin Fabric · Nóminas</div><h1 class="d">Aguinaldo <b>${NOM_AG.anio}</b></h1></div><div class="dt"><strong class="d">${esc2(nomFechaTxt(D.limite))}</strong>Fecha límite de pago</div></div>
+  <div class="nw"><div class="nk"><div class="dk"><small>Aguinaldo bruto</small><b>${m(T('bruto'))}</b></div><div><small>Exento de ISR</small><b>${m(T('exento'))}</b></div><div><small>ISR estimado</small><b>${m(T('isr'))}</b></div><div><small>Neto a pagar</small><b>${m(T('neto'))}</b></div></div>
+  <h2>Detalle por persona (${NOM_AG.dias} días de aguinaldo)</h2>
+  <table class="nt">${cols}<thead><tr><th>Persona</th><th class="r">Días</th><th class="r">Sal. diario</th><th class="r">Aguinaldo bruto</th><th class="r">Exento</th><th class="r">Gravado</th><th class="r">ISR est.</th><th class="r">Neto</th></tr></thead><tbody>${filas}<tr class="trs"><td>Totales</td><td></td><td></td><td class="r">${m(T('bruto'))}</td><td class="r">${m(T('exento'))}</td><td class="r">${m(T('gravado'))}</td><td class="r">${m(T('isr'))}</td><td class="r">${m(T('neto'))}</td></tr></tbody></table>
+  <div class="nnote"><b>Base de cálculo:</b> LFT art. 87 (mínimo 15 días, proporcional al tiempo trabajado, pago a más tardar el 20 de diciembre): salario diario × ${NOM_AG.dias} días × días trabajados ÷ 365. Exento hasta 30 UMA (${m(30 * NOM_UMA)}, UMA ${m(NOM_UMA)}), LISR art. 93 frac. XIV. El excedente se grava con el procedimiento del art. 174 del RISR; no incluye subsidio al empleo. Personal dado de baja cobra su parte proporcional en el finiquito. Cálculo de apoyo, sujeto a validación del contador.</div>
+  <div class="nsign"><div>Elaboró</div><div>Autorizó</div></div></div>
+  <div class="ft"><span>Skin Fabric · Aguinaldo ${NOM_AG.anio}</span><span>Generado el ${esc2(nomFechaTxt(new Date()))}</span></div></div></body></html>`;
+}
+async function nomAguXls(){
+  const btn = document.getElementById('nom-ag-xls'); const t0 = btn.textContent; btn.disabled = true; btn.textContent = '⏳ Generando…';
+  try{
+    await cargarScriptUnaVez(NOM_XLS_LIB);
+    const D = nomAguDatos(), wb = new ExcelJS.Workbook(); wb.creator = 'Skin Fabric'; wb.created = new Date();
+    const F = 'Arial', fill = c => ({ type:'pattern', pattern:'solid', fgColor:{ argb:c } }), fino = { style:'thin', color:{ argb:'FFE3E8F0' } }, MX = '$#,##0.00', FEC = 'dd/mm/yyyy';
+    const ws = wb.addWorksheet('Aguinaldo ' + NOM_AG.anio, { views:[{ state:'frozen', ySplit:7 }] });
+    ws.columns = [{ width:32 }, { width:24 }, { width:14 }, { width:9 }, { width:14 }, { width:16 }, { width:15 }, { width:15 }, { width:15 }, { width:16 }];
+    ws.mergeCells('A1:J1'); const t = ws.getCell('A1'); t.value = 'Aguinaldo ' + NOM_AG.anio; t.font = { name:F, size:15, bold:true, color:{ argb:'FFFFFFFF' } }; t.fill = fill('FF0B1628'); t.alignment = { vertical:'middle', indent:1 }; ws.getRow(1).height = 28;
+    ws.mergeCells('A2:J2'); ws.getCell('A2').value = 'Skin Fabric · Nóminas · fecha límite de pago ' + nomFechaTxt(D.limite) + ' · cálculo de apoyo, sujeto a validación'; ws.getCell('A2').font = { name:F, size:10, color:{ argb:'FF64748B' } }; ws.getCell('A2').alignment = { indent:1 };
+    [['Días de aguinaldo', NOM_AG.dias, '0'], ['UMA ' + NOM_AG.anio, NOM_UMA, MX], ['Tope exento (30 UMA)', null, MX]].forEach(([k, v, nf], i) => { const r = 3 + i; ws.getCell(r, 1).value = k; ws.getCell(r, 1).font = { name:F, size:10, bold:true }; const c = ws.getCell(r, 2); c.value = v == null ? { formula:'30*B4', result:30 * NOM_UMA } : v; c.numFmt = nf; c.font = { name:F, size:10, color:{ argb:v == null ? 'FF0B1628' : 'FF0000FF' } }; c.alignment = { horizontal:'right' }; });
+    ['Persona', 'Puesto', 'Inicio contrato', 'Días del año', 'Salario diario', 'Aguinaldo bruto', 'Exento', 'Gravado', 'ISR estimado', 'Neto a pagar'].forEach((h, i) => { const c = ws.getCell(7, i + 1); c.value = h; c.font = { name:F, size:10, bold:true, color:{ argb:'FFFFFFFF' } }; c.fill = fill('FF1B3A6B'); c.alignment = { horizontal:i >= 2 ? 'center' : 'left', vertical:'middle', wrapText:true }; });
+    ws.getRow(7).height = 26;
+    D.filas.forEach((r, i) => { const n = 8 + i, z = i % 2 ? 'FFF6F8FC' : null;
+      const vals = [r.e.nombre, r.e.puesto || '', r.e.fecha_ingreso ? nomXlsFecha(r.e.fecha_ingreso) : null, r.diasTrab, r.diario,
+        { formula:`ROUND(E${n}*$B$3*D${n}/365,2)`, result:r.bruto }, { formula:`MIN(F${n},$B$5)`, result:r.exento }, { formula:`F${n}-G${n}`, result:r.gravado }, r.isr, { formula:`F${n}-I${n}`, result:r.neto }];
+      vals.forEach((v, j) => { const c = ws.getCell(n, j + 1); c.value = v; c.font = { name:F, size:10, bold:j === 0 || j === 9 }; c.border = { bottom:fino }; if(z) c.fill = fill(z); if(j === 2) c.numFmt = FEC; if(j >= 4){ c.numFmt = MX; c.alignment = { horizontal:'right' }; } if(j === 2 || j === 3) c.alignment = { horizontal:'center' }; });
+    });
+    const rt = 8 + D.filas.length, a = 8, b = Math.max(8, rt - 1);
+    ws.getCell(rt, 1).value = 'TOTALES';
+    [6, 7, 8, 9, 10].forEach(col => { const L = String.fromCharCode(64 + col); ws.getCell(rt, col).value = { formula:`SUM(${L}${a}:${L}${b})`, result:D.T(['', '', '', '', '', 'bruto', 'exento', 'gravado', 'isr', 'neto'][col - 1]) }; });
+    for(let j = 1; j <= 10; j++){ const c = ws.getCell(rt, j); c.font = { name:F, size:10, bold:true }; c.fill = fill('FFEAF2FA'); c.border = { top:{ style:'double', color:{ argb:'FF0B1628' } } }; if(j >= 5){ c.numFmt = MX; c.alignment = { horizontal:'right' }; } }
+    ws.getCell(rt + 2, 1).value = 'El ISR estimado se calculó con el procedimiento del art. 174 RISR (tarifa mensual) y no incluye subsidio al empleo; se captura como valor. Quien ingresó en el año cobra la parte proporcional.'; ws.getCell(rt + 2, 1).font = { name:F, size:9, italic:true, color:{ argb:'FF64748B' } };
+    ws.pageSetup = { orientation:'landscape', fitToPage:true, fitToWidth:1, fitToHeight:0 };
+    const buf = await wb.xlsx.writeBuffer();
+    const el = document.createElement('a'); el.href = URL.createObjectURL(new Blob([buf], { type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })); el.download = 'Aguinaldo_' + NOM_AG.anio + '.xlsx';
+    document.body.appendChild(el); el.click(); el.remove(); setTimeout(() => URL.revokeObjectURL(el.href), 5000);
+    toast('✓ Excel descargado');
+  }catch(err){ console.error('[SkinFabric] Excel de aguinaldo:', err); toast('No se pudo generar el Excel.'); }
+  finally{ btn.disabled = false; btn.textContent = t0; }
+}
+async function nomAguPdf(){
+  const btn = document.getElementById('nom-ag-pdf'); const t0 = btn.textContent; btn.disabled = true; btn.textContent = '⏳ Generando…';
+  try{ await flashHtmlAPdf(nomAguPdfHtml(), 'Aguinaldo_' + NOM_AG.anio + '.pdf', 'Aguinaldo ' + NOM_AG.anio + ' · Skin Fabric'); }
+  catch(err){ console.error('[SkinFabric] PDF de aguinaldo:', err); toast('No se pudo generar el PDF.'); }
+  finally{ btn.disabled = false; btn.textContent = t0; }
+}
+function nomAguWa(){
+  const D = nomAguDatos(), m = fmtMoney0;
+  return `Aguinaldo ${NOM_AG.anio} (${NOM_AG.dias} días) · pago a más tardar el ${nomFechaTxt(D.limite)}\n\n` + D.filas.map(r => `• ${r.e.nombre}: ${m(r.bruto)} bruto · ISR est. ${m(r.isr)} · neto ${m(r.neto)}`).join('\n') +
+    `\n\nTotal bruto: ${m(D.T('bruto'))} · ISR estimado: ${m(D.T('isr'))} · Neto: ${m(D.T('neto'))}\nCálculo de apoyo: pendiente de validación del contador.`;
 }
 
 // ── Finiquitos y liquidaciones ──
@@ -11050,6 +11151,8 @@ async function nomCopiar(txt){
   document.getElementById('nom-m-save').addEventListener('click', nomGuardarNov);
   root.addEventListener('change', async e => {
     const el = e.target;
+    if(el.id === 'nom-ag-anio'){ const v = parseInt(el.value, 10); if(v >= 2020 && v <= 2100){ NOM_AG.anio = v; } nomRenderAgui(); return; }
+    if(el.id === 'nom-ag-dias'){ const v = Number(el.value); if(v > 0) NOM_AG.dias = v; nomRenderAgui(); return; }
     if(el.id === 'nom-f-emp'){ NOM_FIN.emp = el.value; NOM_FIN.vacTom = null; nomRenderFin(); return; }
     if(el.id === 'nom-f-baja'){ if(el.value){ NOM_FIN.baja = el.value; NOM_FIN.vacTom = null; nomRenderFin(); } return; }
     if(el.id === 'nom-f-vac'){ NOM_FIN.vacTom = Math.max(Number(el.value) || 0, 0); nomRenderFin(); return; }
@@ -11103,6 +11206,9 @@ async function nomCopiar(txt){
       const { error } = await sb.from('nomina_empleados').update({ activo:false, fecha_baja: NOM_FIN.baja }).eq('id', r.e.id);
       if(error){ toast('No se pudo guardar.'); return; } toast('✓ Baja registrada'); NOM_FIN.emp = ''; return cargarNominas();
     }
+    if(t.id === 'nom-ag-pdf') return nomAguPdf();
+    if(t.id === 'nom-ag-xls') return nomAguXls();
+    if(t.id === 'nom-ag-wa') return nomCopiar(nomAguWa());
     if(t.id === 'nom-r-pdf') return nomReportePdf();
     if(t.id === 'nom-r-xls') return nomReporteExcel();
     if(t.id === 'nom-r-wa') return nomCopiar(nomMensajeWa());
