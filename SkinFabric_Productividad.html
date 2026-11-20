@@ -174,7 +174,7 @@ body.rol-cosm #cierre-kpis{grid-template-columns:repeat(2,minmax(0,1fr))!importa
 main.appmain{padding:22px 26px 40px;max-width:1250px;margin:0 auto}
 /* Solo Gastos usa el ancho extra de main.appmain (se sentía muy apretado). El resto de pantallas
    vuelve a su ancho de siempre (1080px), centrado, para no verse estiradas de más. */
-#app-screen-registro,#app-screen-historial,#app-screen-cierre,#app-screen-dash,#app-screen-comisiones,#app-screen-prm,#app-screen-personal,#app-screen-nominas,#app-screen-inv{max-width:1180px;margin:0 auto}
+#app-screen-registro,#app-screen-historial,#app-screen-cierre,#app-screen-dash,#app-screen-comisiones,#app-screen-prm,#app-screen-personal,#app-screen-nominas,#app-screen-inv,#app-screen-costeo{max-width:1180px;margin:0 auto}
 .card{background:#fff;border-radius:14px;box-shadow:0 1px 2px rgba(11,22,40,.04),0 12px 28px -8px rgba(11,22,40,.14);padding:20px 22px 18px;position:relative;overflow:hidden}
 .card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--teal),var(--navy2))}
 .tab-title{font-family:var(--font-d);font-size:15.5px;font-weight:800;color:var(--navy);padding-bottom:9px;margin-bottom:14px;border-bottom:1px solid var(--g2);display:flex;align-items:center;gap:7px;justify-content:space-between}
@@ -210,8 +210,19 @@ main.appmain{padding:22px 26px 40px;max-width:1250px;margin:0 auto}
 .modal-body2{padding:20px 22px;font-size:12.5px;color:var(--g6);line-height:1.7}
 
 /* confirm/prompt genéricos: SIEMPRE por encima de cualquier otro modal */
-#confirm-modal-overlay,#prompt-modal-overlay,#campo-alert-overlay{position:fixed;inset:0;background:rgba(11,22,40,.6);display:none;align-items:center;justify-content:center;z-index:9999}
-#confirm-modal-overlay.show,#prompt-modal-overlay.show,#campo-alert-overlay.show{display:flex}
+#zona-modal-overlay,#confirm-modal-overlay,#prompt-modal-overlay,#campo-alert-overlay{position:fixed;inset:0;background:rgba(11,22,40,.6);display:none;align-items:center;justify-content:center;z-index:9999}
+#zona-modal-overlay.show,#confirm-modal-overlay.show,#prompt-modal-overlay.show,#campo-alert-overlay.show{display:flex}
+.zona-box{max-width:420px}
+.zona-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:4px 0 10px;text-align:left}
+.zona-opt{display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:9px;border:1.5px solid var(--g2);background:#fff;cursor:pointer;user-select:none;font-size:12.5px;font-weight:700;color:var(--navy);transition:.15s}
+.zona-opt:hover{border-color:rgba(42,191,191,.5)}
+.zona-opt.on{background:var(--teal-soft);border-color:rgba(42,191,191,.7)}
+.zona-opt input{accent-color:var(--teal);width:15px;height:15px;flex-shrink:0;margin:0}
+#zona-otra{width:100%;margin-bottom:6px;font:inherit;font-size:13px;padding:9px 10px;border:1.5px solid var(--g2);border-radius:9px;background:#fff;color:var(--navy)}
+#zona-otra:focus{outline:2px solid var(--teal);outline-offset:1px}
+.zona-err{min-height:16px;font-size:11.5px;color:var(--red);margin-bottom:4px}
+.zona-tag{display:inline-flex;align-items:center;gap:6px;margin-left:6px;font-size:11px;font-weight:700;color:#0B6E6E;background:var(--teal-soft);border-radius:999px;padding:1px 4px 1px 8px;white-space:normal}
+.zona-tag button{font:inherit;font-size:10.5px;font-weight:700;color:var(--navy2);background:#fff;border:1px solid var(--g2);border-radius:999px;padding:0 7px;cursor:pointer}
 .confirm-box2{background:#fff;border-radius:14px;padding:26px;max-width:400px;width:90%;text-align:center}
 .confirm-icon2{width:52px;height:52px;border-radius:50%;background:var(--teal-soft);color:#0B6E6E;display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 14px}
 .confirm-icon2.danger{background:#FEF0EF;color:var(--red)}
@@ -724,6 +735,15 @@ main.appmain{padding:22px 26px 40px;max-width:1250px;margin:0 auto}
 .nom-al{border-radius:9px;padding:8px 12px;font-size:12px;margin-bottom:6px;border:1px solid}.nom-al.warn{background:#FFF7E6;border-color:#F0D18A;color:#7A4D00}.nom-al.bad{background:#FDEEEE;border-color:#F3C2C2;color:#B02A2A}
 .nom-pill{display:inline-flex;font-size:10.5px;font-weight:700;border:1px solid;border-radius:999px;padding:2px 8px;margin:1px 2px 1px 0;white-space:nowrap}.nom-pill.ok{background:#E9F6EF;border-color:#B5E2C3;color:#1E7A3F}.nom-pill.warn{background:#FFF7E6;border-color:#F0D18A;color:#9A6010}.nom-pill.bad{background:#FDEEEE;border-color:#F3C2C2;color:#B02A2A}.nom-pill.info{background:#EAF1FC;border-color:#BFD2F2;color:#2A5DB0}.nom-pill.tbd{background:#F1F3F8;border-color:var(--g2);color:var(--g6)}
 .nom-h{font:800 14px var(--font-d);margin:16px 0 4px}
+#app-screen-costeo .co-split{display:grid;grid-template-columns:270px 1fr;gap:14px;align-items:start}
+.co-lista{border:1px solid var(--g2);border-radius:14px;overflow:hidden}.co-li{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 13px;border:0;border-bottom:1px solid var(--g2);cursor:pointer;font:600 13px var(--font-b);width:100%;background:#fff;text-align:left;color:var(--navy)}.co-li:last-child{border-bottom:0}.co-li.on{background:var(--navy);color:#fff}
+.co-ch{display:inline-block;border-radius:999px;padding:3px 9px;font-size:10.5px;font-weight:800;white-space:nowrap}.co-ch.ok{background:#e6f6ee;color:#2f855a}.co-ch.f{background:#fdecec;color:#c53030}.co-ch.s{background:#edf0f6;color:var(--g6)}
+.co-chips{display:flex;gap:6px;flex-wrap:wrap}.co-chip{border:1px solid var(--g2);background:#fff;border-radius:999px;padding:5px 11px;font:600 12px var(--font-b);color:var(--navy);cursor:pointer}.co-chip:hover{border-color:var(--teal)}.co-chip i{font-style:normal;color:var(--g6);margin-left:3px}
+.co-rh{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:10px}.co-rh h4{font:800 17px var(--font-d);margin:0 0 2px}.co-acts{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.nom-inp.co-n{width:96px;text-align:right}.nom-inp.co-w{width:100%;min-width:130px}.nom-inp.co-u{width:84px}
+.co-ro .co-edit{display:none!important}
+#app-screen-costeo .sub{font-size:12px;color:var(--g6)}.co-acts .co-w{width:260px}
+@media(max-width:820px){#app-screen-costeo .co-split{grid-template-columns:1fr}}
 .nom-ro [data-nov-add],.nom-ro [data-nov-edit],.nom-ro [data-nov-del],.nom-ro [data-baja],.nom-ro [data-reactivar],.nom-ro .nom-add,.nom-ro .nom-h-alta,.nom-ro #nom-f-baja-reg{display:none!important}
 .nom-add{display:grid;grid-template-columns:2fr 1.4fr 1fr 1fr auto;gap:8px;margin:8px 0 14px}.nom-bar{display:flex;align-items:center;gap:8px;margin:0 0 10px;font-size:12px;color:var(--g6);font-weight:700}.nom-bar .nom-btn{margin:0}
 .nom-fund{font-size:11px;color:var(--g6);margin-top:14px;border-top:1px dashed var(--g2);padding-top:10px;line-height:1.55}
@@ -1757,6 +1777,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
       <button type="button" data-screen2="comisiones" id="nav-btn-comisiones" style="display:none">💰 Comisiones</button>
       <button type="button" data-screen2="gastos" id="nav-btn-gastos" style="display:none">💸 Gastos</button>
       <button type="button" data-screen2="nominas" id="nav-btn-nominas" style="display:none">👥 Nóminas</button>
+      <button type="button" data-screen2="costeo" id="nav-btn-costeo" style="display:none">🧴 Costeo</button>
       <button type="button" data-screen2="inv" id="nav-btn-inv" style="display:none">📦 Inventario</button>
       <button type="button" data-screen2="prm">💬 PRM/CRM</button>
     </div>
@@ -2149,6 +2170,18 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
         <div class="nom-acts"><button type="button" class="nom-btn" id="nom-m-cancel">Cancelar</button> <button type="button" class="nom-btn p" id="nom-m-save">Guardar</button></div></div></div>
     </div>
 
+    <div class="card screen2" id="app-screen-costeo">
+      <div class="tab-title"><span>🧴 Costeo de cabina</span></div>
+      <div class="nom-al warn" id="co-ro-note" style="display:none">👁 Modo consulta: puedes ver todo, pero no modificar nada.</div>
+      <p class="sub" style="margin:0 0 10px">Cuánto cuesta en insumos cada procedimiento por sesión y cuánto margen deja contra lo que se cobra. No incluye mano de obra, equipo ni gastos fijos.</p>
+      <div class="prm-tabs" id="co-tabs">
+        <button type="button" class="prm-tab-btn act" data-cot="res">📊 Resumen</button>
+        <button type="button" class="prm-tab-btn" data-cot="rec">🧾 Recetas por procedimiento</button>
+        <button type="button" class="prm-tab-btn" data-cot="ins">🧴 Insumos y costos</button>
+      </div>
+      <div class="co-panel" id="co-p-res"></div><div class="co-panel" id="co-p-rec" hidden></div><div class="co-panel" id="co-p-ins" hidden></div>
+    </div>
+
     <div class="card screen2" id="app-screen-gastos">
       <div class="com-hero gasto-hero">
         <div class="com-hero-top">
@@ -2444,6 +2477,20 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 </div>
 
 <!-- ══════════ Modal confirm/prompt genéricos ══════════ -->
+<div id="zona-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="zona-modal-titulo">
+  <div class="confirm-box2 zona-box">
+    <div class="confirm-icon2">🧍</div>
+    <h3 id="zona-modal-titulo" style="font-family:var(--font-d);margin-bottom:4px;color:var(--navy)">Zona del cuerpo</h3>
+    <div class="confirm-msg2" id="zona-modal-sub" style="margin-bottom:10px">Elige una o varias zonas.</div>
+    <div class="zona-grid" id="zona-grid"></div>
+    <input type="text" id="zona-otra" placeholder="Otra zona (escríbela)" maxlength="60" autocomplete="off"/>
+    <div class="zona-err" id="zona-err" role="alert"></div>
+    <div class="confirm-actions2">
+      <button class="appbtn appbtn-s" id="zona-btn-cancelar" type="button" style="background:var(--g1);color:var(--g6);box-shadow:none">Cancelar</button>
+      <button class="appbtn appbtn-p" id="zona-btn-ok" type="button">Aceptar</button>
+    </div>
+  </div>
+</div>
 <div id="confirm-modal-overlay">
   <div class="confirm-box2">
     <div class="confirm-icon2" id="confirm-modal-icono">❓</div>
@@ -2700,7 +2747,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.11.18-112';
+const APP_VERSION = 'v2026.11.19-114';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 
@@ -2970,6 +3017,7 @@ function entrarAlShell(perfil){
   document.querySelector('[data-screen2="dash"]').classList.toggle('locked', !showDash);
   document.getElementById('nav-btn-gastos').style.display = showGastos ? '' : 'none';
   document.getElementById('nav-btn-inv').style.display = (perfil.rol === 'admin' || perfil.rol === 'recepcion') ? '' : 'none';   // Inventario: admin (edita) y recepción (solo consulta)
+  document.getElementById('nav-btn-costeo').style.display = (perfil.rol === 'admin' || esCont) ? '' : 'none';   // Costeo de cabina: admin (edita) y contabilidad (solo consulta)
   document.getElementById('nav-btn-nominas').style.display = (perfil.rol === 'admin' || esCont) ? '' : 'none';   // Nóminas: admin (edita) y contabilidad (solo consulta)
   document.getElementById('nav-btn-comisiones').style.display = showComisiones ? '' : 'none';
   document.getElementById('btn-config-header').style.display = showConfig ? 'inline-flex' : 'none';
@@ -4561,7 +4609,7 @@ function iconoPago(medio){ return medio ? (PAGO_ICON[medio] || '💰') + ' ' : '
 
 async function cargarCatalogos(){
   const [tipos, equipos, terminales, medios, procedencias, personal, farmacia] = await Promise.all([
-    sb.from('catalogo_tipos_servicio').select('id,nombre,requiere_descripcion,requiere_equipo,referencia_precio').eq('activo', true).order('orden'),
+    sb.from('catalogo_tipos_servicio').select('id,nombre,requiere_descripcion,requiere_equipo,requiere_zona,referencia_precio').eq('activo', true).order('orden'),
     sb.from('catalogo_equipos').select('id,nombre,doctor_id').eq('activo', true).order('nombre'),
     sb.from('catalogo_terminales').select('id,nombre').eq('activo', true).order('nombre'),
     sb.from('catalogo_medios_pago').select('id,nombre').eq('activo', true).order('orden'),
@@ -4650,9 +4698,55 @@ function poblarSelectDueno(){
   if(actual) sel.value = actual;
 }
 
+// Nombre del servicio para mostrar: si tiene zona del cuerpo (p.ej. Ultraformer Cuerpo) se agrega "· Abdomen".
+function nomServ(cs){
+  const n = cs?.catalogo_tipos_servicio?.nombre;
+  return n ? (cs.zona ? n + ' · ' + cs.zona : n) : n;
+}
+// Popup para elegir la zona del cuerpo (servicios con requiere_zona). Devuelve el texto de zonas o null si cancelan.
+const ZONAS_CUERPO = ['Abdomen','Flancos','Espalda','Brazos','Muslos','Glúteos','Piernas','Rodillas'];
+function pedirZonaCuerpo(nombreServicio, valorInicial){
+  return new Promise(resolve => {
+    const ov = document.getElementById('zona-modal-overlay');
+    const grid = document.getElementById('zona-grid');
+    const otra = document.getElementById('zona-otra');
+    const err = document.getElementById('zona-err');
+    const ini = String(valorInicial || '').split(',').map(x => x.trim()).filter(Boolean);
+    const marcadas = new Set(ini.filter(x => ZONAS_CUERPO.includes(x)));
+    otra.value = ini.filter(x => !ZONAS_CUERPO.includes(x)).join(', ');
+    err.textContent = '';
+    document.getElementById('zona-modal-titulo').textContent = 'Zona del cuerpo' + (nombreServicio ? ' · ' + nombreServicio : '');
+    grid.innerHTML = ZONAS_CUERPO.map(z => `<label class="zona-opt ${marcadas.has(z) ? 'on' : ''}"><input type="checkbox" value="${esc2(z)}" ${marcadas.has(z) ? 'checked' : ''}/> ${esc2(z)}</label>`).join('');
+    const cerrar = (valor) => {
+      ov.classList.remove('show');
+      ok.removeEventListener('click', alAceptar); cancel.removeEventListener('click', alCancelar);
+      ov.removeEventListener('click', alFondo); document.removeEventListener('keydown', alTecla, true);
+      grid.removeEventListener('change', alCambiar);
+      resolve(valor);
+    };
+    const ok = document.getElementById('zona-btn-ok'), cancel = document.getElementById('zona-btn-cancelar');
+    const alAceptar = () => {
+      const zonas = [...grid.querySelectorAll('input:checked')].map(i => i.value);
+      const extra = otra.value.trim();
+      if(extra) zonas.push(extra);
+      if(!zonas.length){ err.textContent = 'Elige al menos una zona.'; return; }
+      cerrar(zonas.join(', '));
+    };
+    const alCancelar = () => cerrar(null);
+    const alFondo = e => { if(e.target === ov) cerrar(null); };
+    const alTecla = e => { if(e.key === 'Escape'){ e.stopPropagation(); cerrar(null); } else if(e.key === 'Enter' && e.target === otra){ e.preventDefault(); alAceptar(); } };
+    const alCambiar = e => { const l = e.target.closest('.zona-opt'); if(l) l.classList.toggle('on', e.target.checked); err.textContent = ''; };
+    ok.addEventListener('click', alAceptar); cancel.addEventListener('click', alCancelar);
+    ov.addEventListener('click', alFondo); document.addEventListener('keydown', alTecla, true);
+    grid.addEventListener('change', alCambiar);
+    ov.classList.add('show');
+    setTimeout(() => { const p = grid.querySelector('input'); if(p) p.focus(); }, 60);
+  });
+}
+
 function nombresServicios(consultaServicios, doctorPrincipalNombre){
   return (consultaServicios || []).map(cs => {
-    const nombre = cs.catalogo_tipos_servicio?.nombre;
+    const nombre = nomServ(cs);
     if(!nombre) return null;
     const atendioNombre = cs.atendido?.nombre;
     if(atendioNombre && doctorPrincipalNombre && atendioNombre !== doctorPrincipalNombre){
@@ -4848,8 +4942,9 @@ function renderServiciosSel(selId, selMap, debeMostrarSplitPago){
         <span class="split2-preview">2do pago: ${fmtMoney(monto2Num)}</span>
       </div>`;
     }
+    const zonaTag = (s?.requiere_zona && val.zona) ? `<span class="zona-tag">${esc2(val.zona)} <button type="button" class="zona-cambiar" title="Cambiar zona">cambiar</button></span>` : '';
     return `<div class="a-row" data-id="${esc2(id)}">
-      <div class="nom">${nombre}${ref}</div>
+      <div class="nom">${nombre}${zonaTag}${ref}</div>
       <select class="atendido-select" title="¿Quién atendió este servicio?">
         <option value="">Seleccionar...</option>
         ${opcionesPersonalAgrupadoHtml(atendidoPor, soloDoctor, fechaFormServ)}
@@ -4867,9 +4962,17 @@ function crearSelectorServicios(ids, selMap, onChange, valorAtendidoPorDefecto, 
     renderServiciosSel(ids.sel, selMap, debeMostrarSplitPago);
     document.getElementById(ids.grid).querySelectorAll('.a-chip').forEach(chip=>{
       const id = chip.dataset.id;
-      chip.querySelector('input').addEventListener('change', e=>{
+      chip.querySelector('input').addEventListener('change', async e=>{
         if(e.target.checked){
           const atendidoPor = valorAtendidoPorDefecto ? (valorAtendidoPorDefecto(id) || '') : '';
+          const tipoZ = esFarmKey(id) ? null : CATALOGOS.tiposServicio.find(x => x.id === id);
+          if(tipoZ?.requiere_zona && !selMap.get(id)?.zona){
+            const zona = await pedirZonaCuerpo(tipoZ.nombre, '');
+            if(!zona){ refrescar(); return; }   // cancelaron: el servicio no se agrega
+            selMap.set(id, { monto:'', atendidoPor, zona });
+            refrescar();
+            return;
+          }
           if(esFarmKey(id)){
             const prod = (CATALOGOS.farmacia || []).find(x => 'f:' + x.id === id);
             const sug = Number(prod?.precio) || 0;
@@ -4920,6 +5023,12 @@ function crearSelectorServicios(ids, selMap, onChange, valorAtendidoPorDefecto, 
         row.querySelector('.quitar').addEventListener('click', ()=>{ selMap.delete(id); refrescar(); onChange(); });
         return;
       }
+      const btnZona = row.querySelector('.zona-cambiar');
+      if(btnZona) btnZona.addEventListener('click', async ()=>{
+        const prev = selMap.get(id) || {};
+        const nueva = await pedirZonaCuerpo(CATALOGOS.tiposServicio.find(x => x.id === id)?.nombre || '', prev.zona || '');
+        if(nueva){ selMap.set(id, { ...prev, zona: nueva }); refrescar(); onChange(); }
+      });
       row.querySelector('.monto-wrap input').addEventListener('input', e=>{
         const prev = selMap.get(id) || { monto:'', atendidoPor:'' };
         selMap.set(id, { ...prev, monto: e.target.value });
@@ -5492,6 +5601,7 @@ async function guardarRegistro(){
       monto_2: monto2Row,
       monto_3: monto3Row,
       atendido_por: val?.atendidoPor || null,
+      zona: val?.zona || null,
     };
   });
 
@@ -5553,7 +5663,7 @@ async function guardarRegistro(){
       const { data: nuevaConsulta, error: errConsulta } = await sb.from('consultas').insert(payload).select('id').single();
       if(errConsulta) throw errConsulta;
 
-      const filasServicios = filasServ.map(s => ({ consulta_id: nuevaConsulta.id, tipo_servicio_id: s.tipo_servicio_id, monto: s.monto, monto_1: s.monto_1, monto_2: s.monto_2, atendido_por: s.atendido_por }));
+      const filasServicios = filasServ.map(s => ({ consulta_id: nuevaConsulta.id, tipo_servicio_id: s.tipo_servicio_id, monto: s.monto, monto_1: s.monto_1, monto_2: s.monto_2, atendido_por: s.atendido_por, zona: s.zona || null }));
       const { error: errServ } = await sb.from('consulta_servicios').insert(filasServicios);
       if(errServ) throw errServ;
     }
@@ -5735,7 +5845,7 @@ async function cargarHistorial(){
   let q = null;
   if(quiereServ){
     q = sb.from('consultas')
-      .select('id,fecha,monto,medio_pago,monto_2,medio_pago_2,factura,num_factura,no_vino,notas,paciente_id,doctor_id,terminal_id,pacientes!inner(nombre,telefono,dueno_id,procedencia_id,catalogo_procedencia(nombre),dueno:personal!dueno_id(nombre,rol)),doctor:personal!doctor_id(nombre,rol),catalogo_terminales(nombre),consulta_servicios(tipo_servicio_id,monto,monto_1,monto_2,atendido_por,catalogo_tipos_servicio(nombre),atendido:personal(nombre,rol))')
+      .select('id,fecha,monto,medio_pago,monto_2,medio_pago_2,factura,num_factura,no_vino,notas,paciente_id,doctor_id,terminal_id,pacientes!inner(nombre,telefono,dueno_id,procedencia_id,catalogo_procedencia(nombre),dueno:personal!dueno_id(nombre,rol)),doctor:personal!doctor_id(nombre,rol),catalogo_terminales(nombre),consulta_servicios(zona,tipo_servicio_id,monto,monto_1,monto_2,atendido_por,catalogo_tipos_servicio(nombre),atendido:personal(nombre,rol))')
       .eq('deleted', false)
       .order('fecha', { ascending:false })
       .order('created_at', { ascending:false })
@@ -5931,7 +6041,7 @@ function renderHistorial(){
     }
     const pago1 = r.no_vino ? '—' : `<span class="h-pay">${iconoPago(r.medio_pago)}${esc2(r.medio_pago || '—')}</span>`;
     const pago2 = (!r.no_vino && r.medio_pago_2) ? `<div style="font-size:10px;color:var(--g6)">+${iconoPago(r.medio_pago_2)}${esc2(r.medio_pago_2)}</div>` : '';
-    const nombreServicio = servicioPildoraHtml(cs?.catalogo_tipos_servicio?.nombre);
+    const nombreServicio = servicioPildoraHtml(nomServ(cs));
     // "Doctor (consulta)" = quién abrió/es responsable de la visita completa. "Atendió" = quién
     // hizo ESTE servicio en particular — normalmente son la misma persona, pero no siempre: una
     // visita puede traer la consulta de un doctor y, aparte, un tratamiento de cabina hecho por
@@ -6280,7 +6390,7 @@ function abrirModalEditar(id){
   document.getElementById('edit-paciente-nombre').value = nomProp(r.pacientes?.nombre) || '';
   document.getElementById('edit-fecha').value = r.fecha;
   EDIT_SERV_SEL.clear();
-  (r.consulta_servicios || []).forEach(cs=> EDIT_SERV_SEL.set(cs.tipo_servicio_id, { monto: String(cs.monto ?? ''), atendidoPor: cs.atendido_por || '' }));
+  (r.consulta_servicios || []).forEach(cs=> EDIT_SERV_SEL.set(cs.tipo_servicio_id, { monto: String(cs.monto ?? ''), atendidoPor: cs.atendido_por || '', zona: cs.zona || '' }));
   poblarSelectEditDueno(r.pacientes?.dueno_id || '');
   poblarSelectEditProcedencia(r.pacientes?.procedencia_id || '', r.pacientes?.catalogo_procedencia?.nombre);
   editServRender('');
@@ -6336,7 +6446,7 @@ document.getElementById('edit-btn-guardar').addEventListener('click', async ()=>
     return;
   }
 
-  const servicios = [...EDIT_SERV_SEL.entries()].map(([id, val]) => ({ tipo_servicio_id: id, monto: Number(val?.monto || 0), atendido_por: val?.atendidoPor || null }));
+  const servicios = [...EDIT_SERV_SEL.entries()].map(([id, val]) => ({ tipo_servicio_id: id, monto: Number(val?.monto || 0), atendido_por: val?.atendidoPor || null, zona: val?.zona || null }));
   const montoTotal = servicios.reduce((a,s)=> a + s.monto, 0);
   const duenoId = document.getElementById('edit-dueno').value;
   const procedenciaId = document.getElementById('edit-procedencia').value;
@@ -6373,7 +6483,7 @@ document.getElementById('edit-btn-guardar').addEventListener('click', async ()=>
   // que cada servicio quedó completo en el 1er pago. Si la consulta sí tenía un 2do pago con
   // reparto por servicio (hecho desde Registro), esa edición no lo conserva — solo afecta
   // consultas editadas aquí, no el reparto que ya quedó guardado si no se toca esta consulta.
-  const filasServicios = servicios.map(s => ({ consulta_id: HIST_EDIT_ID, tipo_servicio_id: s.tipo_servicio_id, monto: s.monto, monto_1: s.monto, monto_2: 0, atendido_por: s.atendido_por }));
+  const filasServicios = servicios.map(s => ({ consulta_id: HIST_EDIT_ID, tipo_servicio_id: s.tipo_servicio_id, monto: s.monto, monto_1: s.monto, monto_2: 0, atendido_por: s.atendido_por, zona: s.zona }));
   const { error: errIns } = await sb.from('consulta_servicios').insert(filasServicios);
   btn.disabled = false; btn.textContent = 'Guardar cambios';
   if(errIns){
@@ -6540,7 +6650,7 @@ function exportarExcel(filas, farm){
         'Procedencia': r.pacientes?.catalogo_procedencia?.nombre || '',
         'Dueño del paciente': r.pacientes?.dueno?.nombre || '',
         'Teléfono': r.pacientes?.telefono || '',
-        'Servicio': cs?.catalogo_tipos_servicio?.nombre || '',
+        'Servicio': nomServ(cs) || '',
         'Tipo': info.tipo || '',
         'Equipo': info.equipo || '',
         'Regla de comisión': info.regla || '',
@@ -6637,7 +6747,7 @@ document.getElementById('export-btn-confirmar').addEventListener('click', async 
         if(!desde && !hasta){ toast('Elige al menos una fecha.'); btn.disabled = false; btn.textContent = '↓ Exportar a Excel'; return; }
       }
       let q = sb.from('consultas')
-        .select('fecha,monto,medio_pago,monto_2,medio_pago_2,factura,num_factura,no_vino,notas,doctor_id,pacientes(nombre,telefono,dueno_id,procedencia_id,catalogo_procedencia(nombre),dueno:personal!dueno_id(nombre,rol)),doctor:personal!doctor_id(nombre,rol),catalogo_terminales(nombre),consulta_servicios(tipo_servicio_id,monto,monto_1,monto_2,atendido_por,catalogo_tipos_servicio(nombre),atendido:personal(nombre,rol))')
+        .select('fecha,monto,medio_pago,monto_2,medio_pago_2,factura,num_factura,no_vino,notas,doctor_id,pacientes(nombre,telefono,dueno_id,procedencia_id,catalogo_procedencia(nombre),dueno:personal!dueno_id(nombre,rol)),doctor:personal!doctor_id(nombre,rol),catalogo_terminales(nombre),consulta_servicios(zona,tipo_servicio_id,monto,monto_1,monto_2,atendido_por,catalogo_tipos_servicio(nombre),atendido:personal(nombre,rol))')
         .eq('deleted', false)
         .order('fecha', { ascending:false });
       if(desde) q = q.gte('fecha', desde);
@@ -6778,7 +6888,7 @@ async function cargarCierre(){
   const desde = modoAlPedir === 'dia' ? isoLocal(fechaAlPedir) : isoLocal(primerDiaMes(fechaAlPedir));
   const hasta = modoAlPedir === 'dia' ? isoLocal(fechaAlPedir) : isoLocal(ultimoDiaMes(fechaAlPedir));
   let q = sb.from('consultas')
-    .select('id,fecha,monto,medio_pago,monto_2,medio_pago_2,factura,num_factura,doctor_id,paciente_id,pacientes(nombre,dueno:personal!dueno_id(nombre,rol)),doctor:personal!doctor_id(nombre),consulta_servicios(tipo_servicio_id,monto,monto_1,monto_2,atendido_por,catalogo_tipos_servicio(nombre),atendido:personal(nombre))')
+    .select('id,fecha,monto,medio_pago,monto_2,medio_pago_2,factura,num_factura,doctor_id,paciente_id,pacientes(nombre,dueno:personal!dueno_id(nombre,rol)),doctor:personal!doctor_id(nombre),consulta_servicios(zona,tipo_servicio_id,monto,monto_1,monto_2,atendido_por,catalogo_tipos_servicio(nombre),atendido:personal(nombre))')
     .eq('deleted', false)
     .eq('no_vino', false)
     .gte('fecha', desde)
@@ -7321,7 +7431,7 @@ const CIERRE_MES_CSS = `
 .fm .rs{background:#F1E8F6;border-radius:9px;padding:8px 12px}.fm .rs b{color:var(--purple)}
 .fq{font-size:10.5px;font-weight:700;border-radius:6px;padding:1px 7px;background:#DCEBFB;color:#173F82;white-space:nowrap}.fq.nf{background:#FDE7E2;color:#B5301A}.fq.sk{background:#D9F4F4;color:#0B6B6B}
 `;
-const CIERRE_SEL_CONS = 'id,fecha,monto,medio_pago,monto_2,medio_pago_2,factura,num_factura,doctor_id,pacientes(nombre),doctor:personal!doctor_id(nombre),consulta_servicios(tipo_servicio_id,monto,monto_1,monto_2,atendido_por,catalogo_tipos_servicio(nombre),atendido:personal(nombre))';
+const CIERRE_SEL_CONS = 'id,fecha,monto,medio_pago,monto_2,medio_pago_2,factura,num_factura,doctor_id,pacientes(nombre),doctor:personal!doctor_id(nombre),consulta_servicios(zona,tipo_servicio_id,monto,monto_1,monto_2,atendido_por,catalogo_tipos_servicio(nombre),atendido:personal(nombre))';
 const CIERRE_SEL_FARM = 'id,fecha,doctor_id,paciente,paciente_id,medicamento,producto_id,cantidad,monto,monto_2,medio_pago,medio_pago_2,monto_3,medio_pago_3,doctor:personal!doctor_id(nombre)';
 
 // Reúne los datos del Flash Report de un mes completo sin depender de lo que esté abierto en la pestaña Cierre.
@@ -7634,7 +7744,7 @@ function renderCierreCosmetologa(){
     if(!mios.length) return;
     const monto = mios.reduce((a, cs) => a + Number(cs.monto || 0), 0);
     total += monto;
-    items.push({ fecha: r.fecha || '', nombre: nomProp(r.pacientes?.nombre) || '—', detalle: mios.map(cs => cs.catalogo_tipos_servicio?.nombre).filter(Boolean).join(', ') || '—', monto });
+    items.push({ fecha: r.fecha || '', nombre: nomProp(r.pacientes?.nombre) || '—', detalle: mios.map(cs => nomServ(cs)).filter(Boolean).join(', ') || '—', monto });
   });
   items.sort((a, b) => a.fecha < b.fecha ? 1 : a.fecha > b.fecha ? -1 : a.nombre.localeCompare(b.nombre));
   document.getElementById('cierre-kpi-total').textContent = fmtMoney(total);
@@ -9344,7 +9454,7 @@ async function cargarInactivos(){
   const umbralDias = Number(document.getElementById('crm-inactivos-umbral').value) || 60;
 
   const { data, error } = await sb.from('consultas')
-    .select('fecha,paciente_id,pacientes(id,nombre,telefono),doctor:personal!doctor_id(nombre),consulta_servicios(tipo_servicio_id,monto,atendido_por,catalogo_tipos_servicio(nombre),atendido:personal(nombre))')
+    .select('fecha,paciente_id,pacientes(id,nombre,telefono),doctor:personal!doctor_id(nombre),consulta_servicios(zona,tipo_servicio_id,monto,atendido_por,catalogo_tipos_servicio(nombre),atendido:personal(nombre))')
     .eq('deleted', false)
     .eq('no_vino', false)
     .order('fecha', { ascending:false })
@@ -9406,7 +9516,7 @@ async function cargarNoVinieron(){
   cont.innerHTML = '<tr><td colspan="7" class="empty-note">Cargando...</td></tr>';
 
   const { data, error } = await sb.from('consultas')
-    .select('fecha,paciente_id,no_vino,pacientes(id,nombre,telefono),doctor:personal!doctor_id(nombre),consulta_servicios(tipo_servicio_id,monto,atendido_por,catalogo_tipos_servicio(nombre),atendido:personal(nombre))')
+    .select('fecha,paciente_id,no_vino,pacientes(id,nombre,telefono),doctor:personal!doctor_id(nombre),consulta_servicios(zona,tipo_servicio_id,monto,atendido_por,catalogo_tipos_servicio(nombre),atendido:personal(nombre))')
     .eq('deleted', false)
     .order('fecha', { ascending:false })
     .limit(5000);
@@ -9468,7 +9578,7 @@ async function abrirModalGestion(pacienteId, nombre){
   document.getElementById('modal-gestion').classList.add('show');
 
   const [visitasRes, gestionesRes] = await Promise.all([
-    sb.from('consultas').select('fecha,monto,monto_2,consulta_servicios(tipo_servicio_id,monto,atendido_por,catalogo_tipos_servicio(nombre),atendido:personal(nombre)),doctor:personal!doctor_id(nombre)').eq('paciente_id', pacienteId).eq('deleted', false).eq('no_vino', false).order('fecha', { ascending:false }).limit(50),
+    sb.from('consultas').select('fecha,monto,monto_2,consulta_servicios(zona,tipo_servicio_id,monto,atendido_por,catalogo_tipos_servicio(nombre),atendido:personal(nombre)),doctor:personal!doctor_id(nombre)').eq('paciente_id', pacienteId).eq('deleted', false).eq('no_vino', false).order('fecha', { ascending:false }).limit(50),
     sb.from('gestiones').select('id,tipo,nota,fecha,creado_por,personal(nombre)').eq('paciente_id', pacienteId).order('fecha', { ascending:false }).limit(50),
   ]);
   if(miReqId !== gestionModalReqId) return; // el usuario cerró el modal o abrió otro paciente mientras esto cargaba
@@ -11215,6 +11325,216 @@ async function nomCopiar(txt){
   });
 })();
 
+
+// ============================================================
+// Módulo: Costeo de cabina (solo insumos · admin edita · contabilidad consulta)
+//  · Insumo: precio de compra de la presentación ÷ cuánto rinde = costo por unidad de uso.
+//  · Receta: qué insumos y cuánta cantidad lleva una sesión de cada servicio del catálogo.
+//  · Cobro promedio y sesiones salen de lo registrado en la app (últimos 90 días, sin contar $0 ni "no vino").
+//  · No incluye mano de obra, equipo ni gastos fijos.
+// ============================================================
+let CO_INS = [], CO_REC = [], CO_ST = {}, CO_TAB = 'res', CO_SEL = null, CO_CARGADO = false;
+const coEdita = () => MI_PERFIL?.rol === 'admin' && window.MI_SOLO_LECTURA !== true;
+function coCostoU(i){ const p = Number(i.precio_compra), r = Number(i.rinde); return p > 0 && r > 0 ? p / r : null; }
+const coMonU = v => v == null ? '—' : (v < 1 ? '$' + v.toFixed(4) : fmtMoney(v));
+const coServNombre = id => (CATALOGOS.tiposServicio || []).find(t => t.id === id)?.nombre || '—';
+const coQty = v => v == null ? '' : String(Number(v));
+function coLineas(sid){
+  return CO_REC.filter(r => r.servicio_id === sid).map(r => {
+    const i = CO_INS.find(x => x.id === r.insumo_id), cu = i ? coCostoU(i) : null, cant = r.cantidad == null ? null : Number(r.cantidad);
+    return { r, i, cu, cant, sub: cu != null && cant != null ? cant * cu : null };
+  });
+}
+function coServ(sid){
+  const L = coLineas(sid), falta = L.filter(l => l.sub == null).length, st = CO_ST[sid] || { n:0, pos:0, sum:0 };
+  const cobro = st.pos ? st.sum / st.pos : null, costo = L.length && !falta ? L.reduce((a, l) => a + l.sub, 0) : null;
+  return { sid, L, falta, sinCosto: L.filter(l => l.cu == null).length, sinCant: L.filter(l => l.cant == null).length, costo, n: st.n, cobro,
+           util: costo != null && cobro != null ? cobro - costo : null, margen: costo != null && cobro ? (cobro - costo) / cobro : null };
+}
+function coChip(s){
+  if(!s.L.length) return '<span class="co-ch s">Sin receta</span>';
+  if(!s.falta) return '<span class="co-ch ok">Completo</span>';
+  const p = []; if(s.sinCosto) p.push(s.sinCosto + (s.sinCosto === 1 ? ' costo' : ' costos')); if(s.sinCant) p.push(s.sinCant + (s.sinCant === 1 ? ' cantidad' : ' cantidades'));
+  return `<span class="co-ch f">Falta${s.falta === 1 ? '' : 'n'} ${p.join(' y ')}</span>`;
+}
+const coConReceta = () => [...new Set(CO_REC.map(r => r.servicio_id))];
+
+async function coCargar(){
+  if(MI_PERFIL?.rol !== 'admin' && MI_PERFIL?.rol !== 'contabilidad') return;
+  const [a, b] = await Promise.all([
+    sb.from('costeo_insumos').select('*').order('nombre'),
+    sb.from('costeo_recetas').select('*').order('orden').order('created_at')
+  ]);
+  if(a.error || b.error){ console.error('[SkinFabric] Costeo:', a.error || b.error); toast('No se pudo cargar Costeo. ¿Ya corriste el SQL de Costeo en Supabase?'); return; }
+  CO_INS = a.data || []; CO_REC = b.data || [];
+  // sesiones y cobro promedio de los últimos 90 días
+  const desde = isoLocal(new Date(Date.now() - 90 * 864e5)), st = {};
+  for(let from = 0; ; from += 1000){
+    const { data, error } = await sb.from('consulta_servicios').select('tipo_servicio_id,monto,consultas!inner(fecha,no_vino)').gte('consultas.fecha', desde).range(from, from + 999);
+    if(error){ console.error('[SkinFabric] Costeo (sesiones):', error); break; }
+    (data || []).forEach(r => {
+      if(r.consultas?.no_vino) return;
+      const s = st[r.tipo_servicio_id] || (st[r.tipo_servicio_id] = { n:0, pos:0, sum:0 }); s.n++;
+      const m = Number(r.monto) || 0; if(m > 0){ s.pos++; s.sum += m; }
+    });
+    if(!data || data.length < 1000) break;
+  }
+  CO_ST = st; CO_CARGADO = true;
+  if(CO_SEL && !(CATALOGOS.tiposServicio || []).some(t => t.id === CO_SEL)) CO_SEL = null;
+  coRender();
+}
+function coRender(){
+  const root = document.getElementById('app-screen-costeo'), ro = !coEdita();
+  root.classList.toggle('co-ro', ro);
+  document.getElementById('co-ro-note').style.display = ro ? '' : 'none';
+  document.querySelectorAll('#co-tabs .prm-tab-btn').forEach(b => b.classList.toggle('act', b.dataset.cot === CO_TAB));
+  document.querySelectorAll('.co-panel').forEach(p => p.hidden = p.id !== 'co-p-' + CO_TAB);
+  ({ res: coRenderRes, rec: coRenderRec, ins: coRenderIns })[CO_TAB]();
+}
+
+function coRenderRes(){
+  const S = coConReceta().map(coServ).sort((a, b) => b.n - a.n || coServNombre(a.sid).localeCompare(coServNombre(b.sid), 'es'));
+  const comp = S.filter(s => s.costo != null && s.cobro != null), act = CO_INS.filter(i => i.activo), sinCosto = act.filter(i => coCostoU(i) == null).length;
+  const sumCobro = comp.reduce((a, s) => a + s.n * s.cobro, 0), sumCosto = comp.reduce((a, s) => a + s.n * s.costo, 0);
+  const margen = sumCobro ? (sumCobro - sumCosto) / sumCobro : null;
+  const sinRec = (CATALOGOS.tiposServicio || []).filter(t => !coConReceta().includes(t.id) && (CO_ST[t.id]?.n || 0) > 0 && !/^consulta/i.test(t.nombre)).sort((a, b) => CO_ST[b.id].n - CO_ST[a.id].n);
+  const filas = S.map(s => `<tr><td class="nm"><b>${esc2(coServNombre(s.sid))}</b><div class="sub">${s.L.map(l => esc2(l.i?.nombre || '?') + (l.cant != null ? ' ' + coQty(l.cant) : '')).join(' · ')}</div></td>
+    <td class="r">${s.n}</td><td class="r">${s.cobro != null ? fmtMoney(s.cobro) : '—'}</td><td class="r b">${s.costo != null ? fmtMoney(s.costo) : '—'}</td>
+    <td class="r">${s.util != null ? fmtMoney(s.util) : '—'}</td><td class="r b">${s.margen != null ? (s.margen * 100).toFixed(1) + '%' : '—'}</td><td>${coChip(s)}</td></tr>`).join('')
+    || '<tr><td colspan="7" class="empty-note">Todavía no hay recetas. Ve a “Recetas por procedimiento”.</td></tr>';
+  document.getElementById('co-p-res').innerHTML = `
+    <div class="nom-kpis"><div class="nom-k dk"><small>Procedimientos con receta</small><b>${S.length}</b><span>${sinRec.length} servicios con sesiones aún sin receta</span></div>
+      <div class="nom-k"><small>Costos completos</small><b>${comp.length}</b><span>listos para calcular margen</span></div>
+      <div class="nom-k"><small>Insumos sin costo</small><b>${sinCosto} de ${act.length}</b><span>faltan por capturar en “Insumos y costos”</span></div>
+      <div class="nom-k"><small>Margen bruto</small><b>${margen != null ? (margen * 100).toFixed(1) + '%' : '—'}</b><span>${comp.length ? 'ponderado por sesiones, solo completos' : 'se calcula con los procedimientos completos'}</span></div></div>
+    <div class="nom-wrap"><table class="nom-t"><thead><tr><th>Procedimiento</th><th class="r">Sesiones (90 d)</th><th class="r">Cobro promedio</th><th class="r">Costo de insumos</th><th class="r">Utilidad bruta</th><th class="r">Margen</th><th>Estado</th></tr></thead><tbody>${filas}</tbody></table></div>
+    ${sinRec.length ? `<p class="sub" style="margin:12px 0 6px"><b>Sin receta</b> (con sesiones en los últimos 90 días) — toca uno para crearle su receta:</p><div class="co-chips">${sinRec.map(t => `<button type="button" class="co-chip" data-co-nueva="${esc2(t.id)}">${esc2(t.nombre)} <i>${CO_ST[t.id].n}</i></button>`).join('')}</div>` : ''}
+    <div class="nom-fund"><b>Cómo se calcula:</b> costo de insumos = suma de cantidad × costo por unidad de cada línea de la receta. Cobro promedio = promedio de lo registrado en la app en los últimos 90 días, sin contar sesiones en $0 (cortesías o paquetes) ni “no vino”. Si a una receta le falta un costo o una cantidad, no se calcula el margen para no dar un número engañoso. No incluye mano de obra, depreciación de equipo ni gastos fijos.</div>`;
+}
+
+function coRenderRec(){
+  const ids = coConReceta(); if(CO_SEL && !ids.includes(CO_SEL)) ids.push(CO_SEL);
+  ids.sort((a, b) => coServNombre(a).localeCompare(coServNombre(b), 'es'));
+  if(!CO_SEL && ids.length) CO_SEL = ids[0];
+  const libres = (CATALOGOS.tiposServicio || []).filter(t => !ids.includes(t.id));
+  const lista = ids.map(id => { const s = coServ(id); return `<button type="button" class="co-li${id === CO_SEL ? ' on' : ''}" data-co-sel="${esc2(id)}"><span>${esc2(coServNombre(id))}</span>${coChip(s)}</button>`; }).join('');
+  let der = '<p class="sub">Elige un procedimiento de la lista o agrega uno nuevo.</p>';
+  if(CO_SEL){
+    const s = coServ(CO_SEL), usados = new Set(s.L.map(l => l.r.insumo_id)), disp = CO_INS.filter(i => i.activo && !usados.has(i.id));
+    const otras = coConReceta().filter(id => id !== CO_SEL);
+    const filas = s.L.map(l => `<tr><td class="nm"><b>${esc2(l.i?.nombre || '?')}</b></td>
+      <td class="r"><input type="number" class="nom-inp co-n" min="0" step="any" data-col="${esc2(l.r.id)}" data-f="cantidad" value="${esc2(coQty(l.cant))}" placeholder="?" ${coEdita() ? '' : 'disabled'}/></td>
+      <td>${esc2(l.i?.unidad || '')}</td><td class="r">${coMonU(l.cu)}</td><td class="r b">${l.sub != null ? fmtMoney(l.sub) : '—'}</td>
+      <td><input type="text" class="nom-inp" maxlength="200" data-col="${esc2(l.r.id)}" data-f="nota" value="${esc2(l.r.nota || '')}" ${coEdita() ? '' : 'disabled'}/></td>
+      <td class="co-edit"><button type="button" class="nom-btn sm ic" data-co-del-line="${esc2(l.r.id)}" title="Quitar de la receta" aria-label="Quitar">✕</button></td></tr>`).join('')
+      || '<tr><td colspan="7" class="empty-note">Receta vacía: agrega los insumos de una sesión.</td></tr>';
+    der = `<div class="co-rh"><div><h4>${esc2(coServNombre(CO_SEL))}</h4><div class="sub">${s.n} sesiones (90 d) · cobro promedio ${s.cobro != null ? fmtMoney(s.cobro) : '—'}</div></div>
+        <div class="co-edit co-acts">${otras.length ? `<select id="co-copy" class="nom-inp"><option value="">Copiar receta de…</option>${otras.map(id => `<option value="${esc2(id)}">${esc2(coServNombre(id))}</option>`).join('')}</select>` : ''}
+          ${s.L.length ? '<button type="button" class="nom-btn" id="co-del-rec">Quitar receta</button>' : ''}</div></div>
+      <div class="nom-wrap"><table class="nom-t"><thead><tr><th>Insumo</th><th class="r">Cantidad por sesión</th><th>Unidad</th><th class="r">Costo por unidad</th><th class="r">Subtotal</th><th>Nota</th><th class="co-edit"></th></tr></thead><tbody>${filas}
+        ${s.L.length ? `<tr class="tot"><td colspan="4">Costo de insumos por sesión</td><td class="r">${s.costo != null ? fmtMoney(s.costo) : '<span class="sub">incompleto</span>'}</td><td colspan="2"></td></tr>` : ''}</tbody></table></div>
+      <div class="co-edit co-acts" style="margin-top:10px">${disp.length ? `<select id="co-add-ins" class="nom-inp"><option value="">Insumo a agregar…</option>${disp.map(i => `<option value="${esc2(i.id)}">${esc2(i.nombre)} (${esc2(i.unidad)})</option>`).join('')}</select> <button type="button" class="nom-btn p" id="co-add-line">＋ Agregar</button>` : '<span class="sub">Todos los insumos ya están en esta receta. Crea otro en “Insumos y costos”.</span>'}</div>
+      <div class="nom-fund">${s.falta ? 'Un renglón en “—” significa que falta el costo del insumo (pestaña “Insumos y costos”) o la cantidad de la receta.' : 'Receta completa: el costo ya cuenta en el Resumen.'}</div>`;
+  }
+  document.getElementById('co-p-rec').innerHTML = `<div class="co-split"><div><div class="co-lista">${lista || '<div class="co-li" style="cursor:default"><span class="sub">Sin recetas</span></div>'}</div>
+      <div class="co-edit" style="margin-top:10px"><select id="co-add-serv" class="nom-inp" style="width:100%"><option value="">＋ Receta para otro servicio…</option>${libres.map(t => `<option value="${esc2(t.id)}">${esc2(t.nombre)}</option>`).join('')}</select></div></div>
+    <div>${der}</div></div>`;
+}
+
+function coRenderIns(){
+  const uso = id => CO_REC.filter(r => r.insumo_id === id).length, ed = coEdita() ? '' : 'disabled';
+  const filas = CO_INS.map(i => { const cu = coCostoU(i); return `<tr><td class="nm"><input type="text" class="nom-inp co-w" data-coi="${esc2(i.id)}" data-f="nombre" value="${esc2(i.nombre)}" maxlength="80" ${ed}/></td>
+    <td><input type="text" class="nom-inp co-w" data-coi="${esc2(i.id)}" data-f="presentacion" value="${esc2(i.presentacion || '')}" maxlength="80" placeholder="Ej. Frasco 100 ml" ${ed}/></td>
+    <td class="r"><input type="number" class="nom-inp co-n${i.precio_compra == null ? ' need' : ''}" min="0" step="any" data-coi="${esc2(i.id)}" data-f="precio_compra" value="${esc2(i.precio_compra ?? '')}" placeholder="$" ${ed}/></td>
+    <td class="r"><input type="number" class="nom-inp co-n${i.rinde == null ? ' need' : ''}" min="0" step="any" data-coi="${esc2(i.id)}" data-f="rinde" value="${esc2(i.rinde ?? '')}" placeholder="uds" ${ed}/></td>
+    <td><input type="text" class="nom-inp co-u" data-coi="${esc2(i.id)}" data-f="unidad" value="${esc2(i.unidad)}" maxlength="20" ${ed}/></td>
+    <td class="r b">${coMonU(cu)}</td><td class="r">${uso(i.id)}</td><td>${cu != null ? '<span class="co-ch ok">Con costo</span>' : '<span class="co-ch f">Falta costo</span>'}</td>
+    <td class="co-edit"><button type="button" class="nom-btn sm ic" data-co-del-ins="${esc2(i.id)}" title="Eliminar insumo" aria-label="Eliminar">✕</button></td></tr>`; }).join('')
+    || '<tr><td colspan="9" class="empty-note">Aún no hay insumos.</td></tr>';
+  document.getElementById('co-p-ins').innerHTML = `
+    <div class="co-edit co-acts" style="margin-bottom:10px"><input type="text" id="co-ni-nom" class="nom-inp co-w" maxlength="80" placeholder="Nombre del nuevo insumo"/> <input type="text" id="co-ni-uni" class="nom-inp co-u" maxlength="20" placeholder="Unidad (pza, ml…)" value="pza"/> <button type="button" class="nom-btn p" id="co-ni-add">＋ Nuevo insumo</button></div>
+    <div class="nom-wrap"><table class="nom-t"><thead><tr><th>Insumo</th><th>Presentación de compra</th><th class="r">Precio de compra</th><th class="r">Rinde</th><th>Unidad de uso</th><th class="r">Costo por unidad</th><th class="r">Recetas</th><th>Estado</th><th class="co-edit"></th></tr></thead><tbody>${filas}</tbody></table></div>
+    <div class="nom-fund"><b>Cómo capturar:</b> “Precio de compra” es lo que cuesta la presentación (ej. un frasco) y “Rinde” cuántas unidades de uso salen de ella. Frasco de 100 ml en $3,000 que se usa por ml → precio 3,000, rinde 100, unidad ml = $30.00 por ml. Para los “pumps”, cuenta cuántos pumps salen de un frasco. Para algo reutilizable (puntas, bowl), “Rinde” es el número de usos que dura.</div>`;
+}
+
+async function coGuardar(tabla, id, patch){
+  const { error } = await sb.from(tabla).update(patch).eq('id', id);
+  if(error){ console.error('[SkinFabric] Costeo:', error); toast('No se pudo guardar: ' + (error.message || 'error')); return false; }
+  return true;
+}
+(function(){
+  const root = document.getElementById('app-screen-costeo');
+  document.getElementById('nav-btn-costeo').addEventListener('click', () => coCargar());
+  document.getElementById('co-tabs').addEventListener('click', e => { const b = e.target.closest('[data-cot]'); if(!b) return; CO_TAB = b.dataset.cot; if(CO_CARGADO) coRender(); });
+  root.addEventListener('change', async e => {
+    const el = e.target; if(!coEdita()) { coRender(); return; }
+    if(el.id === 'co-add-serv'){ if(el.value){ CO_SEL = el.value; coRender(); } return; }
+    if(el.id === 'co-copy'){
+      const src = el.value; if(!src || !CO_SEL) return;
+      const ya = new Set(CO_REC.filter(r => r.servicio_id === CO_SEL).map(r => r.insumo_id));
+      const filas = CO_REC.filter(r => r.servicio_id === src && !ya.has(r.insumo_id)).map(r => ({ servicio_id: CO_SEL, insumo_id: r.insumo_id, cantidad: r.cantidad, nota: r.nota, orden: r.orden }));
+      if(!filas.length){ toast('Esa receta no trae insumos nuevos para agregar.'); coRender(); return; }
+      const { data, error } = await sb.from('costeo_recetas').insert(filas).select();
+      if(error){ console.error('[SkinFabric] Costeo:', error); toast('No se pudo copiar: ' + (error.message || 'error')); return; }
+      CO_REC.push(...(data || [])); toast('✓ Receta copiada'); coRender(); return;
+    }
+    if(el.dataset.coi){
+      const f = el.dataset.f; let v = el.value;
+      if(f === 'precio_compra' || f === 'rinde'){ if(v === '') v = null; else { v = Number(v); if(!(v >= 0)){ toast('Escribe un número válido.'); coRender(); return; } } }
+      else if(f === 'nombre'){ v = v.trim(); if(!v){ toast('El insumo necesita nombre.'); coRender(); return; } }
+      else if(f === 'unidad'){ v = v.trim() || 'pza'; }
+      else v = v.trim() || null;
+      if(await coGuardar('costeo_insumos', el.dataset.coi, { [f]: v })){ const i = CO_INS.find(x => x.id === el.dataset.coi); if(i) i[f] = v; }
+      coRender(); return;
+    }
+    if(el.dataset.col){
+      const f = el.dataset.f; let v = el.value;
+      if(f === 'cantidad'){ if(v === '') v = null; else { v = Number(v); if(!(v >= 0)){ toast('Escribe una cantidad válida.'); coRender(); return; } } } else v = v.trim() || null;
+      if(await coGuardar('costeo_recetas', el.dataset.col, { [f]: v })){ const r = CO_REC.find(x => x.id === el.dataset.col); if(r) r[f] = v; }
+      coRender();
+    }
+  });
+  root.addEventListener('click', async e => {
+    const t = e.target.closest('button'); if(!t) return;
+    if(t.dataset.coSel){ CO_SEL = t.dataset.coSel; coRender(); return; }
+    if(t.dataset.coNueva){ CO_SEL = t.dataset.coNueva; CO_TAB = 'rec'; coRender(); return; }
+    if(!coEdita()) return;
+    if(t.id === 'co-add-line'){
+      const sel = document.getElementById('co-add-ins'); if(!sel?.value || !CO_SEL){ toast('Elige un insumo.'); return; }
+      const orden = Math.max(0, ...CO_REC.filter(r => r.servicio_id === CO_SEL).map(r => r.orden || 0)) + 1;
+      const { data, error } = await sb.from('costeo_recetas').insert({ servicio_id: CO_SEL, insumo_id: sel.value, orden }).select().single();
+      if(error){ console.error('[SkinFabric] Costeo:', error); toast('No se pudo agregar: ' + (error.message || 'error')); return; }
+      CO_REC.push(data); coRender(); return;
+    }
+    if(t.dataset.coDelLine){
+      const { error } = await sb.from('costeo_recetas').delete().eq('id', t.dataset.coDelLine);
+      if(error){ console.error('[SkinFabric] Costeo:', error); toast('No se pudo quitar.'); return; }
+      CO_REC = CO_REC.filter(r => r.id !== t.dataset.coDelLine); coRender(); return;
+    }
+    if(t.id === 'co-del-rec'){
+      if(!confirm('¿Quitar toda la receta de ' + coServNombre(CO_SEL) + '? Los insumos se conservan.')) return;
+      const { error } = await sb.from('costeo_recetas').delete().eq('servicio_id', CO_SEL);
+      if(error){ console.error('[SkinFabric] Costeo:', error); toast('No se pudo quitar la receta.'); return; }
+      CO_REC = CO_REC.filter(r => r.servicio_id !== CO_SEL); CO_SEL = null; coRender(); return;
+    }
+    if(t.id === 'co-ni-add'){
+      const nom = document.getElementById('co-ni-nom').value.trim(), uni = document.getElementById('co-ni-uni').value.trim() || 'pza';
+      if(!nom){ toast('Escribe el nombre del insumo.'); return; }
+      const { data, error } = await sb.from('costeo_insumos').insert({ nombre: nom, unidad: uni }).select().single();
+      if(error){ console.error('[SkinFabric] Costeo:', error); toast(/duplicate|unique/i.test(error.message || '') ? 'Ya existe un insumo con ese nombre.' : 'No se pudo crear el insumo.'); return; }
+      CO_INS.push(data); CO_INS.sort((a, b) => a.nombre.localeCompare(b.nombre, 'es')); toast('✓ Insumo creado'); coRender(); return;
+    }
+    if(t.dataset.coDelIns){
+      const i = CO_INS.find(x => x.id === t.dataset.coDelIns); if(!i) return;
+      const n = CO_REC.filter(r => r.insumo_id === i.id).length;
+      if(n){ toast('“' + i.nombre + '” está en ' + n + (n === 1 ? ' receta' : ' recetas') + '. Quítalo de ahí primero.'); return; }
+      if(!confirm('¿Eliminar el insumo “' + i.nombre + '”?')) return;
+      const { error } = await sb.from('costeo_insumos').delete().eq('id', i.id);
+      if(error){ console.error('[SkinFabric] Costeo:', error); toast('No se pudo eliminar.'); return; }
+      CO_INS = CO_INS.filter(x => x.id !== i.id); coRender();
+    }
+  });
+})();
 
 // ============================================================
 // Módulo: Inventario (admin edita · recepción consulta)
