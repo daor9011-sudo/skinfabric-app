@@ -3104,7 +3104,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.11.21-115';
+const APP_VERSION = 'v2026.11.21-116';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 
@@ -3374,7 +3374,7 @@ function entrarAlShell(perfil){
   document.querySelector('[data-screen2="dash"]').classList.toggle('locked', !showDash);
   document.getElementById('nav-btn-gastos').style.display = showGastos ? '' : 'none';
   document.getElementById('nav-btn-inv').style.display = (perfil.rol === 'admin' || perfil.rol === 'recepcion') ? '' : 'none';   // Inventario: admin (edita) y recepción (solo consulta)
-  document.getElementById('nav-btn-rent').style.display = perfil.rol === 'admin' ? '' : 'none';   // Rentabilidad de farmacia: solo admin (solo lectura)
+  document.getElementById('nav-btn-rent').style.display = (perfil.rol === 'admin' || perfil.permisos?.puede_ver_rentabilidad === true) ? '' : 'none';   // Rentabilidad de farmacia: admin y quien tenga el permiso puede_ver_rentabilidad (solo lectura)
   document.getElementById('nav-btn-costeo').style.display = (perfil.rol === 'admin' || esCont) ? '' : 'none';   // Costeo de cabina: admin (edita) y contabilidad (solo consulta)
   document.getElementById('nav-btn-nominas').style.display = (perfil.rol === 'admin' || esCont) ? '' : 'none';   // Nóminas: admin (edita) y contabilidad (solo consulta)
   document.getElementById('nav-btn-comisiones').style.display = showComisiones ? '' : 'none';
@@ -12486,7 +12486,7 @@ async function invDescargarPDF(){
 
 
 // ============================================================
-// Módulo: Rentabilidad de farmacia (solo admin)
+// Módulo: Rentabilidad de farmacia (admin + permisos.puede_ver_rentabilidad)
 //  · Ingresos = farmacia_ventas.monto. Costo = piezas × último costo conocido del producto (inventario_lotes.costo_unitario, lote más reciente con costo).
 //    Es una estimación: el margen solo cuenta lo que tiene costo capturado y lo demás se muestra aparte ("sin costo").
 //  · Los paquetes "3 pzas …" se suman a su producto base y usan su costo.
@@ -12541,7 +12541,7 @@ async function invDescargarPDF(){
     const pg = async mk => { let out = [], from = 0; for(;;){ const { data, error } = await mk().range(from, from + 999); if(error) throw error; out = out.concat(data || []); if(!data || data.length < 1000) break; from += 1000; } return out; };
     const [prods, lotes, ventas, gastos] = await Promise.all([
       pg(() => sb.from('farmacia_productos').select('id,nombre,grupo,activo,existencia,precio,dueno_id').order('id')),
-      pg(() => sb.from('inventario_lotes').select('id,producto_id,costo_unitario,created_at').order('id')),
+      sb.rpc('rent_costos').then(r => { if(r.error) throw r.error; return r.data || []; }),   // último costo por producto (los lotes solo los lee admin/recepción; la función valida el permiso)
       pg(() => sb.from('farmacia_ventas').select('id,fecha,producto_id,cantidad,monto,doctor_id').gte('fecha', desde).order('id')),
       pg(() => sb.from('gastos').select('id,fecha,monto').eq('categoria', 'farmacia').gte('fecha', desde).order('id')),
     ]);
@@ -12558,7 +12558,7 @@ async function invDescargarPDF(){
       return {k: i, id, n, s: (id && invDuenoCorto(id)) || n, c: i ? '#2ABFBF' : '#1B3A6B', chip: i ? 'dra' : 'dr', tc: i ? '#7DE8E8' : '#7FA8F0'}; });
     const drIdx = id => id && id === DR[0].id ? 0 : id && id === DR[1].id ? 1 : 2;
     /* productos y último costo conocido (lote más reciente con costo) */
-    const lastCost = {}; d.lotes.forEach(l => { const c = Number(l.costo_unitario); if(c > 0){ const t = String(l.created_at); if(!lastCost[l.producto_id] || t > lastCost[l.producto_id].t) lastCost[l.producto_id] = {t, c}; } });
+    const lastCost = {}; d.lotes.forEach(l => { const c = Number(l.costo_unitario); if(c > 0){ const t = String(l.created_at || ''); if(!lastCost[l.producto_id] || t > lastCost[l.producto_id].t) lastCost[l.producto_id] = {t, c}; } });
     const P0 = d.prods.slice().sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
     PRODS = P0.map(p => [p.nombre, p.grupo || 'Otras marcas', lastCost[p.id] ? lastCost[p.id].c : null, p.id, p.dueno_id]);
     const pidx = new Map(PRODS.map((p, i) => [p[3], i])), base = new Map();
@@ -12937,7 +12937,7 @@ async function invDescargarPDF(){
     $('notaS').textContent = `Las ventas ligadas a un producto empiezan en ${lcMes(WSTART.slice(0, 7))}. “Sin ventas desde ${mCor(WSTART.slice(0, 7)).toLowerCase()}” significa que no hay ninguna venta registrada de ese producto desde el 1 de ${lcMes(WSTART.slice(0, 7))}. El capital a costo solo suma productos con costo capturado.`;
   }
   async function rentCargar(){
-    if(MI_PERFIL?.rol !== 'admin' || BUSY) return;
+    if(!(MI_PERFIL?.rol === 'admin' || MI_PERFIL?.permisos?.puede_ver_rentabilidad === true) || BUSY) return;
     BUSY = true;
     if(!LOADED) $('stamp').textContent = 'Cargando datos…';
     try{
