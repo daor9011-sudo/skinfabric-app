@@ -1995,6 +1995,36 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 @media (max-width:700px){#app-screen-rent .rt-hero{margin:-14px -13px 0}#app-screen-rent .rt-tabs{margin:0 -13px 12px;padding:0 10px}}
 
 @media (max-width:1060px){#app-screen-rent .k .sp{top:30px;height:24px}}
+
+/* Inventario: cargar base (reporte de Aspel) */
+.iv-upd{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:12px 0 0;padding:9px 14px;border-radius:12px;background:linear-gradient(#f9fbfe,#f1f5fb);border:1px solid var(--g2);font-size:12.5px;color:var(--g6)}
+.iv-upd b{color:var(--navy)}
+.iv-upd.old{background:#FEF3D7;border-color:#efd493;color:#6b4a0d}.iv-upd.old b{color:#6b4a0d}
+#modal-iv-carga .modal-box{max-width:720px;display:flex;flex-direction:column;overflow:hidden}
+#modal-iv-carga .modal-body{overflow-y:auto;flex:1;min-height:0}
+.ivc-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:12px}
+.ivc-k{border:1px solid var(--g2);border-radius:12px;padding:10px 12px;background:linear-gradient(135deg,#E6ECFB,#fff 80%);min-width:0}
+.ivc-k span{display:block;font-size:10px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--navy2);opacity:.75}
+.ivc-k b{display:block;margin-top:3px;font-family:var(--font-d);font-size:14px;color:var(--navy);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ivc-nota{font-size:12px;color:var(--g6);margin:12px 0 0}
+.ivc-sub{margin:0 0 12px;font-size:13px;color:var(--g6)}.ivc-sub b{color:var(--navy)}
+.ivc-msg{border-radius:12px;padding:10px 13px;font-size:13px;margin:10px 0}.ivc-msg ul{margin:0;padding-left:18px}.ivc-msg li{margin:2px 0}
+.ivc-msg.r{background:#FDE8E8;border:1px solid #f2bcbc;color:#8a1f1f}.ivc-msg.a{background:#FEF3D7;border:1px solid #efd493;color:#6b4a0d}.ivc-msg.g{background:#E2F6EC;border:1px solid #a9dfc2;color:#14603a}
+.ivc-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:12px}
+.ivc-kpi{border-radius:12px;padding:11px 13px;border:1px solid var(--g2)}
+.ivc-kpi b{display:block;font-family:var(--font-d);font-size:24px;line-height:1;font-variant-numeric:tabular-nums}
+.ivc-kpi span{display:block;margin-top:5px;font-size:11px;color:var(--g6)}
+.ivc-kpi.n{background:linear-gradient(135deg,#E6ECFB,#fff 80%);border-color:#c6d4f1}.ivc-kpi.n b{color:var(--navy2)}
+.ivc-kpi.t{background:linear-gradient(135deg,#D8F3F2,#fff 80%);border-color:#9bdada}.ivc-kpi.t b{color:#0f8f8f}
+.ivc-kpi.a{background:linear-gradient(135deg,#FEEFC8,#fff 80%);border-color:#efd493}.ivc-kpi.a b{color:#8a5a00}
+.ivc-kpi.p{background:linear-gradient(135deg,#EADDF7,#fff 80%);border-color:#d0bbe9}.ivc-kpi.p b{color:#4b2a7a}
+.ivc-docs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px}.ivc-docs span{font-size:12px;background:var(--g1);border-radius:20px;padding:4px 11px;color:var(--g6)}.ivc-docs b{color:var(--navy)}
+.ivc-h{font-family:var(--font-d);font-size:13px;margin:14px 0 6px;color:var(--navy)}
+.ivc-tw{border:1px solid var(--g2);border-radius:12px;overflow:auto;max-height:260px}
+.ivc-t{width:100%;border-collapse:collapse;font-size:12.5px}
+.ivc-t th{position:sticky;top:0;background:#F1F5FC;color:var(--navy2);font-size:10px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;text-align:left;padding:8px 10px;border-bottom:2px solid var(--navy2)}
+.ivc-t td{padding:7px 10px;border-bottom:1px solid var(--g2)}.ivc-t .n{text-align:right;font-variant-numeric:tabular-nums}
+@media (max-width:560px){.ivc-grid{grid-template-columns:minmax(0,1fr)}#modal-iv-carga .modal-foot .appbtn{flex:1}}
 </style>
 </head>
 <body>
@@ -2770,7 +2800,8 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
     </div>
     <div class="card screen2" id="app-screen-inv">
       <div class="iv-hero"><div class="ico">📦</div><div><h1>Inventario</h1><p>Farmacia y mostrador · existencias por lote y caducidad</p></div>
-        <div class="acts"><button type="button" class="iv-hbtn" id="iv-h-xls">⬇ Descargar Excel</button><button type="button" class="iv-hbtn" data-ivt="flash">⚡ Flash report</button><button type="button" class="iv-hbtn" data-ivt="conteo">🧮 Conteo físico</button><button type="button" class="iv-hbtn solid" data-ivt="ent">➕ Registrar entrada</button></div></div>
+        <div class="acts"><button type="button" class="iv-hbtn solid" id="iv-h-carga" style="display:none">⬆ Cargar base</button><input type="file" id="iv-f-carga" accept=".xlsx,.xls" hidden/><button type="button" class="iv-hbtn" id="iv-h-xls">⬇ Descargar Excel</button><button type="button" class="iv-hbtn" data-ivt="flash">⚡ Flash report</button><button type="button" class="iv-hbtn" data-ivt="conteo">🧮 Conteo físico</button><button type="button" class="iv-hbtn solid" data-ivt="ent">➕ Registrar entrada</button></div></div>
+      <div class="iv-upd" id="iv-upd">🕒 <span>Cargando fecha de actualización…</span></div>
       <div class="iv-tabs" id="iv-tabs">
         <button type="button" data-ivt="exist" class="on">📦 Existencias <em id="iv-n-exist">—</em></button>
         <button type="button" data-ivt="ent">🚚 Entradas</button>
@@ -3113,6 +3144,14 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 
 <!-- ══════════ Modal: Editar gasto ══════════ -->
 <!-- ══════════ Modal: Cargar venta de farmacia (solo administrador) ══════════ -->
+<div class="modal-overlay" id="modal-iv-carga">
+  <div class="modal-box">
+    <div class="modal-head"><h3 id="ivc-titulo">⬆ Cargar base de inventario</h3><button class="modal-close" type="button" data-ivc="cerrar">✕</button></div>
+    <div class="modal-body" id="ivc-body"></div>
+    <div class="modal-foot" id="ivc-foot"></div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="modal-farmacia">
   <div class="modal-box" style="max-width:860px">
     <div class="modal-head"><h3>⬆ Cargar venta de farmacia</h3><button class="modal-close" id="farm-btn-cerrar" type="button">✕</button></div>
@@ -3255,7 +3294,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.11.23-119';
+const APP_VERSION = 'v2026.11.23-120';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 
@@ -10417,6 +10456,7 @@ async function renderConfigPersonal(){
         <label class="perm-chip cfg-p-comisiones-wrap ${p.permisos?.puede_ver_comisiones ? 'on' : ''}"><input type="checkbox" class="cfg-p-comisiones" ${p.permisos?.puede_ver_comisiones ? 'checked':''}/><span class="ico">💰</span>Comisiones</label>
         <label class="perm-chip cfg-p-productos-wrap ${p.permisos?.puede_alta_productos ? 'on' : ''}" title="Puede dar de alta productos de farmacia (solo eso en Configuración, sin editar)"><input type="checkbox" class="cfg-p-productos" ${p.permisos?.puede_alta_productos ? 'checked':''}/><span class="ico">🛒</span>Productos</label>
         <label class="perm-chip cfg-p-editprod-wrap ${p.permisos?.puede_editar_productos ? 'on' : ''}" title="Puede editar el catálogo de farmacia: cambiar precios y activar/desactivar productos (no eliminar)"><input type="checkbox" class="cfg-p-editprod" ${p.permisos?.puede_editar_productos ? 'checked':''}/><span class="ico">✏️</span>Editar productos</label>
+        <label class="perm-chip cfg-p-cargainv-wrap ${p.permisos?.puede_cargar_inventario ? 'on' : ''}" title="Puede cargar el reporte de inventario (botón Cargar base en Inventario)"><input type="checkbox" class="cfg-p-cargainv" ${p.permisos?.puede_cargar_inventario ? 'checked':''}/><span class="ico">📦</span>Cargar inventario</label>
         <label class="perm-chip cfg-p-papelera-wrap ${p.permisos?.puede_eliminar_papelera !== false ? 'on' : ''}"><input type="checkbox" class="cfg-p-papelera" ${p.permisos?.puede_eliminar_papelera !== false ? 'checked':''}/><span class="ico">🗑️</span>Papelera</label>
       </div>
       <div class="cardC-right">
@@ -10446,6 +10486,7 @@ async function renderConfigPersonal(){
 
     const guardarPermisos = async ()=>{
       const permisos = {
+        ...((lista.find(x => x.id === id) || {}).permisos || {}),   // conserva permisos sin casilla (p. ej. puede_ver_rentabilidad)
         puede_exportar: card.querySelector('.cfg-p-exportar').checked,
         puede_ver_dashboard: card.querySelector('.cfg-p-dashboard').checked,
         puede_ver_gastos: card.querySelector('.cfg-p-gastos').checked,
@@ -10453,6 +10494,7 @@ async function renderConfigPersonal(){
         puede_eliminar_papelera: card.querySelector('.cfg-p-papelera').checked,
         puede_alta_productos: card.querySelector('.cfg-p-productos').checked,
         puede_editar_productos: card.querySelector('.cfg-p-editprod').checked,
+        puede_cargar_inventario: card.querySelector('.cfg-p-cargainv').checked,
       };
       const ok = await catalogoActualizar('personal', id, { permisos });
       if(ok) toast('✓ Guardado');
@@ -12096,15 +12138,16 @@ function invEstado(p){
 // Recepción solo consulta; entradas, conteo, mermas, lotes y mínimos son de administración (la base también lo valida).
 const invEdita = () => MI_PERFIL?.rol === 'admin';
 function invAplicarPermisos(){
+  { const b = document.getElementById('iv-h-carga'); if(b) b.style.display = invPuedeCargar() ? '' : 'none'; }
   document.querySelectorAll('#app-screen-inv [data-ivt="ent"], #app-screen-inv [data-ivt="conteo"]').forEach(b => b.style.display = invEdita() ? '' : 'none');
 }
 async function invCargar(){
-  invAplicarPermisos();
+  invAplicarPermisos(); invCargarUltima();
   if(!invEdita() && (INV_TAB === 'ent' || INV_TAB === 'conteo')) INV_TAB = 'exist';
   const desde = new Date(); desde.setDate(desde.getDate() - 120);
   const d0 = isoLocal(desde);
   const [rp, rl, rm, rv] = await Promise.all([
-    sb.from('farmacia_productos').select('id,clave,nombre,precio,grupo,activo,existencia,stock_minimo,piezas,dueno_id').order('nombre').limit(3000),
+    sb.from('farmacia_productos').select('id,clave,claves_alt,nombre,precio,grupo,activo,existencia,stock_minimo,piezas,dueno_id').order('nombre').limit(3000),
     sb.from('inventario_lotes').select('id,producto_id,lote,caducidad,cantidad,costo_unitario,created_at').limit(5000),
     sb.from('inventario_movimientos').select('id,fecha,tipo,producto_id,lote_id,cantidad,costo_unitario,caducidad,venta_id,proveedor,num_factura,nota,created_at,quien:personal!creado_por(nombre)').gte('fecha', d0).order('fecha', { ascending:false }).order('created_at', { ascending:false }).limit(5000),
     sb.from('farmacia_ventas').select('id,fecha,producto_id,medicamento,cantidad,monto').gte('fecha', d0).limit(5000),
@@ -12287,6 +12330,139 @@ async function invEditarCad(loteId){
   toast('✓ Caducidad actualizada'); await invCargar(); invAbrir(l.producto_id);
 }
 // ── Descarga directa del inventario en Excel: una hoja con todo y una por dueño ──
+/* ── Cargar base: reporte de Aspel (hojas Reporte, DR. y DRA.) ── */
+const INV_MESES_ES = {enero:1,febrero:2,marzo:3,abril:4,mayo:5,junio:6,julio:7,agosto:8,septiembre:9,setiembre:9,octubre:10,noviembre:11,diciembre:12};
+let INV_ULT = null, INV_CARGA = null; const INV_CARGA_CLAVES = new Set();
+const invPuedeCargar = () => MI_PERFIL?.rol === 'admin' || MI_PERFIL?.permisos?.puede_cargar_inventario === true;
+const invFmtCorte = iso => new Date(iso).toLocaleString('es-MX', { day:'numeric', month:'long', year:'numeric', hour:'numeric', minute:'2-digit', hour12:true, timeZone:'America/Mexico_City' });
+const invFechaMX = iso => new Date(iso).toLocaleDateString('en-CA', { timeZone:'America/Mexico_City' });
+async function invCargarUltima(){
+  try{
+    const { data, error } = await sb.from('inventario_cargas').select('corte,created_at,archivo,usuario_nombre,ajustados,piezas_totales').order('corte', { ascending:false }).limit(1);
+    if(error) throw error;
+    INV_ULT = (data || [])[0] || null;
+  }catch(e){ INV_ULT = null; console.warn('[SkinFabric] Sin bitácora de cargas de inventario:', e && e.message); }
+  invPintarUltima();
+}
+function invPintarUltima(){
+  const el = document.getElementById('iv-upd'); if(!el) return;
+  if(!INV_ULT){ el.className = 'iv-upd old'; el.innerHTML = '🕒 <span>Todavía no hay una actualización registrada del inventario.</span>'; return; }
+  const dd = -invDias(invFechaMX(INV_ULT.corte)), cuando = dd <= 0 ? 'hoy' : dd === 1 ? 'ayer' : 'hace ' + dd + ' días';
+  el.className = 'iv-upd' + (dd > 7 ? ' old' : '');
+  el.innerHTML = `🕒 <span>Última actualización del inventario: <b>${esc2(invFmtCorte(INV_ULT.corte))}</b> (${cuando})${INV_ULT.usuario_nombre ? ` · cargó <b>${esc2(INV_ULT.usuario_nombre)}</b>` : ''}</span>`;
+}
+// Lee el archivo exactamente como sale de Aspel: hoja "Reporte" (con la fecha y hora de generación), "DR." y "DRA.".
+function invParseReporte(buf, nombre){
+  const wb = XLSX.read(buf, { type:'array' }), norm = s => String(s == null ? '' : s).trim().toUpperCase().replace(/\.$/, '');
+  const sh = {}; wb.SheetNames.forEach(n => { sh[norm(n)] = wb.Sheets[n]; });
+  if(!sh.REPORTE) throw new Error('No encuentro la hoja “Reporte” en el archivo.');
+  if(!sh.DR || !sh.DRA) throw new Error('Faltan las hojas “DR.” y “DRA.” en el archivo.');
+  const filas = n => XLSX.utils.sheet_to_json(sh[n], { header:1, raw:true, defval:null, blankrows:false });
+  const rep = filas('REPORTE');
+  let corte = null;
+  for(const r of rep.slice(0, 12)){
+    const m = String((r && r[0]) || '').match(/generado el\s+(\d{1,2})\s+([A-Za-zÁÉÍÓÚáéíóú]+),?\s+(\d{4}),?\s+(\d{1,2}):(\d{2})\s*([AaPp])\.?\s*[Mm]/);
+    const mes = m && INV_MESES_ES[m[2].toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')];
+    if(m && mes){ const h = (+m[4] % 12) + (/p/i.test(m[6]) ? 12 : 0); corte = `${m[3]}-${String(mes).padStart(2, '0')}-${m[1].padStart(2, '0')}T${String(h).padStart(2, '0')}:${m[5]}:00-06:00`; break; }
+  }
+  if(!corte) throw new Error('No encuentro la fecha y hora de generación del reporte (renglón “Reporte generado el …”).');
+  const cab = rows => rows.findIndex(r => r && norm(r[0]) === 'CLAVE');
+  const hi = cab(rep);
+  if(hi < 0 || !/^DESCRIP/i.test(norm(rep[hi][1])) || !/COSTO/i.test(norm(rep[hi][3]))) throw new Error('El archivo no tiene la estructura esperada (Clave, Descripción, existencia, Costo Promedio Neto).');
+  const num = v => { const n = Number(v); return Number.isFinite(n) ? n : 0; };
+  const prods = [], malas = [];
+  rep.slice(hi + 1).forEach((r, i) => { if(!r || r[0] == null || String(r[0]).trim() === '') return;
+    if(r[2] != null && !Number.isFinite(Number(r[2]))) malas.push(hi + 2 + i);
+    prods.push({ clave:String(r[0]).trim(), inv:num(r[2]), costo:num(r[3]) }); });
+  if(malas.length) throw new Error('La existencia no es un número en los renglones: ' + malas.slice(0, 8).join(', ') + '.');
+  if(!prods.length) throw new Error('La hoja “Reporte” no trae productos.');
+  const hoja = n => { const rows = filas(n), h = cab(rows); if(h < 0) throw new Error('La hoja “' + n + '.” no tiene el encabezado “Clave”.');
+    return rows.slice(h + 1).filter(r => r && r[0] != null && String(r[0]).trim() !== '').map(r => ({ clave:String(r[0]).trim(), q:num(r[2]) })); };
+  return { archivo:nombre, corte, filas:prods, dr:hoja('DR'), dra:hoja('DRA') };
+}
+function invCargaPintar(titulo, body, foot){
+  document.getElementById('ivc-titulo').textContent = titulo;
+  document.getElementById('ivc-body').innerHTML = body; document.getElementById('ivc-foot').innerHTML = foot;
+  document.getElementById('modal-iv-carga').classList.add('show');
+}
+function invCargaCerrar(){ document.getElementById('modal-iv-carga').classList.remove('show'); INV_CARGA = null; }
+const invBtnCerrar = '<button class="appbtn appbtn-s" type="button" data-ivc="cerrar">Cerrar</button>';
+const invCajaMsg = (cls, html) => `<div class="ivc-msg ${cls}">${html}</div>`;
+function invCargaVista(c){
+  const pzas = c.filas.reduce((a, f) => a + Math.max(0, f.inv), 0), conEx = c.filas.filter(f => f.inv > 0).length;
+  const t = new Date(c.corte).getTime(), u = INV_ULT ? new Date(INV_ULT.corte).getTime() : null;
+  const viejo = u != null && t < u, igual = u != null && t === u;
+  const msg = viejo ? invCajaMsg('r', `⛔ Este reporte (${esc2(invFmtCorte(c.corte))}) es más viejo que la última carga (${esc2(invFmtCorte(INV_ULT.corte))}). Carga uno más reciente.`)
+    : igual ? invCajaMsg('a', 'ℹ️ Este reporte ya se cargó. No hay nada que actualizar.') : '';
+  invCargaPintar('⬆ Cargar base de inventario', `
+    <div class="ivc-grid">
+      <div class="ivc-k"><span>Archivo</span><b title="${esc2(c.archivo)}">${esc2(c.archivo)}</b></div>
+      <div class="ivc-k"><span>Reporte generado</span><b>${esc2(invFmtCorte(c.corte))}</b></div>
+      <div class="ivc-k"><span>Productos en el reporte</span><b>${c.filas.length} · ${conEx} con existencia</b></div>
+      <div class="ivc-k"><span>Piezas en el reporte</span><b>${pzas}</b></div>
+    </div>${msg}
+    <p class="ivc-nota">Al cargar, la existencia de cada producto queda igual al reporte, menos lo que se haya vendido en la app después de la hora del reporte. Cada ajuste queda en Movimientos y el dueño de cada producto se toma de las hojas DR. y DRA.</p>`,
+    `<button class="appbtn appbtn-s" type="button" data-ivc="cerrar" style="background:var(--g1);color:var(--g6);box-shadow:none">Cancelar</button><button class="appbtn appbtn-p" type="button" id="ivc-ok" data-ivc="aplicar"${viejo || igual ? ' disabled' : ''}>Cargar inventario</button>`);
+}
+async function invCargaArchivo(file){
+  if(!file) return;
+  if(!invPuedeCargar()){ toast('No tienes permiso para cargar el inventario.'); return; }
+  try{
+    INV_CARGA = invParseReporte(await file.arrayBuffer(), file.name);
+    invCargaVista(INV_CARGA);
+  }catch(e){
+    console.warn('[SkinFabric] Archivo de inventario no válido:', e);
+    INV_CARGA = null;
+    invCargaPintar('No se pudo leer el archivo', invCajaMsg('r', esc2(e.message || 'El archivo no es válido.')) + '<p class="ivc-nota">Sube el archivo tal como lo genera Aspel: hojas “Reporte”, “DR.” y “DRA.”.</p>', invBtnCerrar);
+  }
+}
+async function invCargaAplicar(){
+  const c = INV_CARGA, ok = document.getElementById('ivc-ok'); if(!c || !ok) return;
+  ok.disabled = true; ok.textContent = '⏳ Cargando…';
+  try{
+    const { data, error } = await sb.rpc('inv_cargar_reporte', { p_reporte:{ filas:c.filas, dr:c.dr, dra:c.dra }, p_corte:c.corte, p_archivo:c.archivo });
+    if(error) throw error;
+    c.filas.forEach(f => INV_CARGA_CLAVES.add(String(f.clave).trim().toUpperCase()));
+    await invCargar();
+    invCargaResultado(data || {}, c);
+  }catch(e){
+    console.error('[SkinFabric] Error cargando el reporte de inventario:', e);
+    invCargaPintar('No se pudo cargar', invCajaMsg('r', esc2((e && e.message) || 'Error desconocido.')) + '<p class="ivc-nota">No se cambió nada en el inventario. Corrige el archivo y vuelve a intentarlo.</p>', invBtnCerrar);
+  }
+}
+function invCargaResultado(r, c){
+  if(r.ya_aplicado){ invCargaPintar('Reporte ya cargado', invCajaMsg('a', 'ℹ️ Este reporte (' + esc2(invFmtCorte(r.corte || c.corte)) + ') ya estaba cargado. No se cambió nada.'), invBtnCerrar); return; }
+  const camb = r.cambios || [], adv = r.advertencias || [], docs = r.por_doctor || [];
+  const k = (n, l, cls) => `<div class="ivc-kpi ${cls || ''}"><b>${n}</b><span>${l}</span></div>`;
+  invCargaPintar('✅ Inventario actualizado', `
+    <p class="ivc-sub">Reporte del <b>${esc2(invFmtCorte(r.corte || c.corte))}</b>${INV_ULT && INV_ULT.usuario_nombre ? ' · cargó <b>' + esc2(INV_ULT.usuario_nombre) + '</b>' : ''}</p>
+    <div class="ivc-kpis">${k(r.ajustados || 0, 'productos ajustados', 'n')}${k(r.productos_con_existencia || 0, 'productos con existencia', 't')}${k((r.piezas_totales || 0).toLocaleString('es-MX'), 'piezas en total', 'a')}${r.duenos_cambiados ? k(r.duenos_cambiados, 'cambiaron de dueño', 'p') : ''}</div>
+    ${docs.length ? `<div class="ivc-docs">${docs.map(d => `<span><b>${esc2(d.doctor)}</b> · ${d.productos} productos · ${d.piezas} pzas</span>`).join('')}</div>` : ''}
+    ${camb.length ? `<h4 class="ivc-h">Cambios aplicados</h4><div class="ivc-tw"><table class="ivc-t"><thead><tr><th>Producto</th><th class="n">Antes</th><th class="n">Ahora</th></tr></thead><tbody>${camb.map(x => `<tr><td>${esc2(x.producto)}</td><td class="n">${x.antes}</td><td class="n"><b>${x.despues}</b></td></tr>`).join('')}</tbody></table></div>` : invCajaMsg('g', '👌 El sistema ya coincidía con el reporte: no hubo que ajustar ningún producto.')}
+    ${adv.length ? `<h4 class="ivc-h">Avisos</h4>${invCajaMsg('a', '<ul>' + adv.map(a => '<li>' + esc2(a.texto || a) + '</li>').join('') + '</ul>')}` : ''}`,
+    `<button class="appbtn appbtn-s" type="button" data-ivc="cerrar" style="background:var(--g1);color:var(--g6);box-shadow:none">Cerrar</button><button class="appbtn appbtn-p" type="button" data-ivc="excel">⬇ Descargar Excel actualizado</button>`);
+}
+// Excel del inventario ya actualizado, con la misma estructura del reporte (Reporte, DR., DRA.): se puede volver a subir tal cual.
+function invDescargarActualizado(){
+  const norm = s => String(s || '').trim().toUpperCase(), cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+  const baseDe = p => { const c = String(p.clave || '').trim(), b = c.replace(/\s+DRA$/i, ''); return b !== c && INV_P.some(x => norm(x.clave) === norm(b)) ? b : c; };
+  const enArchivo = p => INV_CARGA_CLAVES.has(norm(p.clave)) || INV_CARGA_CLAVES.has(norm(baseDe(p))) || String(p.claves_alt || '').split(',').some(a => a.trim() && INV_CARGA_CLAVES.has(norm(a)));
+  const L = INV_P.filter(p => p.clave && ((p.existencia || 0) !== 0 || enArchivo(p))).sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
+  const limpio = p => String(p.nombre).replace(/\s*\((Dr\.|Dra\.)[^)]*\)\s*$/, '');
+  const cab = ['Clave', 'Descripción', 'Skin Fabric S.C.', 'Costo Promedio Neto', 'Precio Neto'];
+  const fila = p => [baseDe(p), limpio(p), p.existencia || 0, invCostoDe(p), Number(p.precio) || 0];
+  const juntos = new Map(); L.forEach(p => { const f = fila(p), k = f[0], x = juntos.get(k); if(x){ x[2] += f[2]; x[3] = x[3] || f[3]; } else juntos.set(k, f); });
+  const ahora = new Date(), f = o => new Intl.DateTimeFormat('es-MX', Object.assign({ timeZone:'America/Mexico_City' }, o)).format(ahora);
+  const h24 = (+f({ hour:'2-digit', hour12:false })) % 24, txt = `Reporte generado el ${f({ day:'numeric' })} ${cap(f({ month:'long' }))}, ${f({ year:'numeric' })}, ${String(h24 % 12 || 12).padStart(2, '0')}:${f({ minute:'2-digit' }).padStart(2, '0')} ${h24 >= 12 ? 'PM' : 'AM'}`;
+  const sheet = (rows, anchos) => { const ws = XLSX.utils.aoa_to_sheet(rows); ws['!cols'] = anchos.map(w => ({ wch:w })); return ws; };
+  const meta = [['Reporte de inventario "Empresa de Skin Fabric"'], [txt], ['Almacenes:', ''], ['Listas de precios:', 'A'], ['Configuración utilidad:', 'Margen'], ['Generado por:', 'SKIN FABRIC (app)'], []];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, sheet(meta.concat([cab], [...juntos.values()]), [18, 58, 16, 20, 12]), 'Reporte');
+  XLSX.utils.book_append_sheet(wb, sheet([cab].concat(L.filter(p => /carlos/i.test(invDuenoNombre(p.dueno_id))).map(fila)), [18, 58, 16, 20, 12]), 'DR.');
+  XLSX.utils.book_append_sheet(wb, sheet([cab].concat(L.filter(p => /alejandra/i.test(invDuenoNombre(p.dueno_id))).map(fila)), [18, 58, 16, 20, 12]), 'DRA.');
+  XLSX.writeFile(wb, `inventario_actualizado_${isoLocal(new Date())}.xlsx`);
+}
+
 async function invDescargarExcel(){
   const btns = ['iv-h-xls'].map(id => document.getElementById(id)).filter(Boolean), t0 = btns.map(b => b.textContent);
   btns.forEach(b => { b.disabled = true; b.textContent = '⏳ Generando…'; });
@@ -12630,6 +12806,9 @@ async function invDescargarPDF(){
   document.getElementById('iv-m-q').addEventListener('input', invRenderMovs);
   document.getElementById('fr-per').addEventListener('click', e => { const b = e.target.closest('button[data-p]'); if(b){ INV_FR = b.dataset.p; invRenderFlash(); } });
   document.getElementById('iv-h-xls').addEventListener('click', invDescargarExcel);
+  document.getElementById('iv-h-carga').addEventListener('click', () => document.getElementById('iv-f-carga').click());
+  document.getElementById('iv-f-carga').addEventListener('change', e => { const f = e.target.files[0]; e.target.value = ''; invCargaArchivo(f); });
+  document.getElementById('modal-iv-carga').addEventListener('click', e => { const b = e.target.closest('[data-ivc]'); if(b){ const a = b.dataset.ivc; if(a === 'cerrar') invCargaCerrar(); else if(a === 'aplicar') invCargaAplicar(); else if(a === 'excel') invDescargarActualizado(); } else if(e.target.id === 'modal-iv-carga') invCargaCerrar(); });
   document.getElementById('fr-dueno').addEventListener('change', invRenderFlash);
   document.getElementById('fr-wa').addEventListener('click', invCopiarWA);
   document.getElementById('fr-pdf').addEventListener('click', invDescargarPDF);
