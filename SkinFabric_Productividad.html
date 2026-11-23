@@ -1874,6 +1874,127 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 #app-screen-rent .wf .tr{grid-column:1}
 #app-screen-rent .wf .vv{grid-column:2}
 #app-screen-rent .prm-tab-btn{padding:7px 12px}}
+/* ═════ REDISEÑO v10: banner, tabs subrayadas, KPIs de color, paneles con encabezado ═════ */
+
+#app-screen-rent::before{display:none}
+#app-screen-rent .rt-hero{margin:-20px -22px 0;padding:22px 24px;color:#fff;display:flex;align-items:center;gap:16px;flex-wrap:wrap;position:relative;overflow:hidden;
+  background:radial-gradient(120% 170% at 100% 0%,#2a5fb0 0%,rgba(42,95,176,0) 55%),radial-gradient(60% 120% at 0% 100%,rgba(42,191,191,.22) 0%,rgba(42,191,191,0) 60%),linear-gradient(135deg,#0B1628 0%,#1B3A6B 100%)}
+#app-screen-rent .rt-hero::after{content:'💊';position:absolute;right:-14px;bottom:-34px;font-size:150px;opacity:.06;transform:rotate(-18deg);pointer-events:none}
+#app-screen-rent .rt-hero .ico{width:54px;height:54px;border-radius:15px;background:linear-gradient(135deg,var(--teal),#1d9a9a);display:grid;place-items:center;font-size:26px;box-shadow:0 8px 20px -6px rgba(42,191,191,.7);flex:none}
+#app-screen-rent .rt-hero .ttl{min-width:200px;flex:1 1 260px;position:relative;z-index:1}
+#app-screen-rent .rt-hero h1{font-family:var(--font-d);font-size:29px;line-height:1.02;margin:0;font-weight:800;letter-spacing:-.2px}
+#app-screen-rent .rt-hero .ttl p{margin:6px 0 0;font-size:13px;opacity:.82;max-width:420px}
+#app-screen-rent .hsx{display:flex;align-items:center;gap:12px 14px;flex-wrap:wrap;position:relative;z-index:1;margin-left:auto}
+#app-screen-rent .hst{display:flex;gap:8px;flex-wrap:wrap}
+#app-screen-rent .hs{min-width:128px;border-radius:12px;padding:9px 13px;background:rgba(255,255,255,.09);box-shadow:inset 0 0 0 1px rgba(255,255,255,.14)}
+#app-screen-rent .hs .l{font-size:9.5px;font-weight:800;letter-spacing:.7px;text-transform:uppercase;opacity:.7}
+#app-screen-rent .hs .v{font-family:var(--font-d);font-size:20px;font-weight:800;line-height:1.1;margin-top:3px;font-variant-numeric:tabular-nums}
+#app-screen-rent .hs .d{font-size:11px;margin-top:2px;opacity:.85}
+#app-screen-rent .hs.t .v{color:#7DE8E8}#app-screen-rent .hs.o .v{color:#FFC38F}
+#app-screen-rent .hs .d b{font-weight:800;color:#7DE8E8}#app-screen-rent .hs .d b.dn2{color:#FFB4B4}
+#app-screen-rent .hact{display:flex;flex-direction:column;align-items:flex-end;gap:7px}
+#app-screen-rent .hpill{font-size:11px;font-weight:700;background:rgba(255,255,255,.12);border-radius:20px;padding:4px 11px;white-space:nowrap;box-shadow:inset 0 0 0 1px rgba(255,255,255,.18)}
+#app-screen-rent .hbtn{font:700 12px var(--font-b);color:#fff;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.28);border-radius:9px;padding:7px 13px;cursor:pointer}
+/* tabs subrayadas */
+#app-screen-rent .rt-tabs{display:flex;gap:2px;margin:0 -22px 14px;padding:0 22px;background:linear-gradient(#f9fbfe,#f1f5fb);border-bottom:1px solid var(--g2);overflow-x:auto;scrollbar-width:thin}
+#app-screen-rent .prm-tab-btn{border:0;border-bottom:3px solid transparent;border-radius:0;background:none;padding:14px 15px 12px;font-size:13px;font-weight:700;color:var(--g6);white-space:nowrap;display:flex;align-items:center;gap:7px;margin-bottom:-1px}
+#app-screen-rent .prm-tab-btn:hover{color:var(--navy);background:rgba(27,58,107,.04)}
+#app-screen-rent .prm-tab-btn.act{background:none;color:var(--navy);border-bottom-color:var(--teal);border-color:transparent transparent var(--teal)}
+#app-screen-rent .prm-tab-btn em{font-style:normal;font-size:10.5px;font-weight:800;border-radius:20px;padding:1px 8px;line-height:1.5}
+#app-screen-rent .prm-tab-btn em.am{background:#FEF3D7;color:#8a5a00}#app-screen-rent .prm-tab-btn em.rd{background:#FDE0E0;color:#B42323;text-align:left}
+#app-screen-rent .prm-tab-btn em:empty{display:none}
+#app-screen-rent .costo-n{font-size:11.5px;color:var(--g6);margin:-4px 0 12px}
+/* segmentados y barras de herramientas */
+#app-screen-rent .pp{background:var(--g1);padding:3px;border-radius:11px;gap:2px;box-shadow:inset 0 0 0 1px var(--g2)}
+#app-screen-rent .pp button{border:0;background:none;border-radius:8px;padding:5px 12px;color:var(--g6)}
+#app-screen-rent .pp button:hover{color:var(--navy)}
+#app-screen-rent .pp button[aria-pressed="true"]{background:#fff;color:var(--navy);box-shadow:0 2px 6px rgba(11,22,40,.14),0 0 0 1px rgba(42,191,191,.35)}
+#app-screen-rent .bar-per,#app-screen-rent .fbar{background:linear-gradient(#f9fbfe,#f3f6fb);border:1px solid var(--g2);border-radius:12px;padding:8px 12px;margin:0 0 12px}
+#app-screen-rent .fbar .fl{font-size:10px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--navy2);padding-right:2px}
+/* insights */
+#app-screen-rent .ia{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:12px}
+#app-screen-rent .ia .a{border-radius:13px;padding:11px 13px;display:grid;grid-template-columns:34px minmax(0,1fr);gap:2px 10px;align-items:start;border:1px solid transparent}
+#app-screen-rent .ia .a .ic{grid-row:1/4;width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-size:16px;background:rgba(255,255,255,.7)}
+#app-screen-rent .ia .a b.t{font-size:9.5px;font-weight:800;letter-spacing:.7px;text-transform:uppercase;opacity:.8}
+#app-screen-rent .ia .a .big{font-family:var(--font-d);font-size:15.5px;font-weight:800;line-height:1.15;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+#app-screen-rent .ia .a .dd{font-size:11.5px;opacity:.9}
+#app-screen-rent .ia .a.g{background:#E2F6EC;border-color:#a9dfc2;color:#14603a}
+#app-screen-rent .ia .a.b{background:#E6ECFB;border-color:#bccbf0;color:#1c3f86}
+#app-screen-rent .ia .a.r{background:#FDE8E8;border-color:#f2bcbc;color:#8a1f1f}
+#app-screen-rent .ia .a.m{background:#FEF3D7;border-color:#efd493;color:#6b4a0d}
+#app-screen-rent .ia .a.p{background:#EFE6F8;border-color:#d6c5ee;color:#4b2a7a}
+/* layout dash: columna de KPIs + gráfica */
+#app-screen-rent .dash{display:grid;grid-template-columns:minmax(250px,292px) minmax(0,1fr);gap:12px;align-items:stretch}
+#app-screen-rent .dash .hero{display:flex;flex-direction:column;gap:10px;grid-template-columns:none}
+#app-screen-rent .dash .hero .k{flex:1 1 auto;display:flex;flex-direction:column;justify-content:center}
+#app-screen-rent .dash .hero .k.main{flex:1.35 1 auto}
+#app-screen-rent .dash .pn{margin:0;display:flex;flex-direction:column}
+#app-screen-rent .dash .pn .tl{flex:1;display:flex;align-items:center}
+#app-screen-rent .dash .pn .tl .chart{width:100%}
+/* KPIs de color */
+#app-screen-rent .k{position:relative;overflow:hidden;background:linear-gradient(135deg,#E6ECFB,#fff 75%);border:1px solid #c6d4f1;border-radius:14px;padding:13px 15px}
+#app-screen-rent .k .l{padding-right:36px;color:var(--navy2);opacity:.75}
+#app-screen-rent .k .ki{position:absolute;top:11px;right:11px;width:30px;height:30px;border-radius:9px;display:grid;place-items:center;font-size:15px;background:rgba(255,255,255,.75);box-shadow:0 1px 3px rgba(11,22,40,.1)}
+#app-screen-rent .k.main{background:radial-gradient(110% 140% at 100% 0%,#2a5fb0 0%,rgba(42,95,176,0) 60%),linear-gradient(135deg,#0B1628,#1B3A6B);border:0}
+#app-screen-rent .k.main .l{color:#fff;opacity:.72}#app-screen-rent .k.main .ki{background:rgba(255,255,255,.14);box-shadow:none}
+#app-screen-rent .k.tl{background:linear-gradient(135deg,#D8F3F2,#fff 75%);border:1px solid #9bdada}#app-screen-rent .k.tl .l{color:#0B6B6B}
+#app-screen-rent .k.wn{background:linear-gradient(135deg,#FEEFC8,#fff 75%);border:1px solid #efd493}#app-screen-rent .k.wn .l{color:#8a5a00}#app-screen-rent .k.wn .v{color:#8a5a00}
+#app-screen-rent .k.gx{background:linear-gradient(135deg,#FCE0CE,#fff 75%);border:1px solid #f1bd98}#app-screen-rent .k.gx .l{color:#a24a1e}#app-screen-rent .k.gx .v{color:#C25A2B}
+#app-screen-rent .k.pu{background:linear-gradient(135deg,#EADDF7,#fff 75%);border:1px solid #d0bbe9}#app-screen-rent .k.pu .l{color:#5a3490}#app-screen-rent .k.pu .v{color:#4b2a7a}
+#app-screen-rent .k .sp{position:absolute;right:12px;top:37px;width:88px;height:27px;pointer-events:none}
+#app-screen-rent .dash .hero .k .v{font-size:25px}#app-screen-rent .dash .hero .k.main .v{font-size:34px}
+#app-screen-rent .kp4 .k .v,#app-screen-rent .kp3 .k .v{font-size:26px}#app-screen-rent .kp4 .k.main .v,#app-screen-rent .kp3 .k.main .v{font-size:32px}
+/* paneles con encabezado */
+#app-screen-rent .pn{border-radius:14px;padding:0 14px 14px;overflow:hidden;box-shadow:0 1px 2px rgba(11,22,40,.03)}
+#app-screen-rent .pn .ph{display:flex;align-items:center;gap:10px 12px;flex-wrap:wrap;margin:0 -14px 12px;padding:11px 14px;background:linear-gradient(#f9fbfe,#f1f5fb);border-bottom:1px solid var(--g2)}
+#app-screen-rent .pn .ph .pt{flex:1 1 220px;min-width:0}
+#app-screen-rent .pn .ph .pt .sub{margin:2px 0 0}
+#app-screen-rent .pn .ph .pp{margin-left:auto}
+#app-screen-rent .pi{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-size:16px;flex:none}
+#app-screen-rent .pi.n{background:linear-gradient(135deg,#1B3A6B,#2f5aa6);box-shadow:0 5px 12px -4px rgba(27,58,107,.6)}
+#app-screen-rent .pi.t{background:linear-gradient(135deg,#2ABFBF,#1d9a9a);box-shadow:0 5px 12px -4px rgba(42,191,191,.7)}
+#app-screen-rent .pi.a{background:linear-gradient(135deg,#F4C05A,#E0A12A);box-shadow:0 5px 12px -4px rgba(224,161,42,.7)}
+#app-screen-rent .pi.o{background:linear-gradient(135deg,#F08A5B,#E0703F);box-shadow:0 5px 12px -4px rgba(224,112,63,.7)}
+#app-screen-rent .pi.p{background:linear-gradient(135deg,#9A6FD0,#7A4DB4);box-shadow:0 5px 12px -4px rgba(122,77,180,.6)}
+#app-screen-rent .pi.b{background:linear-gradient(135deg,#6E8FD0,#4C6FB8);box-shadow:0 5px 12px -4px rgba(76,111,184,.6)}
+#app-screen-rent .pi.r{background:linear-gradient(135deg,#EC6B6B,#D14545);box-shadow:0 5px 12px -4px rgba(209,69,69,.6)}
+#app-screen-rent .pn.pd .ph.dr{background:linear-gradient(90deg,#DCEBFB,#f1f5fb 70%)}
+#app-screen-rent .pn.pd .ph.dra{background:linear-gradient(90deg,#D3F2F2,#f1f5fb 70%)}
+#app-screen-rent .pn.fl{padding:0}#app-screen-rent .pn.fl .ph{margin:0 0 0}#app-screen-rent .pn.fl .tw{margin:0;padding:0}
+#app-screen-rent .pn.fl table{min-width:640px}#app-screen-rent .pn.fl .mini{min-width:0}
+#app-screen-rent .pn.fl th:first-child,#app-screen-rent .pn.fl td:first-child{padding-left:16px}#app-screen-rent .pn.fl th:last-child,#app-screen-rent .pn.fl td:last-child{padding-right:16px}
+#app-screen-rent .pn .tl-h{margin:0}
+#app-screen-rent th{background:#F1F5FC;color:var(--navy2);border-bottom:2px solid var(--navy2)}
+#app-screen-rent tr.tot td{background:#F1F5FC}
+#app-screen-rent tr.hl td{background:#E7F6F6}
+#app-screen-rent .cols2{gap:12px;align-items:stretch}
+#app-screen-rent .bar-per{margin-bottom:8px}
+/* podio con más color */
+#app-screen-rent .pod{border-radius:16px;padding:14px 16px;min-height:150px}
+#app-screen-rent .pod .wm{position:absolute;right:10px;bottom:-14px;font-family:var(--font-d);font-weight:800;font-size:96px;line-height:1;opacity:.1;pointer-events:none}
+#app-screen-rent .pod.p1{background:radial-gradient(110% 140% at 100% 0%,#2a5fb0 0%,rgba(42,95,176,0) 60%),linear-gradient(135deg,#0B1628,#1B3A6B);box-shadow:0 14px 28px -12px rgba(11,22,40,.6)}
+#app-screen-rent .pod.p2{background:linear-gradient(135deg,#DCE7FB,#fff 80%);border-color:#bccbf0}#app-screen-rent .pod.p2 .num{color:#1B3A6B}
+#app-screen-rent .pod.p3{background:linear-gradient(135deg,#FCE0CE,#fff 80%);border-color:#f1bd98}#app-screen-rent .pod.p3 .num{color:#C25A2B}
+#app-screen-rent .pod .num{font-size:28px}
+@media (max-width:1060px){
+  #app-screen-rent .dash{grid-template-columns:minmax(0,1fr)}
+  #app-screen-rent .dash .hero{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+  #app-screen-rent .dash .hero .k.main{grid-column:1/-1}
+  #app-screen-rent .dash .hero.h4 .k:last-child{grid-column:1/-1}
+  #app-screen-rent .ia{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:640px){
+  #app-screen-rent .rt-hero{padding:18px 16px;gap:12px}#app-screen-rent .rt-hero h1{font-size:23px}#app-screen-rent .rt-hero .ico{width:46px;height:46px;font-size:22px}
+  #app-screen-rent .hsx{margin-left:0;width:100%}#app-screen-rent .hst{width:100%}#app-screen-rent .hs{flex:1 1 calc(50% - 8px);min-width:0}#app-screen-rent .hact{flex-direction:row;align-items:center;width:100%;justify-content:space-between}
+  #app-screen-rent .ia{grid-template-columns:minmax(0,1fr)}
+  #app-screen-rent .dash .hero{grid-template-columns:minmax(0,1fr)}
+  #app-screen-rent .pn{padding:0 12px 12px}#app-screen-rent .pn .ph{margin:0 -12px 12px;padding:10px 12px}
+  #app-screen-rent .pn .ph .pp{margin-left:0}
+  #app-screen-rent .k .sp{width:80px}
+}
+@media (max-width:700px){#app-screen-rent .rt-hero{margin:-14px -13px 0}#app-screen-rent .rt-tabs{margin:0 -13px 12px;padding:0 10px}}
+
+@media (max-width:1060px){#app-screen-rent .k .sp{top:30px;height:24px}}
 </style>
 </head>
 <body>
@@ -2404,16 +2525,23 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
     </div>
 
     <div class="card screen2" id="app-screen-rent">
-  <div class="tab-title"><span>💊 Rentabilidad de farmacia</span><small id="rt-stamp"></small></div>
-  <p class="sub" style="margin:0 0 12px">Cuánto entra por ventas de farmacia, cuánto cuesta el producto que se vendió, qué se mueve, qué se queda parado y qué se va a agotar. El costo es una estimación con el último costo conocido de cada producto.</p>
+  <div class="rt-hero">
+    <div class="ico" aria-hidden="true">💊</div>
+    <div class="ttl"><h1>Rentabilidad de farmacia</h1><p>Cuánto entra, cuánto cuesta lo que se vendió, qué se mueve, qué se queda parado y qué se va a agotar.</p></div>
+    <div class="hsx">
+      <div class="hst" id="rt-hsStats"></div>
+      <div class="hact"><span class="hpill" id="rt-stamp"></span><button type="button" class="hbtn" id="rt-refresh">↻ Actualizar</button></div>
+    </div>
+  </div>
 
-  <div class="prm-tabs" id="rt-tabs" role="tablist">
+  <div class="rt-tabs" id="rt-tabs" role="tablist">
     <button type="button" class="prm-tab-btn act" role="tab" data-t="tend">📈 Tendencias</button>
     <button type="button" class="prm-tab-btn" role="tab" data-t="rank">🏆 Ranking de productos</button>
-    <button type="button" class="prm-tab-btn" role="tab" data-t="sm">🧊 Sin movimiento</button>
-    <button type="button" class="prm-tab-btn" role="tab" data-t="ag">⚠️ Por agotarse</button>
+    <button type="button" class="prm-tab-btn" role="tab" data-t="sm">🧊 Sin movimiento <em class="am" id="rt-cntSm"></em></button>
+    <button type="button" class="prm-tab-btn" role="tab" data-t="ag">⚠️ Por agotarse <em class="rd" id="rt-cntAg"></em></button>
     <button type="button" class="prm-tab-btn" role="tab" data-t="doc">👨‍⚕️ Por doctor</button>
   </div>
+  <p class="costo-n">El costo es una estimación con el último costo conocido de cada producto. Marcas y productos salen de la venta registrada.</p>
 
   <div class="bar-per" id="rt-barPer">
     <span class="lb">Periodo</span>
@@ -2423,6 +2551,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
   <!-- ═════ TENDENCIAS ═════ -->
   <section class="pane" id="rt-pane-tend">
     <div class="fbar">
+      <span class="fl">🔎 Filtrar</span>
       <div class="slicer" id="rt-slM">
         <button type="button" class="sl-btn" id="rt-slMb" aria-haspopup="true" aria-expanded="false"><span class="sl-l">Marca</span><span class="sl-v" id="rt-slMv">Todas</span><span class="sl-c" aria-hidden="true">▾</span></button>
         <div class="sl-pop" id="rt-slMp" hidden><input id="rt-slMq" class="sl-q" type="search" placeholder="Buscar marca…" autocomplete="off" aria-label="Buscar marca"><div class="sl-act"><button type="button" class="lk2" data-clr="m">Quitar selección</button><span class="mut">ventas 1 oct – 20 nov</span></div><div class="sl-list" id="rt-slMl"></div></div>
@@ -2434,23 +2563,31 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
       <div class="chips" id="rt-fChips"></div>
       <button type="button" class="btn-o" id="rt-fClr" hidden>Limpiar todo</button>
     </div>
-    <div class="hero h4" id="rt-tHero"></div>
 
-    <div class="pn" style="margin-top:12px">
-      <div class="tl-h"><div><h3>Tendencia de ventas</h3><p class="sub" id="rt-subT"></p></div>
-        <div class="pp" id="rt-tlm" role="group" aria-label="Vista de la línea de tiempo"><button type="button" data-v="mes" aria-pressed="true">Por mes</button><button type="button" data-v="sem" aria-pressed="false">Por semana</button><button type="button" data-v="dia" aria-pressed="false">Por día</button><button type="button" data-v="acu" aria-pressed="false">Acumulado</button></div></div>
-      <div class="tl"><svg class="chart" id="rt-cT" role="img" aria-label="Línea de tiempo de ventas de farmacia"></svg><div class="tip" id="rt-tlTip" hidden></div></div>
-      <div class="legend" id="rt-lgT"></div>
-      <div class="tw" id="rt-mesTb" style="margin-top:12px"><table class="mini" style="min-width:560px"><thead><tr><th>Mes</th><th>Ingresos</th><th>Costo producto</th><th>Margen bruto</th><th>Margen %</th><th>Sin costo</th><th>Compras</th></tr></thead><tbody id="rt-tbMes"></tbody></table></div>
+    <div class="ia" id="rt-tIns"></div>
+
+    <div class="dash">
+      <div class="hero h4" id="rt-tHero"></div>
+      <div class="pn">
+        <div class="ph"><span class="pi n">📈</span><div class="pt"><h3>Tendencia de ventas</h3><p class="sub" id="rt-subT"></p></div>
+          <div class="pp" id="rt-tlm" role="group" aria-label="Vista de la línea de tiempo"><button type="button" data-v="mes" aria-pressed="true">Por mes</button><button type="button" data-v="sem" aria-pressed="false">Por semana</button><button type="button" data-v="dia" aria-pressed="false">Por día</button><button type="button" data-v="acu" aria-pressed="false">Acumulado</button></div></div>
+        <div class="tl"><svg class="chart" id="rt-cT" role="img" aria-label="Línea de tiempo de ventas de farmacia"></svg><div class="tip" id="rt-tlTip" hidden></div></div>
+        <div class="legend" id="rt-lgT"></div>
+      </div>
+    </div>
+
+    <div class="pn fl" id="rt-mesTb" style="margin-top:12px">
+      <div class="ph"><span class="pi a">🗓️</span><div class="pt"><h3>Resumen por mes</h3><p class="sub">Del ingreso al margen, mes contra mes. El mes en curso va al corte de hoy.</p></div></div>
+      <div class="tw"><table class="mini" style="min-width:560px"><thead><tr><th>Mes</th><th>Ingresos</th><th>Costo producto</th><th>Margen bruto</th><th>Margen %</th><th>Sin costo</th><th>Compras</th></tr></thead><tbody id="rt-tbMes"></tbody></table></div>
     </div>
 
     <div class="cols2">
-      <div class="pn"><div class="tl-h"><div><h3 id="rt-tC">Ranking</h3><p class="sub" id="rt-subC"></p></div><div class="pp" id="rt-rkv" role="group" aria-label="Ver ranking por"><button type="button" data-v="m" aria-pressed="false">Marcas</button><button type="button" data-v="p" aria-pressed="false">Productos</button></div></div><div id="rt-rkC"></div>
+      <div class="pn"><div class="ph"><span class="pi t">🏷️</span><div class="pt"><h3 id="rt-tC">Ranking</h3><p class="sub" id="rt-subC"></p></div><div class="pp" id="rt-rkv" role="group" aria-label="Ver ranking por"><button type="button" data-v="m" aria-pressed="false">Marcas</button><button type="button" data-v="p" aria-pressed="false">Productos</button></div></div><div id="rt-rkC"></div>
         <div class="legend" style="margin-top:10px"><span><i style="background:#B6C2D8"></i><span class="rt-prvl"></span></span><span><i style="background:var(--teal)"></i><span class="rt-curl"></span></span><span class="mut">Toca una barra para filtrar</span></div></div>
-      <div class="pn"><h3 id="rt-tD">Mix de ventas</h3><p class="sub" id="rt-subD"></p><div id="rt-mixD"></div><div class="legend" id="rt-lgD" style="margin-top:10px"></div></div>
+      <div class="pn"><div class="ph"><span class="pi o">🥧</span><div class="pt"><h3 id="rt-tD">Mix de ventas</h3><p class="sub" id="rt-subD"></p></div></div><div id="rt-mixD"></div><div class="legend" id="rt-lgD" style="margin-top:10px"></div></div>
     </div>
-    <div class="pn" id="rt-sinc" style="margin-top:12px" hidden>
-      <h3>Vendidos sin costo capturado</h3><p class="sub" id="rt-subSc"></p>
+    <div class="pn fl" id="rt-sinc" style="margin-top:12px" hidden>
+      <div class="ph"><span class="pi a">🏷️</span><div class="pt"><h3>Vendidos sin costo capturado</h3><p class="sub" id="rt-subSc"></p></div></div>
       <div class="tw"><table class="mini" style="min-width:520px"><thead><tr><th>Producto</th><th>Marca</th><th>Piezas</th><th>Ingresos</th><th>Última venta</th></tr></thead><tbody id="rt-tbSc"></tbody></table></div>
     </div>
     <p class="nota" id="rt-notaT"></p>
@@ -2458,7 +2595,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 
   <!-- ═════ RANKING ═════ -->
   <section class="pane" id="rt-pane-rank" hidden>
-    <div class="bar-per" style="margin-top:-4px">
+    <div class="bar-per">
       <span class="lb">Ordenar por</span>
       <div class="pp" id="rt-ord" role="group" aria-label="Orden del ranking">
         <button type="button" data-o="ing" aria-pressed="true">Ingresos</button>
@@ -2468,16 +2605,19 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
       </div>
     </div>
     <div class="podio" id="rt-podio"></div>
-    <div class="tw"><table>
-      <thead><tr><th>#</th><th style="text-align:left">Producto</th><th>Piezas</th><th>Ingresos</th><th>% del total</th><th>Costo/pza</th><th>Margen $</th><th>Margen %</th><th>Clase</th></tr></thead>
-      <tbody id="rt-tbr"></tbody></table></div>
+    <div class="pn fl">
+      <div class="ph"><span class="pi n">🏆</span><div class="pt"><h3>Todos los productos</h3><p class="sub">Clase ABC por peso en los ingresos, costo y margen de cada producto.</p></div></div>
+      <div class="tw"><table>
+        <thead><tr><th>#</th><th style="text-align:left">Producto</th><th>Piezas</th><th>Ingresos</th><th>% del total</th><th>Costo/pza</th><th>Margen $</th><th>Margen %</th><th>Clase</th></tr></thead>
+        <tbody id="rt-tbr"></tbody></table></div>
+    </div>
     <div class="more"><button type="button" class="btn-o" id="rt-moreR"></button></div>
     <p class="nota"><b>Clase A</b> = los productos que juntos suman el 80% de los ingresos; <b>B</b> = hasta el 95%; <b>C</b> = el resto. Los productos sin costo no cuentan margen y quedan al final cuando se ordena por margen.</p>
   </section>
 
   <!-- ═════ SIN MOVIMIENTO ═════ -->
   <section class="pane" id="rt-pane-sm" hidden>
-    <div class="bar-per" style="margin-top:-4px">
+    <div class="bar-per">
       <span class="lb">Sin ventas en</span>
       <div class="pp" id="rt-dias" role="group" aria-label="Días sin ventas">
         <button type="button" data-d="30" aria-pressed="true">30 días</button>
@@ -2486,42 +2626,53 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
       <span class="mut" style="font-size:11.5px">Productos con existencia que no se han vendido desde esa fecha. No depende del periodo de arriba.</span>
     </div>
     <div class="kp4" id="rt-smK"></div>
-    <div class="tw"><table>
-      <thead><tr><th>Producto</th><th>Dueño</th><th>Existencia</th><th>Última venta</th><th>Días sin venta</th><th>Costo/pza</th><th>Capital a costo</th><th>A precio de venta</th><th>Estado</th></tr></thead>
-      <tbody id="rt-tbsm"></tbody></table></div>
+    <div class="pn fl">
+      <div class="ph"><span class="pi b">🧊</span><div class="pt"><h3>Productos detenidos</h3><p class="sub">Ordenados por el capital que tienen parado, de mayor a menor.</p></div></div>
+      <div class="tw"><table>
+        <thead><tr><th>Producto</th><th>Dueño</th><th>Existencia</th><th>Última venta</th><th>Días sin venta</th><th>Costo/pza</th><th>Capital a costo</th><th>A precio de venta</th><th>Estado</th></tr></thead>
+        <tbody id="rt-tbsm"></tbody></table></div>
+    </div>
     <p class="nota" id="rt-notaS"></p>
   </section>
 
   <!-- ═════ POR AGOTARSE ═════ -->
   <section class="pane" id="rt-pane-ag" hidden>
     <div class="kp3" id="rt-agK"></div>
-    <div class="tw"><table>
-      <thead><tr><th>Producto</th><th>Dueño</th><th>Existencia</th><th>Vendidas 30 días</th><th>Ritmo (pzas/día)</th><th>Cobertura</th><th>Ingresos 30 días</th><th>Estado</th></tr></thead>
-      <tbody id="rt-tbag"></tbody></table></div>
+    <div class="pn fl">
+      <div class="ph"><span class="pi r">⚠️</span><div class="pt"><h3>Productos con poca cobertura</h3><p class="sub">Los que se acaban primero, según el ritmo de venta de los últimos 30 días.</p></div></div>
+      <div class="tw"><table>
+        <thead><tr><th>Producto</th><th>Dueño</th><th>Existencia</th><th>Vendidas 30 días</th><th>Ritmo (pzas/día)</th><th>Cobertura</th><th>Ingresos 30 días</th><th>Estado</th></tr></thead>
+        <tbody id="rt-tbag"></tbody></table></div>
+    </div>
     <p class="nota">Cobertura = existencia ÷ ritmo de ventas de los últimos 30 días. Existencia en cero o negativa significa que se vendió sin stock registrado: conviene revisar el conteo.</p>
   </section>
 
   <!-- ═════ POR DOCTOR ═════ -->
   <section class="pane" id="rt-pane-doc" hidden>
-    <div class="hero h4" id="rt-dK"></div>
+    <div class="dash">
+      <div class="hero h4" id="rt-dK"></div>
+      <div class="pn">
+        <div class="ph"><span class="pi n">👨‍⚕️</span><div class="pt"><h3>Ventas por doctor</h3><p class="sub" id="rt-subDc"></p></div>
+          <div class="pp" id="rt-dlm" role="group" aria-label="Vista de la línea de tiempo por doctor"><button type="button" data-v="mes" aria-pressed="true">Por mes</button><button type="button" data-v="sem" aria-pressed="false">Por semana</button><button type="button" data-v="dia" aria-pressed="false">Por día</button><button type="button" data-v="acu" aria-pressed="false">Acumulado</button></div></div>
+        <div class="tl"><svg class="chart" id="rt-cDc" role="img" aria-label="Línea de tiempo de ventas por doctor"></svg><div class="tip" id="rt-dcTip" hidden></div></div>
+        <div class="legend" id="rt-lgDc"></div>
+      </div>
+    </div>
 
-    <div class="pn" style="margin-top:12px">
-      <div class="tl-h"><div><h3>Ventas por doctor</h3><p class="sub" id="rt-subDc"></p></div>
-        <div class="pp" id="rt-dlm" role="group" aria-label="Vista de la línea de tiempo por doctor"><button type="button" data-v="mes" aria-pressed="true">Por mes</button><button type="button" data-v="sem" aria-pressed="false">Por semana</button><button type="button" data-v="dia" aria-pressed="false">Por día</button><button type="button" data-v="acu" aria-pressed="false">Acumulado</button></div></div>
-      <div class="tl"><svg class="chart" id="rt-cDc" role="img" aria-label="Línea de tiempo de ventas por doctor"></svg><div class="tip" id="rt-dcTip" hidden></div></div>
-      <div class="legend" id="rt-lgDc"></div>
-      <div class="tw" id="rt-dMesTb" style="margin-top:12px"><table class="mini" style="min-width:640px"><thead><tr><th>Doctor</th><th style="text-align:left">Mes</th><th>Ingresos</th><th>Costo producto</th><th>Margen bruto</th><th>Margen %</th><th>Sin costo</th><th>Cambio</th></tr></thead><tbody id="rt-tbDm"></tbody></table></div>
+    <div class="pn fl" id="rt-dMesTb" style="margin-top:12px">
+      <div class="ph"><span class="pi a">🗓️</span><div class="pt"><h3>Resumen mensual por doctor</h3><p class="sub">Ingresos, costo y margen de cada doctor, mes contra mes.</p></div></div>
+      <div class="tw"><table class="mini" style="min-width:640px"><thead><tr><th>Doctor</th><th style="text-align:left">Mes</th><th>Ingresos</th><th>Costo producto</th><th>Margen bruto</th><th>Margen %</th><th>Sin costo</th><th>Cambio</th></tr></thead><tbody id="rt-tbDm"></tbody></table></div>
     </div>
 
     <div class="cols2">
-      <div class="pn"><div class="tl-h"><div><h3>Más vendidos · <span class="chip dr" id="rt-hDr"></span></h3><p class="sub rt-cut"></p></div></div><div id="rt-rkDr"></div></div>
-      <div class="pn"><div class="tl-h"><div><h3>Más vendidos · <span class="chip dra" id="rt-hDra"></span></h3><p class="sub rt-cut"></p></div></div><div id="rt-rkDra"></div></div>
+      <div class="pn pd"><div class="ph dr"><span class="pi n">🏅</span><div class="pt"><h3>Más vendidos · <span class="chip dr" id="rt-hDr"></span></h3><p class="sub rt-cut"></p></div></div><div id="rt-rkDr"></div></div>
+      <div class="pn pd"><div class="ph dra"><span class="pi t">🏅</span><div class="pt"><h3>Más vendidos · <span class="chip dra" id="rt-hDra"></span></h3><p class="sub rt-cut"></p></div></div><div id="rt-rkDra"></div></div>
     </div>
     <div class="legend" style="margin:8px 2px 0"><span><i style="background:#B6C2D8"></i><span class="rt-prvl"></span></span><span><i style="background:var(--teal)"></i><span class="rt-curl"></span></span></div>
 
     <div class="cols2" style="margin-top:12px">
-      <div class="pn"><h3>Mix de marcas por doctor</h3><p class="sub">Qué marcas vende cada uno, del 1 al 20 de cada mes.</p><div id="rt-mixDc"></div><div class="legend" id="rt-lgMx" style="margin-top:10px"></div></div>
-      <div class="pn"><h3>Inventario de cada doctor</h3><p class="sub">Existencia de hoy, valuada al último costo conocido.</p><div id="rt-invDc"></div></div>
+      <div class="pn"><div class="ph"><span class="pi o">🥧</span><div class="pt"><h3>Mix de marcas por doctor</h3><p class="sub">Qué marcas vende cada uno, del 1 al 20 de cada mes.</p></div></div><div id="rt-mixDc"></div><div class="legend" id="rt-lgMx" style="margin-top:10px"></div></div>
+      <div class="pn"><div class="ph"><span class="pi p">📦</span><div class="pt"><h3>Inventario de cada doctor</h3><p class="sub">Existencia de hoy, valuada al último costo conocido.</p></div></div><div id="rt-invDc"></div></div>
     </div>
     <p class="nota" id="rt-docNote"></p>
   </section>
@@ -3104,7 +3255,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.11.21-116';
+const APP_VERSION = 'v2026.11.23-119';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 
@@ -3375,7 +3526,7 @@ function entrarAlShell(perfil){
   document.getElementById('nav-btn-gastos').style.display = showGastos ? '' : 'none';
   document.getElementById('nav-btn-inv').style.display = (perfil.rol === 'admin' || perfil.rol === 'recepcion') ? '' : 'none';   // Inventario: admin (edita) y recepción (solo consulta)
   document.getElementById('nav-btn-rent').style.display = (perfil.rol === 'admin' || perfil.permisos?.puede_ver_rentabilidad === true) ? '' : 'none';   // Rentabilidad de farmacia: admin y quien tenga el permiso puede_ver_rentabilidad (solo lectura)
-  document.getElementById('nav-btn-costeo').style.display = (perfil.rol === 'admin' || esCont) ? '' : 'none';   // Costeo de cabina: admin (edita) y contabilidad (solo consulta)
+  document.getElementById('nav-btn-costeo').style.display = 'none';   // Costeo de cabina: oculto para todos hasta definir cómo queda (el módulo y sus datos siguen intactos; para volver a mostrarlo: (perfil.rol === 'admin' || esCont) ? '' : 'none')
   document.getElementById('nav-btn-nominas').style.display = (perfil.rol === 'admin' || esCont) ? '' : 'none';   // Nóminas: admin (edita) y contabilidad (solo consulta)
   document.getElementById('nav-btn-comisiones').style.display = showComisiones ? '' : 'none';
   document.getElementById('btn-config-header').style.display = showConfig ? 'inline-flex' : 'none';
@@ -4091,6 +4242,7 @@ const COM_REGLAS_DEFAULT = {
     'Dermapen PDRN salmón','Tricopat','Dermapen pelo','Láser luz pulsada','Láser CO2','CO2 flash',
     'Facial limpieza profunda','Facial hidratación','Hydrafacial delux','Hydrafacial platinum','Hydrafacial signature',
     'IPL skin reset','Facial and body reset','Peelings','Facial efecto princesa','Depilación','Facial 3 en 1',
+    'Ultraformer Cara','Ultraformer Cuerpo',   // misma regla que Tricopat: cabina con equipo compartido
   ],
   // Equipo dedicado a cada doctor/a (el resto de la cabina es equipo compartido entre ambos).
   equipo_alejandra: ['Depilación','Facial 3 en 1'],
@@ -12618,7 +12770,7 @@ async function invDescargarPDF(){
     L = L.slice().sort((a, b) => key(b) - key(a));
     if(!L.length){ $('podio').innerHTML = '<div class="alert am" style="grid-column:1/-1;margin:0"><span>Sin ventas en este periodo.</span></div>'; $('tbr').innerHTML = ''; $('moreR').parentElement.hidden = true; return; }
     const val = x => ORD === 'pzs' ? x.q + ' pzas' : ORD === 'mg' ? (x.mg == null ? 'sin costo' : mx(x.mg)) : ORD === 'mp' ? (x.mp == null ? 'sin costo' : pc(x.mp)) : mx(x.i);
-    $('podio').innerHTML = L.slice(0, 3).map((x, i) => `<div class="pod p${i + 1}"><div class="rk"><span class="medal m${i + 1}">${i + 1}</span>${['Primer lugar','Segundo lugar','Tercer lugar'][i]}</div><div class="nm">${esc(x.n)}</div><div class="num">${val(x)}</div><div class="det">${x.q} piezas · ${mx(x.i)} ingresos · ${x.mp != null ? pc(x.mp) + ' de margen' : 'sin costo'}</div></div>`).join('');
+    $('podio').innerHTML = L.slice(0, 3).map((x, i) => `<div class="pod p${i + 1}"><span class="wm">${i + 1}</span><div class="rk"><span class="medal m${i + 1}">${i + 1}</span>${['Primer lugar','Segundo lugar','Tercer lugar'][i]}</div><div class="nm">${esc(x.n)}</div><div class="num">${val(x)}</div><div class="det">${x.q} piezas · ${mx(x.i)} ingresos · ${x.mp != null ? pc(x.mp) + ' de margen' : 'sin costo'}</div></div>`).join('');
     const lim = VERTODOS ? L.length : 15;
     $('tbr').innerHTML = L.slice(0, lim).map((x, i) => `<tr><td><span class="rkn">${i + 1}</span></td><td class="nom">${esc(x.n)}<br>${dueChip(ownOf(x.p))}</td><td>${x.q}</td><td>${mx(x.i)}</td><td><span class="sh"><i style="width:${Math.max(2, x.sh * 2.4)}px"></i><span>${pc(x.sh)}</span></span></td>
       <td>${x.c != null ? mx2(x.c) : '<span class="chip am">sin costo</span>'}</td><td class="${x.mg == null ? '' : 'pos'}">${x.mg == null ? '—' : mx(x.mg)}</td>
@@ -12630,10 +12782,10 @@ async function invDescargarPDF(){
     qa('#rt-dias button').forEach(b => b.setAttribute('aria-pressed', +b.dataset.d === DIAS ? 'true' : 'false'));
     const L = sinMov(DIAS), cap0 = L.reduce((a, x) => a + costoEx(x.r), 0), capP = L.reduce((a, x) => a + x.r[2] * x.r[4], 0), pz = L.reduce((a, x) => a + x.r[2], 0), sc = L.filter(x => x.r[3] == null).length, pzT = STOCK.reduce((a, r) => a + r[2], 0);
     $('smK').innerHTML = `
-      <div class="k main"><div class="l">Capital detenido (a costo)</div><div class="v">${mx(cap0)}</div><div class="s">${sc ? sc + ' productos sin costo no suman' : 'todos con costo'}</div></div>
-      <div class="k gx"><div class="l">Productos sin movimiento</div><div class="v">${L.length}</div><div class="s">de ${STOCK.length} con existencia (${pc(STOCK.length ? L.length / STOCK.length * 100 : 0)})</div></div>
-      <div class="k"><div class="l">Piezas detenidas</div><div class="v">${pz}</div><div class="s">${pc(pzT ? pz / pzT * 100 : 0)} de las piezas en stock</div></div>
-      <div class="k wn"><div class="l">A precio de venta</div><div class="v">${mx(capP)}</div><div class="s">lo que entraría si se vende todo</div></div>`;
+      <div class="k main"><span class="ki">🧊</span><div class="l">Capital detenido (a costo)</div><div class="v">${mx(cap0)}</div><div class="s">${sc ? sc + ' productos sin costo no suman' : 'todos con costo'}</div></div>
+      <div class="k gx"><span class="ki">📉</span><div class="l">Productos sin movimiento</div><div class="v">${L.length}</div><div class="s">de ${STOCK.length} con existencia (${pc(STOCK.length ? L.length / STOCK.length * 100 : 0)})</div></div>
+      <div class="k"><span class="ki">📦</span><div class="l">Piezas detenidas</div><div class="v">${pz}</div><div class="s">${pc(pzT ? pz / pzT * 100 : 0)} de las piezas en stock</div></div>
+      <div class="k wn"><span class="ki">🏷️</span><div class="l">A precio de venta</div><div class="v">${mx(capP)}</div><div class="s">lo que entraría si se vende todo</div></div>`;
     $('tbsm').innerHTML = L.map(x => { const r = x.r, dd = x.dd;
       const est = dd == null ? `<span class="chip rd">Sin ventas desde ${mCor(WSTART.slice(0, 7)).toLowerCase()}</span>` : dd > 45 ? '<span class="chip rd">Detenido</span>' : '<span class="chip am">Lento</span>';
       return `<tr><td class="nom">${esc(r[0])}</td><td>${dueChip(r[1])}</td><td>${r[2]}</td><td>${r[5] ? fmtF(r[5]) : '—'}</td><td>${dd == null ? dias(WSTART) + '+' : dd}</td><td>${r[3] != null ? mx2(r[3]) : '<span class="chip am">sin costo</span>'}</td><td class="${r[3] != null ? 'neg' : ''}">${r[3] != null ? mx(costoEx(r)) : '—'}</td><td>${mx(r[2] * r[4])}</td><td>${est}</td></tr>`; }).join('')
@@ -12642,9 +12794,9 @@ async function invDescargarPDF(){
   function renderAG(){
     const L = porAgotar(), crit = L.filter(x => x.cob <= 7), venta = L.reduce((a, x) => a + x.r[7], 0), agot = L.filter(x => x.r[2] <= 0);
     $('agK').innerHTML = `
-      <div class="k main"><div class="l">Productos por agotarse</div><div class="v">${L.length}</div><div class="s">con cobertura ≤ 15 días · ${crit.length} críticos (≤ 7 días)</div></div>
-      <div class="k gx"><div class="l">Agotados con demanda</div><div class="v">${agot.length}</div><div class="s">existencia en cero o negativa</div></div>
-      <div class="k wn"><div class="l">Venta mensual en riesgo</div><div class="v">${mx(venta)}</div><div class="s">ingresos de los últimos 30 días de estos productos</div></div>`;
+      <div class="k main"><span class="ki">⚠️</span><div class="l">Productos por agotarse</div><div class="v">${L.length}</div><div class="s">con cobertura ≤ 15 días · ${crit.length} críticos (≤ 7 días)</div></div>
+      <div class="k gx"><span class="ki">🚫</span><div class="l">Agotados con demanda</div><div class="v">${agot.length}</div><div class="s">existencia en cero o negativa</div></div>
+      <div class="k wn"><span class="ki">💸</span><div class="l">Venta mensual en riesgo</div><div class="v">${mx(venta)}</div><div class="s">ingresos de los últimos 30 días de estos productos</div></div>`;
     $('tbag').innerHTML = L.map(x => { const r = x.r, c = x.cob;
       const est = r[2] <= 0 ? '<span class="chip rd">Agotado</span>' : c <= 7 ? '<span class="chip rd">Crítico</span>' : '<span class="chip am">Bajo</span>';
       return `<tr><td class="nom">${esc(r[0])}</td><td>${dueChip(r[1])}</td><td class="${r[2] <= 0 ? 'neg' : ''}">${r[2]}</td><td>${r[6]}</td><td>${x.ritmo.toFixed(2)}</td><td>${r[2] <= 0 ? '0 días' : c < 1 ? '< 1 día' : Math.round(c) + ' días'}</td><td>${mx(r[7])}</td><td>${est}</td></tr>`; }).join('')
@@ -12679,6 +12831,41 @@ async function invDescargarPDF(){
     qa('.rt-cut').forEach(e => e.textContent = `Ingresos del 1 al ${HD} de cada mes.`);
     $('hDr').textContent = DR[0].s; $('hDra').textContent = DR[1].s;
   }
+  /* ── Diseño: banner, alertas y sparklines ── */
+  function spark(vals, stroke, fill){
+    const W = 100, H = 34, top = Math.max(...vals, 1), n = vals.length; if(n < 2) return '';
+    const line = vals.map((v, i) => (i / (n - 1) * W).toFixed(1) + ',' + (H - 3 - v / top * (H - 8)).toFixed(1)).join(' ');
+    return `<svg class="sp" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true"><polygon points="0,${H} ${line} ${W},${H}" fill="${fill}"/><polyline points="${line}" fill="none" stroke="${stroke}" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linejoin="round" stroke-linecap="round"/></svg>`;
+  }
+  function dailyCur(rows){
+    const m = {}; rows.filter(cu).forEach(r => { m[r.iso] = (m[r.iso] || 0) + r.i; });
+    const out = []; for(let d = CURM + '-01'; d <= HOY; d = addD(d, 1)){ if(dowOf(d) === 0 && !m[d]) continue; out.push(m[d] || 0); } return out;
+  }
+  function renderBanner(){
+    const cn = mCor(CURM).toLowerCase(), pn = mCor(PRVM).toLowerCase(), nov = sumF(ALLR, cu), oc = sumF(ALLR, pv), d = oc ? pct(nov, oc) : null;
+    const cF = ROWS.filter(r => cu(r) && r.c != null), cI = cF.reduce((a, r) => a + r.i, 0), cC = cF.reduce((a, r) => a + r.q * r.c, 0), mp = cI ? (cI - cC) / cI * 100 : null;
+    const ag = porAgotar(), crit = ag.filter(x => x.cob <= 7).length, sm = sinMov(30);
+    $('hsStats').innerHTML = `
+      <div class="hs t"><div class="l">Ventas ${cn} (al ${HD})</div><div class="v">${mx(nov)}</div><div class="d">${d == null ? '' : `<b class="${d >= 0 ? '' : 'dn2'}">${sg(d)}</b> vs ${pn} ${cutTxt()}`}</div></div>
+      <div class="hs"><div class="l">Margen bruto ${cn}</div><div class="v">${mp == null ? 'n/d' : pc(mp)}</div><div class="d">${mp == null ? 'sin costo capturado' : 'sobre lo costeado'}</div></div>
+      <div class="hs o"><div class="l">Por agotarse</div><div class="v">${ag.length}</div><div class="d">${crit} críticos · ${sm.length} detenidos</div></div>`;
+    $('cntSm').textContent = sm.length || ''; $('cntAg').textContent = ag.length || '';
+  }
+  function renderIns(){
+    const cn = lcMes(CURM), pn = mCor(PRVM).toLowerCase(), prod = {}, br = {};
+    ROWS.forEach(r => { if(cu(r)){ const x = prod[r.p] || (prod[r.p] = {i: 0, q: 0}); x.i += r.i; x.q += r.q; }
+      const b = PRODS[r.p][1], y = br[b] || (br[b] = {o: 0, n: 0}); if(pv(r)) y.o += r.i; if(cu(r)) y.n += r.i; });
+    const tot = sumF(ROWS, cu), top = Object.entries(prod).sort((a, b) => b[1].i - a[1].i)[0];
+    if(!top){ $('tIns').innerHTML = ''; return; }
+    const bl = Object.entries(br).map(([k, v]) => ({k, o: v.o, n: v.n, df: v.n - v.o})).sort((a, b) => b.df - a.df), up = bl[0], dn = bl[bl.length - 1], vs = `vs ${pn} ${cutTxt()}`;
+    const sc = ROWS.filter(r => cu(r) && r.c == null), scI = sc.reduce((a, r) => a + r.i, 0), scN = new Set(sc.map(r => r.p)).size;
+    const card = (cls, ic, t, big, dd) => `<div class="a ${cls}"><span class="ic">${ic}</span><b class="t">${t}</b><div class="big">${big}</div><div class="dd">${dd}</div></div>`;
+    $('tIns').innerHTML =
+      card('g', '⭐', `Producto estrella de ${cn}`, esc(PRODS[top[0]][0]), `${mx(top[1].i)} · ${top[1].q} pzas · ${pc(tot ? top[1].i / tot * 100 : 0)} de las ventas`) +
+      (up && up.df > 0 ? card('b', '🚀', 'Marca que más crece', esc(up.k), `+${mx(up.df)} ${vs} · ${up.o ? sg(pct(up.n, up.o)) : 'nueva'}`) : card('m', '➖', 'Marca que más crece', 'Ninguna crece', `todas igual o abajo del ${cutTxt()} de ${lcMes(PRVM)}`)) +
+      (dn && dn.df < 0 ? card('r', '📉', 'Marca que más cae', esc(dn.k), `−${mx(-dn.df)} ${vs} · ${sg(pct(dn.n, dn.o))}`) : card('g', '✅', 'Marca que más cae', 'Ninguna cae', `todas arriba del ${cutTxt()} de ${lcMes(PRVM)}`)) +
+      card('m', '🏷️', `Ventas sin costo (${cn})`, mx(scI), `${scN} producto${scN === 1 ? '' : 's'} · ${pc(tot ? scI / tot * 100 : 0)} de las ventas, sin margen`);
+  }
   function renderTend(){
     slRender('m'); slRender('p');
     $('fChips').innerHTML = [...TF.marcas].map(m => `<button type="button" class="cx" data-k="m" data-v="${esc(m)}" title="Quitar">${esc(m)} ✕</button>`).join('') + [...TF.prods].map(i => `<button type="button" class="cx" data-k="p" data-v="${i}" title="Quitar">${esc(PRODS[i][0].length > 34 ? PRODS[i][0].slice(0, 33) + '…' : PRODS[i][0])} ✕</button>`).join('');
@@ -12688,12 +12875,12 @@ async function invDescargarPDF(){
     const cF = F.filter(r => cu(r) && r.c != null), cI = cF.reduce((a, r) => a + r.i, 0), cC = cF.reduce((a, r) => a + r.q * r.c, 0), mg = cI - cC, mp = cI ? mg / cI * 100 : null, sinc = nov - cI;
     const d = oc20 > 0 ? pct(nov, oc20) : null, cn = lcMes(CURM), pn = lcMes(PRVM);
     $('tHero').innerHTML = `
-      <div class="k main"><div class="l">Ventas de ${cn} (al ${HD})</div><div class="v">${mx(nov)}</div><div class="s">${d == null ? `<span class="up">nuevo</span> sin ventas en ${pn}` : `<span class="${d >= 0 ? 'up' : 'dn'}">${sg(d)}</span> contra el ${cutTxt()} de ${pn} (${mx(oc20)})`}</div></div>
-      <div class="k"><div class="l">Piezas vendidas</div><div class="v">${q11}</div><div class="s">${dchip(q11, q10)} vs ${mCor(PRVM).toLowerCase()} ${cutTxt()} (${q10} pzas)</div></div>
-      <div class="k tl"><div class="l">Peso en la farmacia</div><div class="v">${pc(sh)}</div><div class="s">de las ventas de ${cn} · ${mCor(PRVM).toLowerCase()} ${cutTxt()}: ${pc(sh0)}</div></div>
-      <div class="k ${mp == null ? '' : 'wn'}"><div class="l">Margen bruto</div><div class="v ${mp == null ? 'nd' : ''}">${mp == null ? 'n/d' : mx(mg)}</div><div class="s">${mp == null ? 'sin costo capturado' : `${pc(mp)} sobre lo costeado${sinc > 0 ? ' · ' + mx(sinc) + ' sin costo' : ''}`}</div></div>`;
+      <div class="k main"><span class="ki">💰</span>${spark(dailyCur(F), '#7DE8E8', 'rgba(125,232,232,.22)')}<div class="l">Ventas de ${cn} (al ${HD})</div><div class="v">${mx(nov)}</div><div class="s">${d == null ? `<span class="up">nuevo</span> sin ventas en ${pn}` : `<span class="${d >= 0 ? 'up' : 'dn'}">${sg(d)}</span> contra el ${cutTxt()} de ${pn} (${mx(oc20)})`}</div></div>
+      <div class="k"><span class="ki">📦</span><div class="l">Piezas vendidas</div><div class="v">${q11}</div><div class="s">${dchip(q11, q10)} vs ${mCor(PRVM).toLowerCase()} ${cutTxt()} (${q10} pzas)</div></div>
+      <div class="k tl"><span class="ki">🎯</span><div class="l">Peso en la farmacia</div><div class="v">${pc(sh)}</div><div class="s">de las ventas de ${cn} · ${mCor(PRVM).toLowerCase()} ${cutTxt()}: ${pc(sh0)}</div></div>
+      <div class="k ${mp == null ? '' : 'wn'}"><span class="ki">📈</span><div class="l">Margen bruto</div><div class="v ${mp == null ? 'nd' : ''}">${mp == null ? 'n/d' : mx(mg)}</div><div class="s">${mp == null ? 'sin costo capturado' : `${pc(mp)} sobre lo costeado${sinc > 0 ? ' · ' + mx(sinc) + ' sin costo' : ''}`}</div></div>`;
     qa('#rt-tlm button').forEach(b => b.setAttribute('aria-pressed', b.dataset.v === TLM ? 'true' : 'false'));
-    drawT(F); renderC(); renderD(); renderSinC(F);
+    renderIns(); drawT(F); renderC(); renderD(); renderSinC(F);
     const np = [...NOPROD].map(mLab), first = mLab(WSTART.slice(0, 7)).toLowerCase();
     $('notaT').textContent = (np.length ? `Las ventas con producto ligado empiezan en ${first}; ${np.join(' y ').toLowerCase()} solo tiene el total, por eso con un filtro activo la línea empieza el 1 de ${first}. ` : '')
       + 'Los paquetes “N pzas” se suman a su producto base y usan su costo. ' + `Las comparaciones son al mismo corte (${cutTxt()}). El margen solo cuenta productos con costo capturado; el costo es una estimación con el último costo conocido de cada producto.`;
@@ -12896,11 +13083,11 @@ async function invDescargarPDF(){
     const invK = DR.map(d => { const S = STOCK.filter(r => r[1] === d.k), sm = sinMov(30).filter(x => x.r[1] === d.k), cap0 = S.reduce((a, r) => a + costoEx(r), 0), det = sm.reduce((a, x) => a + costoEx(x.r), 0);
       return {d, S, sm, cap: cap0, det, pv: S.reduce((a, r) => a + r[2] * r[4], 0), pz: S.reduce((a, r) => a + r[2], 0), sinc: S.filter(r => r[3] == null).length}; });
     const card = (i, cls) => { const d = DR[i], M = dMonth(d.k, CURM), ch = o20K[i] > 0 ? pct(nvK[i], o20K[i]) : null;
-      return `<div class="k ${cls}"><div class="l">${esc(d.n)} · ${cn} al ${HD}</div><div class="v">${mx(nvK[i])}</div><div class="s">${ch == null ? '<span class="up">nuevo</span>' : `<span class="${ch >= 0 ? 'up' : 'dn'}">${sg(ch)}</span> contra el ${cutTxt()} de ${lcMes(PRVM)} (${mx(o20K[i])})`} · margen ${M.mp == null ? 'n/d' : pc(M.mp)}</div></div>`; };
+      return `<div class="k ${cls}"><span class="ki">${i ? '👩‍⚕️' : '👨‍⚕️'}</span>${spark(dailyCur(ALLR.filter(r => r.dr === d.k)), i ? '#0B8F8F' : '#7DE8E8', i ? 'rgba(42,191,191,.22)' : 'rgba(125,232,232,.22)')}<div class="l">${esc(d.s)} · ${cn} al ${HD}</div><div class="v">${mx(nvK[i])}</div><div class="s">${ch == null ? '<span class="up">nuevo</span>' : `<span class="${ch >= 0 ? 'up' : 'dn'}">${sg(ch)}</span> contra el ${cutTxt()} de ${lcMes(PRVM)} (${mx(o20K[i])})`} · margen ${M.mp == null ? 'n/d' : pc(M.mp)}</div></div>`; };
     const s0 = tN ? nvK[0] / tN * 100 : 0, s1 = tN ? nvK[1] / tN * 100 : 0, p0 = t20 ? o20K[0] / t20 * 100 : 0, p1 = t20 ? o20K[1] / t20 * 100 : 0, capT = invK.reduce((a, x) => a + x.cap, 0);
     $('dK').innerHTML = card(0, 'main') + card(1, 'tl') + `
-      <div class="k"><div class="l">Reparto de ventas · ${cn} al ${HD}</div><div class="v">${Math.round(s0)}% · ${Math.round(s1)}%</div><div class="shr"><i style="width:${s0}%;background:${DR[0].c}"></i><i style="width:${s1}%;background:${DR[1].c}"></i></div><div class="s">${esc(DR[0].s)} · ${esc(DR[1].s)} — en ${pn} ${cutTxt()}: ${Math.round(p0)}% · ${Math.round(p1)}%</div></div>
-      <div class="k wn"><div class="l">Capital en inventario (a costo)</div><div class="v">${mx(capT)}</div><div class="s">${esc(DR[0].s)} ${mx(invK[0].cap)} · ${esc(DR[1].s)} ${mx(invK[1].cap)}</div></div>`;
+      <div class="k pu"><span class="ki">🥧</span><div class="l">Reparto de ventas · ${cn} al ${HD}</div><div class="v">${Math.round(s0)}% · ${Math.round(s1)}%</div><div class="shr"><i style="width:${s0}%;background:${DR[0].c}"></i><i style="width:${s1}%;background:${DR[1].c}"></i></div><div class="s">${esc(DR[0].s)} · ${esc(DR[1].s)} — en ${pn} ${cutTxt()}: ${Math.round(p0)}% · ${Math.round(p1)}%</div></div>
+      <div class="k wn"><span class="ki">🏦</span><div class="l">Capital en inventario (a costo)</div><div class="v">${mx(capT)}</div><div class="s">${esc(DR[0].s)} ${mx(invK[0].cap)} · ${esc(DR[1].s)} ${mx(invK[1].cap)}</div></div>`;
     drawDoc();
     /* tabla mensual: últimos 3 meses por doctor */
     const nd = '<td class="mut">n/d</td>', rows = [], MM = MONTHS.slice(-3);
@@ -12929,7 +13116,7 @@ async function invDescargarPDF(){
   /* ═══ Orquestación ═══ */
   function render(){
     if(!LOADED) return;
-    setLabels();
+    setLabels(); renderBanner();
     $('barPer').hidden = (TAB === 'sm' || TAB === 'ag' || TAB === 'tend' || TAB === 'doc');
     ['tend', 'rank', 'sm', 'ag', 'doc'].forEach(t => $('pane-' + t).hidden = t !== TAB);
     qa('#rt-tabs button').forEach(b => { b.classList.toggle('act', b.dataset.t === TAB); b.setAttribute('aria-selected', b.dataset.t === TAB ? 'true' : 'false'); });
@@ -12977,6 +13164,7 @@ async function invDescargarPDF(){
     renderTend(); };
   $('rkv').addEventListener('click', e => { const b = e.target.closest('button[data-v]'); if(b){ RKV = b.dataset.v; renderTend(); } });
   $('rkC').addEventListener('click', rkGo); $('rkC').addEventListener('keydown', rkGo);
+  $('refresh').addEventListener('click', () => rentCargar());
   document.getElementById('nav-btn-rent').addEventListener('click', () => rentCargar());
 })();
 
