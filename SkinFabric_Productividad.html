@@ -3387,7 +3387,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.11.23-122';
+const APP_VERSION = 'v2026.11.23-123';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 
@@ -12099,6 +12099,7 @@ function csServs(){
   return (CATALOGOS.tiposServicio || []).map(t => { const st = CS_ST[t.id] || { n:0, pos:0, sum:0 };
     return { id:t.id, n:t.nombre, ses:st.n, pos:st.pos, real:st.pos ? st.sum / st.pos : null, consulta:/^consulta/i.test(t.nombre) }; });
 }
+function csSelOk(){ const T = CATALOGOS.tiposServicio || []; if(!CS_SEL || !T.some(t => t.id === CS_SEL)){ const t = T.find(x => /toxina/i.test(x.nombre)) || T[0]; CS_SEL = t ? t.id : null; } }
 const csLineas = sid => CS_REC.filter(r => r.servicio_id === sid).map(r => { const i = csInsBy(r.consumible_id), c = i ? csCu(i) : null, q = r.cantidad == null ? null : Number(r.cantidad); return { r, i, c, q, sub: c != null && q > 0 ? q * c : null }; });
 function csServ(s){
   const L = csLineas(s.id), falta = L.filter(l => l.sub == null).length, base = L.length && !falta ? L.reduce((a, l) => a + l.sub, 0) : null, costo = base != null ? base * (1 + csMerma() / 100) : null, cob = csCob(s);
@@ -12167,7 +12168,7 @@ async function csCargar(){
       if(!data || data.length < 1000) break;
     }
     CS_ST = st; CS_CARGADO = true;
-    if(!CS_SEL || !(CATALOGOS.tiposServicio || []).some(t => t.id === CS_SEL)){ const t = (CATALOGOS.tiposServicio || []).find(x => /toxina/i.test(x.nombre)) || (CATALOGOS.tiposServicio || [])[0]; CS_SEL = t ? t.id : null; }
+    csSelOk();
     csRender();
   } finally { CS_CARGANDO = false; }
 }
@@ -12223,10 +12224,13 @@ function csRRes(){
   <div class="cs-fund"><b>Cómo se calcula:</b> costo = suma de (cantidad × costo por unidad) de cada línea de la receta, más la merma si la hay. Cobro real = promedio de lo registrado en la app en 90 días, sin contar sesiones en $0 (cortesías o paquetes) ni “no vino”. Las consultas no cuentan en los totales. No incluye mano de obra, equipo ni gastos fijos.</div>`;
 }
 function csRRec(){
+  csSelOk();
   const q = CS_QRY.toLowerCase().trim(), S = csServs().filter(s => !q || s.n.toLowerCase().includes(q));
   S.sort((a, b) => (csLineas(b.id).length ? 1 : 0) - (csLineas(a.id).length ? 1 : 0) || b.ses - a.ses || a.n.localeCompare(b.n, 'es'));
   const lista = S.map(s => `<div class="cs-li${s.id === CS_SEL ? ' on' : ''}" data-act="sel" data-a="${s.id}"><span>${esc2(s.n)}</span>${csChip(csServ(s))}</div>`).join('') || '<div class="cs-empty">Sin resultados</div>';
-  const s = csServs().find(x => x.id === CS_SEL); if(!s) return '<div class="cs-empty">No hay servicios en el catálogo.</div>';
+  if(!S.length && !q && !(CATALOGOS.tiposServicio || []).length) return '<div class="cs-empty">No hay servicios en el catálogo.</div>';
+  csSelOk();
+  const s = csServs().find(x => x.id === CS_SEL); if(!s) return '<div class="cs-empty">Elige un procedimiento de la lista.</div>';
   const x = csServ(s), usados = new Set(x.L.map(l => l.r.consumible_id)), disp = CS_INS.filter(i => !usados.has(i.id) && i.activo !== false);
   const conRec = [...new Set(CS_REC.map(r => r.servicio_id))].filter(k => k !== s.id);
   const rows = x.L.map(l => `<tr><td><b>${esc2(l.i ? l.i.nombre : '?')}</b><div class="cs-sub">${esc2(l.i ? l.i.categoria : '')}</div></td>
