@@ -841,6 +841,7 @@ main.appmain{padding:22px 26px 40px;max-width:1250px;margin:0 auto}
 .cs-addrow label{display:flex;flex-direction:column;gap:4px;font-size:10px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--g6)}
 .cs-addrow .cs-inp{width:100%}.cs-addrow .cuv{font-size:12px;color:var(--g6);grid-column:1/-1}.cs-addrow .cuv b{color:var(--cs-teal-d);font:800 15px var(--font-d)}
 .cs-tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-left:auto}
+.cs-or{font-size:9.5px;font-weight:800;letter-spacing:.3px;text-transform:uppercase;margin-top:3px;border-radius:6px;padding:1px 6px;display:inline-block}.cs-or.estimado{background:#FEF3D7;color:#6b4a0d}.cs-or.mercado{background:#E2F6EC;color:#14603a}
 .cs-rl{font-size:11px;color:var(--g6);margin-top:3px;white-space:nowrap}.cs-rl button{border:0;background:none;color:var(--navy2);font-weight:700;cursor:pointer;padding:0 0 0 4px}
 .cs-chips{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 12px}
 .cs-chp{border:1px solid var(--g2);background:#fff;border-radius:20px;padding:5px 12px;font:700 12px var(--font-b);color:var(--g6);cursor:pointer}.cs-chp:hover{border-color:var(--teal)}.cs-chp.on{background:var(--navy);border-color:var(--navy);color:#fff}
@@ -3430,7 +3431,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.11.23-124';
+const APP_VERSION = 'v2026.11.23-125';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 
@@ -12219,7 +12220,7 @@ function csGuardar(key, fn){
     catch(e){ console.error('[SkinFabric] Costeo Skin:', e); csMarca('err'); toast('No se pudo guardar: ' + (e.message || 'error')); }
   }, 500);
 }
-const csGuardarIns = i => csGuardar('i' + i.id, () => sb.from('costeo_consumibles').update({ nombre:i.nombre, categoria:i.categoria, presentacion:i.presentacion || null, precio_compra:i.precio_compra, rinde:i.rinde, unidad:i.unidad || 'pza', updated_at:new Date().toISOString() }).eq('id', i.id));
+const csGuardarIns = i => csGuardar('i' + i.id, () => sb.from('costeo_consumibles').update(Object.assign({ nombre:i.nombre, categoria:i.categoria, presentacion:i.presentacion || null, precio_compra:i.precio_compra, rinde:i.rinde, unidad:i.unidad || 'pza', updated_at:new Date().toISOString() }, 'precio_origen' in i ? { precio_origen:i.precio_origen || null } : {})).eq('id', i.id));
 const csGuardarCant = r => csGuardar('r' + r.id, () => sb.from('costeo_recetas').update({ cantidad:r.cantidad }).eq('id', r.id));
 const csGuardarCob = sid => csGuardar('c' + sid, () => CS_COB[sid] == null ? sb.from('costeo_servicios').delete().eq('servicio_id', sid) : sb.from('costeo_servicios').upsert({ servicio_id:sid, cobro_ref:CS_COB[sid], updated_at:new Date().toISOString() }, { onConflict:'servicio_id' }));
 const csGuardarCfg = () => csGuardar('cfg', () => sb.from('costeo_config').update({ margen_objetivo:csObj(), merma_pct:csMerma(), updated_at:new Date().toISOString() }).eq('id', 1));
@@ -12345,7 +12346,7 @@ function csRIns(){
   const rows = lista.map(({ i, ix }) => { const c = csCu(i); return `<tr><td>${csFld('ins|' + i.id + '|nombre', i.nombre, { w:'min-width:190px' })}</td>
     <td><select class="cs-inp edit" data-k="insc|${i.id}" style="min-width:140px">${catsOpt(i.categoria)}</select></td>
     <td>${csFld('ins|' + i.id + '|presentacion', i.presentacion, { w:'min-width:130px', ph:'Ej. Frasco 100 ml' })}</td>
-    <td class="r">${csFld('ins|' + i.id + '|precio_compra', i.precio_compra, { type:'n', ph:'$' })}</td>
+    <td class="r">${csFld('ins|' + i.id + '|precio_compra', i.precio_compra, { type:'n', ph:'$' })}${i.precio_origen && i.precio_compra != null ? `<div class="cs-or ${i.precio_origen}" title="${i.precio_origen === 'mercado' ? 'Precio tomado de un listado de mercado' : 'Precio estimado: cámbialo por el de tu factura'}">${i.precio_origen === 'mercado' ? 'mercado' : 'estimado'}</div>` : ''}</td>
     <td class="r">${csFld('ins|' + i.id + '|rinde', i.rinde, { type:'n', ph:'uds' })}</td>
     <td>${csFld('ins|' + i.id + '|unidad', i.unidad, { w:'width:70px;min-width:60px' })}</td>
     <td class="r"><b>${c != null ? csMx2(c) : '—'}</b></td><td class="r">${uso(i.id)}</td><td>${c != null ? '<span class="cs-ch ok">Con costo</span>' : '<span class="cs-ch f">Falta costo</span>'}</td>
@@ -12431,7 +12432,7 @@ function csBind(){
     if(kind === 'new'){ CS_NEW[a] = t.value; const c = csCu({ precio_compra:csNum(CS_NEW.precio), rinde:csNum(CS_NEW.rinde) }), el = document.getElementById('cs-new-cuv'); if(el) el.innerHTML = 'Costo por unidad: <b>' + (c != null ? csMx2(c) : '—') + '</b> <span>(precio de compra ÷ rinde)</span>'; return; }
     if(kind === 'cant'){ const r = CS_REC.find(x => x.id === a); if(r){ r.cantidad = csNum(t.value); csGuardarCant(r); } }
     else if(kind === 'cobro'){ CS_COB[a] = csNum(t.value); csGuardarCob(a); }
-    else if(kind === 'ins'){ const i = csInsBy(a); if(i){ if(b === 'precio_compra' || b === 'rinde'){ const v = csNum(t.value); i[b] = b === 'rinde' && !(v > 0) ? null : v; } else i[b] = t.value; if(b === 'nombre' && !i.nombre.trim()) return; csGuardarIns(i); } }
+    else if(kind === 'ins'){ const i = csInsBy(a); if(i){ if(b === 'precio_compra' || b === 'rinde'){ const v = csNum(t.value); i[b] = b === 'rinde' && !(v > 0) ? null : v; if(b === 'precio_compra' && 'precio_origen' in i) i.precio_origen = null; } else i[b] = t.value; if(b === 'nombre' && !i.nombre.trim()) return; csGuardarIns(i); } }
     else if(kind === 'q') CS_QRY = t.value;
     else if(kind === 'qi') CS_QI = t.value;
     csRender();
