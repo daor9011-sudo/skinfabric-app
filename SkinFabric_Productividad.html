@@ -160,6 +160,45 @@ body.rol-cosm #cierre-kpis{grid-template-columns:repeat(2,minmax(0,1fr))!importa
 .s3-segment button{font-family:var(--font-b);border:none;background:none;color:var(--g6);padding:8px 16px;border-radius:9px;font-size:12px;font-weight:700;cursor:pointer;transition:.15s;display:flex;align-items:center;gap:6px}
 .s3-segment button.navact{background:#fff;color:var(--navy);box-shadow:0 3px 10px rgba(11,22,40,.16),0 0 0 1px rgba(42,191,191,.15)}
 .s3-segment button.locked{opacity:.35;cursor:not-allowed}
+/* ══════════ Menú lateral: riel de íconos (escritorio) y barra inferior (celular) ══════════
+   Los botones de .s3-segment siguen siendo la fuente de verdad (permisos, bloqueos y clics); el riel los refleja. */
+.s3-navrow{display:none!important}
+#app-view.act{display:grid;grid-template-columns:76px minmax(0,1fr);grid-template-rows:auto 1fr auto}
+#app-view>.s3-strip,#app-view>.app-footer{grid-column:1/-1}
+#app-view>.rail{grid-column:1;grid-row:2}
+#app-view>.appmain{grid-column:2;grid-row:2;min-width:0}
+.rail{background:linear-gradient(180deg,#0B1628,#10213D);border-right:1px solid rgba(255,255,255,.06)}
+.rail-in{position:sticky;top:0;max-height:100vh;overflow-y:auto;display:flex;flex-direction:column;align-items:center;padding:10px 0 18px;scrollbar-width:none}
+.rail-in::-webkit-scrollbar{display:none}
+.rb2{width:62px;border:0;background:none;color:rgba(255,255,255,.72);padding:8px 2px 6px;border-radius:12px;display:flex;flex-direction:column;align-items:center;gap:3px;font:700 10px/1.1 var(--font-b);margin:1px 0;text-align:center;cursor:pointer;transition:background .15s,color .15s}
+.rb2 .ic{font-size:19px;line-height:1.1}
+.rb2:hover{background:rgba(255,255,255,.08);color:#fff}
+.rb2.on{background:rgba(42,191,191,.2);color:#fff;box-shadow:inset 0 0 0 1.5px rgba(42,191,191,.7)}
+.rb2.locked{opacity:.35;cursor:not-allowed}
+.rb2:focus-visible{outline:2px solid var(--teal);outline-offset:1px}
+.rsep{width:36px;height:1px;background:rgba(255,255,255,.14);margin:7px 0;flex:none}
+.railbar,#rail-scr,#rail-sheet{display:none}
+@media (max-width:640px){
+  #app-view.act{display:flex;flex-direction:column}
+  .rail{display:none}
+  .railbar{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:60;background:#fff;border-top:1px solid var(--g2);box-shadow:0 -8px 20px -12px rgba(11,22,40,.3);padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px))}
+  .railbar .rb2{flex:1;width:auto;color:var(--g6);font-size:10.5px}
+  .railbar .rb2:hover{background:var(--g1);color:var(--navy)}
+  .railbar .rb2.on{background:#E3F7F7;color:#07686a;box-shadow:none}
+  #rail-scr:not([hidden]){display:block;position:fixed;inset:0;background:rgba(11,22,40,.45);z-index:70}
+  #rail-sheet:not([hidden]){display:block;position:fixed;left:0;right:0;bottom:0;z-index:71;background:#fff;border-radius:20px 20px 0 0;box-shadow:0 -14px 40px rgba(11,22,40,.3);padding:14px 14px calc(18px + env(safe-area-inset-bottom,0px))}
+  #rail-sheet h4{margin:0 0 8px;font:800 14px var(--font-d)}
+  #rail-sheet .sg{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+  #rail-sheet .rb2{width:auto;background:var(--g1);color:var(--navy);padding:10px 2px;font-size:10.5px}
+  #rail-sheet .rb2.on{background:#E3F7F7;color:#07686a;box-shadow:none}
+  :root{--rbh:calc(64px + env(safe-area-inset-bottom,0px))}
+  .railbar{box-sizing:border-box;min-height:var(--rbh)}
+  body .reg-bar-fija{bottom:var(--rbh)}
+  body .reg-bar-espaciador{height:200px}
+  body #upd-banner{bottom:calc(var(--rbh) + 12px)}
+  main.appmain{padding-bottom:92px}
+  .app-footer{padding-bottom:78px}
+}
 /* En móvil el header (logo/título + insignia/usuario/botones) se veía apeñuscado: los 3 bloques competían
    por espacio en una sola fila de grid. Se apilan en columna, cada uno centrado y con aire entre ellos. */
 @media (max-width:700px){
@@ -2253,6 +2292,10 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
     </div>
   </div>
 
+  <nav class="rail" id="rail" aria-label="Menú principal"></nav>
+  <div class="railbar" id="railbar" aria-label="Menú principal"></div>
+  <div id="rail-scr" hidden></div><div id="rail-sheet" hidden></div>
+
   <main class="appmain">
     <div class="card screen2 act" id="app-screen-registro">
       <div class="tab-title"><span>📝 Registrar Consulta / Servicio</span></div>
@@ -3387,7 +3430,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.11.23-123';
+const APP_VERSION = 'v2026.11.23-124';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 
@@ -3764,6 +3807,48 @@ document.querySelectorAll('.s3-segment button[data-screen2]').forEach(btn=>{
     try{ const seg = btn.parentElement; if(seg && seg.scrollWidth > seg.clientWidth) seg.scrollTo({ left: Math.max(0, btn.offsetLeft - (seg.clientWidth - btn.offsetWidth) / 2), behavior:'smooth' }); }catch(e){}
   });
 });
+// ── Menú lateral: riel de íconos (escritorio) y barra inferior con “Más” (celular) ──
+// Refleja los botones de .s3-segment (que siguen mandando: permisos, bloqueos y clics) y se redibuja solo cuando cambian.
+(function(){
+  const ORDEN = ['registro','historial','cierre','|','dash','prm','|','comisiones','gastos','nominas','|','inv','rent','costeo'];
+  const CORTO = { prm:'PRM', comisiones:'Comisión', rent:'Rentab.', costeo:'Costeo' };
+  const FAV = ['registro','cierre','dash','inv','historial'];
+  const rail = document.getElementById('rail'), bar = document.getElementById('railbar'), scr = document.getElementById('rail-scr'), sheet = document.getElementById('rail-sheet');
+  const origen = id => document.querySelector('.s3-segment button[data-screen2="' + id + '"]');
+  const info = id => {
+    const b = origen(id); if(!b || getComputedStyle(b).display === 'none') return null;
+    const t = b.textContent.trim(), sp = t.indexOf(' '), full = t.slice(sp + 1);
+    return { id, ico:t.slice(0, sp), full, corto:CORTO[id] || full, on:b.classList.contains('navact'), locked:b.classList.contains('locked') };
+  };
+  const btn = i => `<button type="button" class="rb2${i.on ? ' on' : ''}${i.locked ? ' locked' : ''}" data-r="${i.id}" title="${esc2(i.full)}" ${i.on ? 'aria-current="page"' : ''}><span class="ic">${i.ico}</span><span>${esc2(i.corto)}</span></button>`;
+  const cerrar = () => { scr.hidden = true; sheet.hidden = true; };
+  function render(){
+    const grupos = []; let cur = [];
+    ORDEN.forEach(x => { if(x === '|'){ if(cur.length) grupos.push(cur); cur = []; } else { const i = info(x); if(i) cur.push(i); } });
+    if(cur.length) grupos.push(cur);
+    rail.innerHTML = '<div class="rail-in">' + grupos.map(g => g.map(btn).join('')).join('<div class="rsep"></div>') + '</div>';
+    const vis = grupos.flat();
+    let fav = vis, rest = [];
+    if(vis.length > 5){ fav = FAV.map(id => vis.find(v => v.id === id)).filter(Boolean).slice(0, 4); rest = vis.filter(v => !fav.includes(v)); }
+    bar.innerHTML = fav.map(btn).join('') + (rest.length ? `<button type="button" class="rb2${rest.some(r => r.on) ? ' on' : ''}" data-r="__mas"><span class="ic">⋯</span><span>Más</span></button>` : '');
+    sheet.innerHTML = rest.length ? '<h4>Más módulos</h4><div class="sg">' + rest.map(btn).join('') + '</div>' : '';
+    if(!rest.length) cerrar();
+  }
+  let tm = 0; const sync = () => { clearTimeout(tm); tm = setTimeout(render, 0); };
+  new MutationObserver(sync).observe(document.querySelector('.s3-segment'), { attributes:true, subtree:true, attributeFilter:['style', 'class'] });
+  new MutationObserver(sync).observe(document.body, { attributes:true, attributeFilter:['class'] });
+  document.addEventListener('click', e => {
+    const b = e.target.closest('[data-r]');
+    if(b){
+      if(b.dataset.r === '__mas'){ const abrir = sheet.hidden; scr.hidden = !abrir; sheet.hidden = !abrir; return; }
+      const o = origen(b.dataset.r); cerrar(); if(o) o.click(); return;
+    }
+    if(e.target === scr) cerrar();
+  });
+  document.addEventListener('keydown', e => { if(e.key === 'Escape') cerrar(); });
+  window.addEventListener('resize', cerrar);
+  render();
+})();
 // Menú de usuario (solo móvil): reutiliza los mismos botones de siempre
 (function(){
   const pill = document.getElementById('user-pill'), menu = document.getElementById('user-menu');
