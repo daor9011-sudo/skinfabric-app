@@ -3435,7 +3435,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.11.23-133';
+const APP_VERSION = 'v2026.11.23-134';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 
@@ -12550,7 +12550,7 @@ async function invCargar(){
   const desde = new Date(); desde.setDate(desde.getDate() - 120);
   const d0 = isoLocal(desde);
   const [rp, rl, rm, rv] = await Promise.all([
-    sb.from('farmacia_productos').select('id,clave,claves_alt,nombre,precio,grupo,activo,existencia,stock_minimo,piezas,dueno_id').order('nombre').limit(3000),
+    sb.from('farmacia_productos').select('id,clave,claves_alt,nombre,precio,grupo,activo,existencia,stock_minimo,piezas,dueno_id,costo_incluye_iva').order('nombre').limit(3000),
     sb.from('inventario_lotes').select('id,producto_id,lote,caducidad,cantidad,costo_unitario,created_at').limit(5000),
     sb.from('inventario_movimientos').select('id,fecha,tipo,producto_id,lote_id,cantidad,costo_unitario,caducidad,venta_id,proveedor,num_factura,nota,created_at,quien:personal!creado_por(nombre)').gte('fecha', d0).order('fecha', { ascending:false }).order('created_at', { ascending:false }).limit(5000),
     sb.from('farmacia_ventas').select('id,fecha,producto_id,medicamento,cantidad,monto').gte('fecha', d0).limit(5000),
@@ -12859,7 +12859,9 @@ function invDescargarActualizado(){
   const L = INV_P.filter(p => p.clave && ((p.existencia || 0) !== 0 || enArchivo(p))).sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
   const limpio = p => String(p.nombre).replace(/\s*\((Dr\.|Dra\.)[^)]*\)\s*$/, '');
   const cab = ['Clave', 'Descripción', 'Skin Fabric S.C.', 'Costo Promedio Neto', 'Precio Neto'];
-  const fila = p => [baseDe(p), limpio(p), p.existencia || 0, invCostoDe(p), Number(p.precio) || 0];
+  // La base guarda el costo SIN IVA; el reporte de Aspel lo trae CON IVA (salvo productos de tasa 0%): se regresa a ese formato para poder volver a subirlo.
+  const costoAspel = p => { const c = invCostoDe(p); return c && p.costo_incluye_iva !== false ? Math.round(c * 1.16 * 100) / 100 : c; };
+  const fila = p => [baseDe(p), limpio(p), p.existencia || 0, costoAspel(p), Number(p.precio) || 0];
   const juntos = new Map(); L.forEach(p => { const f = fila(p), k = f[0], x = juntos.get(k); if(x){ x[2] += f[2]; x[3] = x[3] || f[3]; } else juntos.set(k, f); });
   const ahora = new Date(), f = o => new Intl.DateTimeFormat('es-MX', Object.assign({ timeZone:'America/Mexico_City' }, o)).format(ahora);
   const h24 = (+f({ hour:'2-digit', hour12:false })) % 24, txt = `Reporte generado el ${f({ day:'numeric' })} ${cap(f({ month:'long' }))}, ${f({ year:'numeric' })}, ${String(h24 % 12 || 12).padStart(2, '0')}:${f({ minute:'2-digit' }).padStart(2, '0')} ${h24 >= 12 ? 'PM' : 'AM'}`;
