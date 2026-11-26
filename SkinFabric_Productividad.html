@@ -2852,7 +2852,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 
     <div class="card screen2" id="app-screen-costeo">
       <div class="cs-top"><div class="tab-title"><span>🧴 Costeo Skin</span></div><span class="cs-save ok" id="cs-save">✓ Guardado</span></div>
-      <p class="cs-intro">Cuánto cuesta en consumibles cada procedimiento por sesión y cuánto margen deja contra lo que se cobra. Solo lo ves tú. No incluye mano de obra, equipo ni gastos fijos.</p>
+      <p class="cs-intro">Cuánto cuesta en consumibles cada procedimiento por sesión y cuánto margen deja contra lo que se cobra. Solo lo ven quienes tienen permiso. No incluye mano de obra, equipo ni gastos fijos.</p>
       <div id="cs-tabs" role="tablist">
         <button type="button" class="on" data-t="ins">1 · 🧴 Consumibles y costos <em id="cs-c-ins">0</em></button>
         <button type="button" data-t="rec">2 · 🧾 Consumibles por procedimiento <em id="cs-c-rec">0</em></button>
@@ -3436,7 +3436,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.11.23-129';
+const APP_VERSION = 'v2026.11.23-130';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 
@@ -12310,7 +12310,7 @@ function csRRes(){
       <div class="hint"><b>Margen</b> = (cobro − costo) ÷ cobro. <b>Precio sugerido</b> = costo ÷ (1 − margen objetivo). La merma suma un porcentaje extra al costo por lo que se tira o se desperdicia. Se guarda para la próxima vez.</div>
     </div></div></div>
   <div class="cs-pn"><div class="cs-ph"><span class="cs-pi">🎯</span><div class="cs-pt"><h3>Por dónde empezar a capturar consumibles</h3><p>Los procedimientos sin consumibles que más ingreso movieron en 90 días (sesiones cobradas × cobro promedio real). Toca uno para capturar sus consumibles.</p></div></div>
-    <div class="cs-pb">${prio.length ? `<div class="cs-prio">${prio.map(x => `<div class="cs-pr" data-act="go" data-a="${x.s.id}"><b>${esc2(x.s.n)}</b><span>${csMx(ing(x.s))}</span><div class="bar"><i style="width:${ing(x.s) / mxI * 100}%"></i></div><div class="s">${x.s.pos} sesiones cobradas · ${csMx(x.s.real)} promedio · ${csPc(tot ? ing(x.s) / tot * 100 : 0)} del ingreso de procedimientos</div></div>`).join('')}</div>` : '<div class="cs-sub">Ya todos los procedimientos con ventas ya tienen consumibles. 👏</div>'}</div></div>
+    <div class="cs-pb">${prio.length ? `<div class="cs-prio">${prio.map(x => `<div class="cs-pr" data-act="go" data-a="${x.s.id}"><b>${esc2(x.s.n)}</b><span>${csMx(ing(x.s))}</span><div class="bar"><i style="width:${ing(x.s) / mxI * 100}%"></i></div><div class="s">${x.s.pos} sesiones cobradas · ${csMx(x.s.real)} promedio · ${csPc(tot ? ing(x.s) / tot * 100 : 0)} del ingreso de procedimientos</div></div>`).join('')}</div>` : '<div class="cs-sub">Todos los procedimientos con ventas ya tienen consumibles. 👏</div>'}</div></div>
   <div class="cs-pn"><div class="cs-ph"><span class="cs-pi">📊</span><div class="cs-pt"><h3>Procedimientos</h3><p>Sesiones reales de 90 días. El <b>cobro</b> es editable (empieza en el promedio real) · el costo sale de sus consumibles.</p></div>
       <label class="cs-ck"><input type="checkbox" id="cs-ck-solo" ${CS_SOLO ? 'checked' : ''}> Solo con consumibles</label></div>
     <div class="cs-tw"><table class="cs-t"><thead><tr><th>Procedimiento</th><th class="r">Sesiones (90 d)</th><th class="r">Cobro ✎</th><th class="r">Costo de consumibles</th><th class="r">Utilidad bruta</th><th class="r">Margen</th><th class="r">Precio sugerido (${csObj()}%)</th><th>Estado</th></tr></thead><tbody>${rows}</tbody></table></div></div>
