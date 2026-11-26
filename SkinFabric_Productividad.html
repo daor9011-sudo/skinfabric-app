@@ -3435,7 +3435,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.11.23-131';
+const APP_VERSION = 'v2026.11.23-132';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 
@@ -8059,10 +8059,13 @@ async function flashHtmlAPdf(html, nombreArchivo, asunto){
 async function exportarFlashReport(){
   if(MI_PERFIL?.rol === 'cosmetologo') return;
   const btn = document.getElementById('cierre-btn-flash');
-  if(!CIERRE_ROWS.length && !CIERRE_FARM.length){ toast('No hay movimientos en este periodo para exportar.'); return; }
   const txt0 = btn.textContent;
   btn.disabled = true; btn.textContent = '⏳ Generando…';
   try{
+    // Se vuelve a leer el día/mes desde la base justo antes de armar el PDF: así no depende de lo que la pantalla cargó hace rato
+    // (si el tiempo real se cortó o se registraron consultas después de abrir el Cierre, el reporte salía incompleto).
+    await cargarCierre();
+    if(!CIERRE_ROWS.length && !CIERRE_FARM.length){ toast('No hay movimientos en este periodo para exportar.'); return; }
     const datos = await flashReunirDatos();
     const nombre = 'Flash_Report_Cierre_' + (datos.esDia ? datos.desde : datos.desde.slice(0, 7)) + '.pdf';
     // Anexo (solo reporte de un día): detalle de pacientes, repartido en las hojas necesarias
