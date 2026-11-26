@@ -835,6 +835,11 @@ main.appmain{padding:22px 26px 40px;max-width:1250px;margin:0 auto}
 .cs-btn{border:1px solid var(--g2);background:#fff;border-radius:10px;padding:8px 14px;font:700 13px var(--font-b);cursor:pointer;color:var(--navy)}.cs-btn:hover{border-color:var(--teal)}
 .cs-btn.p{background:linear-gradient(135deg,var(--teal),#22a8a8);border:0;color:var(--navy)}.cs-btn.sm{padding:4px 9px;border-radius:8px}
 .cs-acts{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:12px}.cs-acts select{width:auto;min-width:220px}
+.cs-dash{position:sticky;top:0;z-index:5;background:#fff;border:1px solid var(--g2);border-radius:14px;padding:10px 12px 8px;margin:0 0 12px;box-shadow:0 8px 18px -14px rgba(11,22,40,.35)}
+.cs-dh{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;font:800 13px var(--font-d);margin-bottom:8px}.cs-dh span{font:600 11.5px var(--font-b);color:var(--g6)}
+.cs-dash .cs-res{margin:0 0 6px}.cs-res i{display:block;font-style:normal;font-size:11px;color:var(--g6);margin-top:2px}
+.cs-dash>.cs-sub{margin:0}
+@media(max-width:640px){.cs-dash{position:static}}
 .cs-empty{padding:26px;text-align:center;color:var(--g6)}
 .cs-fund{margin-top:14px;padding:11px 14px;border-radius:12px;background:var(--g1);color:var(--g6);font-size:12px}.cs-fund b{color:var(--navy)}
 .cs-addrow{display:grid;grid-template-columns:1.6fr 1fr 1.2fr .9fr .9fr .7fr auto;gap:8px;align-items:end}
@@ -2850,7 +2855,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
       <p class="cs-intro">Cuánto cuesta en consumibles cada procedimiento por sesión y cuánto margen deja contra lo que se cobra. Solo lo ves tú. No incluye mano de obra, equipo ni gastos fijos.</p>
       <div id="cs-tabs" role="tablist">
         <button type="button" class="on" data-t="ins">1 · 🧴 Consumibles y costos <em id="cs-c-ins">0</em></button>
-        <button type="button" data-t="rec">2 · 🧾 Recetas <em id="cs-c-rec">0</em></button>
+        <button type="button" data-t="rec">2 · 🧾 Consumibles por procedimiento <em id="cs-c-rec">0</em></button>
         <button type="button" data-t="res">3 · 📊 Resumen</button>
         <button type="button" data-t="prod">4 · 💊 Productos</button>
       </div>
@@ -3431,7 +3436,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.11.23-125';
+const APP_VERSION = 'v2026.11.23-128';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 
@@ -12162,7 +12167,7 @@ async function nomCopiar(txt){
 // ============================================================
 // Módulo: Costeo Skin (solo admin con permisos.puede_costeo_skin · lo ve únicamente Dani)
 //  · Consumible: precio de compra de la presentación ÷ cuánto rinde = costo por unidad de uso.
-//  · Receta: qué consumibles y cuánta cantidad lleva una sesión de cada servicio del catálogo.
+//  · Consumibles por procedimiento: qué consumibles y cuánta cantidad lleva una sesión de cada servicio del catálogo.
 //  · Cobro de referencia: el promedio real de los últimos 90 días (sin $0 ni "no vino"), editable a mano.
 //  · Productos de farmacia: lectura en vivo (precio, último costo del inventario y ventas de 90 días).
 //  · No incluye mano de obra, equipo ni gastos fijos. Las tablas están protegidas por costeo_skin_puede().
@@ -12193,7 +12198,7 @@ function csServ(s){
     sinCosto: L.filter(l => l.c == null).length, sinCant: L.filter(l => !(l.q > 0)).length };
 }
 function csChip(x){
-  if(!x.L.length) return '<span class="cs-ch s">Sin receta</span>';
+  if(!x.L.length) return '<span class="cs-ch s">Sin consumibles</span>';
   if(!x.falta) return '<span class="cs-ch ok">Completo</span>';
   const p = []; if(x.sinCosto) p.push(x.sinCosto + (x.sinCosto === 1 ? ' costo' : ' costos')); if(x.sinCant) p.push(x.sinCant + (x.sinCant === 1 ? ' cantidad' : ' cantidades'));
   return '<span class="cs-ch f">Falta ' + p.join(' y ') + '</span>';
@@ -12291,10 +12296,10 @@ function csRRes(){
     <td class="r"><b>${x.costo != null ? csMx2(x.costo) : '—'}</b></td><td class="r">${x.util != null ? csMx(x.util) : '—'}</td><td class="r">${csMgCell(x.margen)}</td><td class="r">${csSugCell(x.sug, x.cob)}</td><td>${csChip(x)}</td></tr>`).join('');
   return `
   <div class="cs-kpis">
-    <div class="cs-k n"><small>Procedimientos con receta</small><b>${conRec.length} de ${procs.length}</b><span>${procs.length - conRec.length} aún sin receta</span></div>
+    <div class="cs-k n"><small>Procedimientos con consumibles</small><b>${conRec.length} de ${procs.length}</b><span>${procs.length - conRec.length} aún sin consumibles</span></div>
     <div class="cs-k t"><small>Costos completos</small><b>${comp.length}</b><span>listos para calcular margen</span></div>
     <div class="cs-k a"><small>Consumibles sin costo</small><b>${sinCostoIns} de ${CS_INS.length}</b><span>faltan por capturar en “Consumibles y costos”</span></div>
-    <div class="cs-k p"><small>Margen bruto</small><b>${mp != null ? csPc(mp) : '—'}</b><span>ponderado por sesiones, solo recetas completas</span></div>
+    <div class="cs-k p"><small>Margen bruto</small><b>${mp != null ? csPc(mp) : '—'}</b><span>ponderado por sesiones, solo procedimientos completos</span></div>
   </div>
   <div class="cs-pn"><div class="cs-ph"><span class="cs-pi">🎚️</span><div class="cs-pt"><h3>Qué margen quieres lograr</h3><p>Mueve el margen objetivo y mira cuánto tendría que cobrarse cada procedimiento y producto para lograrlo.</p></div></div>
     <div class="cs-pb"><div class="cs-sim">
@@ -12302,12 +12307,12 @@ function csRRes(){
       <label>Merma por desperdicio <select id="cs-s-merma" class="cs-inp">${[0, 5, 10, 15].map(m => `<option value="${m}"${csMerma() === m ? ' selected' : ''}>${m ? '+' + m + '% de consumibles' : 'Sin merma'}</option>`).join('')}</select></label>
       <div class="hint"><b>Margen</b> = (cobro − costo) ÷ cobro. <b>Precio sugerido</b> = costo ÷ (1 − margen objetivo). La merma suma un porcentaje extra al costo por lo que se tira o se desperdicia. Se guarda para la próxima vez.</div>
     </div></div></div>
-  <div class="cs-pn"><div class="cs-ph"><span class="cs-pi">🎯</span><div class="cs-pt"><h3>Por dónde empezar a capturar recetas</h3><p>Los procedimientos sin receta que más ingreso movieron en 90 días (sesiones cobradas × cobro promedio real). Toca uno para armarle su receta.</p></div></div>
-    <div class="cs-pb">${prio.length ? `<div class="cs-prio">${prio.map(x => `<div class="cs-pr" data-act="go" data-a="${x.s.id}"><b>${esc2(x.s.n)}</b><span>${csMx(ing(x.s))}</span><div class="bar"><i style="width:${ing(x.s) / mxI * 100}%"></i></div><div class="s">${x.s.pos} sesiones cobradas · ${csMx(x.s.real)} promedio · ${csPc(tot ? ing(x.s) / tot * 100 : 0)} del ingreso de procedimientos</div></div>`).join('')}</div>` : '<div class="cs-sub">Ya todos los procedimientos con ventas tienen receta. 👏</div>'}</div></div>
-  <div class="cs-pn"><div class="cs-ph"><span class="cs-pi">📊</span><div class="cs-pt"><h3>Procedimientos</h3><p>Sesiones reales de 90 días. El <b>cobro</b> es editable (empieza en el promedio real) · el costo sale de la receta.</p></div>
-      <label class="cs-ck"><input type="checkbox" id="cs-ck-solo" ${CS_SOLO ? 'checked' : ''}> Solo con receta</label></div>
+  <div class="cs-pn"><div class="cs-ph"><span class="cs-pi">🎯</span><div class="cs-pt"><h3>Por dónde empezar a capturar consumibles</h3><p>Los procedimientos sin consumibles que más ingreso movieron en 90 días (sesiones cobradas × cobro promedio real). Toca uno para capturar sus consumibles.</p></div></div>
+    <div class="cs-pb">${prio.length ? `<div class="cs-prio">${prio.map(x => `<div class="cs-pr" data-act="go" data-a="${x.s.id}"><b>${esc2(x.s.n)}</b><span>${csMx(ing(x.s))}</span><div class="bar"><i style="width:${ing(x.s) / mxI * 100}%"></i></div><div class="s">${x.s.pos} sesiones cobradas · ${csMx(x.s.real)} promedio · ${csPc(tot ? ing(x.s) / tot * 100 : 0)} del ingreso de procedimientos</div></div>`).join('')}</div>` : '<div class="cs-sub">Ya todos los procedimientos con ventas ya tienen consumibles. 👏</div>'}</div></div>
+  <div class="cs-pn"><div class="cs-ph"><span class="cs-pi">📊</span><div class="cs-pt"><h3>Procedimientos</h3><p>Sesiones reales de 90 días. El <b>cobro</b> es editable (empieza en el promedio real) · el costo sale de sus consumibles.</p></div>
+      <label class="cs-ck"><input type="checkbox" id="cs-ck-solo" ${CS_SOLO ? 'checked' : ''}> Solo con consumibles</label></div>
     <div class="cs-tw"><table class="cs-t"><thead><tr><th>Procedimiento</th><th class="r">Sesiones (90 d)</th><th class="r">Cobro ✎</th><th class="r">Costo de consumibles</th><th class="r">Utilidad bruta</th><th class="r">Margen</th><th class="r">Precio sugerido (${csObj()}%)</th><th>Estado</th></tr></thead><tbody>${rows}</tbody></table></div></div>
-  <div class="cs-fund"><b>Cómo se calcula:</b> costo = suma de (cantidad × costo por unidad) de cada línea de la receta, más la merma si la hay. Cobro real = promedio de lo registrado en la app en 90 días, sin contar sesiones en $0 (cortesías o paquetes) ni “no vino”. Las consultas no cuentan en los totales. No incluye mano de obra, equipo ni gastos fijos.</div>`;
+  <div class="cs-fund"><b>Cómo se calcula:</b> costo = suma de (cantidad × costo por unidad) de cada consumible del procedimiento, más la merma si la hay. Cobro real = promedio de lo registrado en la app en 90 días, sin contar sesiones en $0 (cortesías o paquetes) ni “no vino”. Las consultas no cuentan en los totales. No incluye mano de obra, equipo ni gastos fijos.</div>`;
 }
 function csRRec(){
   csSelOk();
@@ -12321,22 +12326,25 @@ function csRRec(){
   const conRec = [...new Set(CS_REC.map(r => r.servicio_id))].filter(k => k !== s.id);
   const rows = x.L.map(l => `<tr><td><b>${esc2(l.i ? l.i.nombre : '?')}</b><div class="cs-sub">${esc2(l.i ? l.i.categoria : '')}</div></td>
     <td class="r">${csFld('cant|' + l.r.id, l.q, { type:'n', ph:'?' })}</td><td>${esc2(l.i ? l.i.unidad : '')}</td><td class="r">${l.c != null ? csMx2(l.c) : '<span class="cs-ch f">falta costo</span>'}</td><td class="r"><b>${l.sub != null ? csMx2(l.sub) : '—'}</b></td>
-    <td class="r"><button class="cs-btn sm" data-act="delline" data-a="${l.r.id}" aria-label="Quitar">✕</button></td></tr>`).join('') || '<tr><td colspan="6" class="cs-empty">Receta vacía: agrega los consumibles que se usan en una sesión.</td></tr>';
+    <td class="r"><button class="cs-btn sm" data-act="delline" data-a="${l.r.id}" aria-label="Quitar">✕</button></td></tr>`).join('') || '<tr><td colspan="6" class="cs-empty">Sin consumibles: agrega los que se usan en una sesión.</td></tr>';
   const bad = x.margen != null && x.margen < csObj();
   return `<div class="cs-spl"><div class="cs-lista"><div style="padding:10px">${csFld('q', CS_QRY, { ph:'Buscar procedimiento…', w:'width:100%' })}</div><div class="cs-lscroll">${lista}</div></div>
   <div class="cs-pn" style="margin-top:0"><div class="cs-pb">
-    <div class="cs-rh"><div><h4>${esc2(s.n)}</h4><div class="cs-sub">${s.ses} sesiones (90 d) · cobro <span style="display:inline-block;vertical-align:middle">${csFld('cobro|' + s.id, CS_COB[s.id] != null ? CS_COB[s.id] : (s.real != null ? Math.round(s.real) : null), { type:'n', ph:'$', w:'width:100px;min-width:80px', noneed:true })}</span> ${CS_COB[s.id] != null && s.real != null && Math.round(CS_COB[s.id]) !== Math.round(s.real) ? `<span class="cs-rl">(real ${csMx(s.real)})</span>` : ''}${s.real == null && CS_COB[s.id] == null ? ' <span class="cs-rl">(sin sesiones cobradas: escribe un cobro de referencia)</span>' : ''}</div></div>${x.L.length ? '<button class="cs-btn" data-act="clr">Quitar receta</button>' : ''}</div>
-    <div class="cs-tw"><table class="cs-t"><thead><tr><th>Consumible</th><th class="r">Cantidad por sesión ✎</th><th>Unidad</th><th class="r">Costo por unidad</th><th class="r">Subtotal</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>
-    <div class="cs-acts"><button class="cs-btn" data-act="kit" title="Agrega guantes, gasas, alcohol, papel de camilla, torundas y toalla">＋ Aplicar kit base de cabina</button>${conRec.length ? `<select id="cs-s-copy" class="cs-inp"><option value="">Copiar receta de…</option>${conRec.map(k => `<option value="${k}">${esc2((CATALOGOS.tiposServicio.find(z => z.id === k) || {}).nombre || '?')}</option>`).join('')}</select>` : ''}</div>
-    <div class="cs-acts"><select id="cs-s-add" class="cs-inp"><option value="">Consumible a agregar…</option>${disp.map(i => `<option value="${i.id}">${esc2(i.nombre)} (${esc2(i.unidad)})</option>`).join('')}<option value="__new">＋ Crear un consumible nuevo…</option></select><button class="cs-btn p" data-act="addline">＋ Agregar a la receta</button></div>
-    <div class="cs-res">
-      <div><small>Cobro</small><b>${x.cob != null ? csMx(x.cob) : '—'}</b></div>
-      <div><small>Costo de consumibles${csMerma() ? ' (+' + csMerma() + '% merma)' : ''}</small><b>${x.costo != null ? csMx2(x.costo) : '—'}</b></div>
-      <div class="hl${bad ? ' bad' : ''}"><small>Utilidad bruta</small><b>${x.util != null ? csMx(x.util) : '—'}</b></div>
-      <div class="hl${bad ? ' bad' : ''}"><small>Margen${x.margen != null ? (bad ? ' · debajo de ' + csObj() + '%' : ' · cumple ' + csObj() + '%') : ''}</small><b>${x.margen != null ? csPc(x.margen) : '—'}</b></div>
+    <div class="cs-rh"><div><h4>${esc2(s.n)}</h4><div class="cs-sub">${s.ses} sesiones (90 d) · cobro <span style="display:inline-block;vertical-align:middle">${csFld('cobro|' + s.id, CS_COB[s.id] != null ? CS_COB[s.id] : (s.real != null ? Math.round(s.real) : null), { type:'n', ph:'$', w:'width:100px;min-width:80px', noneed:true })}</span> ${CS_COB[s.id] != null && s.real != null && Math.round(CS_COB[s.id]) !== Math.round(s.real) ? `<span class="cs-rl">(real ${csMx(s.real)})</span>` : ''}${s.real == null && CS_COB[s.id] == null ? ' <span class="cs-rl">(sin sesiones cobradas: escribe un cobro de referencia)</span>' : ''}</div></div>${x.L.length ? '<button class="cs-btn" data-act="clr">Quitar consumibles</button>' : ''}</div>
+    <div class="cs-dash">
+      <div class="cs-dh">📈 Panel de costeo<span>${esc2(s.n)}</span></div>
+      <div class="cs-res">
+        <div><small>Costo del producto${csMerma() ? ' (+' + csMerma() + '% merma)' : ''}</small><b>${x.costo != null ? csMx2(x.costo) : '—'}</b><i>${x.falta ? 'incompleto: faltan datos' : x.L.length ? x.L.length + ' consumibles' : 'sin consumibles'}</i></div>
+        <div><small>Precio de venta</small><b>${x.cob != null ? csMx(x.cob) : '—'}</b><i>${CS_COB[s.id] != null ? 'capturado a mano' : s.real != null ? 'promedio real 90 d' : 'sin cobro'}</i></div>
+        <div class="hl${bad ? ' bad' : ''}"><small>Margen de rentabilidad ($)</small><b>${x.util != null ? csMx(x.util) : '—'}</b><i>por sesión</i></div>
+        <div class="hl${bad ? ' bad' : ''}"><small>Margen de rentabilidad (%)</small><b>${x.margen != null ? csPc(x.margen) : '—'}</b><i>${x.margen != null ? (bad ? 'debajo de la meta de ' + csObj() + '%' : 'cumple la meta de ' + csObj() + '%') : 'meta ' + csObj() + '%'}</i></div>
+      </div>
+      ${x.sug != null ? `<div class="cs-sub">Para lograr ${csObj()}% de margen tendría que cobrarse <b>${csMx(x.sug)}</b>${x.cob != null ? (x.sug > x.cob + 1 ? ` (<span class="dn">+${csMx(x.sug - x.cob)} sobre el cobro actual</span>)` : ' (<span class="up">el cobro actual ya lo cubre</span>)') : ''}.</div>` : ''}
     </div>
-    ${x.sug != null ? `<div class="cs-sub">Para lograr ${csObj()}% de margen tendría que cobrarse <b>${csMx(x.sug)}</b>${x.cob != null ? (x.sug > x.cob + 1 ? ` (<span class="dn">+${csMx(x.sug - x.cob)} sobre el cobro actual</span>)` : ' (<span class="up">el cobro actual ya lo cubre</span>)') : ''}.</div>` : ''}
-    <div class="cs-fund">${x.falta ? 'Un renglón en “—” significa que falta el costo del consumible (pestaña “Consumibles y costos”) o la cantidad de la receta.' : x.L.length ? 'Receta completa: el costo ya cuenta en el Resumen.' : 'Aún sin receta. Esta es la pantalla donde se arma. Para toxina, rellenos y bioestimuladores usa la dosis típica por sesión.'}</div>
+    <div class="cs-tw"><table class="cs-t"><thead><tr><th>Consumible</th><th class="r">Cantidad por sesión ✎</th><th>Unidad</th><th class="r">Costo por unidad</th><th class="r">Subtotal</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>
+    <div class="cs-acts"><button class="cs-btn" data-act="kit" title="Agrega guantes, gasas, alcohol, papel de camilla, torundas y toalla">＋ Aplicar kit base de cabina</button>${conRec.length ? `<select id="cs-s-copy" class="cs-inp"><option value="">Copiar consumibles de…</option>${conRec.map(k => `<option value="${k}">${esc2((CATALOGOS.tiposServicio.find(z => z.id === k) || {}).nombre || '?')}</option>`).join('')}</select>` : ''}</div>
+    <div class="cs-acts"><select id="cs-s-add" class="cs-inp"><option value="">Consumible a agregar…</option>${disp.map(i => `<option value="${i.id}">${esc2(i.nombre)} (${esc2(i.unidad)})</option>`).join('')}<option value="__new">＋ Crear un consumible nuevo…</option></select><button class="cs-btn p" data-act="addline">＋ Agregar consumible</button></div>
+    <div class="cs-fund">${x.falta ? 'Un renglón en “—” significa que falta el costo del consumible (pestaña “Consumibles y costos”) o la cantidad.' : x.L.length ? 'Completo: el costo ya cuenta en el Resumen.' : 'Aún sin consumibles: agrégalos aquí. Para toxina, rellenos y bioestimuladores usa la dosis típica por sesión.'}</div>
   </div></div></div>`;
 }
 function csRIns(){
@@ -12355,7 +12363,7 @@ function csRIns(){
   return `
   <div class="cs-kpis" style="grid-template-columns:repeat(3,minmax(0,1fr))">
     <div class="cs-k n"><small>Consumibles</small><b>${CS_INS.length}</b><span>en ${new Set(CS_INS.map(i => i.categoria)).size} categorías</span></div>
-    <div class="cs-k t"><small>Con costo</small><b>${con} de ${CS_INS.length}</b><span>listos para usarse en recetas</span><div class="cs-pbar"><i style="width:${CS_INS.length ? con / CS_INS.length * 100 : 0}%"></i></div></div>
+    <div class="cs-k t"><small>Con costo</small><b>${con} de ${CS_INS.length}</b><span>listos para usarse en los procedimientos</span><div class="cs-pbar"><i style="width:${CS_INS.length ? con / CS_INS.length * 100 : 0}%"></i></div></div>
     <div class="cs-k a"><small>Sin costo</small><b>${CS_INS.length - con}</b><span>falta precio de compra o cuánto rinde</span></div></div>
   <div class="cs-pn"><div class="cs-ph"><span class="cs-pi">➕</span><div class="cs-pt"><h3>Agregar consumible</h3><p>Escribe lo que se compra y cuánto rinde. Presiona Enter o “Agregar”.</p></div></div>
     <div class="cs-pb"><div class="cs-addrow">
@@ -12368,11 +12376,11 @@ function csRIns(){
       <button class="cs-btn p" data-act="addins">＋ Agregar</button>
       <div class="cuv" id="cs-new-cuv">Costo por unidad: <b>${ncu != null ? csMx2(ncu) : '—'}</b> <span>(precio de compra ÷ rinde)</span></div>
     </div></div></div>
-  <div class="cs-pn"><div class="cs-ph"><span class="cs-pi">🧴</span><div class="cs-pt"><h3>Consumibles y costos</h3><p>Todo es editable y se guarda solo. El costo por unidad alimenta las recetas.</p></div>
+  <div class="cs-pn"><div class="cs-ph"><span class="cs-pi">🧴</span><div class="cs-pt"><h3>Consumibles y costos</h3><p>Todo es editable y se guarda solo. El costo por unidad alimenta el costo de cada procedimiento.</p></div>
       <div class="cs-tools">${csFld('qi', CS_QI, { ph:'Buscar consumible…', w:'width:200px' })}</div></div>
     <div class="cs-pb" style="padding-bottom:0"><div class="cs-chips"><button class="cs-chp${!CS_CF && !CS_SINC ? ' on' : ''}" data-act="cf" data-a="">Todas<i>${CS_INS.length}</i></button>${[...new Set(CS_CATS.concat(CS_INS.map(i => i.categoria)))].map(c => { const n = CS_INS.filter(i => i.categoria === c).length; return n ? `<button class="cs-chp${CS_CF === c ? ' on' : ''}" data-act="cf" data-a="${esc2(c)}">${esc2(c)}<i>${n}</i></button>` : ''; }).join('')}<button class="cs-chp${CS_SINC ? ' on' : ''}" data-act="sinc">Solo sin costo<i>${CS_INS.length - con}</i></button></div></div>
-    <div class="cs-tw big"><table class="cs-t"><thead><tr><th>Consumible ✎</th><th>Categoría</th><th>Presentación de compra</th><th class="r">Precio de compra</th><th class="r">Rinde</th><th>Unidad de uso</th><th class="r">Costo por unidad</th><th class="r">En recetas</th><th>Estado</th><th></th></tr></thead><tbody>${rows}</tbody></table></div></div>
-  <div class="cs-fund"><b>Cómo capturar:</b> “Precio de compra” es lo que cuesta la presentación (un frasco, una caja) y “Rinde” cuántas unidades de uso salen de ella. Frasco de 500 ml en $480 que se usa por ml → precio 480, rinde 500, unidad ml = $0.96 por ml. Las presentaciones y unidades del catálogo son típicas: ajústalas a lo que realmente compras. Un consumible que ya está en una receta no se puede eliminar.</div>`;
+    <div class="cs-tw big"><table class="cs-t"><thead><tr><th>Consumible ✎</th><th>Categoría</th><th>Presentación de compra</th><th class="r">Precio de compra</th><th class="r">Rinde</th><th>Unidad de uso</th><th class="r">Costo por unidad</th><th class="r">En procedimientos</th><th>Estado</th><th></th></tr></thead><tbody>${rows}</tbody></table></div></div>
+  <div class="cs-fund"><b>Cómo capturar:</b> “Precio de compra” es lo que cuesta la presentación (un frasco, una caja) y “Rinde” cuántas unidades de uso salen de ella. Frasco de 500 ml en $480 que se usa por ml → precio 480, rinde 500, unidad ml = $0.96 por ml. Las presentaciones y unidades del catálogo son típicas: ajústalas a lo que realmente compras. Un consumible que ya se usa en un procedimiento no se puede eliminar.</div>`;
 }
 function csRProd(){
   if(!CS_PROD) return '<div class="cs-empty">Cargando productos…</div>';
@@ -12445,7 +12453,7 @@ function csBind(){
     if(t.id === 'cs-s-merma'){ CS_CFG.merma_pct = +t.value; csGuardarCfg(); csRender(); return; }
     if(t.id === 'cs-ck-solo'){ CS_SOLO = t.checked; csRender(); return; }
     if(t.id === 'cs-s-copy' && t.value){ const src = CS_REC.filter(r => r.servicio_id === t.value), have = new Set(CS_REC.filter(r => r.servicio_id === CS_SEL).map(r => r.consumible_id));
-      const n = await csAddLineas(CS_SEL, src.filter(r => !have.has(r.consumible_id)).map(r => ({ consumible_id:r.consumible_id, cantidad:r.cantidad }))); csRender(); if(n >= 0) toast('Receta copiada: ajusta las cantidades'); return; }
+      const n = await csAddLineas(CS_SEL, src.filter(r => !have.has(r.consumible_id)).map(r => ({ consumible_id:r.consumible_id, cantidad:r.cantidad }))); csRender(); if(n >= 0) toast('Consumibles copiados: ajusta las cantidades'); return; }
     if(t.dataset && t.dataset.k){ const [kind, a] = t.dataset.k.split('|');
       if(kind === 'insc'){ const i = csInsBy(a); if(i){ i.categoria = t.value; csGuardarIns(i); csRender(); } }
       if(kind === 'newc') CS_NEW.cat = t.value; }
@@ -12458,7 +12466,7 @@ function csBind(){
     else if(act === 'sel'){ CS_SEL = a; csRender(); }
     else if(act === 'rcobro'){ delete CS_COB[a]; csGuardarCob(a); csRender(); }
     else if(act === 'delline'){ const { error } = await sb.from('costeo_recetas').delete().eq('id', a); if(error) return toast('No se pudo quitar: ' + error.message); CS_REC = CS_REC.filter(r => r.id !== a); csRender(); }
-    else if(act === 'clr'){ const { error } = await sb.from('costeo_recetas').delete().eq('servicio_id', CS_SEL); if(error) return toast('No se pudo quitar: ' + error.message); CS_REC = CS_REC.filter(r => r.servicio_id !== CS_SEL); csRender(); toast('Receta quitada'); }
+    else if(act === 'clr'){ const { error } = await sb.from('costeo_recetas').delete().eq('servicio_id', CS_SEL); if(error) return toast('No se pudo quitar: ' + error.message); CS_REC = CS_REC.filter(r => r.servicio_id !== CS_SEL); csRender(); toast('Consumibles quitados'); }
     else if(act === 'addline'){ const sel = document.getElementById('cs-s-add'), v = sel && sel.value; if(!v) return toast('Elige un consumible primero');
       if(v === '__new'){ CS_TAB = 'ins'; csRender(); const f = root.querySelector('[data-k="new|n"]'); if(f) f.focus(); return; }
       const n = await csAddLineas(CS_SEL, [{ consumible_id:v, cantidad:null }]); csRender(); if(n > 0) toast('Agregado: captura la cantidad'); }
@@ -12467,9 +12475,9 @@ function csBind(){
     else if(act === 'sinc'){ CS_SINC = !CS_SINC; if(CS_SINC) CS_CF = ''; csRender(); }
     else if(act === 'kit'){ const have = new Set(CS_REC.filter(r => r.servicio_id === CS_SEL).map(r => r.consumible_id)), falta = [], items = [];
       CS_KIT.forEach(([nom, c]) => { const i = CS_INS.find(x => x.nombre.toLowerCase() === nom.toLowerCase()); if(!i){ falta.push(nom); return; } if(!have.has(i.id)) items.push({ consumible_id:i.id, cantidad:c }); });
-      const n = await csAddLineas(CS_SEL, items); csRender(); if(n >= 0) toast(n ? 'Kit base agregado (' + n + ' consumibles)' : (falta.length ? 'No encontré en el catálogo: ' + falta.join(', ') : 'El kit base ya estaba en la receta')); }
+      const n = await csAddLineas(CS_SEL, items); csRender(); if(n >= 0) toast(n ? 'Kit base agregado (' + n + ' consumibles)' : (falta.length ? 'No encontré en el catálogo: ' + falta.join(', ') : 'El kit base ya estaba en el procedimiento')); }
     else if(act === 'delins'){ const i = csInsBy(a), n = new Set(CS_REC.filter(r => r.consumible_id === a).map(r => r.servicio_id)).size;
-      if(n) return toast('No se puede quitar: lo usan ' + n + (n === 1 ? ' receta' : ' recetas'));
+      if(n) return toast('No se puede quitar: lo usan ' + n + (n === 1 ? ' procedimiento' : ' procedimientos'));
       if(!(await confirmarAsync({ titulo:'¿Eliminar consumible?', mensaje:`“${i ? i.nombre : ''}” se quitará del catálogo.`, textoConfirmar:'Eliminar' }))) return;
       const { error } = await sb.from('costeo_consumibles').delete().eq('id', a); if(error) return toast('No se pudo eliminar: ' + error.message); CS_INS = CS_INS.filter(x => x.id !== a); csRender(); toast('Consumible eliminado'); }
     else if(act === 'psinc'){ CS_PSINC = !CS_PSINC; csRender(); }
