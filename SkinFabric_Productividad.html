@@ -3436,7 +3436,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.11.23-128';
+const APP_VERSION = 'v2026.11.23-129';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 
@@ -3707,7 +3707,7 @@ function entrarAlShell(perfil){
   document.getElementById('nav-btn-gastos').style.display = showGastos ? '' : 'none';
   document.getElementById('nav-btn-inv').style.display = (perfil.rol === 'admin' || perfil.rol === 'recepcion') ? '' : 'none';   // Inventario: admin (edita) y recepción (solo consulta)
   document.getElementById('nav-btn-rent').style.display = (perfil.rol === 'admin' || perfil.permisos?.puede_ver_rentabilidad === true) ? '' : 'none';   // Rentabilidad de farmacia: admin y quien tenga el permiso puede_ver_rentabilidad (solo lectura)
-  document.getElementById('nav-btn-costeo').style.display = (perfil.rol === 'admin' && perfil.permisos?.puede_costeo_skin === true) ? '' : 'none';   // Costeo Skin: solo admin con el permiso puede_costeo_skin (Dani)
+  document.getElementById('nav-btn-costeo').style.display = perfil.permisos?.puede_costeo_skin === true ? '' : 'none';   // Costeo Skin: quien tenga el permiso puede_costeo_skin (se da en Configuración)
   document.getElementById('nav-btn-nominas').style.display = (perfil.rol === 'admin' || esCont) ? '' : 'none';   // Nóminas: admin (edita) y contabilidad (solo consulta)
   document.getElementById('nav-btn-comisiones').style.display = showComisiones ? '' : 'none';
   document.getElementById('btn-config-header').style.display = showConfig ? 'inline-flex' : 'none';
@@ -10742,6 +10742,7 @@ async function renderConfigPersonal(){
         <label class="perm-chip cfg-p-productos-wrap ${p.permisos?.puede_alta_productos ? 'on' : ''}" title="Puede dar de alta productos de farmacia (solo eso en Configuración, sin editar)"><input type="checkbox" class="cfg-p-productos" ${p.permisos?.puede_alta_productos ? 'checked':''}/><span class="ico">🛒</span>Productos</label>
         <label class="perm-chip cfg-p-editprod-wrap ${p.permisos?.puede_editar_productos ? 'on' : ''}" title="Puede editar el catálogo de farmacia: cambiar precios y activar/desactivar productos (no eliminar)"><input type="checkbox" class="cfg-p-editprod" ${p.permisos?.puede_editar_productos ? 'checked':''}/><span class="ico">✏️</span>Editar productos</label>
         <label class="perm-chip cfg-p-cargainv-wrap ${p.permisos?.puede_cargar_inventario ? 'on' : ''}" title="Puede cargar el reporte de inventario (botón Cargar base en Inventario)"><input type="checkbox" class="cfg-p-cargainv" ${p.permisos?.puede_cargar_inventario ? 'checked':''}/><span class="ico">📦</span>Cargar inventario</label>
+        <label class="perm-chip cfg-p-costeo-wrap ${p.permisos?.puede_costeo_skin ? 'on' : ''}" title="Puede ver y editar Costeo Skin (consumibles, costos y consumibles por procedimiento)"><input type="checkbox" class="cfg-p-costeo" ${p.permisos?.puede_costeo_skin ? 'checked':''}/><span class="ico">🧴</span>Costeo Skin</label>
         <label class="perm-chip cfg-p-papelera-wrap ${p.permisos?.puede_eliminar_papelera !== false ? 'on' : ''}"><input type="checkbox" class="cfg-p-papelera" ${p.permisos?.puede_eliminar_papelera !== false ? 'checked':''}/><span class="ico">🗑️</span>Papelera</label>
       </div>
       <div class="cardC-right">
@@ -10780,6 +10781,7 @@ async function renderConfigPersonal(){
         puede_alta_productos: card.querySelector('.cfg-p-productos').checked,
         puede_editar_productos: card.querySelector('.cfg-p-editprod').checked,
         puede_cargar_inventario: card.querySelector('.cfg-p-cargainv').checked,
+        puede_costeo_skin: card.querySelector('.cfg-p-costeo').checked,
       };
       const ok = await catalogoActualizar('personal', id, { permisos });
       if(ok) toast('✓ Guardado');
@@ -12165,7 +12167,7 @@ async function nomCopiar(txt){
 
 
 // ============================================================
-// Módulo: Costeo Skin (solo admin con permisos.puede_costeo_skin · lo ve únicamente Dani)
+// Módulo: Costeo Skin (quien tenga permisos.puede_costeo_skin: ve y edita todo)
 //  · Consumible: precio de compra de la presentación ÷ cuánto rinde = costo por unidad de uso.
 //  · Consumibles por procedimiento: qué consumibles y cuánta cantidad lleva una sesión de cada servicio del catálogo.
 //  · Cobro de referencia: el promedio real de los últimos 90 días (sin $0 ni "no vino"), editable a mano.
@@ -12176,7 +12178,7 @@ const CS_CATS = ["Protección personal", "Material de curación", "Jeringas y ag
 const CS_KIT = [["Guantes de nitrilo", 1], ["Gasas estériles 10x10", 4], ["Alcohol isopropílico 70%", 5], ["Papel de camilla", 0.6], ["Torundas de algodón", 2], ["Toalla desechable", 1]];   // kit base de cabina: [nombre del consumible, cantidad de arranque]
 let CS_INS = [], CS_REC = [], CS_COB = {}, CS_CFG = { margen_objetivo:65, merma_pct:0 }, CS_ST = {}, CS_PROD = null;
 let CS_TAB = 'ins', CS_SEL = null, CS_CF = '', CS_SINC = false, CS_QI = '', CS_QRY = '', CS_SOLO = false, CS_RAW = {}, CS_NEW = { cat:CS_CATS[0], u:'pza' }, CS_CARGADO = false, CS_CARGANDO = false, CS_PVER = false, CS_PSINC = false;
-const csPuede = () => MI_PERFIL?.rol === 'admin' && MI_PERFIL?.permisos?.puede_costeo_skin === true;
+const csPuede = () => MI_PERFIL?.permisos?.puede_costeo_skin === true;
 const csRoot = () => document.getElementById('app-screen-costeo');
 const csMx = n => (n < 0 ? '−' : '') + '$' + Math.round(Math.abs(n)).toLocaleString('es-MX');
 const csMx2 = n => (n < 0 ? '−' : '') + '$' + Math.abs(n).toLocaleString('es-MX', { minimumFractionDigits:2, maximumFractionDigits:2 });
