@@ -3435,7 +3435,7 @@ table.cpd-tx tr.sin td{color:var(--g4)} table.cpd-tx tr.sin td.pac{color:var(--g
 // ============================================================
 // Skin Fabric Consultas — cliente Supabase real
 // ============================================================
-const APP_VERSION = 'v2026.11.23-132';
+const APP_VERSION = 'v2026.11.23-133';
 console.log('[SkinFabric] versión', APP_VERSION);
 document.getElementById('app-version-tag').textContent = APP_VERSION;
 
@@ -12796,7 +12796,7 @@ function invCargaVista(c){
   const t = new Date(c.corte).getTime(), u = INV_ULT ? new Date(INV_ULT.corte).getTime() : null;
   const viejo = u != null && t < u, igual = u != null && t === u;
   const msg = viejo ? invCajaMsg('r', `⛔ Este reporte (${esc2(invFmtCorte(c.corte))}) es más viejo que la última carga (${esc2(invFmtCorte(INV_ULT.corte))}). Carga uno más reciente.`)
-    : igual ? invCajaMsg('a', 'ℹ️ Este reporte ya se cargó. No hay nada que actualizar.') : '';
+    : igual ? invCajaMsg('a', 'ℹ️ Este reporte ya se cargó: las existencias no cambian. Puedes volver a cargarlo solo para actualizar los costos.') : '';
   invCargaPintar('⬆ Cargar base de inventario', `
     <div class="ivc-grid">
       <div class="ivc-k"><span>Archivo</span><b title="${esc2(c.archivo)}">${esc2(c.archivo)}</b></div>
@@ -12805,7 +12805,7 @@ function invCargaVista(c){
       <div class="ivc-k"><span>Piezas en el reporte</span><b>${pzas}</b></div>
     </div>${msg}
     <p class="ivc-nota">Al cargar, la existencia de cada producto queda igual al reporte, menos lo que se haya vendido en la app después de la hora del reporte. Cada ajuste queda en Movimientos y el dueño de cada producto se toma de las hojas DR. y DRA.</p>`,
-    `<button class="appbtn appbtn-s" type="button" data-ivc="cerrar" style="background:var(--g1);color:var(--g6);box-shadow:none">Cancelar</button><button class="appbtn appbtn-p" type="button" id="ivc-ok" data-ivc="aplicar"${viejo || igual ? ' disabled' : ''}>Cargar inventario</button>`);
+    `<button class="appbtn appbtn-s" type="button" data-ivc="cerrar" style="background:var(--g1);color:var(--g6);box-shadow:none">Cancelar</button><button class="appbtn appbtn-p" type="button" id="ivc-ok" data-ivc="aplicar"${viejo ? ' disabled' : ''}>${igual ? 'Actualizar costos' : 'Cargar inventario'}</button>`);
 }
 async function invCargaArchivo(file){
   if(!file) return;
@@ -12834,12 +12834,18 @@ async function invCargaAplicar(){
   }
 }
 function invCargaResultado(r, c){
+  if(r.ya_aplicado && r.solo_costos){
+    invCargaPintar('✅ Costos actualizados', `<p class="ivc-sub">Reporte del <b>${esc2(invFmtCorte(r.corte || c.corte))}</b></p>
+      <div class="ivc-kpis"><div class="ivc-kpi t"><b>${r.costos_actualizados || 0}</b><span>productos con costo actualizado</span></div></div>
+      ${r.costos_actualizados ? '' : invCajaMsg('g', '👌 Los costos del sistema ya coincidían con el reporte.')}
+      <p class="ivc-nota">Las existencias no se tocaron.</p>`,
+      `<button class="appbtn appbtn-s" type="button" data-ivc="cerrar" style="background:var(--g1);color:var(--g6);box-shadow:none">Cerrar</button><button class="appbtn appbtn-p" type="button" data-ivc="excel">⬇ Descargar Excel actualizado</button>`); return; }
   if(r.ya_aplicado){ invCargaPintar('Reporte ya cargado', invCajaMsg('a', 'ℹ️ Este reporte (' + esc2(invFmtCorte(r.corte || c.corte)) + ') ya estaba cargado. No se cambió nada.'), invBtnCerrar); return; }
   const camb = r.cambios || [], adv = r.advertencias || [], docs = r.por_doctor || [];
   const k = (n, l, cls) => `<div class="ivc-kpi ${cls || ''}"><b>${n}</b><span>${l}</span></div>`;
   invCargaPintar('✅ Inventario actualizado', `
     <p class="ivc-sub">Reporte del <b>${esc2(invFmtCorte(r.corte || c.corte))}</b>${INV_ULT && INV_ULT.usuario_nombre ? ' · cargó <b>' + esc2(INV_ULT.usuario_nombre) + '</b>' : ''}</p>
-    <div class="ivc-kpis">${k(r.ajustados || 0, 'productos ajustados', 'n')}${k(r.productos_con_existencia || 0, 'productos con existencia', 't')}${k((r.piezas_totales || 0).toLocaleString('es-MX'), 'piezas en total', 'a')}${r.duenos_cambiados ? k(r.duenos_cambiados, 'cambiaron de dueño', 'p') : ''}</div>
+    <div class="ivc-kpis">${k(r.ajustados || 0, 'productos ajustados', 'n')}${k(r.productos_con_existencia || 0, 'productos con existencia', 't')}${k((r.piezas_totales || 0).toLocaleString('es-MX'), 'piezas en total', 'a')}${r.duenos_cambiados ? k(r.duenos_cambiados, 'cambiaron de dueño', 'p') : ''}${k(r.costos_actualizados || 0, 'costos actualizados', 'n')}</div>
     ${docs.length ? `<div class="ivc-docs">${docs.map(d => `<span><b>${esc2(d.doctor)}</b> · ${d.productos} productos · ${d.piezas} pzas</span>`).join('')}</div>` : ''}
     ${camb.length ? `<h4 class="ivc-h">Cambios aplicados</h4><div class="ivc-tw"><table class="ivc-t"><thead><tr><th>Producto</th><th class="n">Antes</th><th class="n">Ahora</th></tr></thead><tbody>${camb.map(x => `<tr><td>${esc2(x.producto)}</td><td class="n">${x.antes}</td><td class="n"><b>${x.despues}</b></td></tr>`).join('')}</tbody></table></div>` : invCajaMsg('g', '👌 El sistema ya coincidía con el reporte: no hubo que ajustar ningún producto.')}
     ${adv.length ? `<h4 class="ivc-h">Avisos</h4>${invCajaMsg('a', '<ul>' + adv.map(a => '<li>' + esc2(a.texto || a) + '</li>').join('') + '</ul>')}` : ''}`,
